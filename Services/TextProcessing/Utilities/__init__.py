@@ -1,0 +1,2 @@
+import Util.ModuleRegistration
+Util.ModuleRegistration.importAllInDirectory(__file__)

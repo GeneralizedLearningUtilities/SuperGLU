@@ -1,0 +1,15 @@
+|add|+|append|supply|lend|impart|bestow|contribute|bring|add together|total|tot|tot up|sum|sum up|summate|tote up|tally|add up|alter|totaled|summed|summ|
+|subtract|-|deduct|take off|minus|
+|calculate|compute|cypher|figure|reckon|work out|
+|belong|go|be|consist|dwell|exist|lie|lie in|include|included|within|
+|union|pairing|conjugation|sum|join|uniting|combination|combining|compounding|
+|remove|eliminate|
+|divide|/|dissension|split|fraction|division|
+|multiply|multiplication|times|mult|
+|intersect|cross|come across|encounter|meet|run across|run into|
+|and|&|with|along|
+|or|either|
+|some|part of|piece of|part|some of|
+|no|none|nothing|nada|zero|0|
+|one|single|unique|1|
+|two|both|twice|pair|2|

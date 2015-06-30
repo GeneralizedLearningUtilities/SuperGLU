@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+	</head>
+	
+	<body>
+		<h2> This is the test page for JavaScript code 'Serialization' </h2>
+		
+		<h4> -- Please check testing result on JavaScript console window </h4>
+		<h4> -- Note that 'serialization.js' and 'uuid.js' should be placed in same place as this file</h4>
+		
+		
+		<!-- Import serialization.js -->
+		<script type="text/javascript" src="../serialization.js"></script>
+		
+		<!-- Import uuid.js for UUID generator -->
+		<script type="text/javascript" src="../uuid.js"></script>
+		
+		<!-- Test body -->
+		<script type="text/javascript">
+		
+		//Function test
+		
+		console.log("Testing...");
+		
+		//1. Object -> Token -> Serializable String
+		
+		var obj1 = new Serializable();
+		console.log("1. The original object is: ");
+		console.log(obj1);
+		
+		var token1 = tokenizeObject(obj1);
+		console.log("2. The Tokenized token is: ");
+		console.log(token1);
+		
+		token1._data["name"] = "LIDA";
+		token1._data["version"] = "1.2.0";
+		token1._data["status"] = "test";
+		
+		var str1 = makeSerialized(token1);
+		console.log("3. The packed string is: ");
+		console.log(str1);
+		
+		//console.log("The Serializable string is: " + str1);
+		
+		//2. Serializable String -> Token -> Object
+		
+		var token2 = makeNative(str1);
+		console.log("4. The unpacked token is: ");
+		console.log(token2);
+		
+		var obj2 = untokenizeObject(token2);
+		
+		console.log("5. The Un-Tokenized Objects is: ");
+		console.log(obj2);
+		
+		console.log("End of test.");
+		
+		
+		</script>
+
+	</body>
+
+</html>
