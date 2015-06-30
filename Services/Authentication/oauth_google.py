@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import types
 
-from Util.PythonDirectLibs.flask_oauth_fork.flask_oauth import OAuth
+from SuperGLU.Util.PythonDirectLibs.flask_oauth_fork.flask_oauth import OAuth
 
 GOOGLE_AUTHENTICATION = None
 GOOGLE_CLIENT_ID = None

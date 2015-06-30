@@ -1,8 +1,8 @@
 import unittest
 import uuid
-from Util.Paths import getFileDir, getBasePath
-from Util.JSInterpreter import executeJS
-from Util.Serialization import (Serializable, StorageToken,
+from SuperGLU.Util.Paths import getFileDir, getBasePath
+from SuperGLU.Util.JSInterpreter import executeJS
+from SuperGLU.Util.Serialization import (Serializable, StorageToken,
     makeSerialized, makeNative, tokenizeObject, untokenizeObject,
     nativizeObject, serializeObject, VALID_SERIAL_FORMATS)
 

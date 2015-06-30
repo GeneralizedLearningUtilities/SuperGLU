@@ -1,5 +1,5 @@
 import unittest.case
-from SKO_Architecture.ClassifierEngine import (ANDCondition, AllInSetCondition,
+from SuperGLU.Core.ClassifierEngine import (ANDCondition, AllInSetCondition,
     AtomicClassifierCondition, ClassifierCondition, ClassifierEngine,
     ClassifierSpecification, CompositeClassifierCondition,
     DataClassifierCondition, DateClassifierCondition, DateRangeCondition,

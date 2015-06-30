@@ -1,7 +1,7 @@
 import re
 import random
-from AutoTutor_Interpreter.Utilities.ASATSerialization import ASATSerializable
-from Util.Serialization import NamedSerializable, Serializable, tokenizeObject, untokenizeObject
+from SuperGLU.Services.TextProcessing.Utilities.ASATSerialization import ASATSerializable
+from SuperGLU.Util.Serialization import NamedSerializable, Serializable, tokenizeObject, untokenizeObject
 
 
 class BaseSpeechType(object):

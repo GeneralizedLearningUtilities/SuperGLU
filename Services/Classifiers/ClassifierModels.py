@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 from sklearn.linear_model import LinearRegression, Ridge
 from sklearn import svm
-from Classifiers.Metrics import calcR2
-from Classifiers.ModelFeature import FeatureSelector, ModelFeature
+from SuperGLU.Classifiers.Metrics import calcR2
+from SuperGLU.Classifiers.ModelFeature import FeatureSelector, ModelFeature
 
 # Builder for Classifires
 #------------------------------

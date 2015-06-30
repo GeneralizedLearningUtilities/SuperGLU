@@ -4,8 +4,8 @@ import math
 import operator
 import re
 import sys
-import AWS_Core_Services.TextProcessing.inflect
-from Util.ErrorHandling import logError, logWarning
+import SuperGLU.Services.TextProcessing.inflect
+from SuperGLU.Util.ErrorHandling import logError, logWarning
 from pyparsing import (Literal, CaselessLiteral, Word, Combine, Group,
                        Keyword, CaselessKeyword, Empty, ParseException,
                        Optional, ZeroOrMore, Forward, nums, alphas,

@@ -1,5 +1,5 @@
 import os
-from Util.Paths import getBasePath
+from SuperGLU.Util.Paths import getBasePath
 
 class RegexProcessing(object):
     DELIM = '|'

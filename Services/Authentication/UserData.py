@@ -2,8 +2,8 @@
 from datetime import datetime
 from logging import getLogger
 
-from Util.Serialization import Serializable, StorageToken, untokenizeObject
-from Util.SerializationDB import DBSerialized
+from SuperGLU.Util.Serialization import Serializable, StorageToken, untokenizeObject
+from SuperGLU.Util.SerializationDB import DBSerialized
 
 LOGGER = getLogger(__name__)
 

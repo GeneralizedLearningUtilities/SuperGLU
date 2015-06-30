@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
 
-from Util.Serialization import Serializable, StorageToken, untokenizeObject
-from Util.SerializationDB import DBSerialized
-from SKO_Architecture.FIPA.SpeechActs import (INFORM_ACT, REQUEST_ACT,
+from SuperGLU.Util.Serialization import Serializable, StorageToken, untokenizeObject
+from SuperGLU.Util.SerializationDB import DBSerialized
+from SuperGLU.Core.FIPA.SpeechActs import (INFORM_ACT, REQUEST_ACT,
     NOT_UNDERSTOOD_ACT, CONFIRM_ACT, DISCONFIRM_ACT)
-from SKO_Architecture.Messaging import Message
-from SKO_Architecture.MessagingGateway import BaseService
-from AWS_Core_Services.Authentication.UserData import UserData, UserContext
+from SuperGLU.Core.Messaging import Message
+from SuperGLU.Core.MessagingGateway import BaseService
+from SuperGLU.Services.Authentication.UserData import UserData, UserContext
 
 HAS_USER_VERB = "HasUser"
 HAS_CONTEXT_VERB = "HasContext"

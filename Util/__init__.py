@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import Util.ModuleRegistration
+import SuperGLU.Util.ModuleRegistration
 
 # Check if file name is available
 try:
@@ -10,9 +10,9 @@ except NameError:
 
 # Populate canonical file-named __all__ first, then duplicate
 if fileDefined:
-    __all__ = Util.ModuleRegistration.importAllInPackage("Util", __file__)
+    __all__ = SuperGLU.Util.ModuleRegistration.importAllInPackage("SuperGLU.Util", __file__)
 else:
-    __all__ = Util.__all__
+    __all__ = SuperGLU.Util.__all__
     
 # Cleanup
 del fileDefined

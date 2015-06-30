@@ -1,7 +1,6 @@
 import unittest
-import SKO_Architecture.Tests.ClassifierEngine_UnitTests as ClassifierEngine_UnitTests
-import SKO_Architecture.Tests.Messaging_UnitTests as Messaging_UnitTests
-import SKO_Architecture.Tests.TaskManager_UnitTests as TaskManager_UnitTests
+import SuperGLU.Core.Tests.ClassifierEngine_UnitTests as ClassifierEngine_UnitTests
+import SuperGLU.Core.Tests.Messaging_UnitTests as Messaging_UnitTests
 
 def TestSuite():
     """

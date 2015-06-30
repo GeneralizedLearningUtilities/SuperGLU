@@ -13,12 +13,12 @@ from functools import wraps
 
 from threading import Thread
 
-from Util.ErrorHandling import logError, logWarning
-from Util.Serialization import serializeObject
-from Util.SerializationDB import SerializableDBWrapper, SerializableMongoWrapper
-from SKO_Architecture.MessagingGateway import HTTPMessagingGateway
-from SKO_Architecture.Messaging import Message
-from AWS_Core_Services.LoggingService.LoggingService import CSVLoggingService, BadDialogCSVLogger
+from SuperGLU.Util.ErrorHandling import logError, logWarning
+from SuperGLU.Util.Serialization import serializeObject
+from SuperGLU.Util.SerializationDB import SerializableDBWrapper, SerializableMongoWrapper
+from SuperGLU.Core.MessagingGateway import HTTPMessagingGateway
+from SuperGLU.Core.Messaging import Message
+from SuperGLU.Core.LoggingService.LoggingService import CSVLoggingService, BadDialogCSVLogger
 
 DEBUG_MODE = False
 DEBUG_ON_VM = False

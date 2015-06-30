@@ -6,7 +6,7 @@ Requires: Java installation, Rhino package
 import io
 import os
 import subprocess
-from Util.ErrorHandling import tryRaiseError
+from SuperGLU.Util.ErrorHandling import tryRaiseError
 
 def _find_js_cmd():
     #Easiest - they just told us the command to use

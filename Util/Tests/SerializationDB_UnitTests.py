@@ -1,12 +1,12 @@
 import unittest
 
-from Util.Serialization import (
+from SuperGLU.Util.Serialization import (
     Serializable, 
     untokenizeObject, 
     tokenizeObject,
 )
 
-from Util.SerializationDB import (
+from SuperGLU.Util.SerializationDB import (
     SerializableDBWrapper, 
     SerializableMongoWrapper, 
     DBSerialized,
@@ -14,7 +14,7 @@ from Util.SerializationDB import (
     _flushLazyWrappers
 )
 
-from Util.Attr import get_prop
+from SuperGLU.Util.Attr import get_prop
 
 from AutoTutor_Interpreter.StudentModel.StudentKnowledge import (
     DialogSession,

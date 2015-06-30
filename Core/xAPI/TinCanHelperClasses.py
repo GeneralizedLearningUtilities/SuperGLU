@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from abc import abstractmethod
-from Util.Serialization import Serializable
+from SuperGLU.Util.Serialization import Serializable
 
 class TinCanBaseSerializable(Serializable):
     """ Base class for tin can serializables """

@@ -3,8 +3,8 @@ import importlib
 import os
 import pkgutil
 import sys
-import Util.ErrorHandling
-UTIL_PACKAGE_NAME = "Util"
+import SuperGLU.Util.ErrorHandling
+UTIL_PACKAGE_NAME = "SuperGLU.Util"
 
 PENDING_IMPORTS = []
 
@@ -12,9 +12,9 @@ def importAllInDirectory(fileName):
     """
     Import everything in the same directory as the given file
     """
-    import Util.Paths
+    import SuperGLU.Util.Paths
     dirName = os.path.dirname(fileName)
-    moduleName = Util.Paths.findCanonicalPackage(dirName)
+    moduleName = SuperGLU.Util.Paths.findCanonicalPackage(dirName)
     return importAllInPackage(moduleName, fileName)
 
 def importAllInPackage(packageName=UTIL_PACKAGE_NAME, fileName=None):

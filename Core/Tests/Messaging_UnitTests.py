@@ -3,8 +3,8 @@ import unittest
 from uuid import uuid4
 from time import time, sleep
 
-from SKO_Architecture.FIPA.SpeechActs import CONFIRM_ACT
-from SKO_Architecture.Messaging import (Message, INFORM_ACT)
+from SuperGLU.Core.FIPA.SpeechActs import CONFIRM_ACT
+from SuperGLU.Core.Messaging import (Message, INFORM_ACT)
 
 class MessageTest(unittest.TestCase):
 

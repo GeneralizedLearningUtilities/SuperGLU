@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import operator
-from Util.Serialization import NamedSerializable
+from SuperGLU.Util.Serialization import NamedSerializable
 
 # Specific Features
 class ModelFeature(NamedSerializable):

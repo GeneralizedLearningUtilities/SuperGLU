@@ -1,6 +1,6 @@
 import unittest
 
-from Util.Attr import get_prop
+from SuperGLU.Util.Attr import get_prop
 
 class TestGetProp(unittest.TestCase):
     def setUp(self):

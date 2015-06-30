@@ -7,12 +7,12 @@ import pymongo
 import unittest
 from mongoengine.connection import connect, disconnect
 
-from AWS_Core_Services.StorageService.Mongo_Storage_Service import (MongoStorageService,
+from SuperGLU.Services.StorageService.Mongo_Storage_Service import (MongoStorageService,
     Bucket, StorageObject)
-from AWS_Core_Services.StorageService.Storage_Service_Interface import (BaseStorageService,
+from SuperGLU.Services.StorageService.Storage_Service_Interface import (BaseStorageService,
     DATA_TYPE_DB, DATA_TYPE_MEDIA)
-from SKO_Architecture.FIPA.SpeechActs import INFORM_ACT, INFORM_REF_ACT, REQUEST_ACT
-from SKO_Architecture.Messaging import Message
+from SuperGLU.Core.FIPA.SpeechActs import INFORM_ACT, INFORM_REF_ACT, REQUEST_ACT
+from SuperGLU.Core.Messaging import Message
 
 
 class MongoStorageServiceUnitTests(unittest.TestCase):

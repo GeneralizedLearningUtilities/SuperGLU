@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 import csv
 from datetime import datetime
-from SKO_Architecture.Messaging import Message
-from SKO_Architecture.MessagingGateway import BaseService
+from SuperGLU.Core.Messaging import Message
+from SuperGLU.Core.MessagingGateway import BaseService
 
 
 class BaseLoggingService(BaseService):

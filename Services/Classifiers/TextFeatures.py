@@ -4,7 +4,7 @@ import math
 import nltk
 import string
 import re
-from Classifiers.ModelFeature import (ModelFeature, FeatureSelector,
+from SuperGLU.Classifiers.ModelFeature import (ModelFeature, FeatureSelector,
     InSequenceFeature, OrderFeature)
 
 

@@ -2,7 +2,7 @@
 import datetime
 import re
 from urlparse import urlparse
-from Util.Serialization import Serializable
+from SuperGLU.Util.Serialization import Serializable
 
 class ClassifierEngine(Serializable):
     """

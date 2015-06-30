@@ -1,6 +1,6 @@
 import unittest
-import Util.Tests.TestGenerator_UnitTests as TestGenerator_UnitTests
-import Util.Tests.Serialization_UnitTests as Serialization_UnitTests
+import SuperGLU.Util.Tests.TestGenerator_UnitTests as TestGenerator_UnitTests
+import SuperGLU.Util.Tests.Serialization_UnitTests as Serialization_UnitTests
 
 def TestSuite():
     """

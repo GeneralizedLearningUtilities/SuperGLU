@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 import unittest
 
-from Util.Serialization import (
+from SuperGLU.Util.Serialization import (
     Serializable,
     tokenizeObject)
 
-from Util.SerializationDB import (
+from SuperGLU.Util.SerializationDB import (
     SerializableDBWrapper,
     SerializableMongoWrapper,
     ReadWriteChecking,
     _flushLazyWrappers)
 
-from Services.Authentication.UserData import (
+from SuperGLU.Services.Authentication.UserData import (
     UserContext, 
     UserData)
 

@@ -1,6 +1,6 @@
 import types
 import unittest
-from Util.TestGenerator import UnitTestTemplateGenerator, breakStringIntoLines, \
+from SuperGLU.Util.TestGenerator import UnitTestTemplateGenerator, breakStringIntoLines, \
     getBestSeparatorIndex, getLeadingSpaces
 
 class TestGenerator_FunctionsTest(unittest.TestCase):

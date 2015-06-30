@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from SKO_Architecture.xAPI.TinCanHelperClasses import TinCanBaseSerializable
+from SuperGLU.Core.xAPI.TinCanHelperClasses import TinCanBaseSerializable
 
 class TinCanVerb(TinCanBaseSerializable):
 

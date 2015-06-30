@@ -6,14 +6,14 @@ import traceback
 from random import randint
 from unidecode import unidecode
 
-from Services.TextProcessing.Speech_Processing import (FormulaStringParser,
+from SuperGLU.Services.TextProcessing.Speech_Processing import (FormulaStringParser,
     PhraseMapping, NumbersMapping)
-from Services.StorageService.Storage_Service_Interface import STORAGE_SERVICE_NAME, BaseStorageService
-from Core.FIPA.SpeechActs import REQUEST_ACT, INFORM_ACT, DISCONFIRM_ACT
-from Core.Messaging import Message
-from Core.MessagingGateway import BaseService
-from Util.ErrorHandling import logError, logWarning
-from Util.Paths import getBasePath
+from SuperGLU.Services.StorageService.Storage_Service_Interface import STORAGE_SERVICE_NAME, BaseStorageService
+from SuperGLU.Core.FIPA.SpeechActs import REQUEST_ACT, INFORM_ACT, DISCONFIRM_ACT
+from SuperGLU.Core.Messaging import Message
+from SuperGLU.Core.MessagingGateway import BaseService
+from SuperGLU.Util.ErrorHandling import logError, logWarning
+from SuperGLU.Util.Paths import getBasePath
 
 TEXT_KEY = 'text'
 VOICE_KEY = 'voice'

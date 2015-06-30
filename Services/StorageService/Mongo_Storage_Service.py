@@ -8,10 +8,10 @@ import uuid
 from mongoengine import (connect, Document, DictField, MapField, 
                          ListField, StringField, IntField, URLField,
                          DynamicField)
-from Services.StorageService.Storage_Service_Interface import (BaseStorageService,
+from SuperGLU.Services.StorageService.Storage_Service_Interface import (BaseStorageService,
     DATA_TYPE_DB, DATA_TYPE_MEDIA, SERIALIZABLE_DATA_TYPE)
-from Util.ErrorHandling import logError, logWarning
-from Util.Serialization import nativizeObject, serializeObject, NamedSerializable, JSON_FORMAT
+from SuperGLU.Util.ErrorHandling import logError, logWarning
+from SuperGLU.Util.Serialization import nativizeObject, serializeObject, NamedSerializable, JSON_FORMAT
 
 VALID_STORAGE_TYPES = (DATA_TYPE_DB, DATA_TYPE_MEDIA)
 CONTENT_TYPES = {'image/jpeg': 'jpg',

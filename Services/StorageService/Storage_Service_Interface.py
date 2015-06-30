@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
-from Core.FIPA.SpeechActs import (INFORM_ACT, INFORM_REF_ACT, 
+from SuperGLU.Core.FIPA.SpeechActs import (INFORM_ACT, INFORM_REF_ACT, 
     CONFIRM_ACT, DISCONFIRM_ACT, REQUEST_ACT,)
-from Core.Messaging import Message
-from Core.MessagingGateway import BaseService
-from Util.ErrorHandling import logError, logWarning
-from Util.Serialization import (Serializable, NamedSerializable,
+from SuperGLU.Core.Messaging import Message
+from SuperGLU.Core.MessagingGateway import BaseService
+from SuperGLU.Util.ErrorHandling import logError, logWarning
+from SuperGLU.Util.Serialization import (Serializable, NamedSerializable,
     nativizeObject, serializeObject, JSON_FORMAT)
 
 STORAGE_SERVICE_NAME = "StorageService"

@@ -1,3 +1,3 @@
 # -*- coding: utf-8 -*-
-import Util.ModuleRegistration
-Util.ModuleRegistration.importAllInDirectory(__file__)
+import SuperGLU.Util.ModuleRegistration
+SuperGLU.Util.ModuleRegistration.importAllInDirectory(__file__)
