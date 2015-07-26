@@ -1,5 +1,5 @@
 ﻿/**
- * UUID.js: The RFC-compliant UUID generator for JavaScript.
+ * uuid.js: The RFC-compliant UUID generator for JavaScript.
  *
  * @fileOverview
  * @author  LiosK
@@ -283,7 +283,7 @@ UUID._getTimeFieldValues = function(time) {
 // Misc. Component {{{
 
 /**
- * Reinstalls {@link UUID.generate} method to emulate the interface of UUID.js version 2.x.
+ * Reinstalls {@link UUID.generate} method to emulate the interface of uuid.js version 2.x.
  * @since 3.1
  * @deprecated Version 2.x. compatible interface is not recommended.
  */
@@ -296,7 +296,7 @@ UUID.makeBackwardCompatible = function() {
 };
 
 /**
- * Preserves the value of 'UUID' global variable set before the load of UUID.js.
+ * Preserves the value of 'UUID' global variable set before the load of uuid.js.
  * @since 3.2
  * @type object
  */

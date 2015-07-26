@@ -84,14 +84,14 @@ untokenizeObject = Serialization.untokenizeObject;
 Zet.declare('Message', {
     // Base class for a SKO Group
     superclass : Serialization.Serializable,
-    defineBody : function(that){
+    defineBody : function(self){
         // Private Properties
 
         // Public Properties
         
-        that.construct = function construct(actor, verb, obj, result, speechAct, 
+        self.construct = function construct(actor, verb, obj, result, speechAct, 
                                             context, timestamp, anId){
-            that.inherited(construct, [anId]);
+            self.inherited(construct, [anId]);
             if (typeof actor === "undefined") {actor = null;}
             if (typeof verb === "undefined") {verb = null;}
             if (typeof obj === "undefined") {obj = null;}
@@ -99,115 +99,115 @@ Zet.declare('Message', {
             if (typeof speechAct === "undefined") {speechAct = INFORM_ACT;}
             if (typeof context === "undefined") {context = {};}
             if (typeof timestamp === "undefined") {timestamp = null;}
-            that._actor = actor;
-            that._verb = verb;
-            that._obj = obj;
-            that._result = result;
-            that._speechAct = speechAct;
-            that._context = context;
-            that._timestamp = timestamp;
+            self._actor = actor;
+            self._verb = verb;
+            self._obj = obj;
+            self._result = result;
+            self._speechAct = speechAct;
+            self._context = context;
+            self._timestamp = timestamp;
 		};
         
-        that.getActor = function getActor(){
-            return that._actor;
+        self.getActor = function getActor(){
+            return self._actor;
         };
-        that.setActor = function setActor(value){
-            that._actor = value;
-        };
-        
-        that.getVerb = function getVerb(){
-            return that._verb;
-        };
-        that.setVerb = function setVerb(value){
-            that._verb = value;
+        self.setActor = function setActor(value){
+            self._actor = value;
         };
         
-        that.getObject = function getObject(){
-            return that._obj;
+        self.getVerb = function getVerb(){
+            return self._verb;
         };
-        that.setObject = function setObject(value){
-            that._obj = value;
-        };
-        
-        that.getResult = function getResult(){
-            return that._result;
-        };
-        that.setResult = function setResult(value){
-            that._result = value;
+        self.setVerb = function setVerb(value){
+            self._verb = value;
         };
         
-        that.getSpeechAct = function getSpeechAct(){
-            return that._speechAct;
+        self.getObject = function getObject(){
+            return self._obj;
         };
-        that.setSpeechAct = function setSpeechAct(value){
-            that._speechAct = value;
+        self.setObject = function setObject(value){
+            self._obj = value;
         };
         
-        that.getTimestamp = function getTimestamp(){
-            return that._timestamp;
+        self.getResult = function getResult(){
+            return self._result;
         };
-        that.setTimestamp = function setTimestamp(value){
-            that._timestamp = value;
+        self.setResult = function setResult(value){
+            self._result = value;
+        };
+        
+        self.getSpeechAct = function getSpeechAct(){
+            return self._speechAct;
+        };
+        self.setSpeechAct = function setSpeechAct(value){
+            self._speechAct = value;
+        };
+        
+        self.getTimestamp = function getTimestamp(){
+            return self._timestamp;
+        };
+        self.setTimestamp = function setTimestamp(value){
+            self._timestamp = value;
         };
 
-        that.updateTimestamp = function updateTimestamp(){
-            that._timestamp = new Date().toISOString();
+        self.updateTimestamp = function updateTimestamp(){
+            self._timestamp = new Date().toISOString();
         };
         
-        that.hasContextValue = function hasContextValue(key){
-            return (key in that._context) === true;
+        self.hasContextValue = function hasContextValue(key){
+            return (key in self._context) === true;
         };
 
-        that.getContextKeys = function getContextKeys(){
+        self.getContextKeys = function getContextKeys(){
             var key, keys;
             keys = [];
-            for (key in that._context){
+            for (key in self._context){
                 keys.push(key);
             }
             return keys;
         };
         
-        that.getContextValue = function getContextValue(key, aDefault){
-            if (!(key in that._context)){
+        self.getContextValue = function getContextValue(key, aDefault){
+            if (!(key in self._context)){
                 return aDefault;
             }
-            return that._context[key];
+            return self._context[key];
         };
         
-        that.setContextValue = function setContextValue(key, value){
-            that._context[key] = value;
+        self.setContextValue = function setContextValue(key, value){
+            self._context[key] = value;
         };
         
-        that.delContextValue = function delContextValue(key){
-            delete that._context[key];
+        self.delContextValue = function delContextValue(key){
+            delete self._context[key];
         };
         
-        that.saveToToken = function saveToToken(){
+        self.saveToToken = function saveToToken(){
             var key, token, newContext, hadKey;
-            token = that.inherited(saveToToken);
-            if (that._actor != null){
-                token.setitem(ACTOR_KEY, tokenizeObject(that._actor));
+            token = self.inherited(saveToToken);
+            if (self._actor != null){
+                token.setitem(ACTOR_KEY, tokenizeObject(self._actor));
             }
-            if (that._verb != null){
-                token.setitem(VERB_KEY, tokenizeObject(that._verb));
+            if (self._verb != null){
+                token.setitem(VERB_KEY, tokenizeObject(self._verb));
             }
-            if (that._obj != null){
-                token.setitem(OBJECT_KEY, tokenizeObject(that._obj));
+            if (self._obj != null){
+                token.setitem(OBJECT_KEY, tokenizeObject(self._obj));
             }
-            if (that._result != null){
-                token.setitem(RESULT_KEY, tokenizeObject(that._result));
+            if (self._result != null){
+                token.setitem(RESULT_KEY, tokenizeObject(self._result));
             }
-            if (that._speechAct != null){
-                token.setitem(SPEECH_ACT_KEY, tokenizeObject(that._speechAct));
+            if (self._speechAct != null){
+                token.setitem(SPEECH_ACT_KEY, tokenizeObject(self._speechAct));
             }
-            if (that._timestamp != null){
-                token.setitem(TIMESTAMP_KEY, tokenizeObject(that._timestamp));
+            if (self._timestamp != null){
+                token.setitem(TIMESTAMP_KEY, tokenizeObject(self._timestamp));
             }
             hadKey = false;
             newContext = {};
-            for (key in that._context){
+            for (key in self._context){
                 hadKey = true;
-                newContext[tokenizeObject(key)] = tokenizeObject(that._context[key]);
+                newContext[tokenizeObject(key)] = tokenizeObject(self._context[key]);
             }
             if (hadKey){
                 token.setitem(CONTEXT_KEY, tokenizeObject(newContext));
@@ -215,15 +215,15 @@ Zet.declare('Message', {
             return token;
         };
 
-        that.initializeFromToken = function initializeFromToken(token, context){
-            that.inherited(initializeFromToken, [token, context]);
-            that._actor = untokenizeObject(token.getitem(ACTOR_KEY, true, null), context);
-            that._verb = untokenizeObject(token.getitem(VERB_KEY, true, null), context);
-            that._obj = untokenizeObject(token.getitem(OBJECT_KEY, true, null), context);
-            that._result = untokenizeObject(token.getitem(RESULT_KEY, true, null), context);
-            that._speechAct = untokenizeObject(token.getitem(SPEECH_ACT_KEY, true, null), context);
-            that._timestamp = untokenizeObject(token.getitem(TIMESTAMP_KEY, true, null), context);
-            that._context = untokenizeObject(token.getitem(CONTEXT_KEY, true, {}), context);
+        self.initializeFromToken = function initializeFromToken(token, context){
+            self.inherited(initializeFromToken, [token, context]);
+            self._actor = untokenizeObject(token.getitem(ACTOR_KEY, true, null), context);
+            self._verb = untokenizeObject(token.getitem(VERB_KEY, true, null), context);
+            self._obj = untokenizeObject(token.getitem(OBJECT_KEY, true, null), context);
+            self._result = untokenizeObject(token.getitem(RESULT_KEY, true, null), context);
+            self._speechAct = untokenizeObject(token.getitem(SPEECH_ACT_KEY, true, null), context);
+            self._timestamp = untokenizeObject(token.getitem(TIMESTAMP_KEY, true, null), context);
+            self._context = untokenizeObject(token.getitem(CONTEXT_KEY, true, {}), context);
         };
     }
 });

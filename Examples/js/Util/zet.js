@@ -1,8 +1,8 @@
-/** Zet.js Module from https://github.com/nemisj/zet.js
+/** zet.js Module from https://github.com/nemisj/zet.js
 	Looks like reasonable and stable class inheritance styles.
 */
 if (typeof window === "undefined"){
-	var window = this;
+	window = this;
 }
 
 (function(){
@@ -14,7 +14,7 @@ if (typeof window === "undefined"){
     var declarescope = globalscope; 
 
     // support for CommonJS Modules 1.0 API
-    // Zet.js can be include as CommonJS module, by calling
+    // zet.js can be include as CommonJS module, by calling
     // var Zet = require('zet.js');
 	var _c = (typeof(exports) != "undefined") ? exports : (globalscope.Zet = function zet(){
         if(arguments.length == 1){
@@ -41,9 +41,10 @@ if (typeof window === "undefined"){
 	
 	// Utility Functions
 	function prepareArgs(args){
+        var i;
 		var result = [];
 		if(args && args.length){
-			for(var i=0;i < args.length;i++){
+			for(i=0;i < args.length;i++){
 				result.push(args[i]); 
 			}
 		}  
@@ -51,8 +52,9 @@ if (typeof window === "undefined"){
 	}
 
 	function mixin(obj, prop){
+        var key;
 		if(typeof(prop) == "object"){
-			for(var key in prop){
+			for(key in prop){
 				if(prop.hasOwnProperty(key)){
 					obj[key] = prop[key];	
 				}
@@ -138,7 +140,7 @@ if (typeof window === "undefined"){
 			var params = prepareArgs(arguments);
 
 			var superStore  = null;
-			var that        = null;        
+			var self        = null;        
 
 			if(superclass){
                 // protection against outside calls
@@ -150,15 +152,15 @@ if (typeof window === "undefined"){
 
 				// mixin all functions into superStore, for inheritance
 				superStore = mixin({}, superi);
-				that = superi;
+				self = superi;
 			}
 
-			that  = that || {}; // testing if the object already exists;
+			self  = self || {}; // testing if the object already exists;
 
             if(defineBody){
                 var proto = null;
                 try{
-                    proto = defineBody(that);
+                    proto = defineBody(self);
                 }catch(e){
                     if(e.__publicbody){
                         proto = e.__seeding;
@@ -169,22 +171,22 @@ if (typeof window === "undefined"){
 
                 if(proto){
                     //some extra arguments are here
-                    mixin(that, proto);
+                    mixin(self, proto);
                 }
             }
 
             // doing inheritance stuff
             if(superStore){
                 for(var i in superStore){
-                    if((that[i] != superStore[i]) && (typeof(superStore[i]) == "function" && typeof(that[i]) == "function")){
+                    if((self[i] != superStore[i]) && (typeof(superStore[i]) == "function" && typeof(self[i]) == "function")){
                         //name collisions, apply __chain trick
-                        that[i].__chain = superStore[i];
+                        self[i].__chain = superStore[i];
                     }
                 }
             }   
 
             // adding helper functions
-			mixin(that, {
+			mixin(self, {
                 className   : className,
 				CLASS_ID	: CLASS_ID,
 				inherited   : inherited,
@@ -192,17 +194,17 @@ if (typeof window === "undefined"){
 				isInstance  : isInstance,
 				__zet__makeNew : __zet__makeNew,
 				public      : _c.public,
-                constructor : create // for var that = bla.constructor();
+                constructor : create // for var self = bla.constructor();
 			});
-			return that;
+			return self;
 		};
 		
 		// Factory function that creates initialized instances
 		var create = function create(){
 			var params = prepareArgs(arguments);
-			var that = __zet__makeNew(params);
-			that = runConstruct(that, params);
-			return that;
+			var self = __zet__makeNew(params);
+			self = runConstruct(self, params);
+			return self;
 		};
 
 		// Data available on the Class Factory function

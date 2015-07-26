@@ -1,5 +1,5 @@
 ﻿//////////////////////////////////////////////////////
-// File Name: Serialization.js
+// File Name: serialization.js
 //
 // Description: 
 //   Serialization Package
@@ -13,7 +13,7 @@
 //
 /////////////////////////////////////////////////////////
 
-// Requires UUID,js and Zet.js
+// Requires UUID,js and zet.js
 if (typeof window === "undefined") {
     var window = this;
 }
@@ -29,7 +29,8 @@ if (typeof window === "undefined") {
 
 	// Utility functions
 	var updateObjProps = function(targetObj, sourceObj){
-		for (var key in sourceObj){
+        var key;
+		for (key in sourceObj){
 			targetObj[key] = sourceObj[key];
 		}
 	};
@@ -46,113 +47,118 @@ if (typeof window === "undefined") {
     // A serializable object, that can be saved to token and opened from token
     Zet.declare('Serializable', {
         superclass : null,
-        defineBody : function(that){
+        defineBody : function(self){
 			// Constructor Function
             
-            that.construct = function construct(id){
+            self.construct = function construct(id){
             /** Constructor for serializable
             *   @param id (optional): GUID for this object.  If none given, a V4 random GUID is used.
             */
                 if (id == null) {
-                    that._id = UUID.genV4().toString();
+                    self._id = UUID.genV4().toString();
                 } else {
-                    that._id = id;
+                    self._id = id;
                 }
                 
                 //A factory mapping that is used when unpacking serialized objects. 
-                //if (that.CLASS_ID){
-                //    _addFactoryClass(that.className, that.constructor);
+                //if (self.CLASS_ID){
+                //    _addFactoryClass(self.className, self.constructor);
                 //} else {
                 //    throw new TypeError("Serializable class did not have a class id.");
                 //}
             };
             // Public Functions 
-            that.eq = function eq(other){
-				return ((that.getClassId() == other.getClassId()) && (that.getId() == other.getId()));
+            self.eq = function eq(other){
+				return ((self.getClassId() == other.getClassId()) && (self.getId() == other.getId()));
             };
 
-            that.ne = function ne(other){
-                return !(that.eq(other));
+            self.ne = function ne(other){
+                return !(self.eq(other));
             };
 
-            that.getId = function getId(){
-                return that._id;
+            self.getId = function getId(){
+                return self._id;
             };
             
-            that.updateId = function updateId(id){
+            self.updateId = function updateId(id){
                 if (id === undefined) {
-                    that._id = UUID.genV4().toString();
+                    self._id = UUID.genV4().toString();
                 } else {
-                    that._id = id;
+                    self._id = id;
                 }
             };
 
-            that.getClassId = function getClassId(){
-                return that.className;
+            self.getClassId = function getClassId(){
+                return self.className;
             };
 
-            that.initializeFromToken = function initializeFromToken(token, context){
+            self.initializeFromToken = function initializeFromToken(token, context){
             /** Initialize serializable from token.
                 @param context (optional): Mutable context for the loading process. Defaults to null. 
             */
-				that._id = token.getId();
+				self._id = token.getId();
             };
 
-            that.saveToToken = function saveToToken(){
-				var token = StorageToken(that.getId(), that.getClassId());
+            self.saveToToken = function saveToToken(){
+				var token = StorageToken(self.getId(), self.getClassId());
                 return token;
             };
             
-            that.saveToSerialized = function saveToSerialized(){
-                return makeSerialized(that.saveToToken());
+            self.saveToSerialized = function saveToSerialized(){
+                return makeSerialized(self.saveToToken());
             };
             
-            that.clone = function clone(){
-                var s = makeSerialized(that.saveToToken());
-                return untokenizeObject(makeNative(s));
+            self.clone = function clone(newId){
+                if (newId == null){ newId = true; }
+                var s = makeSerialized(self.saveToToken());
+                s = untokenizeObject(makeNative(s));
+                if (newId){
+                    s.updateId();
+                }
+                return s;
             };
         }
     });
 
     Zet.declare('NamedSerializable' , {
         superclass : Serializable,
-        defineBody : function(that){
+        defineBody : function(self){
 			// Constructor Function
-            that.NAME_KEY = NAME_KEY;
+            self.NAME_KEY = NAME_KEY;
             
-            that.construct = function construct(id, name){
+            self.construct = function construct(id, name){
                 if (name == null) { name=null;}
-                that.inherited(construct, [id]);
-                that._name = name;
+                self.inherited(construct, [id]);
+                self._name = name;
             };
             
-            that.getName = function getName(){
-                return that._name;
+            self.getName = function getName(){
+                return self._name;
             };
             
-            that.setName = function setName(name){
+            self.setName = function setName(name){
                 if (name == null){
                     name = null; 
                 } else if (name instanceof String || typeof name === 'string'){
-                    that._name = name;
+                    self._name = name;
                 } else {
                     throw new Error("Set name failed, was not a string.");
                 }
             };
             
-            that.eq = function eq(other){
-                return (that.inherited(eq, [other]) && (that._name === other._name));
+            self.eq = function eq(other){
+                return (self.inherited(eq, [other]) && (self._name === other._name));
             };
             
-            that.initializeFromToken = function initializeFromToken(token, context){
-                that.inherited(initializeFromToken, [token, context]);
-                that._name = untokenizeObject(token.getitem(that.NAME_KEY, true, null), context);
+            self.initializeFromToken = function initializeFromToken(token, context){
+                self.inherited(initializeFromToken, [token, context]);
+                self._name = untokenizeObject(token.getitem(self.NAME_KEY, true, null), context);
             };
             
-            that.saveToToken = function saveToToken(){
-                var token = that.inherited(saveToToken);
-                if (that._name != null){
-                    token.setitem(that.NAME_KEY, tokenizeObject(that._name));
+            self.saveToToken = function saveToToken(){
+                var token = self.inherited(saveToToken);
+                if (self._name != null){
+                    token.setitem(self.NAME_KEY, tokenizeObject(self._name));
                 }
                 return token;
             };
@@ -163,20 +169,20 @@ if (typeof window === "undefined") {
     // An object that stores data in a form that can be serialized
     Zet.declare('StorageToken', {
         superclass : null,
-        defineBody : function(that){
+        defineBody : function(self){
             // -- Class fields
-            that.ID_KEY = 'id';
-            that.CLASS_ID_KEY = 'classId';
+            self.ID_KEY = 'id';
+            self.CLASS_ID_KEY = 'classId';
             
             // Constructor
-            that.construct = function construct(id, classId, data) {
+            self.construct = function construct(id, classId, data) {
             /** Create a storage token, which can be directly serialized into a string
                 @param id (optional): A GUID for the storage token.  If none given, uses a V4 random GUID.
                 @param classId (optional): Id for the class that this StorageToken should create.  Defaults to null.
                 @param data (optional): Starting data for the token.  Either a map {} for an array of map pairs [[key, val]].
             */
                 var i;
-                that._data = {};
+                self._data = {};
                 if (data !== undefined) {
                     //we are assuming that the data will either already
                     //be in a dictionary form ({key: value, key2: value2, ...}) 
@@ -184,89 +190,89 @@ if (typeof window === "undefined") {
                     if (data instanceof Array){ //[[key, value], [key2, value2], ...]
                         for (i in data){
                             if ((data[i] instanceof Array) && (data[i].length == 2)){
-                                  that._data[data[i][0]] = data[i][1];
+                                  self._data[data[i][0]] = data[i][1];
                             } else {
                                 throw new TypeError("Input array doesn't follow the format of [[key, value], [key2, value2], ...]");
                             }
                         }
                     } else {// {key: value, key2: value2, ...}
-                        that._data = data;
+                        self._data = data;
                     }
                 }else {
-                    that._data = {};
+                    self._data = {};
                 }                
                 if (id !== undefined){
-                    that.setId(id);
-                } else if ((that.getId() === undefined)){
-                    that.setId(UUID.genV4().toString());
+                    self.setId(id);
+                } else if ((self.getId() === undefined)){
+                    self.setId(UUID.genV4().toString());
                 }                
                 if (classId !== undefined) {
-                    that.setClassId(classId);
+                    self.setClassId(classId);
                 }
             };
         
             // -- Instance methods
-            that.getId = function getId(){
-                return that._data[that.ID_KEY];
+            self.getId = function getId(){
+                return self._data[self.ID_KEY];
             };
 
-            that.setId = function setId(value){
-                that._data[that.ID_KEY] = value;
+            self.setId = function setId(value){
+                self._data[self.ID_KEY] = value;
             };
 
-            that.getClassId = function getClassId(){
-                return that._data[that.CLASS_ID_KEY];
+            self.getClassId = function getClassId(){
+                return self._data[self.CLASS_ID_KEY];
             };
 
-            that.setClassId = function setClassId(value){
-                that._data[that.CLASS_ID_KEY] = value;
+            self.setClassId = function setClassId(value){
+                self._data[self.CLASS_ID_KEY] = value;
             };
             
             // Convenience Accessor for Named Serializables
-            that.getName = function getName(){
-                if (NAME_KEY in that._data){
-                    return that._data[NAME_KEY];
+            self.getName = function getName(){
+                if (NAME_KEY in self._data){
+                    return self._data[NAME_KEY];
                 } else {
                     return null;
                 }
             };
 
-            that.setName = function setName(value){
-                that._data[NAME_KEY] = value;
+            self.setName = function setName(value){
+                self._data[NAME_KEY] = value;
             };
 
             // -- ##Generic Accessors
-            that.len = function len(){
-                return that._data.length;
+            self.len = function len(){
+                return self._data.length;
             };
 
-            that.contains = function contains(key){
-                return key in that._data;
+            self.contains = function contains(key){
+                return key in self._data;
             };
 
-            that.getitem = function getitem(key, hasDefault, defaults){
+            self.getitem = function getitem(key, hasDefault, defaults){
             /** Get an item from the data dictionary
                 @param key: Key for the item
                 @param hasDefault (optional): If True, give a default value.  Else, raise an error if key not found.
                 @param defaults (optional): The optional value for this item.
             */
-                if (!(key in that._data) && (hasDefault)){
+                if (!(key in self._data) && (hasDefault)){
                     return defaults;
                 }else {
-                    return that._data[key];
+                    return self._data[key];
                 }
             };
 
-            that.setitem = function setitem(key, value){
-                that._data[key] = value;
+            self.setitem = function setitem(key, value){
+                self._data[key] = value;
             };
 
-            that.delitem = function delitem(key){
-                delete that._data[key];
+            self.delitem = function delitem(key){
+                delete self._data[key];
             };
 
-            that.__iterator__ = function __iterator__(){
-                var keys = Object.keys(that._data).sort();
+            self.__iterator__ = function __iterator__(){
+                var keys = Object.keys(self._data).sort();
                 var keys_pos = 0;
                 return {
                     next: function(){
@@ -278,51 +284,51 @@ if (typeof window === "undefined") {
                 };
             };
 
-            that.keys = function keys(){
+            self.keys = function keys(){
                 var k, aKeys;
                 aKeys = [];
-                for (k in that._data){
+                for (k in self._data){
                     aKeys.push(k);
                 }
                 return aKeys;
             };
 
             // -- ##Comparison
-            that.eq = function eq(other){
-                return (typeof(that) == typeof(other)) && (that._data == other._data);
+            self.eq = function eq(other){
+                return (typeof(self) == typeof(other)) && (self._data == other._data);
             };
 
-            that.ne = function ne(other){
-                return !(that.eq(other));
+            self.ne = function ne(other){
+                return !(self.eq(other));
             };
 
             // -- ##Validation
-            that.isValidKey = function isValidKey(key){
-                return typeof(key) in that.VALID_KEY_TYPES;
+            self.isValidKey = function isValidKey(key){
+                return typeof(key) in self.VALID_KEY_TYPES;
             };
 
-            that.isValidValue = function isValidValue(value){
-                return typeof(value) in that.VALID_VALUE_TYPES;
+            self.isValidValue = function isValidValue(value){
+                return typeof(value) in self.VALID_VALUE_TYPES;
             };
 
-            that.isValid = function isValid(){
+            self.isValid = function isValid(){
                 var idKey;
                 var classIdKey;
                 
                 //Check that ID is valid
-                if ((that._data[that.ID_KEY] == null) ||
-                    ((typeof(that._data[that.ID_KEY]) !== 'string') &&
-                     (typeof(that._data[that.ID_KEY]) !== 'number'))) {
+                if ((self._data[self.ID_KEY] == null) ||
+                    ((typeof(self._data[self.ID_KEY]) !== 'string') &&
+                     (typeof(self._data[self.ID_KEY]) !== 'number'))) {
                   return false;
                 }
                 //Check that class name is valid
-                if ((that._data[that.CLASS_ID_KEY] == null) ||
-                    (typeof(that._data[that.CLASS_ID_KEY]) !== 'string')) {
+                if ((self._data[self.CLASS_ID_KEY] == null) ||
+                    (typeof(self._data[self.CLASS_ID_KEY]) !== 'string')) {
                   return false;
                 }
                 // Check that the name (if it exists) is valid
-                if ((that._data[NAME_KEY] != null) && 
-                    (typeof(that._data[NAME_KEY]) !== 'string')) {
+                if ((self._data[NAME_KEY] != null) && 
+                    (typeof(self._data[NAME_KEY]) !== 'string')) {
                   return false;
                 }
                 return true;      
@@ -336,32 +342,32 @@ if (typeof window === "undefined") {
     // Generic RW Format
     Zet.declare('TokenRWFormat', {
         superclass : null,
-        defineBody : function(that){
+        defineBody : function(self){
             // Public Class Properties
             
             // Valid Types in Storage Token
-            that.VALID_KEY_TYPES = {'string': true};
-            that.VALID_ATOMIC_VALUE_TYPES = {'number': true, 'string': true, 'boolean': true, 'undefined': true};
-            that.VALID_SEQUENCE_VALUE_TYPES = {'list': true, 'tuple' : true};
-            that.VALID_MAPPING_VALUE_TYPES = {'map': true};
-            that.VALID_VALUE_TYPES = {};
+            self.VALID_KEY_TYPES = {'string': true};
+            self.VALID_ATOMIC_VALUE_TYPES = {'number': true, 'string': true, 'boolean': true, 'undefined': true};
+            self.VALID_SEQUENCE_VALUE_TYPES = {'list': true, 'tuple' : true};
+            self.VALID_MAPPING_VALUE_TYPES = {'map': true};
+            self.VALID_VALUE_TYPES = {};
 
             // Setup for Class Properties
-            updateObjProps(that.VALID_VALUE_TYPES, that.VALID_ATOMIC_VALUE_TYPES);
-            updateObjProps(that.VALID_VALUE_TYPES, that.VALID_SEQUENCE_VALUE_TYPES);
-            updateObjProps(that.VALID_VALUE_TYPES, that.VALID_MAPPING_VALUE_TYPES);
-            that.VALID_VALUE_TYPES.StorageToken = true;
+            updateObjProps(self.VALID_VALUE_TYPES, self.VALID_ATOMIC_VALUE_TYPES);
+            updateObjProps(self.VALID_VALUE_TYPES, self.VALID_SEQUENCE_VALUE_TYPES);
+            updateObjProps(self.VALID_VALUE_TYPES, self.VALID_MAPPING_VALUE_TYPES);
+            self.VALID_VALUE_TYPES.StorageToken = true;
             
             // Constructor method
-            that.construct = function construct(){};
+            self.construct = function construct(){};
             
             // Public methods
-            that.parse = function parse(string) {
+            self.parse = function parse(string) {
                 // Parse a string into javascript objects
                 throw new Error("NotImplementedError");
             };
 
-            that.serialize = function serialize(data) {
+            self.serialize = function serialize(data) {
                 // Serialize javascript objects into a string form
                 throw new Error("NotImplementedError");
             };
@@ -372,33 +378,33 @@ if (typeof window === "undefined") {
     //JSON Formatting: Use JSONEncoder/JSONDecoder
     Zet.declare('JSONRWFormat', {
         superclass : TokenRWFormat,
-        defineBody : function(that){
+        defineBody : function(self){
             
             // Constructor method
-            that.construct = function construct(){};
+            self.construct = function construct(){};
             
             // Public methods
-            that.parse = function parse(String) {//Parse a JSON string into javascript objects
+            self.parse = function parse(String) {//Parse a JSON string into javascript objects
                 var decoded = JSON.parse(String);
-                return that.makeNative(decoded);
+                return self.makeNative(decoded);
             };
 
-            that.serialize = function serialize(data) {//Serialize javascript objects into a JSON string form
-                var serializable = that.makeSerializable(data);
+            self.serialize = function serialize(data) {//Serialize javascript objects into a JSON string form
+                var serializable = self.makeSerializable(data);
                 return JSON.stringify(serializable);
             };
 
-            that.makeSerializable = function makeSerializable(x){
+            self.makeSerializable = function makeSerializable(x){
                 var i, key, keys, rt, temp, xType;
                 xType = typeof(x);
                 rt = null;
-				if ((xType in that.VALID_ATOMIC_VALUE_TYPES) || (x === null)){// Primitive variables
+				if ((xType in self.VALID_ATOMIC_VALUE_TYPES) || (x === null)){// Primitive variables
                     rt = x;
                 } else if (x instanceof Array){ // Array
                     rt = {};
                     temp = [];
                     for (i=0; i<x.length; i++) {
-                        temp[i] = that.makeSerializable(x[i]);
+                        temp[i] = self.makeSerializable(x[i]);
                     }
                     rt[LIST_STRING] = temp;
                 } else if ((x instanceof Object) && 
@@ -406,7 +412,7 @@ if (typeof window === "undefined") {
                     rt = {};
                     temp = {};
                     for (key in x){
-						temp[key] = that.makeSerializable(x[key]);
+						temp[key] = self.makeSerializable(x[key]);
                     }
                     rt[MAP_STRING] = temp;
                 } else if (StorageToken.isInstance(x)){ // StorageToken
@@ -414,7 +420,7 @@ if (typeof window === "undefined") {
                     temp = {};
                     keys = x.keys();
                     for (i=0; i<keys.length; i++) {
-						temp[that.makeSerializable(keys[i])] = that.makeSerializable(x.getitem(keys[i]));
+						temp[self.makeSerializable(keys[i])] = self.makeSerializable(x.getitem(keys[i]));
                     }
                     rt[x.getClassId()] = temp;
                 } else { //Error
@@ -423,31 +429,31 @@ if (typeof window === "undefined") {
                 return rt;
             };
 
-            that.makeNative = function makeNative(x){
+            self.makeNative = function makeNative(x){
                 var i, key, rt, temp, xType, dataTypeName;
                 xType = typeof(x);
                 rt = null;
-                if ((that.VALID_ATOMIC_VALUE_TYPES[xType]) || (x == null)){// Primitive variables
+                if ((self.VALID_ATOMIC_VALUE_TYPES[xType]) || (x == null)){// Primitive variables
                   rt = x;
                   return rt;
                 }
                 for (dataTypeName in x){
                     break;
                 }
-                if (dataTypeName in that.VALID_SEQUENCE_VALUE_TYPES){ // Array
+                if (dataTypeName in self.VALID_SEQUENCE_VALUE_TYPES){ // Array
                     rt = [];
                     for (i=0; i<x[dataTypeName].length; i++) {
-                        rt[i] = that.makeNative(x[dataTypeName][i]);
+                        rt[i] = self.makeNative(x[dataTypeName][i]);
                     }
-                } else if (dataTypeName in that.VALID_MAPPING_VALUE_TYPES) { // Object
+                } else if (dataTypeName in self.VALID_MAPPING_VALUE_TYPES) { // Object
                     rt = {};
                     for (key in x[dataTypeName]) {
-                        rt[key] = that.makeNative(x[dataTypeName][key]);
+                        rt[key] = self.makeNative(x[dataTypeName][key]);
                     }
                 } else { //Default StorageToken
                     rt = {};
                     rt[MAP_STRING] = x[dataTypeName];
-                    rt = that.makeNative(rt);
+                    rt = self.makeNative(rt);
                     rt = StorageToken(undefined, undefined, rt);
                 }
                 return rt;
@@ -466,14 +472,15 @@ if (typeof window === "undefined") {
 		@param context (optional): Mutable context for the loading process. Defaults to null. 
         @param onMissingClass (optional): Function to transform/error on token if class missing
 	*/
+        var classId, AClass;
 		var id = token.getId();
 		var instance = {};
 		if ((context != null) && (id in context)){
 			instance = context[id];
 		} else {
 			//Need to import the right class
-			var classId = token.getClassId();
-			var AClass = Zet.getFactoryClass(classId);
+			classId = token.getClassId();
+			AClass = Zet.getFactoryClass(classId);
 			if (typeof AClass !== "undefined"){
                 instance = AClass();
                 instance.initializeFromToken(token, context);
@@ -565,18 +572,19 @@ if (typeof window === "undefined") {
         @param obj: Object to turn from tokens into object
         @param context (optional): Mutable context for the loading process. Defaults to null. 
     */
+        var i, key;
         var rt = null;
         if (StorageToken.isInstance(obj)) {// StorageToken
             rt = createFromToken(obj, context);
         } else if (obj instanceof Array) { // Array
             rt = [];
-            for (var i in obj) { 
+            for (i in obj) { 
                 rt[i] = untokenizeObject(obj[i], context);
             }
         } else if ((obj instanceof Object) &&
                   !(obj instanceof Array)){ // Object
             rt = {};
-            for (var key in obj) {
+            for (key in obj) {
                 rt[untokenizeObject(key, context)] = untokenizeObject(obj[key], context);
             }
         } else {
