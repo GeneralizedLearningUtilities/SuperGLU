@@ -1,3 +1,9 @@
+"""
+A class for dumping data about a student into an object,
+which can then be merged across multiple copies of the same
+student, assuming that the same data does not already exist
+in both copies.
+"""
 import csv
 import re
 import sys
