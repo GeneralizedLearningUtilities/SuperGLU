@@ -583,4 +583,4 @@ namespace.PostMessageGateway = PostMessageGateway;
 namespace.HTTPMessagingGateway = HTTPMessagingGateway;
 namespace.TestService = TestService;
 
-})(window.Client_Messaging_Gateway = window.Client_Messaging_Gateway || {});
+})(window.Messaging_Gateway = window.Messaging_Gateway || {});

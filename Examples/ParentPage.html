@@ -4,12 +4,12 @@
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 		<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
-        <script type="text/javascript" src="js/Util/EMACS5CompatibilityPatches.js"></script>
-		<script type="text/javascript" src="js/Util/UUID.js"></script>
-        <script type="text/javascript" src="js/Util/Zet.js"></script>
-        <script type="text/javascript" src="js/Util/Serialization.js"></script>
-        <script type="text/javascript" src="js/SKO_Architecture/Messaging.js"></script>
-        <script type="text/javascript" src="js/SKO_Architecture/Client_Messaging_Gateway.js"></script>
+        <script type="text/javascript" src="js/Util/emacs5-compatibility-patches.js"></script>
+        <script type="text/javascript" src="js/Util/uuid.js"></script>
+		<script type="text/javascript" src="js/Util/zet.js"></script>
+		<script type="text/javascript" src="js/Util/serialization.js"></script>
+		<script type="text/javascript" src="js/Core/messaging.js"></script>
+		<script type="text/javascript" src="js/Core/messaging-gateway.js"></script>
         
 		<script type="text/javascript">
             var GATEWAY,
@@ -20,13 +20,13 @@
                 
             window.onload = function(){
                 CHILD_WINDOW = document.getElementById("Child").contentWindow;
-                CHILD_GATEWAY = Client_Messaging_Gateway.PostMessageGatewayStub("Child Gateway Stub", null, null, CHILD_WINDOW);
-                TEST_SERVICE = Client_Messaging_Gateway.TestService("ParentTestService");
-                MAIN_POSTING_GATEWAY = Client_Messaging_Gateway.PostMessageGateway("MainPostingGateway", [CHILD_GATEWAY, TEST_SERVICE]);
+                CHILD_GATEWAY = Messaging_Gateway.PostMessageGatewayStub("Child Gateway Stub", null, null, CHILD_WINDOW);
+                TEST_SERVICE = Messaging_Gateway.TestService("ParentTestService");
+                MAIN_POSTING_GATEWAY = Messaging_Gateway.PostMessageGateway("MainPostingGateway", [CHILD_GATEWAY, TEST_SERVICE]);
                 
                 // A service that is looking for a certain message
                 // In this case, looking for "Completed" as a verb and "Inform" as the speech act (i.e., Informing that x is completed)
-                // Technically, better to subclass using Zet (examples found in Client_Messaging_Gateway.js), 
+                // Technically, better to subclass using Zet (examples found in messaging-gateway.js), 
                 // but this works fine too as long as you're not trying to handle anything crazy.
                 var oldReceiveMsg = TEST_SERVICE.receiveMessage;
                 TEST_SERVICE.receiveMessage = function(msg){

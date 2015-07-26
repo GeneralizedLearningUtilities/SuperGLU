@@ -1,4 +1,4 @@
-/** zet.js Module from https://github.com/nemisj/zet.js
+/** Zet.js Module from https://github.com/nemisj/Zet.js
 	Looks like reasonable and stable class inheritance styles.
 */
 if (typeof window === "undefined"){
@@ -14,9 +14,9 @@ if (typeof window === "undefined"){
     var declarescope = globalscope; 
 
     // support for CommonJS Modules 1.0 API
-    // zet.js can be include as CommonJS module, by calling
-    // var Zet = require('zet.js');
-	var _c = (typeof(exports) != "undefined") ? exports : (globalscope.Zet = function zet(){
+    // Zet.js can be include as CommonJS module, by calling
+    // var Zet = require('Zet.js');
+	var _c = (typeof(exports) != "undefined") ? exports : (globalscope.Zet = function Zet(){
         if(arguments.length == 1){
             var sub = arguments[0];
             return sub.instanceOf ? sub : {
@@ -25,7 +25,7 @@ if (typeof window === "undefined"){
                 }
             };
         }else if(arguments.length == 2){
-            return zet.declare(arguments[0], arguments[1]);
+            return Zet.declare(arguments[0], arguments[1]);
         }
     });
 
