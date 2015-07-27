@@ -22,13 +22,13 @@ Zet.declare('HeartbeatService', {
             if (delay == null) {delay = DEFAULT_DELAY;}
             self._heartbeatName = heartbeatName;
             self._delay = delay;
-            self._isActive = true;
+            self._isActive = false;
 		};
         
         self.sendHeartbeat = function sendHeartbeat(){
             var msg = Message(self.getId(), HEARTBEAT_VERB, self._heartbeatName, 
                               window.location.href);
-            msg.setContext(ORIGIN_KEY, window.location.href);
+            msg.setContextValue(ORIGIN_KEY, window.location.href);
             self.sendMessage(msg);
         };
         
@@ -49,7 +49,7 @@ Zet.declare('HeartbeatService', {
         };
         
         self.changeHeartrate = function changeHeartrate(delay){
-            if (delay == null){ delay = DEFAULT_DELAY;}
+            if (delay == null){ delay = DEFAULT_DELAY; }
             self._delay = delay;
         };
         
@@ -70,6 +70,7 @@ Zet.declare('HeartbeatMonitor', {
             self.inherited(construct, [id, gateway]);
             if (heartbeatNames == null) {heartbeatNames = [];}
             if (delay == null) {delay = DEFAULT_DELAY;}
+            if (offOnSkip == null) {offOnSkip = false;}
             self._heartbeatNames = heartbeatNames;
             self._delay = delay;
             self._onSkipbeat = onSkipbeat;
@@ -81,8 +82,10 @@ Zet.declare('HeartbeatMonitor', {
         
         self.receiveMessage = function receiveMessage(msg){
             if (msg.getVerb() === HEARTBEAT_VERB){
-                if (msg.getObject() in self._heartbeatNames){
+                console.log("GOT HEARTBEAT = " + self._heartbeatNames.indexOf(msg.getObject()));
+                if (self._heartbeatNames.indexOf(msg.getObject()) >= 0){
                     self._heartbeatTimes[msg.getObject()] = new Date().getTime();
+                    console.log("GOT HEARTBEAT = " + self._heartbeatTimes[msg.getObject()]);
                 }
             }
         };
@@ -93,7 +96,7 @@ Zet.declare('HeartbeatMonitor', {
             }
             var monitorFunct = function(){
                 if (self._isActive){
-                    
+                    self.checkMonitors();
                     setTimeout(monitorFunct, self._delay*1000);
                 }
             };
@@ -108,6 +111,7 @@ Zet.declare('HeartbeatMonitor', {
             var key, time;
             var currentTime = new Date().getTime();
             for (key in self._heartbeatNames){
+                key = self._heartbeatNames[key];
                 time = self._heartbeatTimes[key];
                 if (currentTime - time > self._delay*1000){
                     if (self._onSkipbeat){
@@ -124,6 +128,7 @@ Zet.declare('HeartbeatMonitor', {
             var key;
             self._heartbeatTimes = {};
             for (key in self._heartbeatNames){
+                key = self._heartbeatNames[key];
                 self._heartbeatTimes[key] = new Date().getTime();
             }
         };

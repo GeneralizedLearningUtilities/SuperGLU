@@ -20,14 +20,15 @@
                 GATEWAY_SERVICE, 
                 PARENT_POSTING_STUB,
                 HEARTBEAT_SERVICE,
-                HEARTBEAT_NAME = "ChildHeatbeat",
+                HEARTBEAT_NAME = "ChildHeartbeat",
                 COMPLETED_VERB = "Completed";
             TEST_SERVICE = Messaging_Gateway.TestService("ChildTestService");
-            HEARTBEAT_SERVICE = Heartbeat_Service.HeartbeatService(null, HEARTBEAT_NAME);
+            HEARTBEAT_SERVICE = Heartbeat_Service.HeartbeatService(null, HEARTBEAT_NAME, 30);
 			PARENT_POSTING_STUB = Messaging_Gateway.PostMessageGatewayStub("MainPostingGateway", null, null, parent);
 			GATEWAY_SERVICE = Messaging_Gateway.PostMessageGateway("Client Gateway (Main)", 
                 [TEST_SERVICE, HEARTBEAT_SERVICE], 
                 PARENT_POSTING_STUB);
+            HEARTBEAT_SERVICE.start();
 
             // Function called when clicking a button
             // This broadcasts a semantic message into the gateway node
@@ -39,6 +40,7 @@
                     itemId = window.location.protocol + window.location.pathname,
                     score = document.getElementById("MyScore").value;
                 TEST_SERVICE.sendTestMessage(actor, COMPLETED_VERB, itemId, score);
+                HEARTBEAT_SERVICE.stop();
                 // Note: The item identifier could be anything appropriate to link to that activity (i.e., not just an href)
                 // Note 2: We have extra context fields in a dictionary to include all sorts of other useful data.  I tend 
                 //         to send along things like the browser type, a session unique ID, and similar stuff.  There are 

@@ -19,7 +19,7 @@
                 TEST_SERVICE,
                 HEART_MONITOR_SERVICE,
                 ON_SKIP_HEARTBEAT,
-                HEARTBEAT_NAME = "ChildHeatbeat",
+                HEARTBEAT_NAME = "ChildHeartbeat",
                 COMPLETED_VERB = 'Completed';
             
             ON_SKIP_HEARTBEAT = function(name, monitor){
@@ -32,10 +32,11 @@
                 CHILD_GATEWAY = Messaging_Gateway.PostMessageGatewayStub("Child Gateway Stub", null, null, CHILD_WINDOW);
                 TEST_SERVICE = Messaging_Gateway.TestService("ParentTestService");
                 HEART_MONITOR_SERVICE = Heartbeat_Service.HeartbeatMonitor(null, [HEARTBEAT_NAME],
-                    null, ON_SKIP_HEARTBEAT);
+                    150, ON_SKIP_HEARTBEAT);
 			
                 MAIN_POSTING_GATEWAY = Messaging_Gateway.PostMessageGateway("MainPostingGateway", 
                     [CHILD_GATEWAY, HEART_MONITOR_SERVICE, TEST_SERVICE]);
+                HEART_MONITOR_SERVICE.start();
                 
                 // A service that is looking for a certain message
                 // In this case, looking for "Completed" as a verb and "Inform" as the speech act (i.e., Informing that x is completed)
