@@ -18,21 +18,34 @@
                 CHILD_GATEWAY,
                 TEST_SERVICE,
                 HEART_MONITOR_SERVICE,
-                ON_SKIP_HEARTBEAT,
+                IS_CHILD_LOADED = false,
+                LOADING_WAIT_TIME = 60, // In seconds
                 HEARTBEAT_NAME = "ChildHeartbeat",
-                COMPLETED_VERB = 'Completed';
+                COMPLETED_VERB = 'Completed',
+                LOADED_VERB = "Loaded";
             
-            ON_SKIP_HEARTBEAT = function(name, monitor){
+            var onSkipHeartbeat = function(name, monitor){
                 alert("Heartbear skipped a beat: " + name);
                 monitor.stop();
-            }
+            };
             
+            var onLoadingTimeout = function(){
+                if (IS_CHILD_LOADED !== true){
+                    alert("Child frame did not load in " + LOADING_WAIT_TIME + " seconds.");
+                    HEART_MONITOR_SERVICE.stop();
+                }
+            };
+            
+            var oldOnload = window.onload;
             window.onload = function(){
+                if (oldOnload != null){ 
+                    oldOnload();
+                }
                 CHILD_WINDOW = document.getElementById("Child").contentWindow;
                 CHILD_GATEWAY = Messaging_Gateway.PostMessageGatewayStub("Child Gateway Stub", null, null, CHILD_WINDOW);
                 TEST_SERVICE = Messaging_Gateway.TestService("ParentTestService");
                 HEART_MONITOR_SERVICE = Heartbeat_Service.HeartbeatMonitor(null, [HEARTBEAT_NAME],
-                    150, ON_SKIP_HEARTBEAT);
+                    150, onSkipHeartbeat);
 			
                 MAIN_POSTING_GATEWAY = Messaging_Gateway.PostMessageGateway("MainPostingGateway", 
                     [CHILD_GATEWAY, HEART_MONITOR_SERVICE, TEST_SERVICE]);
@@ -52,11 +65,22 @@
                             "The Learner '" + msg.getActor() + "' " + msg.getVerb() + " <br>" +
                             "the activity '" + msg.getObject() + "'<br>" + 
                             "with the score " + msg.getResult();
+                    
+                    // Note: Relying entirely on receiving a "Loaded" message is
+                    //       perilous, since the child might finish loading before
+                    //       the parent (and, in fact, might even be likely to).
+                    } else if ((msg.getSpeechAct() == Messaging.INFORM_ACT) &&
+                               ((msg.getVerb() == LOADED_VERB) || 
+                                (msg.getVerb() == Heartbeat_Service.HEARTBEAT_VERB))){
+                        IS_CHILD_LOADED = true;
                     }
                 };
                 
                 // Mark that everything is loaded
                 document.getElementById('AnElement').innerHTML = 'You are working on some activity now.';
+                
+                // Set a timeout for the time for the child frame to load
+                setTimeout(onLoadingTimeout, LOADING_WAIT_TIME*1000);
             };
 		</script>
 	</head>

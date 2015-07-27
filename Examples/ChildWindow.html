@@ -20,8 +20,10 @@
                 GATEWAY_SERVICE, 
                 PARENT_POSTING_STUB,
                 HEARTBEAT_SERVICE,
+                FRAME_NAME = "ActivityFrame",
                 HEARTBEAT_NAME = "ChildHeartbeat",
-                COMPLETED_VERB = "Completed";
+                COMPLETED_VERB = "Completed",
+                LOADED_VERB = "Loaded";
             TEST_SERVICE = Messaging_Gateway.TestService("ChildTestService");
             HEARTBEAT_SERVICE = Heartbeat_Service.HeartbeatService(null, HEARTBEAT_NAME, 30);
 			PARENT_POSTING_STUB = Messaging_Gateway.PostMessageGatewayStub("MainPostingGateway", null, null, parent);
@@ -29,6 +31,11 @@
                 [TEST_SERVICE, HEARTBEAT_SERVICE], 
                 PARENT_POSTING_STUB);
             HEARTBEAT_SERVICE.start();
+            
+            // Function called when the page is ready and loaded
+            var sendLoadedMessage = function(){
+                TEST_SERVICE.sendTestMessage(FRAME_NAME, LOADED_VERB, window.location.href, true);
+            };
 
             // Function called when clicking a button
             // This broadcasts a semantic message into the gateway node
@@ -56,6 +63,15 @@
                     results = regex.exec(location.search);
                 return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
             }
+            
+            // Function to run after loading the window
+            var oldOnload = window.onload;
+            window.onload = function(){
+                if (oldOnload != null){ 
+                    oldOnload();
+                }
+                sendLoadedMessage();
+            };
 		</script>
     </head>
     <body>

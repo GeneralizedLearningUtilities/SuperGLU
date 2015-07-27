@@ -81,11 +81,10 @@ Zet.declare('HeartbeatMonitor', {
 		};
         
         self.receiveMessage = function receiveMessage(msg){
+            self.inherited(receiveMessage, [msg]);
             if (msg.getVerb() === HEARTBEAT_VERB){
-                console.log("GOT HEARTBEAT = " + self._heartbeatNames.indexOf(msg.getObject()));
                 if (self._heartbeatNames.indexOf(msg.getObject()) >= 0){
                     self._heartbeatTimes[msg.getObject()] = new Date().getTime();
-                    console.log("GOT HEARTBEAT = " + self._heartbeatTimes[msg.getObject()]);
                 }
             }
         };
@@ -139,6 +138,7 @@ Zet.declare('HeartbeatMonitor', {
     }
 });
 
+namespace.HEARTBEAT_VERB = HEARTBEAT_VERB;
 namespace.HeartbeatService = HeartbeatService;
 namespace.HeartbeatMonitor = HeartbeatMonitor;
 })(window.Heartbeat_Service = window.Heartbeat_Service || {});
