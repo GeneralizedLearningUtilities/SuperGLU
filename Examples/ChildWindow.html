@@ -43,10 +43,14 @@
             // If no other gateways exist, nothing more will occur.
             // In this case, the parent will display a message indicating receiving the message.
             var onClickTheOnlyButton = function(){
-                var actor = getParameterByName('learnerId'),
+                var actor = getParameterByName('p1'),
                     itemId = window.location.protocol + window.location.pathname,
-                    score = document.getElementById("MyScore").value;
-                TEST_SERVICE.sendTestMessage(actor, COMPLETED_VERB, itemId, score);
+                    score = parseFloat(document.getElementById("MyScore").value),
+                    context = {};
+                    context['classId'] = getParameterByName('class');
+                    context['groupId'] = getParameterByName('group');
+                    context['referrerId'] = getParameterByName('referrerId');
+                TEST_SERVICE.sendTestMessage(actor, COMPLETED_VERB, itemId, score, Messaging.INFORM_ACT, context);
                 HEARTBEAT_SERVICE.stop();
                 // Note: The item identifier could be anything appropriate to link to that activity (i.e., not just an href)
                 // Note 2: We have extra context fields in a dictionary to include all sorts of other useful data.  I tend 

@@ -60,6 +60,7 @@
                     oldReceiveMsg(msg);
                     if ((msg.getSpeechAct() == Messaging.INFORM_ACT) &&
                         (msg.getVerb() == COMPLETED_VERB)){
+                        console.log("HEY!");
                         document.getElementById("AnElement").innerHTML  = "The activity is complete!<br><br>" + 
                             "This message was sent to " + msg.getSpeechAct() + " that: <br>" +
                             "The Learner '" + msg.getActor() + "' " + msg.getVerb() + " <br>" +
@@ -85,7 +86,7 @@
 		</script>
 	</head>
 	<body>
-        <iframe id="Child" src="ChildWindow.html?learnerId=SmartyPants&referrerId=ASSISTmentsGUID"></iframe>
+        <iframe id="Child" src="ChildWindow.html?student=StudentId&class=ClassId&group=GroupId&referrerId=ReferrerGUID"></iframe>
         <div id="AnElement">The page is loading.</div>
 	</body>
 </html>
