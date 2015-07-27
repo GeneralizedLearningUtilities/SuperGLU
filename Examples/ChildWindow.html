@@ -14,14 +14,20 @@
 		<script type="text/javascript" src="js/Util/serialization.js"></script>
 		<script type="text/javascript" src="js/Core/messaging.js"></script>
 		<script type="text/javascript" src="js/Core/messaging-gateway.js"></script>
+		<script type="text/javascript" src="js/Services/Orchestration/heartbeat-service.js"></script>
 		<script type="text/javascript">
 			var TEST_SERVICE, 
                 GATEWAY_SERVICE, 
                 PARENT_POSTING_STUB,
+                HEARTBEAT_SERVICE,
+                HEARTBEAT_NAME = "ChildHeatbeat",
                 COMPLETED_VERB = "Completed";
             TEST_SERVICE = Messaging_Gateway.TestService("ChildTestService");
+            HEARTBEAT_SERVICE = Heartbeat_Service.HeartbeatService(null, HEARTBEAT_NAME);
 			PARENT_POSTING_STUB = Messaging_Gateway.PostMessageGatewayStub("MainPostingGateway", null, null, parent);
-			GATEWAY_SERVICE = Messaging_Gateway.PostMessageGateway("Client Gateway (Main)", [TEST_SERVICE], PARENT_POSTING_STUB);
+			GATEWAY_SERVICE = Messaging_Gateway.PostMessageGateway("Client Gateway (Main)", 
+                [TEST_SERVICE, HEARTBEAT_SERVICE], 
+                PARENT_POSTING_STUB);
 
             // Function called when clicking a button
             // This broadcasts a semantic message into the gateway node

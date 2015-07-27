@@ -10,19 +10,32 @@
 		<script type="text/javascript" src="js/Util/serialization.js"></script>
 		<script type="text/javascript" src="js/Core/messaging.js"></script>
 		<script type="text/javascript" src="js/Core/messaging-gateway.js"></script>
+		<script type="text/javascript" src="js/Services/Orchestration/heartbeat-service.js"></script>
         
 		<script type="text/javascript">
             var GATEWAY,
                 CHILD_WINDOW,
                 CHILD_GATEWAY,
                 TEST_SERVICE,
+                HEART_MONITOR_SERVICE,
+                ON_SKIP_HEARTBEAT,
+                HEARTBEAT_NAME = "ChildHeatbeat",
                 COMPLETED_VERB = 'Completed';
-                
+            
+            ON_SKIP_HEARTBEAT = function(name, monitor){
+                alert("Heartbear skipped a beat: " + name);
+                monitor.stop();
+            }
+            
             window.onload = function(){
                 CHILD_WINDOW = document.getElementById("Child").contentWindow;
                 CHILD_GATEWAY = Messaging_Gateway.PostMessageGatewayStub("Child Gateway Stub", null, null, CHILD_WINDOW);
                 TEST_SERVICE = Messaging_Gateway.TestService("ParentTestService");
-                MAIN_POSTING_GATEWAY = Messaging_Gateway.PostMessageGateway("MainPostingGateway", [CHILD_GATEWAY, TEST_SERVICE]);
+                HEART_MONITOR_SERVICE = Heartbeat_Service.HeartbeatMonitor(null, [HEARTBEAT_NAME],
+                    null, ON_SKIP_HEARTBEAT);
+			
+                MAIN_POSTING_GATEWAY = Messaging_Gateway.PostMessageGateway("MainPostingGateway", 
+                    [CHILD_GATEWAY, HEART_MONITOR_SERVICE, TEST_SERVICE]);
                 
                 // A service that is looking for a certain message
                 // In this case, looking for "Completed" as a verb and "Inform" as the speech act (i.e., Informing that x is completed)
