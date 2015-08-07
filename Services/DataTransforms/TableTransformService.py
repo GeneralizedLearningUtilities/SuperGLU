@@ -7,6 +7,9 @@ from SuperGLU.Core.MessagingGateway import BaseService
 from SuperGLU.Services.DataTransforms.TableTransforms import TableTransformer
 
 class TableTransformService(BaseService, TableTransformer):
+    TABLE_KEY = 'table'
+    OUTPUT_FIELDS_KEY = 'outputFields'
+    
     def __init__(self, functions=None, anId=None, gateway=None, authenticator=None):
         """
         Receive a list of TableTransform instances,
@@ -16,7 +19,13 @@ class TableTransformService(BaseService, TableTransformer):
         BaseService.__init__(self, anId, gateway, authenticator)
         TableTransformer.__init__(self, functions)
 
+    def transformJSONObj(self, jsonObj):
+        jsonObj[self.TABLE_KEY] = self.transform(**jsonObj)
+        return jsonObj
+        
+
 if __name__ == '__main__':
+    import json
     from SuperGLU.Services.DataTransforms.TableTransforms import  AverageFieldsTransform
     # Setup
     averager = AverageFieldsTransform()
@@ -36,25 +45,30 @@ if __name__ == '__main__':
 
     # Re-arrange Columns
     sortColsFunct = ['B', 'C', 'D', 'A']
-    myData = transformer.transform(myData, sortColsFunct)
+    myDataJSON = json.dumps({'table' : myData, 'outputFields' : sortColsFunct,
+                             'miscDoNothing' : None})
+    myDataJSONObj = json.loads(myDataJSON)
+    myData = transformer.transformJSONObj(myDataJSONObj)
     print "Rearranged"
-    print myData
+    print myData['table']
     print
 
     # Add identity columns that duplicate rows B and D
     outfieldIdentities = ['A', 'B', 'C', 'D',
                           ('B2', 'Identity', {'fieldName':'B'})]
-    myData = transformer.transform(myData, outfieldIdentities)
+    myDataJSONObj['outputFields'] = outfieldIdentities
+    myData = transformer.transformJSONObj(myDataJSONObj)
     print "Added Col"
-    print myData
+    print myData['table']
     print
 
     # Add column that is an average of A and C, and remove original B
     averageACnoB = ['A', 'C', 'D', 'B2', 
                     ('Avg(A, C)', 'Average', {'fieldNames': ['A', 'C']})]
-    myData = transformer.transform(myData, averageACnoB)
+    myDataJSONObj['outputFields'] = averageACnoB
+    myData = transformer.transformJSONObj(myDataJSONObj)
     print "Averaged A and C, Removed Original B"
-    print myData
+    print myData['table']
     print
 
 

@@ -44,7 +44,7 @@ class TableTransformer(object):
                     [[] for x in xrange(len(table)-1)])
         for name, functName, params in outputFields:
             # Add default extra params
-            for kwdX, kwdVal in kwds:
+            for kwdX, kwdVal in kwds.items():
                 if kwdX not in params:
                     params[kwdX] = kwdVal
             function = self.getFunction(functName)
