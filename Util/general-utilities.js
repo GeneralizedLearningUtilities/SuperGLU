@@ -1,3 +1,18 @@
+/** Various utilities useful for HTML pages
+    Package: SuperGLU
+    Authors: Benjamin Nye and Daqi Dong
+    License: APL 2.0
+    Requires:
+        - jquery
+        - purl.js
+**/
+
+/** Check if a file exists on the server (synchronously)
+    @param urlToFile: The URL for the file
+    @type urlToFile: str
+    @return: True if file exists, else false.
+    @rtype: bool
+**/
 var checkIfFileExists = function checkIfFileExists(urlToFile){
 	var xhr = new XMLHttpRequest();
 	xhr.open('HEAD', urlToFile, false);
@@ -8,8 +23,14 @@ var checkIfFileExists = function checkIfFileExists(urlToFile){
 	} else {
 		return true;
 	}
-}
+};
 
+/** Add a set of parameters to a URL (uses purl.js)
+    @param url: The base URL to change parameters on. If null, uses the window.location
+    @param sourceParams: The original URL parameters. If null, pulled from window.location
+    @param updatedParams: The updated parameters (e.g., new values, additional values)
+    @param invalidParams: Parameters to filter from the URL, if identified.
+**/
 var addURLParams = function addURLParams(url, sourceParams, updatedParams, invalidParams){
         var key, 
             outParams = {};

@@ -1,5 +1,14 @@
 /** Zet.js Module from https://github.com/nemisj/Zet.js
 	Looks like reasonable and stable class inheritance styles.
+    Revised by: Benjamin Nye
+    Package: SuperGLU
+    License: APL 2.0
+    
+    Notes: 
+        - Fixes to update it to newer versions of JS (was outdated).
+        - Added class factory function for automatically registering and creating Zet objects
+        - Expanded isInstance functionality for type-checking of class
+        - Fixed function inheritance functionality for newer JS versions
 */
 if (typeof window === "undefined"){
 	window = this;
