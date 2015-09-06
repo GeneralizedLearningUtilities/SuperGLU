@@ -8,8 +8,8 @@
     License: APL 2.0
     
     Requires:
-        - Zet.js 
-        - Serializable.js
+        - zet.js 
+        - serializable.js
 **/
 
 if (typeof window === "undefined") {

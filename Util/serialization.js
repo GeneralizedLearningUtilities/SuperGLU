@@ -4,8 +4,8 @@
     Authors: Benjamin Nye and Daqi Dong
     License: APL 2.0
     Requires:
-        - UUID.js
-        - Zet.js
+        - uuid.js
+        - zet.js
 
     Description: 
     -----------------------------------
