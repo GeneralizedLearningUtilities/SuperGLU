@@ -1,5 +1,6 @@
 /** Zet.js Module from https://github.com/nemisj/Zet.js
-	Looks like reasonable and stable class inheritance styles.
+	Handles inheritance and factory function registration/creation/type-checking
+    This is a fork from the original, with updates and enhancements as noted.
     Revised by: Benjamin Nye
     Package: SuperGLU
     License: APL 2.0
@@ -10,8 +11,12 @@
         - Expanded isInstance functionality for type-checking of class
         - Fixed function inheritance functionality for newer JS versions
 */
-if (typeof window === "undefined"){
-	window = this;
+if (typeof SuperGLU === "undefined"){
+    var SuperGLU = {};
+    if (typeof window === "undefined") {
+        var window = this;
+    }
+    window.SuperGLU = SuperGLU;
 }
 
 (function(){
@@ -346,3 +351,4 @@ if (typeof window === "undefined"){
     };
 
 })();
+SuperGLU.Zet = Zet;

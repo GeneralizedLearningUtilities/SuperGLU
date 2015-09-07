@@ -12,12 +12,19 @@
         - Core\messaging-gateway.js
 **/
 
-// Requires Util\Zet, Core\Messaging, jQuery
-if (typeof window === "undefined") {
-    var window = this;
+if (typeof SuperGLU === "undefined"){
+    var SuperGLU = {};
+    if (typeof window === "undefined") {
+        var window = this;
+    }
+    window.SuperGLU = SuperGLU;
 }
 
 (function(namespace, undefined) {
+var Zet = SuperGLU.Zet,
+    Serialization = SuperGLU.Serialization,
+    Messaging = SuperGLU.Messaging,
+    Messaging_Gateway = SuperGLU.Messaging_Gateway;
 
 // Verbs and Context Keys
 var HEARTBEAT_VERB = 'Heartbeat',
@@ -205,4 +212,6 @@ Zet.declare('HeartbeatMonitor', {
 namespace.HEARTBEAT_VERB = HEARTBEAT_VERB;
 namespace.HeartbeatService = HeartbeatService;
 namespace.HeartbeatMonitor = HeartbeatMonitor;
+
+SuperGLU.Heartbeat_Service = namespace;
 })(window.Heartbeat_Service = window.Heartbeat_Service || {});

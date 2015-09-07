@@ -31,11 +31,18 @@
         - Messaging.js
 **/
 
-if (typeof window === "undefined") {
-    var window = this;
+if (typeof SuperGLU === "undefined"){
+    var SuperGLU = {};
+    if (typeof window === "undefined") {
+        var window = this;
+    }
+    window.SuperGLU = SuperGLU;
 }
 
 (function(namespace, undefined) {
+var Zet = SuperGLU.Zet,
+    Serialization = SuperGLU.Serialization,
+    Messaging = SuperGLU.Messaging;
 
 var CATCH_BAD_MESSAGES = false,
     SESSION_ID_KEY = 'sessionId';
@@ -184,8 +191,8 @@ Zet.declare('BaseMessagingNode', {
                 try {
                     msg = Serialization.untokenizeObject(Serialization.makeNative(msg));
                 } catch (err) {
-                    console.log("ERROR: Could not process message data received.  Received:");
-                    console.log(msg);
+                    // console.log("ERROR: Could not process message data received.  Received:");
+                    // console.log(msg);
                     msg = undefined;
                 }
             } else {
@@ -535,7 +542,7 @@ Zet.declare('PostMessageGateway', {
             postMsg = JSON.stringify({'senderId' : self.getId(), 'msg' : self.messageToString(msg)});
             element = self._gateway.getElement();
             if (element != null){
-                //console.log(self._id + " POSTED UP " + self.messageToString(msg));
+                // console.log(JSON.parse(postMsg).senderId + " POSTED UP " + self.messageToString(msg));
                 element.postMessage(postMsg, self._gateway.getOrigin());
             }
         };
@@ -544,7 +551,7 @@ Zet.declare('PostMessageGateway', {
             var element = node.getElement(),
                 postMsg = JSON.stringify({'senderId' : self.getId(), 'msg' : self.messageToString(msg)});
             if (element != null){
-                //console.log(self._id + " DISTRIBUTED POST " + self.messageToString(msg));
+                // console.log(JSON.parse(postMsg).senderId + " POSTED DOWN " + self.messageToString(msg));
                 element.postMessage(postMsg, node.getOrigin());
             }
         };
@@ -556,23 +563,27 @@ Zet.declare('PostMessageGateway', {
                 try{
                     message = JSON.parse(event.data);
                 } catch (err){
-                    console.log("Post Message Gateway did not understand: " + event.data);
+                    // console.log("Post Message Gateway did not understand: " + event.data);
                     return;
                 }
-                if (message.senderId == null || (PostMessageGatewayStub.isInstance(self._gateway) && 
-                     message.senderId == self._gateway.getOrigin())){
+                // Message Received from a Parent Gateway
+                if (PostMessageGatewayStub.isInstance(self._gateway) && 
+                    message.senderId == self._gateway.getOrigin()){
                     // Handle as a message from a parent gateway
                     message = self.stringToMessage(message.msg);
                     if (Messaging.Message.isInstance(message)){
                         self.distributeMessage(message, null);
                     }
-                } else {
+                // Message Received from a Child Gateway
+                } else if (message.senderId in self._postNodes){
                     // Handle as a message from a child node
                     senderId = message.senderId;
                     message = self.stringToMessage(message.msg);
                     if (Messaging.Message.isInstance(message)){
                         self.dispatchMessage(message, senderId);
                     }
+                } else {
+                    // Didn't recognize sender node
                 }
             }
         };
@@ -718,4 +729,5 @@ namespace.PostMessageGateway = PostMessageGateway;
 namespace.HTTPMessagingGateway = HTTPMessagingGateway;
 namespace.TestService = TestService;
 
+SuperGLU.Messaging_Gateway = namespace;
 })(window.Messaging_Gateway = window.Messaging_Gateway || {});

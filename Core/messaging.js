@@ -6,17 +6,24 @@
     Package: SuperGLU (Generalized Learning Utilities)
     Author: Benjamin Nye
     License: APL 2.0
+    Version: 1.0.0
     
     Requires:
         - zet.js 
-        - serializable.js
+        - serialization.js
 **/
-
-if (typeof window === "undefined") {
-    var window = this;
+if (typeof SuperGLU === "undefined"){
+    var SuperGLU = {};
+    if (typeof window === "undefined") {
+        var window = this;
+    }
+    window.SuperGLU = SuperGLU;
 }
 
 (function(namespace, undefined) {
+var version = "1.0.0",
+    Zet = SuperGLU.Zet,
+    Serialization = SuperGLU.Serialization;
 
 var ACCEPT_PROPOSAL_ACT, AGREE_ACT, CANCEL_ACT, CALL_FOR_PROPOSAL_ACT,
     CONFIRM_ACT, DISCONFIRM_ACT, FAILURE_ACT, INFORM_ACT, INFORM_IF_ACT,
@@ -276,6 +283,7 @@ Zet.declare('Message', {
     }
 });
 
+namespace.version = version;
 namespace.Message = Message;
 
 namespace.SPEECH_ACT_SET = SPEECH_ACT_SET;
@@ -320,4 +328,5 @@ namespace.SESSION_ID_KEY = SESSION_ID_KEY;
 namespace.CONTEXT_LANGUAGE_KEY = CONTEXT_LANGUAGE_KEY;
 namespace.CONTEXT_ONTOLOGY_KEY = CONTEXT_ONTOLOGY_KEY;
 
+SuperGLU.Messaging = namespace;
 })(window.Messaging = window.Messaging || {});

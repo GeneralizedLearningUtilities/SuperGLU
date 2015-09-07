@@ -17,13 +17,16 @@
         * TokenRWFormats: Serializes and recovers storage tokens and primatives to specific formats (e.g., JSON)
 **/
 
-if (typeof window === "undefined") {
-    var window = this;
+if (typeof SuperGLU === "undefined"){
+    var SuperGLU = {};
+    if (typeof window === "undefined") {
+        var window = this;
+    }
+    window.SuperGLU = SuperGLU;
 }
 
-
 // Module Declaration
-(function (Serialization, undefined) {
+(function (namespace, undefined) {
 
     var MAP_STRING = "map",
         LIST_STRING = 'list';
@@ -703,47 +706,30 @@ if (typeof window === "undefined") {
     };
     
     // Expose Variables Publicly
-    Serialization.JSON_FORMAT = JSON_FORMAT;
-    Serialization.XML_FORMAT = XML_FORMAT;
-    Serialization.VALID_SERIAL_FORMATS = VALID_SERIAL_FORMATS;
+    namespace.JSON_FORMAT = JSON_FORMAT;
+    namespace.XML_FORMAT = XML_FORMAT;
+    namespace.VALID_SERIAL_FORMATS = VALID_SERIAL_FORMATS;
     
     // Expose Functions Publicly
-	Serialization.createFromToken = createFromToken;
-    Serialization.serializeObject = serializeObject;
-    Serialization.nativizeObject = nativizeObject;
-    Serialization.makeSerialized = makeSerialized;
-    Serialization.makeNative = makeNative;
-    Serialization.tokenizeObject = tokenizeObject;
-    Serialization.untokenizeObject = untokenizeObject;
+	namespace.createFromToken = createFromToken;
+    namespace.serializeObject = serializeObject;
+    namespace.nativizeObject = nativizeObject;
+    namespace.makeSerialized = makeSerialized;
+    namespace.makeNative = makeNative;
+    namespace.tokenizeObject = tokenizeObject;
+    namespace.untokenizeObject = untokenizeObject;
     
     // Expose Classes Publicly
-    Serialization.Serializable = Serializable;
-    Serialization.NamedSerializable = NamedSerializable;
-    Serialization.StorageToken = StorageToken;
-    Serialization.TokenRWFormat = TokenRWFormat;
-    Serialization.JSONRWFormat = JSONRWFormat;
-	//Serialization.XMLRWFormat = XMLRWFormat;
+    namespace.Serializable = Serializable;
+    namespace.NamedSerializable = NamedSerializable;
+    namespace.StorageToken = StorageToken;
+    namespace.TokenRWFormat = TokenRWFormat;
+    namespace.JSONRWFormat = JSONRWFormat;
+	//namespace.XMLRWFormat = XMLRWFormat;
 	
 	// Expose Instances Publicly
-	Serialization.JSONRWFormatter = JSONRWFormatter;
-	//Serialization.XMLRWFormatter = XMLRWFormatter;
-})(window.Serialization = window.Serialization || {});
-
-// Basic Test Debug Code: To see that things work
-if (false) {
-    print("Create The Serializable");
-    x = Serialization.Serializable();
-    print("Is Serializable: " + Zet(x).instanceOf(Serializable));
-    print("Is Token: " + Zet(x).instanceOf(StorageToken));
-    print("ID: " + x.getId());
-    print("ClassID: " + x.getClassId());
-    print("");
+	namespace.JSONRWFormatter = JSONRWFormatter;
+	//namespace.XMLRWFormatter = XMLRWFormatter;
     
-    print("Create the Storage Token");
-    token = x.saveToToken();
-    print("Is Serializable: " + Zet(token).instanceOf(Serializable));
-    print("Is Token: " + Zet(token).instanceOf(StorageToken));
-    print("ID: " + token.getId());
-    print("ClassID: " + token.getClassId());
-    print("Keys: " + token.keys());
-}
+    SuperGLU.Serialization = namespace;
+})(window.Serialization = window.Serialization || {});

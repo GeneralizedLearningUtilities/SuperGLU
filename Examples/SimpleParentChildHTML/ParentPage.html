@@ -4,12 +4,19 @@
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 		<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+        
+        <!-- General Utilities Imports --> 
         <script type="text/javascript" src="js/Util/emacs5-compatibility-patches.js"></script>
+        
+        <!-- SuperGLU Imports -->              
         <script type="text/javascript" src="js/Util/uuid.js"></script>
 		<script type="text/javascript" src="js/Util/zet.js"></script>
 		<script type="text/javascript" src="js/Util/serialization.js"></script>
 		<script type="text/javascript" src="js/Core/messaging.js"></script>
 		<script type="text/javascript" src="js/Core/messaging-gateway.js"></script>
+		<script type="text/javascript" src="js/SuperGLU.js"></script>
+        
+        <!-- SuperGLU Services --> 
 		<script type="text/javascript" src="js/Services/Orchestration/heartbeat-service.js"></script>
         
 		<script type="text/javascript">
@@ -42,7 +49,7 @@
                     oldOnload();
                 }
                 CHILD_WINDOW = document.getElementById("Child").contentWindow;
-                CHILD_GATEWAY = Messaging_Gateway.PostMessageGatewayStub("Child Gateway Stub", null, null, CHILD_WINDOW);
+                CHILD_GATEWAY = Messaging_Gateway.PostMessageGatewayStub("Client Activity Page (Main)", null, null, CHILD_WINDOW);
                 TEST_SERVICE = Messaging_Gateway.TestService("ParentTestService");
                 HEART_MONITOR_SERVICE = Heartbeat_Service.HeartbeatMonitor(null, [HEARTBEAT_NAME],
                     150, onSkipHeartbeat);

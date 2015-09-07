@@ -5,16 +5,22 @@
         <title></title>
         <meta name="google" value="notranslate" />         
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-        
-        <!-- SKO Service Hooks -->              
+
+        <!-- General Utilities Imports -->   
         <script type="text/javascript" src="js/Util/emacs5-compatibility-patches.js"></script>
-        <script type="text/javascript" src="js/Util/uuid.js"></script>
         <script type="text/javascript" src="js/Util/encoder.js"></script>
+
+        <!-- SuperGLU Imports -->              
+        <script type="text/javascript" src="js/Util/uuid.js"></script>
 		<script type="text/javascript" src="js/Util/zet.js"></script>
 		<script type="text/javascript" src="js/Util/serialization.js"></script>
 		<script type="text/javascript" src="js/Core/messaging.js"></script>
 		<script type="text/javascript" src="js/Core/messaging-gateway.js"></script>
+		<script type="text/javascript" src="js/SuperGLU.js"></script>
+        
+        <!-- SuperGLU Services --> 
 		<script type="text/javascript" src="js/Services/Orchestration/heartbeat-service.js"></script>
+        
 		<script type="text/javascript">
 			var TEST_SERVICE, 
                 GATEWAY_SERVICE, 
@@ -24,10 +30,10 @@
                 HEARTBEAT_NAME = "ChildHeartbeat",
                 COMPLETED_VERB = "Completed",
                 LOADED_VERB = "Loaded";
-            TEST_SERVICE = Messaging_Gateway.TestService("ChildTestService");
-            HEARTBEAT_SERVICE = Heartbeat_Service.HeartbeatService(null, HEARTBEAT_NAME, 30);
-			PARENT_POSTING_STUB = Messaging_Gateway.PostMessageGatewayStub("MainPostingGateway", null, null, parent);
-			GATEWAY_SERVICE = Messaging_Gateway.PostMessageGateway("Client Gateway (Main)", 
+            TEST_SERVICE = SuperGLU.Messaging_Gateway.TestService("ChildTestService");
+            HEARTBEAT_SERVICE = SuperGLU.Heartbeat_Service.HeartbeatService(null, HEARTBEAT_NAME, 30);
+			PARENT_POSTING_STUB = SuperGLU.Messaging_Gateway.PostMessageGatewayStub("MainPostingGateway", null, null, parent);
+			GATEWAY_SERVICE = SuperGLU.Messaging_Gateway.PostMessageGateway("Client Activity Page (Main)", 
                 [TEST_SERVICE, HEARTBEAT_SERVICE], 
                 PARENT_POSTING_STUB);
             HEARTBEAT_SERVICE.start();
