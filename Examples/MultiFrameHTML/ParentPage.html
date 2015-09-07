@@ -23,14 +23,12 @@
 		<script type="text/javascript" src="js/reference-data.js"></script>
         
 		<script type="text/javascript">
-            // @TODO: Fill in the name of the child frame postMessage gateway from a URL parameter
             var MAIN_POSTING_GATEWAY,       // A gateway for relaying messages to other gateways and services (as a tree)
                 CHILD_WINDOW,               // Child window iframe refrence
                 CHILD_GATEWAY,              // A child gateway stub to send HTML5 messages to
+                SUPER_GATEWAY,               // A gateway stub for the page above this one
                 TEST_SERVICE,               // A test service that can send simple messages and watch for messages
                 HEART_MONITOR_SERVICE,      // A heart monitor service that looks for a heartbeat named in HEARTBEAT_NAME
-                CHILD_GATEWAY_ID = "ActivityFrame",   // Name for the postMessage gateway in the child frame
-                GATEWAY_ID_URL_PARAM = "gatewayId",   // URL parameter for the gateway id
                 IS_CHILD_LOADED = false,    // A flag that remains false until a message with LOADED_VERB is received
                 LOADING_WAIT_TIME = 60,     // In seconds, how long to wait for child to load
                 LOADED_VERB = "Loaded",             // A Message verb for the "Loaded" message, which indicates that the activity loaded right
@@ -82,11 +80,9 @@
                 var gatewayScope = {};
                     gatewayScope[ReferenceData.REFERENCE_IMPLEMENTATION_VERSION_KEY] = ReferenceData.version;
                     gatewayScope[ReferenceData.USER_AGENT_KEY] = navigator.userAgent;
-                var childFrameElement = document.getElementById("Child");
-                childFrameElement.src = "ChildWindow.html?student=StudentId&class=ClassId&group=GroupId" + 
-                                         "&referrerId=ReferrerGUID&" + GATEWAY_ID_URL_PARAM + "=" + CHILD_GATEWAY_ID;
-                CHILD_WINDOW = childFrameElement.contentWindow;
-                CHILD_GATEWAY = SuperGLU.Messaging_Gateway.PostMessageGatewayStub(CHILD_GATEWAY_ID, null, null, CHILD_WINDOW);
+                CHILD_WINDOW = document.getElementById("Child").contentWindow;
+                CHILD_GATEWAY = SuperGLU.Messaging_Gateway.PostMessageGatewayStub("Client Activity Page (Main)", null, null, CHILD_WINDOW);
+                SUPER_GATEWAY = SuperGLU.Messaging_Gateway.PostMessageGatewayStub("SuperPostingGateway", null, null, parent);
                 TEST_SERVICE = SuperGLU.Messaging_Gateway.TestService("ParentTestService");
                 HEART_MONITOR_SERVICE = SuperGLU.Heartbeat_Service.HeartbeatMonitor(null, [HEARTBEAT_NAME],
                     150, onSkipHeartbeat);
@@ -94,7 +90,7 @@
                 /** Create a gateway as: GatewayId, Child Nodes (Gateways/Services/Stubs), Parent Gateway, Scope added to each message**/
                 MAIN_POSTING_GATEWAY = SuperGLU.Messaging_Gateway.PostMessageGateway("MainPostingGateway", 
                     [CHILD_GATEWAY, HEART_MONITOR_SERVICE, TEST_SERVICE], 
-                    null, null, gatewayScope);
+                    SUPER_GATEWAY, null, gatewayScope);
                 HEART_MONITOR_SERVICE.start();
                 
                 /** This Test Service is looking for a certain message. In this case, looking for "Completed"
@@ -134,7 +130,7 @@
 		</script>
 	</head>
 	<body>
-        <iframe id="Child" src=""></iframe>
+        <iframe id="Child" src="ChildWindow.html?student=StudentId&class=ClassId&group=GroupId&referrerId=ReferrerGUID"></iframe>
         <div id="AnElement">The page is loading.</div>
 	</body>
 </html>

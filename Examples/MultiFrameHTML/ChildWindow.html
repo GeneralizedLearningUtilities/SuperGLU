@@ -30,15 +30,9 @@
                 PARENT_POSTING_STUB,                // Stub that represents the parent frame's messaging gateway
                 HEARTBEAT_SERVICE,                  // Heartbeat service, to generate a steady heartbeat
                 FRAME_NAME = "ActivityFrame",       // A name to call this frame, for reporting purposes
-                GATEWAY_ID_URL_PARAM = 'gatewayId', // A URL parameter with the gateway name for this
                 LOADED_VERB = "Loaded",             // A Message verb for the "Loaded" message, which indicates that the activity loaded right
                 HEARTBEAT_NAME = "ChildHeartbeat",  // A Message verb for the heartbeat this frame looks for
-                COMPLETED_VERB = "Completed";       // A Message verb for a "Completed" message, which occurs when the activity is done    
-            
-            var urlGatewayId = getParameterByName(GATEWAY_ID_URL_PARAM);
-            if (urlGatewayId != null){
-                FRAME_NAME = urlGatewayId;
-            }
+                COMPLETED_VERB = "Completed";       // A Message verb for a "Completed" message, which occurs when the activity is done            
             
             /** Create a custom service for sending simple messages. If not for a
                 simple example, would subclass BaseService instead of TestService.
@@ -96,7 +90,7 @@
 			PARENT_POSTING_STUB = SuperGLU.Messaging_Gateway.PostMessageGatewayStub("MainPostingGateway", null, null, parent);
             
             /** Create a gateway as: GatewayId, Child Nodes (Gateways/Services/Stubs), Parent Gateway, Scope added to each message**/
-			GATEWAY_SERVICE = SuperGLU.Messaging_Gateway.PostMessageGateway(FRAME_NAME, 
+			GATEWAY_SERVICE = SuperGLU.Messaging_Gateway.PostMessageGateway("Client Activity Page (Main)", 
                 [SIMPLE_ACTIVITY_SERVICE, HEARTBEAT_SERVICE], 
                 PARENT_POSTING_STUB, null, gatewayScope);
             HEARTBEAT_SERVICE.start();

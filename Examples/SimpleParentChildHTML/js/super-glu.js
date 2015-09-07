@@ -18,7 +18,7 @@ if (typeof window === "undefined") {
 }
 
 (function(namespace, undefined) {
-namespace.version = "0.6.0";
+namespace.version = "0.1.0";
 
 // Core API Modules
 if ((namespace.Zet == null) && typeof Zet !== 'undefined'){ 
