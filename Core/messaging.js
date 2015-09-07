@@ -21,13 +21,14 @@ if (typeof SuperGLU === "undefined"){
 }
 
 (function(namespace, undefined) {
-var version = "1.0.0",
+var VERSION = "1.0.0",
+    SUPERGLU_VERSION = SuperGLU.version,
     Zet = SuperGLU.Zet,
     Serialization = SuperGLU.Serialization;
 
 var ACCEPT_PROPOSAL_ACT, AGREE_ACT, CANCEL_ACT, CALL_FOR_PROPOSAL_ACT,
     CONFIRM_ACT, DISCONFIRM_ACT, FAILURE_ACT, INFORM_ACT, INFORM_IF_ACT,
-    INFORM_REF_ACT,  NOT_UNDERSTOOD_ACT, PROPOGATE_ACT, PROPOSE_ACT,
+    INFORM_REF_ACT,  NOT_UNDERSTOOD_ACT, PROPAGATE_ACT, PROPOSE_ACT,
     PROXY_ACT, QUERY_IF_ACT, QUERY_REF_ACT, REFUSE_ACT, REJECT_PROPOSAL_ACT,
     REQUEST_ACT, REQUEST_WHEN_ACT, REQUEST_WHENEVER_ACT, SUBSCRIBE_ACT,
     
@@ -37,6 +38,7 @@ var ACCEPT_PROPOSAL_ACT, AGREE_ACT, CANCEL_ACT, CALL_FOR_PROPOSAL_ACT,
     CONTEXT_IN_REPLY_TO_KEY, CONTEXT_REPLY_BY_KEY,
     AUTHORIZATION_KEY, SESSION_ID_KEY, 
     CONTEXT_LANGUAGE_KEY, CONTEXT_ONTOLOGY_KEY,
+    SUPERGLU_VERSION_KEY, MESSAGE_VERSION_KEY,
     SPEECH_ACT_SET, tokenizeObject, untokenizeObject;
     
 // Core Speech Acts
@@ -67,14 +69,14 @@ REFUSE_ACT = "Refuse";
 FAILURE_ACT = "Failure";
 
 // Relay Actions
-PROPOGATE_ACT = "Propogate";
+PROPAGATE_ACT = "Propagate";
 PROXY_ACT = "Proxy";
 SUBSCRIBE_ACT = "Subscribe";
 
 SPEECH_ACT_SET = {ACCEPT_PROPOSAL_ACT : true, AGREE_ACT : true, CANCEL_ACT : true, 
                   CALL_FOR_PROPOSAL_ACT : true, CONFIRM_ACT : true, DISCONFIRM_ACT : true,
                   FAILURE_ACT : true, INFORM_ACT : true, INFORM_IF_ACT : true,
-                  INFORM_REF_ACT : true,  NOT_UNDERSTOOD_ACT : true, PROPOGATE_ACT : true, 
+                  INFORM_REF_ACT : true,  NOT_UNDERSTOOD_ACT : true, PROPAGATE_ACT : true, 
                   PROPOSE_ACT : true, PROXY_ACT : true, QUERY_IF_ACT : true, 
                   QUERY_REF_ACT : true, REFUSE_ACT : true, REJECT_PROPOSAL_ACT : true,
                   REQUEST_ACT : true, REQUEST_WHEN_ACT : true, REQUEST_WHENEVER_ACT : true, 
@@ -97,6 +99,9 @@ AUTHORIZATION_KEY = "authorization";
 SESSION_ID_KEY = "session-id";
 CONTEXT_LANGUAGE_KEY = 'language';
 CONTEXT_ONTOLOGY_KEY = 'ontology';
+
+SUPERGLU_VERSION_KEY = 'SuperGLU-version';
+MESSAGE_VERSION_KEY = 'message-version';
 
 tokenizeObject = Serialization.tokenizeObject;
 untokenizeObject = Serialization.untokenizeObject;
@@ -137,11 +142,18 @@ Zet.declare('Message', {
             self._obj = obj;
             self._result = result;
             self._speechAct = speechAct;
-            self._context = context;
             self._timestamp = timestamp;
             if (self._timestamp == null){
                 self.updateTimestamp();
             }
+            // Fill in version keys
+            if (!(MESSAGE_VERSION_KEY in context)){
+                context[MESSAGE_VERSION_KEY] = VERSION;
+            }
+            if (!(SUPERGLU_VERSION_KEY in context)){
+                context[SUPERGLU_VERSION_KEY] = SUPERGLU_VERSION;
+            }
+            self._context = context;
 		};
         
         /** Get the actor for the message **/
@@ -283,7 +295,7 @@ Zet.declare('Message', {
     }
 });
 
-namespace.version = version;
+namespace.version = VERSION;
 namespace.Message = Message;
 
 namespace.SPEECH_ACT_SET = SPEECH_ACT_SET;
@@ -298,7 +310,7 @@ namespace.INFORM_ACT = INFORM_ACT;
 namespace.INFORM_IF_ACT = INFORM_IF_ACT;
 namespace.INFORM_REF_ACT = INFORM_REF_ACT;
 namespace.NOT_UNDERSTOOD_ACT = NOT_UNDERSTOOD_ACT;
-namespace.PROPOGATE_ACT = PROPOGATE_ACT;
+namespace.PROPAGATE_ACT = PROPAGATE_ACT;
 namespace.PROPOSE_ACT = PROPOSE_ACT;
 namespace.PROXY_ACT = PROXY_ACT;
 namespace.QUERY_IF_ACT = QUERY_IF_ACT;
@@ -327,6 +339,9 @@ namespace.AUTHORIZATION_KEY = AUTHORIZATION_KEY;
 namespace.SESSION_ID_KEY = SESSION_ID_KEY;
 namespace.CONTEXT_LANGUAGE_KEY = CONTEXT_LANGUAGE_KEY;
 namespace.CONTEXT_ONTOLOGY_KEY = CONTEXT_ONTOLOGY_KEY;
+
+namespace.SUPERGLU_VERSION_KEY = SUPERGLU_VERSION_KEY;
+namespace.MESSAGE_VERSION_KEY = MESSAGE_VERSION_KEY;
 
 SuperGLU.Messaging = namespace;
 })(window.Messaging = window.Messaging || {});

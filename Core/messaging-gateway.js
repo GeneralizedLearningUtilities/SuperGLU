@@ -239,11 +239,11 @@ Zet.declare('MessagingGateway', {
         
         /** Send a message from a child node to parent and sibling nodes. When a message is sent
             by a child service, it is dispatched. This sends the message to both the parent gateway
-            and to any sibling services, but NOT bad to the original service.
+            and to any sibling services, but NOT back to the original service.
         **/
         self.dispatchMessage = function dispatchMessage(msg, senderId){
             //console.log(" DISPATCH MSG (" + self.getId() + "):" + Serialization.makeSerialized(Serialization.tokenizeObject(msg)));
-            self.addContextDataToMsg(msg);
+            msg = self.addContextDataToMsg(msg);
             self.sendMessage(msg);
             self._distributeMessage(self._nodes, msg, senderId);
         };
@@ -301,11 +301,12 @@ Zet.declare('MessagingGateway', {
         **/
         self.addContextDataToMsg = function addContextDataToMsg(msg){
             var key;
-            for (key in Object.keys(self._scope)){
+            for (key in self._scope){
                 if (!(msg.hasContextValue(key))){
                     msg.setContextValue(key, self._scope[key]);
                 }
             }
+            return msg;
         };
     }
 });
@@ -702,7 +703,7 @@ Zet.declare('TestService', {
             msg = Messaging.Message(actor, verb, object, result, speechAct, context);
             console.log(msg);
             if ((self._gateway != null) && (addGatewayContext)){
-                self._gateway.addContextDataToMsg(msg);
+                msg = self._gateway.addContextDataToMsg(msg);
             }
 			self.sendMessage(msg);
 		};
@@ -714,7 +715,7 @@ Zet.declare('TestService', {
             msg = Messaging.Message(actor, verb, object, result, speechAct, context);
             console.log(msg);
             if ((self._gateway != null) && (addGatewayContext)){
-                self._gateway.addContextDataToMsg(msg);
+                msg = self._gateway.addContextDataToMsg(msg);
             }
             self._makeRequest(msg, callback);
         };
