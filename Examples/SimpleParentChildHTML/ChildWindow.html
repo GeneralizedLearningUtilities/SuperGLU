@@ -2,7 +2,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"> 
     <head>
-        <title></title>
+        <title>Child Activity Page</title>
         <meta name="google" value="notranslate" />         
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 
@@ -29,15 +29,21 @@
                 GATEWAY_SERVICE,                    // Gateway service for relaying messages in this frame
                 PARENT_POSTING_STUB,                // Stub that represents the parent frame's messaging gateway
                 HEARTBEAT_SERVICE,                  // Heartbeat service, to generate a steady heartbeat
-                FRAME_NAME = "ActivityFrame",       // A name to call this frame, for reporting purposes
-                GATEWAY_ID_URL_PARAM = 'gatewayId', // A URL parameter with the gateway name for this
+                FRAME_NAME = window.name,           // A name to call this frame, for reporting purposes and postMessage
+                PARENT_NAME = parent.name,          // A name to call the parent frame, for reporting purposes and postMessage
                 LOADED_VERB = "Loaded",             // A Message verb for the "Loaded" message, which indicates that the activity loaded right
                 HEARTBEAT_NAME = "ChildHeartbeat",  // A Message verb for the heartbeat this frame looks for
-                COMPLETED_VERB = "Completed";       // A Message verb for a "Completed" message, which occurs when the activity is done    
+                COMPLETED_VERB = "Completed";       // A Message verb for a "Completed" message, which occurs when the activity is done  
+
+            var DEFAULT_FRAME_NAME = "ActivityFrame",
+                DEFAULT_PARENT_NAME = "MainPostingGateway";
             
-            var urlGatewayId = getParameterByName(GATEWAY_ID_URL_PARAM);
-            if (urlGatewayId != null){
-                FRAME_NAME = urlGatewayId;
+            // Allow the Parent to set the PostMessageGateway name
+            if (FRAME_NAME == null){
+                FRAME_NAME = DEFAULT_FRAME_NAME;
+            }
+            if (PARENT_NAME == null){
+                PARENT_NAME = DEFAULT_PARENT_NAME;
             }
             
             /** Create a custom service for sending simple messages. If not for a
@@ -84,7 +90,7 @@
             
             /** Create and hook up the child frame services, in the form:
                 MAIN_POSTING_GATEWAY [stub] (id="MainPostingGateway")
-                    - CHILD_GATEWAY (id="Client Activity Page (Main)")
+                    - CHILD_GATEWAY (id="ActivityFrame")
                         - SIMPLE_ACTIVITY_SERVICE (id="ChildTestService")
                         - HEARTBEAT_SERVICE (id=Random UUID)
             **/
@@ -93,7 +99,7 @@
                 gatewayScope[ReferenceData.USER_AGENT_KEY] = navigator.userAgent;
             SIMPLE_ACTIVITY_SERVICE = SimpleActivityService("ChildTestService");
             HEARTBEAT_SERVICE = SuperGLU.Heartbeat_Service.HeartbeatService(null, HEARTBEAT_NAME, 30);
-			PARENT_POSTING_STUB = SuperGLU.Messaging_Gateway.PostMessageGatewayStub("MainPostingGateway", null, null, parent);
+			PARENT_POSTING_STUB = SuperGLU.Messaging_Gateway.PostMessageGatewayStub(PARENT_NAME, null, null, parent);
             
             /** Create a gateway as: GatewayId, Child Nodes (Gateways/Services/Stubs), Parent Gateway, Scope added to each message**/
 			GATEWAY_SERVICE = SuperGLU.Messaging_Gateway.PostMessageGateway(FRAME_NAME, 
@@ -101,13 +107,18 @@
                 PARENT_POSTING_STUB, null, gatewayScope);
             HEARTBEAT_SERVICE.start();
 
+            /** Calculate Score **/
+            var calculateScore = function(){
+                return parseFloat(document.getElementById("MyScore").value);
+            };
+            
             // Function called when clicking a button
             // This broadcasts a semantic message into the gateway node
             // The message will then be relayed to various connected gateways.
             // If no other gateways exist, nothing more will occur.
             // In this case, the parent will display a message indicating receiving the message.
             var onClickTheOnlyButton = function(){
-                var score = parseFloat(document.getElementById("MyScore").value);
+                var score = calculateScore();
                 SIMPLE_ACTIVITY_SERVICE.sendCompletedMessage(score);
                 HEARTBEAT_SERVICE.stop();
             };
@@ -132,11 +143,19 @@
 		</script>
     </head>
     <body>
+        <div id="MyScoreURL">Child URL = </div>
+        <script type="text/javascript">
+            var initialText = document.getElementById("MyScoreURL").innerHTML;
+            document.getElementById("MyScoreURL").innerHTML  = initialText + window.location.href;
+        </script>
         <!-- @TODO: Improve assessment methodology ;) -->
-        <span>Choose your score: </span> 
-        <input id="MyScore" value="0.0"></input>
-        <!-- Note: Don't need a button.  You can automatically send message whenever, 
-             but ASSISTments will take "Completed" as a signal to close your iFrame -->
-        <button onclick="onClickTheOnlyButton();">Submit Score</button>
+        <br>
+        <div>
+            <span>Choose your score: </span> 
+            <input id="MyScore" value="0.0"></input>
+            <!-- Note: Don't need a button.  You can automatically send message whenever, 
+                 but ASSISTments will take "Completed" as a signal to close your iFrame -->
+            <button onclick="onClickTheOnlyButton();">Submit Score</button>
+        </div>
     </body>
 </html>
