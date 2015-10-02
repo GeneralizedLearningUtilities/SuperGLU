@@ -540,7 +540,11 @@ Zet.declare('PostMessageGateway', {
         // HTML5 PostMessage Commands
         self.sendPostMessage = function sendPostMessage(msg){
             var postMsg, element;
-            postMsg = JSON.stringify({'senderId' : self.getId(), 'msg' : self.messageToString(msg)});
+            postMsg = JSON.stringify({'SuperGLU' : true,
+                                      'msgType' : 'SuperGLU',
+                                      'version' : SuperGLU.version,
+                                      'senderId' : self.getId(), 
+                                      'msg' : self.messageToString(msg)});
             element = self._gateway.getElement();
             if (element != null){
                 // console.log(JSON.parse(postMsg).senderId + " POSTED UP " + self.messageToString(msg));
@@ -549,8 +553,13 @@ Zet.declare('PostMessageGateway', {
         };
         
         self.distributePostMessage = function distributePostMessage(msg, node){
-            var element = node.getElement(),
-                postMsg = JSON.stringify({'senderId' : self.getId(), 'msg' : self.messageToString(msg)});
+            var postMsg, element;
+            element = node.getElement();
+            postMsg = JSON.stringify({'SuperGLU' : true,
+                                      'msgType' : 'SuperGLU',
+                                      'version' : SuperGLU.version,
+                                      'senderId' : self.getId(), 
+                                      'msg' : self.messageToString(msg)});
             if (element != null){
                 // console.log(JSON.parse(postMsg).senderId + " POSTED DOWN " + self.messageToString(msg));
                 element.postMessage(postMsg, node.getOrigin());
