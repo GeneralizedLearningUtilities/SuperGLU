@@ -456,3 +456,4 @@ App_Data/*.ldf
 # Project-specific excludes
 */SessionLogs/*.dat
 logfile.csv
+env
