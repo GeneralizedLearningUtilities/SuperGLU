@@ -13,12 +13,12 @@ from functools import wraps
 
 from threading import Thread
 
-from SuperGLU.Util.ErrorHandling import logError, logWarning
-from SuperGLU.Util.Serialization import serializeObject
-from SuperGLU.Util.SerializationDB import SerializableDBWrapper, SerializableMongoWrapper
-from SuperGLU.Core.MessagingGateway import HTTPMessagingGateway
-from SuperGLU.Core.Messaging import Message
-from SuperGLU.Core.LoggingService.LoggingService import CSVLoggingService, BadDialogCSVLogger
+from Util.ErrorHandling import logError, logWarning
+from Util.Serialization import serializeObject
+from Util.SerializationDB import SerializableDBWrapper, SerializableMongoWrapper
+from Core.MessagingGateway import HTTPMessagingGateway
+from Core.Messaging import Message
+from Services.LoggingService.LoggingService import CSVLoggingService, BadDialogCSVLogger
 
 DEBUG_MODE = False
 DEBUG_ON_VM = False
@@ -61,7 +61,7 @@ def StartServer(app=None, socketio=None, host='localhost', port=5000, debug=True
     logWarning("Starting Socket App")
     try:
         socketio.run(app, host=host, port=port)
-    except Exception, err:
+    except Exception as err:
         DB_CONNECTION.close()
 
 def StartDebugServer(app=None, socketio=None):
@@ -143,7 +143,7 @@ if __name__ == '__main__' or __name__ == 'MinimalServer':
     def receive_message(message):
         try:
             MESSAGING_GATEWAY.onReceiveAJAXMessage(message)
-        except Exception, err:
+        except Exception as err:
             if DEBUG_MODE:
                 raise
             else:
@@ -153,7 +153,7 @@ if __name__ == '__main__' or __name__ == 'MinimalServer':
         #@TODO: TEST AND MAKE SURE THIS workS WITH GUNICORN (if we use that)
         try:
             MESSAGING_GATEWAY.processQueuedMessages()
-        except Exception, err:
+        except Exception as err:
             if DEBUG_MODE:
                 raise
             else:

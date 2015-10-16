@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import datetime
 import re
-from urlparse import urlparse
+from urllib.parse import urlparse
 from SuperGLU.Util.Serialization import Serializable
 
 class ClassifierEngine(Serializable):
@@ -37,7 +37,7 @@ class ClassifierEngine(Serializable):
         """
         classes = {}
         # Get Direct Classes Dependencies
-        for name, c in self._classifiers.iteritems():
+        for name, c in list(self._classifiers.items()):
             classes[name] = set([c2.getClasses() for c2 in c.getConditions()])
         for x, xDeps in classes:
             for y in xDeps:
@@ -56,7 +56,7 @@ class ClassifierEngine(Serializable):
         @param classes: A list of class specifications to check.  If None, check all.
         @type classes: list of ClassifierSpecification
         """
-        if classes is None: classes = self._classifiers.keys()
+        if classes is None: classes = list(self._classifiers.keys())
         for className in classes:
             if className not in self._evaluatedSet:
                 if self._classifiers[className].isMember(instance, self):
@@ -434,7 +434,7 @@ class StringCondition(SequenceClassifierCondition):
     def __call__(self, instance, engine=None):
         if not super(StringCondition, self).__call__(instance):
             return False
-        return isinstance(instance, basestring)
+        return isinstance(instance, str)
 
 class RegExCondition(StringCondition):
     """Checking if the string matches a regex pattern"""
@@ -504,7 +504,7 @@ class MapKeysCondition(MapClassifierCondition):
     def __call__(self, instance, engine=None):
         if not super(MapKeysCondition, self).__call__(instance):
             return False
-        for x in instance.keys():
+        for x in list(instance.keys()):
             for condition in self._conditions:
                 if not condition(x):
                     return False
@@ -522,7 +522,7 @@ class MapValuesCondition(MapClassifierCondition):
     def __call__(self, instance, engine=None):
         if not super(MapValuesCondition, self).__call__(instance):
             return False
-        for x in instance.values():
+        for x in list(instance.values()):
             for condition in self._conditions:
                 if not condition(x):
                     return False
@@ -638,7 +638,7 @@ class MapElementCondition(MapClassifierCondition):
     def __call__(self, instance, engine=None):
         if not super(MapItemsCondition, self).__call__(instance):
             return False
-        for x in instance.values():
+        for x in list(instance.values()):
             for condition in self._conditions:
                 if not condition(x):
                     return False

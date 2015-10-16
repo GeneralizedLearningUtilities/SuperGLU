@@ -84,7 +84,7 @@ read/write/compare test.
 
 import json
 
-from SuperGLU.Util.Serialization import (
+from Util.Serialization import (
     untokenizeObject,
     tokenizeObject,
     nativizeObject,
@@ -93,7 +93,7 @@ from SuperGLU.Util.Serialization import (
     Serializable,
 )
 
-from SuperGLU.Util.Attr import get_prop
+from Util.Attr import get_prop
 
 from pymongo import MongoClient
 
@@ -372,7 +372,7 @@ def DBSerialized(*factoryArgs):
     """
     def decorator(aClass):       
         if not issubclass(aClass, Serializable):
-            raise NotImplementedError(u"%s is not a subclass of Serializable" % aClass)
+            raise NotImplementedError("%s is not a subclass of Serializable" % aClass)
         
         #Hacky cheat - if they don't specify a collection, we'll use the
         #class ID as the collection name - note that we are relying on

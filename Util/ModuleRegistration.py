@@ -44,7 +44,7 @@ def importAllInPackage(packageName=UTIL_PACKAGE_NAME, fileName=None):
                 PENDING_IMPORTS.append(library)
                 importlib.import_module(library)
                 PENDING_IMPORTS.remove(library)
-        except ImportError, err:
+        except ImportError as err:
             #Util.ErrorHandling.errorHandler(sys.exc_info(), 1)
             pass
     return libraries

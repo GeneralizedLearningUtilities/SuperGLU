@@ -37,9 +37,9 @@ def errorHandler(errInfo, mode=None, warning=False):
         mode = _getErrorMode()
     if mode in (LOG_ERRORS_MODE, RAISE_ERRORS_MODE):
         if warning:
-            ERROR_LOGGER.warning(u"INFO: %s", errInfo[1])
+            ERROR_LOGGER.warning("INFO: %s", errInfo[1])
         else:
-            ERROR_LOGGER.error(u"ERROR: \n%s", errInfo[2])
+            ERROR_LOGGER.error("ERROR: \n%s", errInfo[2])
     if mode in (RAISE_ERRORS_MODE,):
         raise
 
@@ -57,7 +57,7 @@ def logError(error, stack=None):
 def logWarning(*args, **kwds):
     try:
         raise LoggedWarning(' '.join([makeStandardEncoding(x) for x in args]))
-    except LoggedWarning, err:
+    except LoggedWarning as err:
         if kwds.get('stack') is None:
             stack = full_stack()
         else:
@@ -93,28 +93,28 @@ def full_stack():
     return stackstr
 
 def makeStandardEncoding(x, encoding='UTF-8'):
-    if isinstance(x, unicode):
+    if isinstance(x, str):
         return x
     elif isinstance(x, str):
-        return unicode(str(x), 'UTF-8', 'ignore')
+        return str(str(x), 'UTF-8', 'ignore')
     else:
         try:
-            return unicode(x)
+            return str(x)
         except Exception:
             pass
         try:
-            return unicode(str(x), 'UTF-8', 'ignore')
+            return str(str(x), 'UTF-8', 'ignore')
         except Exception:
-            return u'(ERROR: COULD NOT DECODE!)'
+            return '(ERROR: COULD NOT DECODE!)'
 
 if __name__ == '__main__':
     def aFunct(x):
-        print x
+        print(x)
         #raise Exception("AAA")
         logWarning("Warning, said it!")
         logError(Exception("Generic Exception!"))
         tryRaiseError(Exception("Generic Exception!"), IGNORE_ERRORS_MODE)
-        print "Keep on trucking: ", x
+        print(("Keep on trucking: ", x))
         #tryRaiseError(Exception("Generic Exception!"), RAISE_ERRORS_MODE)
 
     def bFunct(x):
@@ -123,9 +123,9 @@ if __name__ == '__main__':
     aFunct(1)
     bFunct(2)
     logWarning('AA')
-    logWarning(u'ÂÂ')
-    logWarning("ERROR FROM ATWS: ", 10, u'ÂÂ')
+    logWarning('ÂÂ')
+    logWarning("ERROR FROM ATWS: ", 10, 'ÂÂ')
     logError(Exception('AA'))
-    print "X", unicode(Exception(u'ÂÂ')), "X"
-    logError(Exception(u'ÂÂ'))
-    logError(Exception(u"ERROR FROM ATWS: 10 " + u'ÂÂ'))
+    print(("X", str(Exception('ÂÂ')), "X"));
+    logError(Exception('ÂÂ'))
+    logError(Exception("ERROR FROM ATWS: 10 " + 'ÂÂ'))

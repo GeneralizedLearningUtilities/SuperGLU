@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 import time
 import json
-from Queue import Queue
-from SuperGLU.Core.FIPA.SpeechActs import REQUEST_WHENEVER_ACT
-from SuperGLU.Core.Messaging import Message
-from SuperGLU.Util.ErrorHandling import logError, logWarning
-from SuperGLU.Util.Serialization import (Serializable, serializeObject,
+from queue import Queue
+from Core.FIPA.SpeechActs import REQUEST_WHENEVER_ACT
+from Core.Messaging import Message
+from Util.ErrorHandling import logError, logWarning
+from Util.Serialization import (Serializable, serializeObject,
                                 nativizeObject)
 
 CATCH_BAD_MESSAGES = False
@@ -43,7 +43,7 @@ class BaseMessagingNode(Serializable):
         return None
 
     def _getRequests(self):
-        return self._requests.values()
+        return list(self._requests.values())
 
     def _addRequest(self, msg, callback):
         if callback is not None:
@@ -127,7 +127,7 @@ class MessagingGateway(BaseMessagingNode):
             node.bindToGateway(self)
 
     def getNodes(self):
-        return [service for condition, service in self._nodes.values()]
+        return [service for condition, service in list(self._nodes.values())]
 
     def register(self, node):
         """ Register the signatures of messages that the node is interested in """

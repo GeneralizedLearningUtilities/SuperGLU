@@ -12,9 +12,9 @@ class UnitTestTemplateGenerator(object):
     
     DEFAULT_IGNORE_NAMES = ('__class__','__builtins__', '__doc__', '__file__', '__name__', '__package__')
     DEFAULT_IGNORE_TYPES = ()
-    DEFAULT_ALLOWED_TYPES = (types.ClassType, types.CodeType, types.FunctionType, types.GeneratorType, \
-                             types.MethodType, types.TypeType, types.UnboundMethodType)
-    CONTAINER_TYPES = (types.TypeType, types.ClassType)
+    DEFAULT_ALLOWED_TYPES = (type, types.CodeType, types.FunctionType, types.GeneratorType, \
+                             types.MethodType, type, types.UnboundMethodType)
+    CONTAINER_TYPES = (type, type)
     
     def __init__(self, unitTestClass=unittest.TestCase, ignoreNames=DEFAULT_IGNORE_NAMES, ignoreTypes=DEFAULT_IGNORE_TYPES, \
                  allowedTypes=DEFAULT_ALLOWED_TYPES, maxColWidth=80, indentSpaces=4, capitalLetters=True):

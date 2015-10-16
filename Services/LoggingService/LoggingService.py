@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 import csv
 from datetime import datetime
-from SuperGLU.Core.Messaging import Message
-from SuperGLU.Core.MessagingGateway import BaseService
+from Core.Messaging import Message
+from Core.MessagingGateway import BaseService
 
 
 class BaseLoggingService(BaseService):

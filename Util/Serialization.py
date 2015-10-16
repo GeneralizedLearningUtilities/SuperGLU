@@ -16,7 +16,7 @@ import pickle
 import sys
 import types
 import uuid
-from SuperGLU.Util.ErrorHandling import tryRaiseError
+from Util.ErrorHandling import tryRaiseError
 
 try:
     import lxml.builder
@@ -91,7 +91,7 @@ def tokenizeObject(obj):
         return type(obj)([tokenizeObject(x) for x in obj])
     elif isinstance(obj, TokenRWFormat.VALID_MAPPING_VALUE_TYPES):
         return type(obj)([(tokenizeObject(key), tokenizeObject(val))
-                          for key, val in obj.iteritems()])
+                          for key, val in obj.items()])
     else:
         return obj
 
@@ -103,7 +103,7 @@ def untokenizeObject(obj, context=None):
         return type(obj)([untokenizeObject(x, context) for x in obj])
     elif isinstance(obj, TokenRWFormat.VALID_MAPPING_VALUE_TYPES):
         return type(obj)([(untokenizeObject(key, context), untokenizeObject(val, context))
-                          for key, val in obj.iteritems()])
+                          for key, val in obj.items()])
     else:
         return obj
 
@@ -141,19 +141,18 @@ class SerializableFactoryMetaclass(abc.ABCMeta):
         return self._FACTORY_MAP.get(classId, None)
         
 
-class Serializable(object):
+class Serializable(object, metaclass=SerializableFactoryMetaclass):
     """
     A serializable object, that can be saved to token and opened from token
     """
-    __metaclass__ = SerializableFactoryMetaclass
 
     def __init__(self, id=None):
         if id is None:
-            self._id = unicode(uuid.uuid4())
+            self._id = str(uuid.uuid4())
         elif isinstance(id, uuid.UUID):
-            self._id = unicode(id)
+            self._id = str(id)
         else:
-            self._id = unicode(id)
+            self._id = str(id)
 
     def __eq__(self, other):
         return type(self) == type(other) and self._id == other._id
@@ -166,11 +165,11 @@ class Serializable(object):
 
     def updateId(self, id=None):
         if id is None:
-            self._id = unicode(uuid.uuid4())
+            self._id = str(uuid.uuid4())
         elif isinstance(id, uuid.UUID):
-            self._id = unicode(id)
+            self._id = str(id)
         else:
-            self._id = unicode(id)
+            self._id = str(id)
 
     def getClassId(self):
         return self.CLASS_ID
@@ -179,13 +178,13 @@ class Serializable(object):
         if token.getId() is None:
             self._id = None
         else:
-            self._id = unicode(token.getId())
+            self._id = str(token.getId())
 
     def saveToToken(self):
         if self.getId() is None:
             anId = None
         else:
-            anId = unicode(self.getId())
+            anId = str(self.getId())
         token = StorageToken(anId, self.getClassId())
         return token
 
@@ -225,7 +224,7 @@ class Serializable(object):
     @classmethod
     def defaultOnMissingClass(cls, token, errorOnMissing=False):
         if errorOnMissing:
-            raise InvalidTokenClassError, "%s failed to import: %s"%(token.getClassId(), token), sys.exc_info()[2]
+            raise InvalidTokenClassError("%s failed to import: %s"%(token.getClassId(), token), sys.exc_info()[2])
         else:
             return token
 
@@ -243,7 +242,7 @@ class NamedSerializable(Serializable):
         return self._name
 
     def setName(self, name):
-        if name is None or isinstance(name, basestring):
+        if name is None or isinstance(name, str):
             self._name = name
         else:
             raise TypeError("Invalid name type, got: %s"%(name,))
@@ -280,7 +279,7 @@ class StorageToken(collections.MutableMapping):
         if id is not None:
             self.setId(id)
         elif self.ID_KEY not in self._data:
-            self.setId(unicode(uuid.uuid4()))
+            self.setId(str(uuid.uuid4()))
         if classId is not None:
             self.setClassId(classId)
 
@@ -347,12 +346,12 @@ class StorageToken(collections.MutableMapping):
 
     def isValid(self):
         # Check that ID is valid
-        if not isinstance(self._data.get(self.ID_KEY, None), (int, basestring)):
+        if not isinstance(self._data.get(self.ID_KEY, None), (int, str)):
             return False
         # Check that class name is valid
-        elif not isinstance(self._data.get(self.CLASS_ID_KEY, None), basestring):
+        elif not isinstance(self._data.get(self.CLASS_ID_KEY, None), str):
             return False
-        elif not isinstance(self._data.get(NamedSerializable.NAME_KEY, None), (types.NoneType, basestring)):
+        elif not isinstance(self._data.get(NamedSerializable.NAME_KEY, None), (type(None), str)):
             return False
         else:
             return True
@@ -364,10 +363,10 @@ class StorageToken(collections.MutableMapping):
 class TokenRWFormat(object):
     """ Class that writes storage tokens """
     # Valid Types in Storage Token
-    VALID_KEY_TYPES = (str, unicode)
+    VALID_KEY_TYPES = (str, str)
 
     # Note: Keys of dictionaries should be strings, or else JSON may turn them into strings
-    VALID_ATOMIC_VALUE_TYPES = (bool, int, float, str, unicode, types.NoneType)
+    VALID_ATOMIC_VALUE_TYPES = (bool, int, float, str, str, type(None))
     VALID_SEQUENCE_VALUE_TYPES = (list, tuple,)
     VALID_MAPPING_VALUE_TYPES = (dict,)
     VALID_VALUE_TYPES = VALID_ATOMIC_VALUE_TYPES + VALID_SEQUENCE_VALUE_TYPES + \
@@ -392,13 +391,13 @@ class JSONRWFormat(TokenRWFormat):
     NAME_MAPPING = {'bool': bool,
                     'int': int,
                     'float': float,
-                    'unicode': unicode,
-                    'null': types.NoneType,
+                    'unicode': str,
+                    'null': type(None),
                     'tuple': tuple,
                     'list': list,
                     'map': dict,
                     }
-    TYPE_MAPPING = dict([(val, key) for key, val in NAME_MAPPING.iteritems()])
+    TYPE_MAPPING = dict([(val, key) for key, val in NAME_MAPPING.items()])
     RESERVED_CLASS_IDS = set(NAME_MAPPING.keys())
 
     @classmethod
@@ -424,12 +423,12 @@ class JSONRWFormat(TokenRWFormat):
         elif xType in cls.VALID_MAPPING_VALUE_TYPES:
             return {cls.TYPE_MAPPING[xType] : 
                         dict([(cls.makeSerializable(key),  cls.makeSerializable(val))
-                               for key, val in x.iteritems()])}
+                               for key, val in x.items()])}
         elif xType == StorageToken:
             # Use the Factory Class Id as the type
             return {x.getClassId() : 
                         dict([(cls.makeSerializable(key),  cls.makeSerializable(val))
-                               for key, val in x.iteritems()])}
+                               for key, val in x.items()])}
         else:
             raise TypeError("Tried to serialize unserializable object of type (%s): %s"%(xType, x))
 
@@ -437,7 +436,7 @@ class JSONRWFormat(TokenRWFormat):
     def makeNative(cls, x):
         if not hasattr(x, '__iter__'):
             return x
-        dataTypeName = x.keys()[0]
+        dataTypeName = list(x.keys())[0]
         data = x[dataTypeName]
         dataType = cls.NAME_MAPPING.get(dataTypeName, StorageToken)
         if dataType in cls.VALID_SEQUENCE_VALUE_TYPES:
@@ -445,11 +444,11 @@ class JSONRWFormat(TokenRWFormat):
         elif dataType in cls.VALID_MAPPING_VALUE_TYPES:
             return dataType([(cls.makeNative(key),
                               cls.makeNative(val))
-                              for key, val in data.iteritems()])
+                              for key, val in data.items()])
         elif dataType == StorageToken:
             data = dict([(key,
                           cls.makeNative(val))
-                          for key, val in data.iteritems()])
+                          for key, val in data.items()])
             token = StorageToken(data=data)
             return token
 
@@ -489,13 +488,13 @@ class XMLRWFormat(TokenRWFormat):
     ATTR_MAPPING = {(TYPE_ATTR_NAME, BOOL_TYPE_VALUE): bool,
                     (TYPE_ATTR_NAME, INT_TYPE_VALUE): int,
                     (TYPE_ATTR_NAME, FLOAT_TYPE_VALUE): float,
-                    (TYPE_ATTR_NAME, STR_TYPE_VALUE): unicode,
-                    (NIL_ATTR_NAME, TRUE_VALUE): types.NoneType,
+                    (TYPE_ATTR_NAME, STR_TYPE_VALUE): str,
+                    (NIL_ATTR_NAME, TRUE_VALUE): type(None),
                     (TYPE_ATTR_NAME, SEQ_TYPE_VALUE): list,
                     (TYPE_ATTR_NAME, DICT_TYPE_VALUE): dict,         # No equivalent XSD type
                     (TYPE_ATTR_NAME, None): StorageToken
                     }
-    TYPE_MAPPING = dict([(val, key) for key, val in ATTR_MAPPING.iteritems()])
+    TYPE_MAPPING = dict([(val, key) for key, val in ATTR_MAPPING.items()])
     TYPE_MAPPING[str] = (TYPE_ATTR_NAME, STR_TYPE_VALUE)
     TYPE_MAPPING[tuple] = (TYPE_ATTR_NAME, STR_TYPE_VALUE)
 
@@ -525,7 +524,7 @@ class XMLRWFormat(TokenRWFormat):
                 attrs[cls.TYPE_ATTR_NAME] = x.getClassId()
             # Serialize atomic types
             if xType in cls.VALID_ATOMIC_VALUE_TYPES:
-                print cls.ELEMENT_NAME, attrs
+                print((cls.ELEMENT_NAME, attrs))
                 node = cls.ELEMENT_MAKER(cls.ELEMENT_NAME, **attrs)
                 if x is not None:
                     node.text = repr(x)
@@ -542,7 +541,7 @@ class XMLRWFormat(TokenRWFormat):
             elif xType in cls.VALID_MAPPING_VALUE_TYPES:
                 node = cls.ELEMENT_MAKER(cls.DICT_NAME, **attrs)
                 listAttrs = dict([cls.TYPE_MAPPING[list]])
-                for key, val in x.iteritems():
+                for key, val in x.items():
                     keyPair = cls.ELEMENT_MAKER(cls.DICT_ENTRY_NAME, **listAttrs)
                     cls._makeSerializable(key, keyPair)
                     cls._makeSerializable(val, keyPair)
@@ -551,7 +550,7 @@ class XMLRWFormat(TokenRWFormat):
             elif xType == StorageToken:
                 node = cls.ELEMENT_MAKER(x.getClassId(), **attrs)
                 listAttrs = dict([cls.TYPE_MAPPING[list]])
-                for key, val in x.iteritems():
+                for key, val in x.items():
                     keyPair = cls.ELEMENT_MAKER(cls.DICT_ENTRY_NAME, **listAttrs)
                     cls._makeSerializable(key, keyPair)
                     cls._makeSerializable(val, keyPair)
@@ -568,7 +567,7 @@ class XMLRWFormat(TokenRWFormat):
     def getXMLNodePythonType(cls, node):
         name = node.tag
         if node.get(cls.NIL_ATTR_NAME, False) == cls.TRUE_VALUE:
-            return types.NoneType
+            return type(None)
         else:
             typeAttr = node.get(cls.TYPE_ATTR_NAME, None)
             if typeAttr == cls.BOOL_TYPE_VALUE:
@@ -578,7 +577,7 @@ class XMLRWFormat(TokenRWFormat):
             elif typeAttr == cls.FLOAT_TYPE_VALUE:
                 return float
             elif typeAttr == cls.STR_TYPE_VALUE:
-                return unicode
+                return str
             elif typeAttr == cls.SEQ_TYPE_VALUE:
                 if name == cls.TUPLE_NAME:
                     return tuple
@@ -598,10 +597,10 @@ class XMLRWFormat(TokenRWFormat):
     @classmethod
     def _makeNative(cls, x):
         dataType = cls.getXMLNodePythonType(x)
-        if dataType == types.NoneType:
+        if dataType == type(None):
             return None
         elif dataType in cls.VALID_ATOMIC_VALUE_TYPES:
-            if issubclass(dataType, basestring):
+            if issubclass(dataType, str):
                 return dataType(x.text[1:-1])
             else:
                 return dataType(eval(x.text))

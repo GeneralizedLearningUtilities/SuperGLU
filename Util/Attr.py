@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 """Util.Attr - a module providing attribute utility functions """
+import collections
 
 def _get_prop(src, name, filt=None):
     """Helper (not exptered) to return the attribute on src named name.
@@ -15,7 +16,7 @@ def _get_prop(src, name, filt=None):
     val = getattr(src, name, None)
     
     #If val is a function, then call it to get a value
-    while val and callable(val):
+    while val and isinstance(val, collections.Callable):
         val = val()
     
     #If we have a value and a filter, use the filter

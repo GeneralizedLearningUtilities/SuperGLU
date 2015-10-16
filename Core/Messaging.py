@@ -4,8 +4,8 @@ Module for defining messages, which are used to communicate between services
 """
 from datetime import datetime
 #from dateutil import parser
-from SuperGLU.Core.FIPA.SpeechActs import INFORM_ACT, SPEECH_ACT_SET
-from SuperGLU.Util.Serialization import Serializable, tokenizeObject, untokenizeObject, makeSerialized, StorageToken, makeNative
+from Core.FIPA.SpeechActs import INFORM_ACT, SPEECH_ACT_SET
+from Util.Serialization import Serializable, tokenizeObject, untokenizeObject, makeSerialized, StorageToken, makeNative
 
 class Message(Serializable):
     """
@@ -131,7 +131,7 @@ class Message(Serializable):
         return key in self._context
 
     def getContextKeys(self):
-        return self._context.keys()
+        return list(self._context.keys())
 
     def getContextValue(self, key, default=None):
         return self._context.get(key, default)
@@ -187,15 +187,15 @@ class Message(Serializable):
         if headers is None: headers = cls.DEFAULT_HEADERS
         if context is None: context = cls.DEFAULT_CONTEXT
         if len(flatmessage) != len(headers) + len(context) + 1:
-            print 'Flat message was invalid'
-            print len(flatmessage), len(headers) + len(context) + 1
-            print flatmessage
+            print('Flat message was invalid')
+            print((len(flatmessage), len(headers) + len(context) + 1))
+            print(flatmessage)
             return None
         #make the message
         token = StorageToken()
         headerData = dict([(name, makeNative(flatmessage[i], sFormat)) for i, name in enumerate(headers)])
         contextData = makeNative(flatmessage[-1], sFormat)
-        for name, val in headerData.items():
+        for name, val in list(headerData.items()):
             token[name] = val
         token[cls.CONTEXT_KEY] = contextData
         msg = cls()
@@ -234,7 +234,7 @@ class Message(Serializable):
             token[self.TIMESTAMP_KEY] = tokenizeObject(self._timestamp)
         if len(self._context) > 0:
             token[self.CONTEXT_KEY] = dict([(tokenizeObject(key), tokenizeObject(value))
-                                             for key, value in self._context.iteritems()])
+                                             for key, value in list(self._context.items())])
         return token
 
     def initializeFromToken(self, token, context=None):
