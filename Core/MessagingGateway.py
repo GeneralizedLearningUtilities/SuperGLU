@@ -164,6 +164,8 @@ class HTTPMessagingGateway(MessagingGateway):
     def receiveMessage(self, msg):
         """ Get message from a child and process/distribute it """
         super(HTTPMessagingGateway, self).receiveMessage(msg)
+        logWarning("message Received")
+        logWarning(msg)
         self.queueAJAXMessage(msg)
         self.distributeMessage(msg)
 

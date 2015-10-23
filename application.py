@@ -7,13 +7,23 @@ if sys.version_info < (3, 0):
 
 import os
 import logging
+import flask.ext.socketio
 
 from Util.utils import app_logger, project_file
+from Util.ErrorHandling import logError, logWarning
 from flask import Flask
-from Services.Blueprints import indexPrint
+from Services.Blueprints import indexPrint, childPrint, javascriptPrint
+from Core.MessagingGateway import HTTPMessagingGateway
+from Core.Messaging import Message
+from Services.LoggingService.LoggingService import CSVLoggingService, BadDialogCSVLogger
+
+from threading import Thread
+
 from gludb.config import Database, default_database
 
 from config import env_populate
+
+
 
 
 # Note that application as the main WSGI app is required for Python apps
@@ -49,9 +59,68 @@ app_logger().info('Application debug is %s', application.debug)
 
 # Register our blueprints
 application.register_blueprint(indexPrint)
-#application.register_blueprint(main)
-#application.register_blueprint(admin)
+application.register_blueprint(childPrint)
+application.register_blueprint(javascriptPrint)
 
+
+# Start up the messaging system
+SOCKET_IO_CORE = flask.ext.socketio.SocketIO(application)
+
+#Allow some env specification of helpful test services
+services = []
+
+MESSAGING_GATEWAY = HTTPMessagingGateway(
+        None,
+        SOCKET_IO_CORE,
+        flask.ext.socketio,
+        services
+    )
+
+
+# Message Handling
+#-----------------------------
+@SOCKET_IO_CORE.on('message', namespace='/messaging')
+def receive_message(message):
+    try:
+        MESSAGING_GATEWAY.onReceiveAJAXMessage(message)     
+    except Exception as err:
+        if DEBUG_MODE:
+            raise
+        else:
+            logError(err, stack=traceback.format_exc())
+
+def background_thread():
+    #@TODO: TEST AND MAKE SURE THIS workS WITH GUNICORN (if we use that)
+    try:
+        MESSAGING_GATEWAY.processQueuedMessages()
+    except Exception as err:
+        if DEBUG_MODE:
+            raise
+        else:
+            logError(err, stack=traceback.format_exc())
+            MESSAGING_GATEWAY.processQueuedMessages()
+
+            
+def StartServer(app=None, socketio=None, host='localhost', port=5000, debug=True):
+    Thread(target=background_thread).start()
+    logWarning("Starting Socket App1")
+    try:
+        host = '0.0.0.0' if os.environ['USER'] == 'vagrant' else '127.0.0.1'
+        logWarning(host)
+        logWarning(port)
+        socketio.run(app, host=host, port=port)
+    except Exception as err:
+        DB_CONNECTION.close()
+# Connection Monitoring
+#------------------------------
+@SOCKET_IO_CORE.on('connect', namespace='/messaging')
+def onConnect():
+    logWarning("Connected")
+    #flask.ext.socketio.emit('my response', {'data': 'Connected', 'count': 0})
+
+@SOCKET_IO_CORE.on('disconnect', namespace='/messaging')
+def onDisconnect():
+    logWarning('Client disconnected')
 
 # This will be called before the first request is ever serviced
 @application.before_first_request
@@ -71,13 +140,11 @@ def before_first():
     #Taxonomy.ensure_table()
 
 
-
 # Our entry point - called when our application is started "locally".
 # This WILL NOT be run by Elastic Beanstalk
 def main():
     # Listen on all addresses if running under Vagrant, else listen
     # on localhost
-    host = '0.0.0.0' if os.environ['USER'] == 'vagrant' else '127.0.0.1'
-    application.run(host=host)
+    StartServer(application, SOCKET_IO_CORE, 'localhost', 5000)
 if __name__ == '__main__':
     main()
