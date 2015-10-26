@@ -23,7 +23,7 @@ from gludb.config import Database, default_database
 
 from config import env_populate
 
-
+DEBUG_MODE = True
 
 
 # Note that application as the main WSGI app is required for Python apps

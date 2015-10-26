@@ -186,7 +186,7 @@ class HTTPMessagingGateway(MessagingGateway):
         """ Take message from client and send parent gateway and any child serices """
         if self.DATA_KEY in msg:
             sessionId = msg.get(SESSION_KEY, None)
-            if sessionId is not None and sessionId not in self._socketio.rooms:
+            if sessionId is not None and len(self._socketio.server.rooms(sessionId)) > 0:
                 self._socketioModule.join_room(sessionId)
             # Wrap in a try/except
             msg = self.stringToMessage(msg[self.DATA_KEY])
@@ -207,7 +207,9 @@ class HTTPMessagingGateway(MessagingGateway):
             time.sleep(wait)
             if not self._messages.empty():
                 sessionId, msg = self.dequeueAJAXMessage()
-                if sessionId and sessionId in self._socketio.rooms.get(messagesNS, {}):
+                print(self._socketio.server.rooms(sessionId, messagesNS))
+                # sessionId in 
+                if sessionId and len(self._socketio.server.rooms(sessionId, messagesNS)) > 0:
                     self._socketio.emit(msgKey, {dataKey: msg, sessionKey: sessionId},
                                         namespace=messagesNS, room=sessionId)
                 elif False:

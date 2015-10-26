@@ -434,7 +434,7 @@ class JSONRWFormat(TokenRWFormat):
 
     @classmethod
     def makeNative(cls, x):
-        if not hasattr(x, '__iter__'):
+        if not hasattr(x, '__iter__') or isinstance(x, str):
             return x
         dataTypeName = list(x.keys())[0]
         data = x[dataTypeName]
