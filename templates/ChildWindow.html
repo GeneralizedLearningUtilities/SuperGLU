@@ -34,13 +34,13 @@
                 LOADED_VERB = "Loaded",             // A Message verb for the "Loaded" message, which indicates that the activity loaded right
                 HEARTBEAT_NAME = "ChildHeartbeat",  // A Message verb for the heartbeat this frame looks for
                 COMPLETED_VERB = "Completed";       // A Message verb for a "Completed" message, which occurs when the activity is done  
-                
-                
+
+
             var DEFAULT_FRAME_NAME = "ActivityFrame",
                 DEFAULT_PARENT_NAME = "MainPostingGateway";
             
             // Allow the Parent to set the PostMessageGateway name
-            if (FRAME_NAME == null){
+            if (FRAME_NAME == null || FRAME_NAME == ""){
                 FRAME_NAME = DEFAULT_FRAME_NAME;
             }
             if (PARENT_NAME == null){
