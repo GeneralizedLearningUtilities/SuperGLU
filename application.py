@@ -51,7 +51,7 @@ else:
     application.debug = False
     # See .ebextensions/01logging.config
     logging.basicConfig(
-        filename='/opt/python/log/gluten.log',
+        filename='log/gluten.log',
         level=logging.INFO
     )
 

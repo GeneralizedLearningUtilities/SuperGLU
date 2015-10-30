@@ -1,10 +1,18 @@
 FROM ubuntu:14.04
 
+RUN sudo apt-get -y install python3
+RUN sudo apt-get -y install git
+#RUN sudo apt-get -y install python-pip
+RUN sudo apt-get install -qy python-setuptools
+RUN easy_install pip
+RUN pip install virtualenv
+
+# Install app
+RUN rm -rf superglu/*
+RUN mkdir superglu
+RUN git clone https://github.com/GeneralizedLearningUtilities/SuperGLU superglu
 
 # Install dependencies
-RUN bash ./setup.sh
-RUN bash ./local.sh
+RUN bash ./superglu/setup.sh
 
-EXPOSE 80
-
-CMD ["/usr/sbin/apache2", "-D",  "FOREGROUND"]
+RUN chmod +x ./superglu/local.sh
