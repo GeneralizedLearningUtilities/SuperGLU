@@ -21,4 +21,8 @@ RUN chmod +x ./superglu/local.sh
 EXPOSE 80
 EXPOSE 5000
 
+<<<<<<< HEAD
 CMD ["./superglu/local.sh"]
+=======
+CMD [./superglu/local.sh]
+>>>>>>> 2ea1f5acbfe05cc1ddea7748bea020e47ac3b689
