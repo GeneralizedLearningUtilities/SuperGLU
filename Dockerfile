@@ -23,3 +23,4 @@ EXPOSE 5000
 
 CMD ["./superglu/local.sh"]
 
+
