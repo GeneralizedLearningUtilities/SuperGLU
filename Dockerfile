@@ -12,6 +12,7 @@ RUN rm -rf superglu/*
 RUN mkdir superglu
 RUN git clone https://github.com/GeneralizedLearningUtilities/SuperGLU superglu
 RUN mkdir superglu/log
+RUN > superglu/log/gluten.log
 
 # Install dependencies
 RUN bash ./superglu/setup.sh
