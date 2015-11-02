@@ -147,4 +147,4 @@ def main():
     # on localhost
     StartServer(application, SOCKET_IO_CORE, 'localhost', 5000)
 if __name__ == '__main__':
-    main()
+   Thread(target=main).start()
