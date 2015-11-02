@@ -16,3 +16,8 @@ RUN git clone https://github.com/GeneralizedLearningUtilities/SuperGLU superglu
 RUN bash ./superglu/setup.sh
 
 RUN chmod +x ./superglu/local.sh
+
+EXPOSE 80
+EXPOSE 5000
+
+CMD ["./superglu/local.sh]

@@ -105,7 +105,7 @@ def StartServer(app=None, socketio=None, host='localhost', port=5000, debug=True
     Thread(target=background_thread).start()
     logWarning("Starting Socket App1")
     try:
-        host = '0.0.0.0' if os.environ['USER'] == 'vagrant' else '127.0.0.1'
+        host = '127.0.0.1' if os.environ['USER'] == 'vagrant' else '0.0.0.0'
         logWarning(host)
         logWarning(port)
         socketio.run(app, host=host, port=port)
