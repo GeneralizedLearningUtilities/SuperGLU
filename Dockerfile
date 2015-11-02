@@ -11,6 +11,7 @@ RUN pip install virtualenv
 RUN rm -rf superglu/*
 RUN mkdir superglu
 RUN git clone https://github.com/GeneralizedLearningUtilities/SuperGLU superglu
+RUN mkdir superglu/log
 
 # Install dependencies
 RUN bash ./superglu/setup.sh
@@ -20,4 +21,4 @@ RUN chmod +x ./superglu/local.sh
 EXPOSE 80
 EXPOSE 5000
 
-CMD ["./superglu/local.sh]
+CMD [./superglu/local.sh]
