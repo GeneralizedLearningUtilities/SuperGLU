@@ -8,11 +8,7 @@ RUN easy_install pip
 RUN pip install virtualenv
 
 # Install app
-RUN rm -rf superglu/*
-RUN mkdir superglu
-RUN git clone https://github.com/GeneralizedLearningUtilities/SuperGLU superglu
-RUN mkdir superglu/log
-RUN > superglu/log/gluten.log
+ADD ./ superglu/
 
 # Install dependencies
 RUN bash ./superglu/setup.sh
@@ -22,6 +18,8 @@ RUN chmod +x ./superglu/local.sh
 EXPOSE 80
 EXPOSE 5000
 
-CMD ["./superglu/local.sh"]
+
+CMD ["bash", "./superglu/local.sh"]
+
 
 
