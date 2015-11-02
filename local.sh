@@ -6,5 +6,5 @@ cd $SCRIPT_DIR
 # Use our virtual environment and run the application in DEBUG mode with our
 # test config file. Note that the test config file IS NOT in version control
 source $SCRIPT_DIR/env/bin/activate
-export GLUTEN_CONFIG_FILE=$SCRIPT_DIR/test.config
+export GLUTEN_CONFIG_FILE=$SCRIPT_DIR/prod.config
 python $SCRIPT_DIR/application.py
