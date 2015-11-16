@@ -6,6 +6,7 @@ if sys.version_info < (3, 0):
     sys.exit(1)
 
 import os
+import traceback
 import logging
 import flask.ext.socketio
 
@@ -13,6 +14,7 @@ from Util.utils import app_logger, project_file
 from Util.ErrorHandling import logError, logWarning
 from flask import Flask
 from Services.Blueprints import indexPrint, childPrint, javascriptPrint
+from Services.Tables import IncomingMessage
 from Core.MessagingGateway import HTTPMessagingGateway
 from Core.Messaging import Message
 from Services.LoggingService.LoggingService import CSVLoggingService, BadDialogCSVLogger
@@ -105,7 +107,7 @@ def StartServer(app=None, socketio=None, host='localhost', port=5000, debug=True
     Thread(target=background_thread).start()
     logWarning("Starting Socket App1")
     try:
-        host = '127.0.0.1' if os.environ.get('USER', "ubuntu") == "vagrant" else '0.0.0.0'
+        host = '0.0.0.0'
         logWarning(host)
         logWarning(port)
         socketio.run(app, host=host, port=port)
@@ -129,13 +131,13 @@ def before_first():
 
     if application.debug:
         # Debug/local dev
-        default_database(Database('sqlite', filename=project_file('.test.db')))
+        default_database(Database( 'mongodb', mongo_url='mongodb://localhost:27017/TestDB'))
     else:
         # Production!
         default_database(Database('dynamodb'))
 
     # Make sure we have our tables
-    #User.ensure_table()
+    IncomingMessage.ensure_table()
     #Transcript.ensure_table()
     #Taxonomy.ensure_table()
 
@@ -147,4 +149,7 @@ def main():
     # on localhost
     StartServer(application, SOCKET_IO_CORE, 'localhost', 5000)
 if __name__ == '__main__':
-   Thread(target=main).start()
+    if application.debug:
+        main()
+    else:
+        Thread(target=main).start()

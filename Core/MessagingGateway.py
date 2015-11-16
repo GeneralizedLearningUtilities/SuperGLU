@@ -4,6 +4,7 @@ import json
 from queue import Queue
 from Core.FIPA.SpeechActs import REQUEST_WHENEVER_ACT
 from Core.Messaging import Message
+from Services.Tables import IncomingMessage
 from Util.ErrorHandling import logError, logWarning
 from Util.Serialization import (Serializable, serializeObject,
                                 nativizeObject)
@@ -189,6 +190,13 @@ class HTTPMessagingGateway(MessagingGateway):
             if sessionId is not None and len(self._socketio.server.rooms(sessionId)) > 0:
                 self._socketioModule.join_room(sessionId)
             # Wrap in a try/except
+            
+            #this code should be moved to a service when we re-organize.
+            incomingMsg = IncomingMessage(rawMessage=msg[self.DATA_KEY])
+            incomingMsg.save()
+            copyOfincomingMsg = incomingMsg.find_one(incomingMsg.id);
+            print("database results:");
+            print(copyOfincomingMsg.to_data());
             msg = self.stringToMessage(msg[self.DATA_KEY])
             if isinstance(msg, Message):
                 if self._gateway is not None:
@@ -208,6 +216,7 @@ class HTTPMessagingGateway(MessagingGateway):
             if not self._messages.empty():
                 sessionId, msg = self.dequeueAJAXMessage()
                 print(self._socketio.server.rooms(sessionId, messagesNS))
+
                 # sessionId in 
                 if sessionId and len(self._socketio.server.rooms(sessionId, messagesNS)) > 0:
                     self._socketio.emit(msgKey, {dataKey: msg, sessionKey: sessionId},
