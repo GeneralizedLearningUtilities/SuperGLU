@@ -190,13 +190,6 @@ class HTTPMessagingGateway(MessagingGateway):
             if sessionId is not None and len(self._socketio.server.rooms(sessionId)) > 0:
                 self._socketioModule.join_room(sessionId)
             # Wrap in a try/except
-            
-            #this code should be moved to a service when we re-organize.
-            incomingMsg = IncomingMessage(rawMessage=msg[self.DATA_KEY])
-            incomingMsg.save()
-            copyOfincomingMsg = incomingMsg.find_one(incomingMsg.id);
-            print("database results:");
-            print(copyOfincomingMsg.to_data());
             msg = self.stringToMessage(msg[self.DATA_KEY])
             if isinstance(msg, Message):
                 if self._gateway is not None:

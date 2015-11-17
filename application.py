@@ -17,7 +17,7 @@ from Services.Blueprints import indexPrint, childPrint, javascriptPrint
 from Services.Tables import IncomingMessage
 from Core.MessagingGateway import HTTPMessagingGateway
 from Core.Messaging import Message
-from Services.LoggingService.LoggingService import CSVLoggingService, BadDialogCSVLogger
+from Services.LoggingService.LoggingService import CSVLoggingService, BadDialogCSVLogger, DBLoggingService
 
 from threading import Thread
 
@@ -68,8 +68,9 @@ application.register_blueprint(javascriptPrint)
 # Start up the messaging system
 SOCKET_IO_CORE = flask.ext.socketio.SocketIO(application)
 
+
 #Allow some env specification of helpful test services
-services = []
+services = [DBLoggingService()]
 
 MESSAGING_GATEWAY = HTTPMessagingGateway(
         None,

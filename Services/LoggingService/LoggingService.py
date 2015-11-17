@@ -3,7 +3,8 @@ import csv
 from datetime import datetime
 from Core.Messaging import Message
 from Core.MessagingGateway import BaseService
-
+from Services.Tables import IncomingMessage
+from Util.Serialization import serializeObject, nativizeObject
 
 class BaseLoggingService(BaseService):
     """ A service for logging messages """
@@ -19,6 +20,20 @@ class BaseLoggingService(BaseService):
         raise NotImplementedError
     
 
+
+class DBLoggingService(BaseLoggingService):
+    
+    def __init__(self, anId=None):
+        super(DBLoggingService, self).__init__(anId)
+        
+    def _logMessage(self, msg):
+        #this code should be moved to a service when we re-organize.
+        incomingMsg = IncomingMessage(rawMessage=serializeObject(msg))
+        incomingMsg.save()
+        copyOfincomingMsg = incomingMsg.find_one(incomingMsg.id);
+        print("database results:");
+        print(copyOfincomingMsg.to_data());
+    
 class CSVLoggingService(BaseLoggingService):
     SEP_CHAR = ','
     QUOTE_CHAR = '"'
