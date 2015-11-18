@@ -9,6 +9,7 @@ RUN pip install virtualenv
 
 # Install app
 ADD ./ superglu/
+ADD ./config/boto.cfg /etc/boto.cfg
 
 # Install dependencies
 RUN bash ./superglu/setup.sh
