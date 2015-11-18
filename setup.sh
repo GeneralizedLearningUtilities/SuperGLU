@@ -13,3 +13,4 @@ pip install gludb
 pip install Flask
 pip install flask-socketio==1.0b1
 pip install pymongo
+pip install boto
