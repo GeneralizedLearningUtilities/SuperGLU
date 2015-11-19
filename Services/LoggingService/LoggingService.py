@@ -12,6 +12,8 @@ class BaseLoggingService(BaseService):
     def receiveMessage(self, msg):
         if isinstance(msg, Message):
             self.logMessage(msg)
+            if msg.getVerb() == "RequestLogs":
+                self.dumpLog(msg)
 
     def logMessage(self, msg):
         self._logMessage(msg)
@@ -41,7 +43,10 @@ class DBLoggingService(BaseLoggingService):
     def _dumpLog(self, msg):
        incomingMsg = IncomingMessage(rawMessage=serializeObject(msg))
        allMessages = incomingMsg.find_all()
-       self.sendMessage(Messaging.Message("DBLoggingService", "Dump Logs", "To Client", serializeObject(allMessages)))
+       attrs = [log.rawMessage for log in allMessages]
+       joinedMessage = ""
+       joinedMessage = joinedMessage.join(attrs)
+       self.sendMessage(Message("DBLoggingService", "Dump Logs", "To Client", joinedMessage))
        
         
     

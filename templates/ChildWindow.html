@@ -34,7 +34,7 @@
                 LOADED_VERB = "Loaded",             // A Message verb for the "Loaded" message, which indicates that the activity loaded right
                 HEARTBEAT_NAME = "ChildHeartbeat",  // A Message verb for the heartbeat this frame looks for
                 COMPLETED_VERB = "Completed";       // A Message verb for a "Completed" message, which occurs when the activity is done  
-
+                REQUEST_LOGS = "RequestLogs"        // A Message verb for a request logs message
 
             var DEFAULT_FRAME_NAME = "ActivityFrame",
                 DEFAULT_PARENT_NAME = "MainPostingGateway";
@@ -86,6 +86,13 @@
                         msg = SuperGLU.Messaging.Message(actor, COMPLETED_VERB, itemId, score, Messaging.INFORM_ACT, context);
                         self.sendMessage(msg);
                     };
+                    
+                    
+                   /** message to request all logs from server **/
+                    self.sendRequestLogMessage = function sendRequestLogMessage(){
+                        var msg = SuperGLU.Messaging.Message(FRAME_NAME, REQUEST_LOGS, window.location.href, true);
+                        self.sendMessage(msg);
+                    };
                 }
             });
             
@@ -124,6 +131,12 @@
                 HEARTBEAT_SERVICE.stop();
             };
             
+            
+             var onClickDumpLogs = function(){
+                SIMPLE_ACTIVITY_SERVICE.sendRequestLogMessage();
+                HEARTBEAT_SERVICE.stop();
+            };
+            
             // A really stupid function for grabbing URL Query params
             // Don't use this in real life, please.  Use JQuery, pURL or something else robust.
             function getParameterByName(name) {
@@ -157,6 +170,7 @@
             <!-- Note: Don't need a button.  You can automatically send message whenever, 
                  but ASSISTments will take "Completed" as a signal to close your iFrame -->
             <button onclick="onClickTheOnlyButton();">Submit Score</button>
+            <button onclick="onClickDumpLogs();">Request Logs</button>
         </div>
     </body>
 </html>
