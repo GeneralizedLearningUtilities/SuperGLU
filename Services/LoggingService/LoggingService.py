@@ -20,6 +20,11 @@ class BaseLoggingService(BaseService):
         raise NotImplementedError
     
 
+    def dumpLog(self, msg):
+        self._dumpLog(msg)
+
+    def _dumpLog(self, msg):
+        raise NotImplementedError
 
 class DBLoggingService(BaseLoggingService):
     
@@ -27,12 +32,18 @@ class DBLoggingService(BaseLoggingService):
         super(DBLoggingService, self).__init__(anId)
         
     def _logMessage(self, msg):
-        #this code should be moved to a service when we re-organize.
         incomingMsg = IncomingMessage(rawMessage=serializeObject(msg))
         incomingMsg.save()
         copyOfincomingMsg = incomingMsg.find_one(incomingMsg.id);
-        print("database results:");
-        print(copyOfincomingMsg.to_data());
+      
+        
+        
+    def _dumpLog(self, msg):
+       incomingMsg = IncomingMessage(rawMessage=serializeObject(msg))
+       allMessages = incomingMsg.find_all()
+       self.sendMessage(Messaging.Message("DBLoggingService", "Dump Logs", "To Client", serializeObject(allMessages)))
+       
+        
     
 class CSVLoggingService(BaseLoggingService):
     SEP_CHAR = ','
