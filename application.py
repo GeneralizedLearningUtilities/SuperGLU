@@ -9,6 +9,7 @@ import os
 import traceback
 import logging
 import flask.ext.socketio
+import eventlet
 
 from Util.utils import app_logger, project_file
 from Util.ErrorHandling import logError, logWarning
@@ -27,6 +28,8 @@ from config import env_populate
 
 DEBUG_MODE = False
 
+
+eventlet.monkey_patch()
 
 # Note that application as the main WSGI app is required for Python apps
 # on Elastic Beanstalk. Also note that we provide the default config, but
@@ -66,7 +69,7 @@ application.register_blueprint(javascriptPrint)
 
 
 # Start up the messaging system
-SOCKET_IO_CORE = flask.ext.socketio.SocketIO(application, async_mode='threading')
+SOCKET_IO_CORE = flask.ext.socketio.SocketIO(application)
 
 
 #Allow some env specification of helpful test services

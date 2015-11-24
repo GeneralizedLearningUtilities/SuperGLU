@@ -189,10 +189,8 @@ class HTTPMessagingGateway(MessagingGateway):
         """ Take message from client and send parent gateway and any child serices """
         if self.DATA_KEY in msg:
             sessionId = msg.get(SESSION_KEY, None)
-            if sessionId is not None and len(self._socketio.server.rooms(sessionId)) == 0:
-                self._socketio.server.enter_room(sid, sessionId, self.MESSAGES_NAMESPACE)             
-            print(len(self._socketio.server.rooms(sessionId)))
-            print("sessionID exists: ", sessionId)
+            #if sessionId is not None and len(self._socketioModule.rooms()) == 0:
+            self._socketio.server.enter_room(sid, sessionId, self.MESSAGES_NAMESPACE)             
             # Wrap in a try/except
             msg = self.stringToMessage(msg[self.DATA_KEY])
             msg.setContextValue("sid", sid)
@@ -213,13 +211,8 @@ class HTTPMessagingGateway(MessagingGateway):
             time.sleep(wait)
             if not self._messages.empty():
                 sid, sessionId, msg = self.dequeueAJAXMessage()
-                print (sessionId)
-                print(self._socketio.server.rooms(sessionId, messagesNS))
-                print(self._socketio.server.rooms(sessionId))
-                print("sessionId of message = ", sessionId)
                 # sessionId in 
                 #if sessionId and len(self._socketio.server.rooms(sessionId)) > 0:
-                print("emitting message")
                 self._socketio.emit(msgKey, {dataKey: msg, sessionKey: sessionId}, namespace=messagesNS, room=sessionId)
                # elif False:
                 #    logWarning("ERROR: Could not find room %s (Message was: %s)"%(sessionId, msg))
