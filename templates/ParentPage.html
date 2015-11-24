@@ -16,7 +16,7 @@
 		<script type="text/javascript" src="js/Util/serialization.js"></script>
 		<script type="text/javascript" src="js/Core/messaging.js"></script>
 		<script type="text/javascript" src="js/Core/messaging-gateway.js"></script>
-        <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.0.0/socket.io.min.js"></script>
+        <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.1.0/socket.io.min.js"></script>
         
         <!-- SuperGLU Services --> 
 		<script type="text/javascript" src="js/Services/Orchestration/heartbeat-service.js"></script>
@@ -39,6 +39,7 @@
                 LOADED_VERB = "Loaded",             // A Message verb for the "Loaded" message, which indicates that the activity loaded right
                 HEARTBEAT_NAME = "ChildHeartbeat",  // A Message verb for the heartbeat this frame looks for
                 COMPLETED_VERB = "Completed";       // A Message verb for a "Completed" message, which occurs when the activity is done
+                DUMP_LOG_VERB = "Dump Logs"         // A Message verb for dumping the logs to console
             
             /** Function for heartbeat monitor call if any heartbeats are skipped. 
                 In practice, would typically close the child frame and go to new activity.
@@ -131,6 +132,9 @@
                                ((msg.getVerb() == LOADED_VERB) || 
                                 (msg.getVerb() == Heartbeat_Service.HEARTBEAT_VERB))){
                         IS_CHILD_LOADED = true;
+                    } else if (msg.getVerb() == DUMP_LOG_VERB)
+                    {
+                        console.log("penguins")
                     }
                 };
                 

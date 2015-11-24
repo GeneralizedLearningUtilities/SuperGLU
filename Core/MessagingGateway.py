@@ -177,20 +177,25 @@ class HTTPMessagingGateway(MessagingGateway):
     def queueAJAXMessage(self, msg):
         #logWarning("QUEUE MSG", msg.saveToSerialized())
         sessionId = msg.getContextValue(SESSION_KEY, None)
+        sid = msg.getContextValue("sid", None)
         msg = serializeObject(msg)
-        self._messages.put((sessionId, msg))
+        self._messages.put((sid, sessionId, msg))
+        print ("message away")
 
     def dequeueAJAXMessage(self):
         return self._messages.get()
 
-    def onReceiveAJAXMessage(self, msg):
+    def onReceiveAJAXMessage(self, msg, sid):
         """ Take message from client and send parent gateway and any child serices """
         if self.DATA_KEY in msg:
             sessionId = msg.get(SESSION_KEY, None)
-            if sessionId is not None and len(self._socketio.server.rooms(sessionId)) > 0:
-                self._socketioModule.join_room(sessionId)
+            if sessionId is not None and len(self._socketio.server.rooms(sessionId)) == 0:
+                self._socketio.server.enter_room(sid, sessionId, self.MESSAGES_NAMESPACE)             
+            print(len(self._socketio.server.rooms(sessionId)))
+            print("sessionID exists: ", sessionId)
             # Wrap in a try/except
             msg = self.stringToMessage(msg[self.DATA_KEY])
+            msg.setContextValue("sid", sid)
             if isinstance(msg, Message):
                 if self._gateway is not None:
                     self._gateway.dispatchMessage(msg, self.getId())
@@ -207,15 +212,17 @@ class HTTPMessagingGateway(MessagingGateway):
         while True:
             time.sleep(wait)
             if not self._messages.empty():
-                sessionId, msg = self.dequeueAJAXMessage()
+                sid, sessionId, msg = self.dequeueAJAXMessage()
+                print (sessionId)
                 print(self._socketio.server.rooms(sessionId, messagesNS))
-
+                print(self._socketio.server.rooms(sessionId))
+                print("sessionId of message = ", sessionId)
                 # sessionId in 
-                if sessionId and len(self._socketio.server.rooms(sessionId, messagesNS)) > 0:
-                    self._socketio.emit(msgKey, {dataKey: msg, sessionKey: sessionId},
-                                        namespace=messagesNS, room=sessionId)
-                elif False:
-                    logWarning("ERROR: Could not find room %s (Message was: %s)"%(sessionId, msg))
+                #if sessionId and len(self._socketio.server.rooms(sessionId)) > 0:
+                print("emitting message")
+                self._socketio.emit(msgKey, {dataKey: msg, sessionKey: sessionId}, namespace=messagesNS, room=sessionId)
+               # elif False:
+                #    logWarning("ERROR: Could not find room %s (Message was: %s)"%(sessionId, msg))
                 
 
 class BaseService(BaseMessagingNode):

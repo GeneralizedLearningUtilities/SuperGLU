@@ -11,6 +11,7 @@ source $SCRIPT_DIR/env/bin/activate
 #pip install --upgrade requests[security]
 pip install gludb
 pip install Flask
-pip install flask-socketio==1.0b1
+pip install flask-socketio==1.1
 pip install pymongo
 pip install boto
+pip install eventlet

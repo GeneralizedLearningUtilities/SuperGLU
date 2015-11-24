@@ -66,7 +66,7 @@ application.register_blueprint(javascriptPrint)
 
 
 # Start up the messaging system
-SOCKET_IO_CORE = flask.ext.socketio.SocketIO(application)
+SOCKET_IO_CORE = flask.ext.socketio.SocketIO(application, async_mode='threading')
 
 
 #Allow some env specification of helpful test services
@@ -85,7 +85,7 @@ MESSAGING_GATEWAY = HTTPMessagingGateway(
 @SOCKET_IO_CORE.on('message', namespace='/messaging')
 def receive_message(message):
     try:
-        MESSAGING_GATEWAY.onReceiveAJAXMessage(message)     
+        MESSAGING_GATEWAY.onReceiveAJAXMessage(message, flask.request.sid)     
     except Exception as err:
         if DEBUG_MODE:
             raise

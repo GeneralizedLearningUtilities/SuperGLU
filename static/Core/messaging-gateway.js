@@ -230,7 +230,7 @@ Zet.declare('MessagingGateway', {
             (from parent), it distributes it ONLY to child nodes 
         **/
         self.receiveMessage = function receiveMessage(msg){
-            //console.log(" RECIEVE MSG (" + self.getId() + "):" + Serialization.makeSerialized(Serialization.tokenizeObject(msg)));
+            console.log(" RECIEVE MSG (" + self.getId() + "):" + Serialization.makeSerialized(Serialization.tokenizeObject(msg)));
 			self.inherited(receiveMessage, [msg]);
             self.distributeMessage(msg, null);
         };
