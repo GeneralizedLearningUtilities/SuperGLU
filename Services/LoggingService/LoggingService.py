@@ -35,7 +35,8 @@ class DBLoggingService(BaseLoggingService):
         
     def _logMessage(self, msg):
         incomingMsg = IncomingMessage(rawMessage=serializeObject(msg))
-        incomingMsg.save()
+        if msg.getVerb() != "Dump Logs":
+            incomingMsg.save()
         copyOfincomingMsg = incomingMsg.find_one(incomingMsg.id);
       
         
@@ -45,7 +46,7 @@ class DBLoggingService(BaseLoggingService):
        allMessages = incomingMsg.find_all()
        attrs = [log.rawMessage for log in allMessages]
        joinedMessage = ""
-       joinedMessage = joinedMessage.join(attrs)
+       #joinedMessage = joinedMessage.join(attrs)
        outMsg = Message("DBLoggingService", "Dump Logs", "To Client", joinedMessage)
        outMsg.setContextValue("sessionId", msg.getContextValue("sessionId", None))
        outMsg.setContextValue("sid", msg.getContextValue("sid", None))
