@@ -22,7 +22,7 @@ from Services.LoggingService.LoggingService import CSVLoggingService, BadDialogC
 
 from threading import Thread
 
-from gludb.config import Database, default_database
+from gludb.config import Database, default_database, clear_database_config
 
 from config import env_populate
 
@@ -153,7 +153,4 @@ def main():
     # on localhost
     StartServer(application, SOCKET_IO_CORE, 'localhost', 5000)
 if __name__ == '__main__':
-    if application.debug:
-        main()
-    else:
-        Thread(target=main).start()
+    main()
