@@ -12,7 +12,7 @@ RUN easy_install pip
 RUN pip install virtualenv
 
 #configure nginx
-RUN sudo rm /etc/nginx/conf.d/nginx.conf
+RUN sudo rm /etc/nginx/sites-enabled/default
 RUN sudo ln -s /superglu/config/recommender.x-in-y.conf /etc/nginx/conf.d/
 RUN sudo /etc/init.d/nginx restart
 
