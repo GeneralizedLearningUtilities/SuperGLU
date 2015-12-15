@@ -11,7 +11,6 @@ import logging
 import flask.ext.socketio
 import eventlet
 
-from SuperGLU.Util.utils import app_logger, project_file
 from SuperGLU.Util.ErrorHandling import logError, logWarning
 from flask import Flask
 from Services.Blueprints import indexPrint, childPrint, javascriptPrint
@@ -21,13 +20,12 @@ from Core.Messaging import Message
 from Services.LoggingService.LoggingService import CSVLoggingService, BadDialogCSVLogger, DBLoggingService
 
 from threading import Thread
-
 from gludb.config import Database, default_database, clear_database_config
-
 from config import env_populate
 
 APPLICATION_NAME = 'Recommender'
 DEBUG_MODE = False
+DEFAULT_PORT = 5532
 
 
 eventlet.monkey_patch()
@@ -59,7 +57,7 @@ else:
         level=logging.INFO
     )
 
-logging.getLogger(APPLICATION_NAME)().info('Application debug is %s', application.debug)
+logWarning('Application debug is %s'%(application.debug,))
 
 # Register our blueprints
 application.register_blueprint(indexPrint)
@@ -106,7 +104,7 @@ def background_thread():
             MESSAGING_GATEWAY.processQueuedMessages()
 
             
-def StartServer(app=None, socketio=None, host='localhost', port=5000, debug=True):
+def StartServer(app=None, socketio=None, host='localhost', port=DEFAULT_PORT, debug=True):
     Thread(target=background_thread).start()
     logWarning("Starting Socket App1")
     try:
@@ -150,6 +148,6 @@ def before_first():
 def main():
     # Listen on all addresses if running under Vagrant, else listen
     # on localhost
-    StartServer(application, SOCKET_IO_CORE, 'localhost', 5000)
+    StartServer(application, SOCKET_IO_CORE, 'localhost', DEFAULT_PORT)
 if __name__ == '__main__':
     main()
