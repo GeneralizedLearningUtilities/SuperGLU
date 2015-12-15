@@ -11,8 +11,8 @@ import logging
 import flask.ext.socketio
 import eventlet
 
-from Util.utils import app_logger, project_file
-from Util.ErrorHandling import logError, logWarning
+from SuperGLU.Util.utils import app_logger, project_file
+from SuperGLU.Util.ErrorHandling import logError, logWarning
 from flask import Flask
 from Services.Blueprints import indexPrint, childPrint, javascriptPrint
 from Services.Tables import IncomingMessage
@@ -26,6 +26,7 @@ from gludb.config import Database, default_database, clear_database_config
 
 from config import env_populate
 
+APPLICATION_NAME = 'Recommender'
 DEBUG_MODE = False
 
 
@@ -34,10 +35,10 @@ eventlet.monkey_patch()
 # Note that application as the main WSGI app is required for Python apps
 # on Elastic Beanstalk. Also note that we provide the default config, but
 # someone must supply an actual config file pointed to by the env variable
-# GLUTEN_CONFIG_FILE. See ./local.sh for an example of how to handle this
+# APP_CONFIG_FILE. See ./local.sh for an example of how to handle this
 application = Flask(__name__)
 application.config.from_object('config.DefaultConfig')
-application.config.from_envvar('GLUTEN_CONFIG_FILE')
+application.config.from_envvar('APP_CONFIG_FILE')
 application.secret_key = application.config.get('FLASK_SECRET')
 
 # Set any environment var's requested by the config file
@@ -45,8 +46,6 @@ for name in env_populate:
     os.environ[name] = application.config.get(name)
 
 # Final app settings depending on whether or not we are set for debug mode
-# Note that once we get everything working, we'll have be able to use the
-# logging help in gluten.utils (like app_logger)
 if application.config.get('DEBUG', None):
     # Debug mode - running on a workstation
     application.debug = True
@@ -56,11 +55,11 @@ else:
     application.debug = False
     # See .ebextensions/01logging.config
     logging.basicConfig(
-        filename='log/gluten.log',
+        filename='log/Re.log',
         level=logging.INFO
     )
 
-app_logger().info('Application debug is %s', application.debug)
+logging.getLogger(APPLICATION_NAME)().info('Application debug is %s', application.debug)
 
 # Register our blueprints
 application.register_blueprint(indexPrint)

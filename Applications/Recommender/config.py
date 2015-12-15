@@ -1,6 +1,6 @@
 
 
-# The default config for gluten - keep in mind that you can't even run this
+# The default config for apps - keep in mind that you can't even run this
 # with the local.sh testing script until you
 class DefaultConfig(object):
     # Default values that you should Probably override (unlike below which

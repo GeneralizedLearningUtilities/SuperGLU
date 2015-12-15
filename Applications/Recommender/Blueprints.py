@@ -11,7 +11,7 @@ from flask import (
     Flask
 )
 
-from Util.ErrorHandling import logError, logWarning
+from SuperGLU.Util.ErrorHandling import logError, logWarning
 
 
 indexPrint = Blueprint('index', __name__)
@@ -27,8 +27,8 @@ childPrint = Blueprint('ChildWindow.html', __name__)
 def child():
     return render_template('ChildWindow.html')
 
-javascriptPrint = Blueprint('js/<path:path>', __name__)
-javascriptPrint.static_folder = '../static'
+javascriptPrint = Blueprint('<path:path>', __name__)
+javascriptPrint.static_folder = 'static'
     
 @javascriptPrint.route('/js/<path:path>')
 def javascript_imports(path):

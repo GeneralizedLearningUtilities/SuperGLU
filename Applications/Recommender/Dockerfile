@@ -13,25 +13,24 @@ RUN pip install virtualenv
 
 #configure nginx
 RUN sudo rm /etc/nginx/sites-enabled/default
-RUN sudo ln -s /superglu/config/recommender.x-in-y.conf /etc/nginx/conf.d/
+RUN sudo ln -s ./config/recommender.x-in-y.conf /etc/nginx/conf.d/
 RUN sudo /etc/init.d/nginx restart
 
 # Install app
-ADD ./ superglu/
-ADD ./config/boto.cfg /etc/boto.cfg
-
+ADD ./ Application/
+ADD ../../config/boto.cfg /etc/boto.cfg
 
 # Install dependencies
-RUN bash ./superglu/setup.sh
+RUN bash ./Application/setup.sh
 
-RUN chmod +x ./superglu/local.sh
+RUN chmod +x ./Application/local.sh
 
 EXPOSE 80
 EXPOSE 443
-EXPOSE 5000
+# EXPOSE 5000
 
 
-CMD ["bash", "./superglu/local.sh"]
+CMD ["bash", "/env/Python34/site-packages/SuperGLU/local.sh"]
 
 
 
