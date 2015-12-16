@@ -7,7 +7,7 @@ setup(
   author = 'Benjamin D. Nye',
   author_email = 'benjamin.nye@gmail.com',
   url = 'https://github.com/GeneralizedLearningUtilities/SuperGLU',
-  download_url = 'https://github.com/GeneralizedLearningUtilities/SuperGLU/tarball/0.1',
+  download_url = 'https://github.com/GeneralizedLearningUtilities/SuperGLU/archive/0.1.tar.gz',
   keywords = ['ITS', "Adaptive Learning", 'Messaging', 'HTML5', "Websockets", "Service"],
   classifiers = [          
 		  "License :: OSI Approved :: Apache Software License",
