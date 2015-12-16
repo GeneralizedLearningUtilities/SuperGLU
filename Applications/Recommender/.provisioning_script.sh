@@ -10,7 +10,7 @@ sudo pip install --upgrade requests[security]
 sudo pip install --upgrade pip
 
 # Make a symbolic link to the sync'ed directory for more "natural" work
-ln -s /vagrant ~/SuperGLU
+ln -s /vagrant ~/Recommender
 
 # Remove Ubuntu's landscape stuff and clear login messages
 sudo apt-get purge -y landscape-client landscape-common
@@ -67,7 +67,7 @@ Some helpful hints for working with gluten:
 
  * Connect to gluten from your host operating system at:
 
-    http://127.0.0.1:5000/
+    http://127.0.0.1:5532/
 ==============================================================================
 
 EOF
