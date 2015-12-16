@@ -1,0 +1,2 @@
+include *.*
+exclude manifest.in setup.py git.ignore setup.cfg
