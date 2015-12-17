@@ -14,3 +14,6 @@ sudo easy_install pip
 pip install virtualenv
 
 sudo service mongod start
+
+mkdir log
+echo 'this is a log file' > log/Re.log 
