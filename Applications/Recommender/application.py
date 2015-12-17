@@ -13,11 +13,11 @@ import eventlet
 
 from SuperGLU.Util.ErrorHandling import logError, logWarning
 from flask import Flask
-from Services.Blueprints import indexPrint, childPrint, javascriptPrint
-from Services.Tables import IncomingMessage
-from Core.MessagingGateway import HTTPMessagingGateway
-from Core.Messaging import Message
-from Services.LoggingService.LoggingService import CSVLoggingService, BadDialogCSVLogger, DBLoggingService
+from Blueprints import indexPrint, childPrint, javascriptPrint
+from Tables import IncomingMessage
+from SuperGLU.Core.MessagingGateway import HTTPMessagingGateway
+from SuperGLU.Core.Messaging import Message
+from SuperGLU.Services.LoggingService.LoggingService import CSVLoggingService, BadDialogCSVLogger, DBLoggingService
 
 from threading import Thread
 from gludb.config import Database, default_database, clear_database_config
@@ -128,7 +128,7 @@ def onDisconnect():
 # This will be called before the first request is ever serviced
 @application.before_first_request
 def before_first():
-    app_logger().info('Handling database init')
+    logWarning('Handling database init')
 
     if application.debug:
         # Debug/local dev

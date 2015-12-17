@@ -30,7 +30,7 @@ EXPOSE 443
 # EXPOSE 5000
 
 # TODO: Path unlikely to be correct...
-CMD ["bash", "/env/Python34/site-packages/SuperGLU/local.sh"]
+CMD ["bash", "/env/Python3.4/site-packages/SuperGLU/local.sh"]
 
 
 
