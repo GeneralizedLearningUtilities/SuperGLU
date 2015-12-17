@@ -8,3 +8,5 @@ sudo apt-get install -qy python-setuptools
 sudo easy_install pip
 pip install virtualenv
 
+mkdir log
+echo 'this is a log file' > log/Re.log 
