@@ -1,2 +1,3 @@
-include *.*
-exclude manifest.in setup.py git.ignore setup.cfg
+recursive-include SuperGLU *
+global-exclude .gitignore
+exclude SuperGLU\setup.py SuperGLU\setup.cfg SuperGLU\Manifest.in setup.cfg manifest.in setup.py
