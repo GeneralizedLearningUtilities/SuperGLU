@@ -17,3 +17,5 @@ sudo service mongod start
 
 mkdir log
 echo 'this is a log file' > log/Re.log 
+
+ln -s ~/SuperGLU SuperGLU

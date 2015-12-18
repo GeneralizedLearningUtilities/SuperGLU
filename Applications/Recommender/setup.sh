@@ -16,3 +16,6 @@ pip install pymongo
 pip install boto
 pip install eventlet
 pip install SuperGLU
+
+rsync -a --prune-empty-dirs --include '*/' --include '*.js' --exclude '*' SuperGLU/ static/SuperGLU
+
