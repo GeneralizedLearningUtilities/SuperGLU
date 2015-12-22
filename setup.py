@@ -2,7 +2,7 @@ from distutils.core import setup
 setup(
   name = 'SuperGLU',
   packages = ['SuperGLU'],
-  version = '0.1.2',
+  version = '0.1.3',
   description = 'Base Generalized Learning Utilities (GLU) library for communicating data between different learning technologies and intelligent systems.',
   author = 'Benjamin D. Nye',
   author_email = 'benjamin.nye@gmail.com',
