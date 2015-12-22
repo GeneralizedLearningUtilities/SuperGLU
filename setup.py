@@ -1,4 +1,4 @@
-from distutils.core import setup
+from setuptools import setup
 setup(
   name = 'SuperGLU',
   packages = ['SuperGLU'],
@@ -8,6 +8,7 @@ setup(
   author_email = 'benjamin.nye@gmail.com',
   url = 'https://github.com/GeneralizedLearningUtilities/SuperGLU',
   download_url = 'https://github.com/GeneralizedLearningUtilities/SuperGLU/archive/0.1.tar.gz',
+  include_package_data = True,
   keywords = ['ITS', "Adaptive Learning", 'Messaging', 'HTML5', "Websockets", "Service"],
   classifiers = [          
 		  "License :: OSI Approved :: Apache Software License",

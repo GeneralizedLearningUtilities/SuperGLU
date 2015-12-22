@@ -1,3 +1,2 @@
-recursive-include SuperGLU *
-global-exclude .gitignore
-exclude SuperGLU\setup.py SuperGLU\setup.cfg SuperGLU\Manifest.in setup.cfg manifest.in setup.py
+graft SuperGLU
+global-exclude *.pyc
