@@ -1,8 +1,8 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 setup(
   name = 'SuperGLU',
-  packages = ['SuperGLU'],
-  version = '0.1.4',
+  packages = find_packages(),
+  version = '0.1.5',
   description = 'Base Generalized Learning Utilities (GLU) library for communicating data between different learning technologies and intelligent systems.',
   author = 'Benjamin D. Nye',
   author_email = 'benjamin.nye@gmail.com',
