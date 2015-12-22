@@ -10,6 +10,6 @@ deploy:
     tags: true
     branch: master
 install:
-    sleep: 1
+    - sleep: 1
 script:
     touch Readme.md
