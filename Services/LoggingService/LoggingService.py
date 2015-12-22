@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 import csv
 from datetime import datetime
-from Core.Messaging import Message
-from Core.MessagingGateway import BaseService
-from Services.Tables import IncomingMessage
-from Util.Serialization import serializeObject, nativizeObject
+from SuperGLU.Core.Messaging import Message
+from SuperGLU.Core.MessagingGateway import BaseService
+from SuperGLU.Applications.Recommender.Tables import IncomingMessage
+from SuperGLU.Util.Serialization import serializeObject, nativizeObject
 
 class BaseLoggingService(BaseService):
     """ A service for logging messages """

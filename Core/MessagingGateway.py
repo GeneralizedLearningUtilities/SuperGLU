@@ -2,11 +2,10 @@
 import time
 import json
 from queue import Queue
-from Core.FIPA.SpeechActs import REQUEST_WHENEVER_ACT
-from Core.Messaging import Message
-from Services.Tables import IncomingMessage
-from Util.ErrorHandling import logError, logWarning
-from Util.Serialization import (Serializable, serializeObject,
+from SuperGLU.Core.FIPA.SpeechActs import REQUEST_WHENEVER_ACT
+from SuperGLU.Core.Messaging import Message
+from SuperGLU.Util.ErrorHandling import logError, logWarning
+from SuperGLU.Util.Serialization import (Serializable, serializeObject,
                                 nativizeObject)
 
 CATCH_BAD_MESSAGES = False

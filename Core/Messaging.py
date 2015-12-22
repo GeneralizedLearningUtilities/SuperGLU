@@ -4,8 +4,8 @@ Module for defining messages, which are used to communicate between services
 """
 from datetime import datetime
 #from dateutil import parser
-from Core.FIPA.SpeechActs import INFORM_ACT, SPEECH_ACT_SET
-from Util.Serialization import Serializable, tokenizeObject, untokenizeObject, makeSerialized, StorageToken, makeNative
+from SuperGLU.Core.FIPA.SpeechActs import INFORM_ACT, SPEECH_ACT_SET
+from SuperGLU.Util.Serialization import Serializable, tokenizeObject, untokenizeObject, makeSerialized, StorageToken, makeNative
 
 class Message(Serializable):
     """
