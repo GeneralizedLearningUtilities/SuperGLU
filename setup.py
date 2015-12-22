@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 setup(
   name = 'SuperGLU',
   packages = find_packages(),
-  version = '0.1.5',
+  version = '0.1.6',
   description = 'Base Generalized Learning Utilities (GLU) library for communicating data between different learning technologies and intelligent systems.',
   author = 'Benjamin D. Nye',
   author_email = 'benjamin.nye@gmail.com',
@@ -16,4 +16,5 @@ setup(
 		  "Programming Language :: JavaScript",
           "Development Status :: 3 - Alpha",
           "Intended Audience :: Science/Research"],
+   setup_requires = [ "setuptools_git >= 0.3", ]
 )
