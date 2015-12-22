@@ -84,7 +84,7 @@ read/write/compare test.
 
 import json
 
-from Util.Serialization import (
+from SuperGLU.Util.Serialization import (
     untokenizeObject,
     tokenizeObject,
     nativizeObject,
@@ -93,7 +93,7 @@ from Util.Serialization import (
     Serializable,
 )
 
-from Util.Attr import get_prop
+from SuperGLU.Util.Attr import get_prop
 
 from pymongo import MongoClient
 

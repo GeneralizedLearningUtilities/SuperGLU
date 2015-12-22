@@ -16,7 +16,7 @@ import pickle
 import sys
 import types
 import uuid
-from Util.ErrorHandling import tryRaiseError
+from SuperGLU.Util.ErrorHandling import tryRaiseError
 
 try:
     import lxml.builder
