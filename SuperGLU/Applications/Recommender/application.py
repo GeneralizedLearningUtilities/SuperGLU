@@ -25,7 +25,7 @@ from config import env_populate
 
 APPLICATION_NAME = 'Recommender'
 DEBUG_MODE = False
-DEFAULT_PORT = 5532
+DEFAULT_PORT = 5533
 
 
 eventlet.monkey_patch()
