@@ -9,3 +9,7 @@ deploy:
   on:
     tags: true
     branch: master
+install:
+    sleep: 1
+script:
+    touch Readme.md
