@@ -1,2 +1,4 @@
 graft SuperGLU
 global-exclude *.pyc
+global-exclude *.pyo
+global-exclude .gitignore
