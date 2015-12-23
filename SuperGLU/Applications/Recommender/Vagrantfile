@@ -8,6 +8,7 @@
 Vagrant.configure(2) do |config|
   config.vm.box = "ubuntu/trusty64"
   config.vm.network "forwarded_port", guest: 5533, host: 5533
+  config.vm.network "forwarded_port", guest: 80, host: 80
   config.vm.synced_folder "../../", "/home/vagrant/SuperGLU"
   config.vm.provider "virtualbox" do |vb|
     vb.gui = false
