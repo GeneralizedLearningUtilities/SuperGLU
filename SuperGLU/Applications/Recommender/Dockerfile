@@ -18,7 +18,7 @@ RUN sudo /etc/init.d/nginx restart
 
 # Install app
 ADD ./ Application/
-ADD ../../config/boto.cfg /etc/boto.cfg
+ADD ./config/boto.cfg /etc/boto.cfg
 
 # Install dependencies
 RUN bash ./Application/setup.sh
@@ -30,7 +30,7 @@ EXPOSE 443
 # EXPOSE 5000
 
 # TODO: Path unlikely to be correct...
-CMD ["bash", "/env/Python3.4/site-packages/SuperGLU/local.sh"]
+CMD ["bash", "/Application/local.sh"]
 
 
 
