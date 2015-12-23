@@ -13,7 +13,7 @@ RUN pip install virtualenv
 
 #configure nginx
 RUN sudo rm /etc/nginx/sites-enabled/default
-RUN sudo ln -s ./config/recommender.x-in-y.conf /etc/nginx/conf.d/
+RUN sudo ln -s /Application/config/recommender.x-in-y.conf /etc/nginx/conf.d/
 RUN sudo /etc/init.d/nginx restart
 
 # Install app
@@ -27,7 +27,7 @@ RUN chmod +x ./Application/local.sh
 
 EXPOSE 80
 EXPOSE 443
-# EXPOSE 5000
+#EXPOSE 5533
 
 # TODO: Path unlikely to be correct...
 CMD ["bash", "/Application/local.sh"]

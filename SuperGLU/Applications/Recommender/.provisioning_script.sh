@@ -68,7 +68,7 @@ Some helpful hints for working with gluten:
 
  * Connect to gluten from your host operating system at:
 
-    http://127.0.0.1:5532/
+    http://127.0.0.1:5533/
 ==============================================================================
 
 EOF
