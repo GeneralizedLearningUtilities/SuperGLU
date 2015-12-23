@@ -11,3 +11,5 @@ pip install SuperGLU
 
 mkdir log
 echo 'this is a log file' > log/Re.log 
+
+ln -s env/lib/python3.4/site-packages/SuperGLU SuperGLU
