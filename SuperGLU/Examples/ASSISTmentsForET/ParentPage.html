@@ -1,0 +1,93 @@
+<!-- Imagine this is a wrapper inside of ASSISTments -->
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+        <script type="text/javascript" src="js/Util/emacs5-compatibility-patches.js"></script>
+        <script type="text/javascript" src="js/Util/uuid.js"></script>
+		<script type="text/javascript" src="js/Util/zet.js"></script>
+		<script type="text/javascript" src="js/Util/serialization.js"></script>
+		<script type="text/javascript" src="js/Core/messaging.js"></script>
+		<script type="text/javascript" src="js/Core/messaging-gateway.js"></script>
+		<script type="text/javascript" src="js/Services/Orchestration/heartbeat-service.js"></script>
+        
+		<script type="text/javascript">
+            var GATEWAY,
+                CHILD_WINDOW,
+                CHILD_GATEWAY,
+                TEST_SERVICE,
+                HEART_MONITOR_SERVICE,
+                IS_CHILD_LOADED = false,
+                LOADING_WAIT_TIME = 60, // In seconds
+                HEARTBEAT_NAME = "ChildHeartbeat",
+                COMPLETED_VERB = 'Completed',
+                LOADED_VERB = "Loaded";
+            
+            var onSkipHeartbeat = function(name, monitor){
+                alert("Heartbear skipped a beat: " + name);
+                monitor.stop();
+            };
+            
+            var onLoadingTimeout = function(){
+                if (IS_CHILD_LOADED !== true){
+                    alert("Child frame did not load in " + LOADING_WAIT_TIME + " seconds.");
+                    HEART_MONITOR_SERVICE.stop();
+                }
+            };
+            
+            var oldOnload = window.onload;
+            window.onload = function(){
+                if (oldOnload != null){ 
+                    oldOnload();
+                }
+                CHILD_WINDOW = document.getElementById("Child").contentWindow;
+                CHILD_GATEWAY = Messaging_Gateway.PostMessageGatewayStub("Child Gateway Stub", null, null, CHILD_WINDOW);
+                TEST_SERVICE = Messaging_Gateway.TestService("ParentTestService");
+                HEART_MONITOR_SERVICE = Heartbeat_Service.HeartbeatMonitor(null, [HEARTBEAT_NAME],
+                    150, onSkipHeartbeat);
+			
+                MAIN_POSTING_GATEWAY = Messaging_Gateway.PostMessageGateway("MainPostingGateway", 
+                    [CHILD_GATEWAY, HEART_MONITOR_SERVICE, TEST_SERVICE]);
+                HEART_MONITOR_SERVICE.start();
+                
+                // A service that is looking for a certain message
+                // In this case, looking for "Completed" as a verb and "Inform" as the speech act (i.e., Informing that x is completed)
+                // Technically, better to subclass using Zet (examples found in messaging-gateway.js), 
+                // but this works fine too as long as you're not trying to handle anything crazy.
+                var oldReceiveMsg = TEST_SERVICE.receiveMessage;
+                TEST_SERVICE.receiveMessage = function(msg){
+                    oldReceiveMsg(msg);
+                    if ((msg.getSpeechAct() == Messaging.INFORM_ACT) &&
+                        (msg.getVerb() == COMPLETED_VERB)){
+                        console.log("HEY!");
+                        document.getElementById("AnElement").innerHTML  = "The activity is complete!<br><br>" + 
+                            "This message was sent to " + msg.getSpeechAct() + " that: <br>" +
+                            "The Learner '" + msg.getActor() + "' " + msg.getVerb() + " <br>" +
+                            "the activity '" + msg.getObject() + "'<br>" + 
+                            "with the score " + msg.getResult();
+                    
+                    // Note: Relying entirely on receiving a "Loaded" message is
+                    //       perilous, since the child might finish loading before
+                    //       the parent (and, in fact, might even be likely to).
+                    } else if ((msg.getSpeechAct() == Messaging.INFORM_ACT) &&
+                               ((msg.getVerb() == LOADED_VERB) || 
+                                (msg.getVerb() == Heartbeat_Service.HEARTBEAT_VERB))){
+                        IS_CHILD_LOADED = true;
+                    }
+                };
+                
+                // Mark that everything is loaded
+                document.getElementById('AnElement').innerHTML = 'You are working on some activity now.';
+                
+                // Set a timeout for the time for the child frame to load
+                setTimeout(onLoadingTimeout, LOADING_WAIT_TIME*1000);
+            };
+		</script>
+	</head>
+	<body>
+        <iframe id="Child" src="ChildWindow.html?p1=StudentId&p2=ClassId&p3=AssignmentId&p4=ProblemId&p5=ASSISTmentsGUID&p6=StuTheStudent"></iframe>
+        <div id="AnElement">The page is loading.</div>
+	</body>
+</html>
+

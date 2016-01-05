@@ -1,0 +1,91 @@
+<!-- Imagine this is your own web page (e.g., AutoTutor, Dragoon, BBN) -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"> 
+    <head>
+        <title></title>
+        <meta name="google" value="notranslate" />         
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        
+        <!-- SKO Service Hooks -->              
+        <script type="text/javascript" src="js/Util/emacs5-compatibility-patches.js"></script>
+        <script type="text/javascript" src="js/Util/uuid.js"></script>
+        <script type="text/javascript" src="js/Util/encoder.js"></script>
+		<script type="text/javascript" src="js/Util/zet.js"></script>
+		<script type="text/javascript" src="js/Util/serialization.js"></script>
+		<script type="text/javascript" src="js/Core/messaging.js"></script>
+		<script type="text/javascript" src="js/Core/messaging-gateway.js"></script>
+		<script type="text/javascript" src="js/Services/Orchestration/heartbeat-service.js"></script>
+		<script type="text/javascript">
+			var TEST_SERVICE, 
+                GATEWAY_SERVICE, 
+                PARENT_POSTING_STUB,
+                HEARTBEAT_SERVICE,
+                FRAME_NAME = "ActivityFrame",
+                HEARTBEAT_NAME = "ChildHeartbeat",
+                COMPLETED_VERB = "Completed",
+                LOADED_VERB = "Loaded";
+            TEST_SERVICE = Messaging_Gateway.TestService("ChildTestService");
+            HEARTBEAT_SERVICE = Heartbeat_Service.HeartbeatService(null, HEARTBEAT_NAME, 5);
+			PARENT_POSTING_STUB = Messaging_Gateway.PostMessageGatewayStub("MainPostingGateway", null, null, parent);
+			GATEWAY_SERVICE = Messaging_Gateway.PostMessageGateway("Client Gateway (Main)", 
+                [TEST_SERVICE, HEARTBEAT_SERVICE], 
+                PARENT_POSTING_STUB);
+            HEARTBEAT_SERVICE.start();
+            
+            // Function called when the page is ready and loaded
+            var sendLoadedMessage = function(){
+                TEST_SERVICE.sendTestMessage(FRAME_NAME, LOADED_VERB, window.location.href, true);
+            };
+
+            // Function called when clicking a button
+            // This broadcasts a semantic message into the gateway node
+            // The message will then be relayed to various connected gateways.
+            // If no other gateways exist, nothing more will occur.
+            // In this case, the parent will display a message indicating receiving the message.
+            var onClickTheOnlyButton = function(){
+                var actor = getParameterByName('p1'),
+					firstName = getParameterByName('p6'),							// This can be used to address the student by first name
+                    itemId = window.location.protocol + window.location.pathname,
+                    score = parseFloat(document.getElementById("MyScore").value),
+                    context = {};
+                    context['p2'] = getParameterByName('p2');
+                    context['p3'] = getParameterByName('p3');
+                    context['p4'] = getParameterByName('p4');
+                    context['p5'] = getParameterByName('p5');
+                TEST_SERVICE.sendTestMessage(actor, COMPLETED_VERB, itemId, score, Messaging.INFORM_ACT, context);
+                HEARTBEAT_SERVICE.stop();
+                // Note: The item identifier could be anything appropriate to link to that activity (i.e., not just an href)
+                // Note 2: We have extra context fields in a dictionary to include all sorts of other useful data.  I tend 
+                //         to send along things like the browser type, a session unique ID, and similar stuff.  There are 
+                //         easy ways to add the same metadata to every single message sent from a given gateway.  Timestamps
+                //         are already added automatically to every message, so no worries on those.
+            };
+            
+            // A really stupid function for grabbing URL Query params
+            // Don't use this in real life, please.  Use JQuery, pURL or something else robust.
+            function getParameterByName(name) {
+                name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+                var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+                    results = regex.exec(location.search);
+                return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+            }
+            
+            // Function to run after loading the window
+            var oldOnload = window.onload;
+            window.onload = function(){
+                if (oldOnload != null){ 
+                    oldOnload();
+                }
+                sendLoadedMessage();
+            };
+		</script>
+    </head>
+    <body>
+        <!-- @TODO: Improve assessment methodology ;) -->
+        <span>Choose your score: </span> 
+        <input id="MyScore" value="0.0"></input>
+        <!-- Note: Don't need a button.  You can automatically send message whenever, 
+             but ASSISTments will take "Completed" as a signal to close your iFrame -->
+        <button onclick="onClickTheOnlyButton();">Submit Score</button>
+    </body>
+</html>
