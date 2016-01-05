@@ -1,0 +1,76 @@
+<!-- Imagine this is a wrapper inside of ASSISTments -->
+<!DOCTYPE html>
+<html>
+    <title>Parent Container Page</title>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+        
+        <!-- General Utilities Imports --> 
+        <script type="text/javascript" src="js/Util/emacs5-compatibility-patches.js"></script>
+        
+        <!-- SuperGLU Imports -->              
+        <script type="text/javascript" src="js/Util/uuid.js"></script>
+		<script type="text/javascript" src="js/Util/zet.js"></script>
+		<script type="text/javascript" src="js/super-glu.js"></script>
+		<script type="text/javascript" src="js/Util/serialization.js"></script>
+		<script type="text/javascript" src="js/Core/messaging.js"></script>
+		<script type="text/javascript" src="js/Core/messaging-gateway.js"></script>
+        
+        <!-- SuperGLU Services --> 
+		<script type="text/javascript" src="js/Services/Orchestration/heartbeat-service.js"></script>
+        
+        <!-- Reference-Implementation Data --> 
+		<script type="text/javascript" src="js/reference-data.js"></script>
+        
+		<script type="text/javascript">
+            // Set a window name
+			var CURRENT_WINDOW_NAME = "LoggerPostingGateway";
+            window.name = CURRENT_WINDOW_NAME;
+            var LOGGER_POSTING_GATEWAY,             	// A gateway for relaying messages to other gateways and services (as a tree)
+                ACTIVITY_WINDOW,                        // Activity window iframe reference
+                ACTIVITY_GATEWAY,                       // An activity gateway stub to send HTML5 messages
+                TEST_SERVICE,                       	// A test service that can send simple messages and watch for messages
+                HEART_MONITOR_SERVICE,              	// A heart monitor service that looks for a heartbeat named in HEARTBEAT_NAME
+                ACTIVITY_GATEWAY_ID = "ActivityFrame",  // Name to give the postMessage gateway in the activity frame
+                LOADED_VERB = "Loaded";             	// A Message verb for the "Loaded" message, which indicates that the activity loaded right
+                
+            
+            /** When page loaded, set up the services. **/
+            var oldOnload = window.onload;
+            window.onload = function(){
+                if (oldOnload != null){ 
+                    oldOnload();
+                }
+                /** Set up gateway and service structure. 
+                    This logger window acts as a pass-through to a server-side websocket gateway.
+					SERVER_GATEWAY (id="RecommenderServerGateway")
+						LOGGER_POSTING_GATEWAY (id="LoggerPostingGateway")
+							- ACTIVITY_GATEWAY [stub] (id=""ActivityFrame"")
+							- TEST_SERVICE (id="LoggerTestService")
+                **/
+                var gatewayScope = {};
+                    gatewayScope[ReferenceData.REFERENCE_IMPLEMENTATION_VERSION_KEY] = ReferenceData.version;
+                    gatewayScope[ReferenceData.USER_AGENT_KEY] = navigator.userAgent;
+
+                // Set up Services and Gateways
+                ACTIVITY_GATEWAY = SuperGLU.Messaging_Gateway.PostMessageGatewayStub(CHILD_GATEWAY_ID, null, null, CHILD_WINDOW);
+                TEST_SERVICE = SuperGLU.Messaging_Gateway.TestService("LoggerTestService");
+
+                /** Create a gateway as: GatewayId, Child Nodes (Gateways/Services/Stubs), Parent Gateway, Scope added to each message**/
+                LOGGER_POSTING_GATEWAY = SuperGLU.Messaging_Gateway.PostMessageGateway(CURRENT_WINDOW_NAME, 
+                    [CHILD_GATEWAY, TEST_SERVICE], 
+                    null, null, gatewayScope);
+                window.name = CURRENT_WINDOW_NAME;
+                
+                /** For testing: Sniffer to examine messages that pass through **/
+                var oldReceiveMsg = TEST_SERVICE.receiveMessage;
+                TEST_SERVICE.receiveMessage = function(msg){
+                    oldReceiveMsg(msg);
+                };
+            };
+		</script>
+	</head>
+	<body></body>
+</html>
+
