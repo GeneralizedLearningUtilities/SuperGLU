@@ -38,7 +38,7 @@
             var DEFAULT_FRAME_NAME = "ActivityFrame",
                 DEFAULT_PARENT_NAME = "MainPostingGateway";
             
-            // Allow the Parent to set the PostMessageGateway name
+            // Allow the Parent to set the PostMessageGateway name. Only use these otherwise.
             if (FRAME_NAME == null){
                 FRAME_NAME = DEFAULT_FRAME_NAME;
             }
@@ -103,8 +103,8 @@
             
             /** Create a gateway as: GatewayId, Child Nodes (Gateways/Services/Stubs), Parent Gateway, Scope added to each message**/
 			GATEWAY_SERVICE = SuperGLU.Messaging_Gateway.PostMessageGateway(FRAME_NAME, 
-                [SIMPLE_ACTIVITY_SERVICE, HEARTBEAT_SERVICE], 
-                PARENT_POSTING_STUB, null, gatewayScope);
+                [SIMPLE_ACTIVITY_SERVICE, HEARTBEAT_SERVICE, PARENT_POSTING_STUB], 
+                null, gatewayScope);
             HEARTBEAT_SERVICE.start();
 
             /** Calculate Score **/

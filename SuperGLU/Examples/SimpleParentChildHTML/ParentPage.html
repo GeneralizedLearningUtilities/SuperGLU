@@ -25,8 +25,8 @@
         
 		<script type="text/javascript">
             // Set a window name
-            window.name = "MainPostingGateway";
-            var MAIN_POSTING_GATEWAY,               // A gateway for relaying messages to other gateways and services (as a tree)
+            var FRAME_NAME = "MainPostingGateway",
+                MAIN_POSTING_GATEWAY,               // A gateway for relaying messages to other gateways and services (as a tree)
                 CHILD_WINDOW,                       // Child window iframe reference
                 CHILD_GATEWAY,                      // A child gateway stub to send HTML5 messages
                 TEST_SERVICE,                       // A test service that can send simple messages and watch for messages
@@ -37,6 +37,7 @@
                 LOADED_VERB = "Loaded",             // A Message verb for the "Loaded" message, which indicates that the activity loaded right
                 HEARTBEAT_NAME = "ChildHeartbeat",  // A Message verb for the heartbeat this frame looks for
                 COMPLETED_VERB = "Completed";       // A Message verb for a "Completed" message, which occurs when the activity is done            
+            window.name = FRAME_NAME;
             
             /** Function for heartbeat monitor call if any heartbeats are skipped. 
                 In practice, would typically close the child frame and go to new activity.
@@ -97,10 +98,10 @@
                     150, onSkipHeartbeat);
 			
                 /** Create a gateway as: GatewayId, Child Nodes (Gateways/Services/Stubs), Parent Gateway, Scope added to each message**/
-                MAIN_POSTING_GATEWAY = SuperGLU.Messaging_Gateway.PostMessageGateway("MainPostingGateway", 
+                MAIN_POSTING_GATEWAY = SuperGLU.Messaging_Gateway.PostMessageGateway(FRAME_NAME, 
                     [CHILD_GATEWAY, HEART_MONITOR_SERVICE, TEST_SERVICE], 
-                    null, null, gatewayScope);
-                window.name = "MainPostingGateway";
+                    null, gatewayScope);
+                window.name = FRAME_NAME;
                 HEART_MONITOR_SERVICE.start();
                 
                 /** This Test Service is looking for a certain message. In this case, looking for "Completed"
