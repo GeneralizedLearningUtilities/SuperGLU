@@ -20,12 +20,13 @@
         
         <!-- SuperGLU Services --> 
 		<script type="text/javascript" src="/js/SuperGLU/Services/Orchestration/heartbeat-service.js"></script>
+		<script type="text/javascript" src="/js/SuperGLU/Services/LoggingService/standard-its-logging.js"></script>
 
         <!-- Reference-Implementation Data --> 
 		<script type="text/javascript" src="/js/reference-data.js"></script>
 
 		<script type="text/javascript">
-			var SIMPLE_ACTIVITY_SERVICE,            // Test service to send messages to the parent about an activity
+			var ITS_LOGGING_SERVICE,                    // Test service to send messages to the parent about an activity
                 GATEWAY_SERVICE,                    // Gateway service for relaying messages in this frame
                 PARENT_POSTING_STUB,                // Stub that represents the parent frame's messaging gateway
                 HEARTBEAT_SERVICE,                  // Heartbeat service, to generate a steady heartbeat
@@ -33,8 +34,8 @@
                 PARENT_NAME = parent.name,          // A name to call the parent frame, for reporting purposes and postMessage
                 LOADED_VERB = "Loaded",             // A Message verb for the "Loaded" message, which indicates that the activity loaded right
                 HEARTBEAT_NAME = "ChildHeartbeat",  // A Message verb for the heartbeat this frame looks for
-                COMPLETED_VERB = "Completed";       // A Message verb for a "Completed" message, which occurs when the activity is done  
-                REQUEST_LOGS = "RequestLogs"        // A Message verb for a request logs message
+                COMPLETED_VERB = "Completed",       // A Message verb for a "Completed" message, which occurs when the activity is done  
+                REQUEST_LOGS = "RequestLogs";        // A Message verb for a request logs message
 
             var DEFAULT_FRAME_NAME = "ActivityFrame",
                 DEFAULT_PARENT_NAME = "MainPostingGateway";
@@ -102,17 +103,23 @@
                         - SIMPLE_ACTIVITY_SERVICE (id="ChildTestService")
                         - HEARTBEAT_SERVICE (id=Random UUID)
             **/
-            var gatewayScope = {};
-                gatewayScope[ReferenceData.REFERENCE_IMPLEMENTATION_VERSION_KEY] = ReferenceData.version;
-                gatewayScope[ReferenceData.USER_AGENT_KEY] = navigator.userAgent;
+            var taskId = window.location.host + window.location.pathname + '?taskId=' + getParameterByName('taskId'),
+                gatewayScope = {},
+                loggingScope = {};
+            gatewayScope[ReferenceData.REFERENCE_IMPLEMENTATION_VERSION_KEY] = ReferenceData.version;
+            gatewayScope[ReferenceData.USER_AGENT_KEY] = navigator.userAgent;
+            loggingScope['classId'] = getParameterByName('class');
+            loggingScope['groupId'] = getParameterByName('group');
             SIMPLE_ACTIVITY_SERVICE = SimpleActivityService("ChildTestService");
+            LOGGING_SERVICE = SuperGLU.Standard_ITS_Logging.StandardITSLoggingService(null,
+                getParameterByName('student'), taskId, null, getParameterByName('referrerId'), loggingScope);
             HEARTBEAT_SERVICE = SuperGLU.Heartbeat_Service.HeartbeatService(null, HEARTBEAT_NAME, 30);
 			PARENT_POSTING_STUB = SuperGLU.Messaging_Gateway.PostMessageGatewayStub(PARENT_NAME, null, null, parent);
             
             /** Create a gateway as: GatewayId, Child Nodes (Gateways/Services/Stubs), Parent Gateway, Scope added to each message**/
 			GATEWAY_SERVICE = SuperGLU.Messaging_Gateway.PostMessageGateway(FRAME_NAME, 
-                [SIMPLE_ACTIVITY_SERVICE, HEARTBEAT_SERVICE], 
-                PARENT_POSTING_STUB, null, gatewayScope);
+                [LOGGING_SERVICE, SIMPLE_ACTIVITY_SERVICE, HEARTBEAT_SERVICE, PARENT_POSTING_STUB], 
+                null, gatewayScope);
             HEARTBEAT_SERVICE.start();
 
             /** Calculate Score **/
@@ -127,12 +134,12 @@
             // In this case, the parent will display a message indicating receiving the message.
             var onClickTheOnlyButton = function(){
                 var score = calculateScore();
-                SIMPLE_ACTIVITY_SERVICE.sendCompletedMessage(score);
+                LOGGING_SERVICE.sendCompletedTask(score);
                 HEARTBEAT_SERVICE.stop();
             };
             
             
-             var onClickDumpLogs = function(){
+            var onClickDumpLogs = function(){
                 SIMPLE_ACTIVITY_SERVICE.sendRequestLogMessage();
                 HEARTBEAT_SERVICE.stop();
             };
@@ -152,7 +159,8 @@
                 if (oldOnload != null){ 
                     oldOnload();
                 }
-                SIMPLE_ACTIVITY_SERVICE.sendLoadedMessage();
+                console.log(LOGGING_SERVICE);
+                LOGGING_SERVICE.sendLoadedTask(FRAME_NAME);
             };
 		</script>
     </head>

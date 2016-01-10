@@ -15,7 +15,8 @@ pip install flask-socketio==1.1
 pip install pymongo
 pip install boto
 pip install eventlet
-pip install SuperGLU
+# pip install SuperGLU
 
+mkdir static/SuperGLU
 rsync -a --prune-empty-dirs --include '*/' --include '*.js' --exclude '*' SuperGLU/ static/SuperGLU
 

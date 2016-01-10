@@ -90,7 +90,7 @@
                 // Set up Child Frame
                 var childFrameElement = document.getElementById("Child");
                 childFrameElement.name = CHILD_GATEWAY_ID;
-                childFrameElement.src = "ChildWindow.html?student=StudentId&class=ClassId&group=GroupId&referrerId=ReferrerGUID";
+                childFrameElement.src = "ChildWindow.html?taskId=MyUniqueTaskID&student=StudentId&class=ClassId&group=GroupId&referrerId=ReferrerGUID";
                 CHILD_WINDOW = childFrameElement.contentWindow;
                 
                 // Set up Services and Gateways
@@ -102,7 +102,7 @@
                 /** Create a gateway as: GatewayId, Child Nodes (Gateways/Services/Stubs), Parent Gateway, Scope added to each message**/
                 MAIN_POSTING_GATEWAY = SuperGLU.Messaging_Gateway.PostMessageGateway("MainPostingGateway", 
                     [CHILD_GATEWAY, HEART_MONITOR_SERVICE, TEST_SERVICE], 
-                    null, null, gatewayScope);
+                    null, gatewayScope);
                 HTTP_MESSAGING_GATEWAY = Messaging_Gateway.HTTPMessagingGateway(null, [MAIN_POSTING_GATEWAY], window.location.protocol + "//" + document.domain + ':' + location.port);
                 window.name = "MainPostingGateway";
                 HEART_MONITOR_SERVICE.start();
@@ -134,7 +134,7 @@
                         IS_CHILD_LOADED = true;
                     } else if (msg.getVerb() == DUMP_LOG_VERB)
                     {
-                        console.log("penguins")
+                        console.log("RECEIVED LOG DUMP")
                     }
                 };
                 
