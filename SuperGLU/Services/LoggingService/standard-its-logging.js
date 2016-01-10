@@ -248,7 +248,7 @@ Zet.declare('StandardITSLoggingService', {
             This requires the misconception ID, rather than the element.
         **/
         self.sendMisconception = function sendMisconception(misconceptionId, content, stepId, contentType){
-            self._sendInputMessage(SUBMITTED_ANSWER_VERB, misconceptionId, content, stepId, contentType);
+            self._sendInputMessage(MISCONCEPTION_VERB, misconceptionId, content, stepId, contentType);
         };
 
         /** Send the overall level of system support given to the user for this task **/
