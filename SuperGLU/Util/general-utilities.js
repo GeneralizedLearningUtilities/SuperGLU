@@ -35,8 +35,10 @@ function getParameterByName(name, url, allowMultiParam) {
     Adapted From SO-Querty: http://stackoverflow.com/revisions/21152762/21
 **/
 var getURLParams = function getURLParams(url, allowMultiParam){
-    if (url == null){url = window.location.search;}
     if (allowMultiParam == null){allowMultiParam = false;}
+    if (url == null){
+        url = window.location.search;
+    }
     var qd = {};
     url.substr(1).split("&").forEach(function(item) {
         var s = item.split("="),
@@ -68,7 +70,7 @@ var addURLParams = function addURLParams(url, sourceParams, updatedParams, inval
         url = window.location.protocol + '//' + window.location.host + window.location.pathname;
     }
     if (invalidParams == null){ invalidParams = []; }
-    if (sourceParams == null){ sourceParams = getURLParams(url, false); }
+    if (sourceParams == null){ sourceParams = getURLParams(null, false); }
     if (updatedParams == null){ updatedParams = {}; }
     for (key in sourceParams){ 
         if (invalidParams.indexOf(key) < 0){

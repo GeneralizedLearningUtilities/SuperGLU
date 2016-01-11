@@ -353,6 +353,8 @@ Zet.declare('PostMessageGatewayStub', {
             }
             self._origin = origin;
             self._element = element;
+            self._isActive = false;
+            self._queue = [];
 		};
         
         /** Get the origin, which is the frame location that is expected **/
@@ -363,6 +365,10 @@ Zet.declare('PostMessageGatewayStub', {
         /** Get the HTML element where messages would be sent **/
         self.getElement = function getElement(){
             return self._element;
+        };
+        
+        self.getQueue = function getQueue(){
+            return self._queue;
         };
     }
 });
