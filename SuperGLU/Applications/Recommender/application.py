@@ -13,7 +13,7 @@ import eventlet
 
 from SuperGLU.Util.ErrorHandling import logError, logWarning
 from flask import Flask
-from Blueprints import indexPrint, childPrint, javascriptPrint
+from Blueprints import BASIC_BLUEPRINT
 from Tables import IncomingMessage
 from SuperGLU.Core.MessagingGateway import HTTPMessagingGateway
 from SuperGLU.Core.Messaging import Message
@@ -60,14 +60,10 @@ else:
 logWarning('Application debug is %s'%(application.debug,))
 
 # Register our blueprints
-application.register_blueprint(indexPrint)
-application.register_blueprint(childPrint)
-application.register_blueprint(javascriptPrint)
-
+application.register_blueprint(BASIC_BLUEPRINT)
 
 # Start up the messaging system
 SOCKET_IO_CORE = flask.ext.socketio.SocketIO(application)
-
 
 #Allow some env specification of helpful test services
 services = [DBLoggingService()]
@@ -93,7 +89,6 @@ def receive_message(message):
             logError(err, stack=traceback.format_exc())
 
 def background_thread():
-    #@TODO: TEST AND MAKE SURE THIS workS WITH GUNICORN (if we use that)
     try:
         MESSAGING_GATEWAY.processQueuedMessages()
     except Exception as err:

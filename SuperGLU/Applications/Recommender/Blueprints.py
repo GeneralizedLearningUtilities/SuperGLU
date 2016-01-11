@@ -14,27 +14,26 @@ from flask import (
 from SuperGLU.Util.ErrorHandling import logError, logWarning
 
 
-indexPrint = Blueprint('index', __name__)
+BASIC_BLUEPRINT = Blueprint('', __name__)
+BASIC_BLUEPRINT.static_folder = 'static'
 
-@indexPrint.route('/')
+@BASIC_BLUEPRINT.route('/')
 def index():
 	return render_template('ParentPage.html')
-    
-
-childPrint = Blueprint('ChildWindow.html', __name__)
-
-@childPrint.route('/ChildWindow.html')
-def child():
+  
+@BASIC_BLUEPRINT.route('/ChildWindow.html')
+def activityWindow():
     return render_template('ChildWindow.html')
 
-javascriptPrint = Blueprint('<path:path>', __name__)
-javascriptPrint.static_folder = 'static'
+@BASIC_BLUEPRINT.route('/LoggerWindow.html')
+def loggingWindow():
+    return render_template('LoggerWindow.html')
     
-@javascriptPrint.route('/js/<path:path>')
-def javascript_imports(path):
+@BASIC_BLUEPRINT.route('/js/<path:path>')
+def javascriptImports(path):
     if path[-3:] == '.js':
         try:
-            return javascriptPrint.send_static_file(path)
+            return BASIC_BLUEPRINT.send_static_file(path)
         except Exception as e:
             logWarning('exception=')
             logWarning(e)
