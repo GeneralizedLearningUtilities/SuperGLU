@@ -30,6 +30,9 @@ var Zet = SuperGLU.Zet,
 // External Classes
     Message = SuperGLU.Messaging.Message;
 
+// Operational Verbs
+var LOADED_VERB = "Loaded";
+    
 // Task Performance Verbs
 var COMPLETED_VERB = 'Completed',                       // Finished task, return result (e.g., score)
     COMPLETED_ALL_STEPS_VERB = 'CompletedAllSteps',     // Completed all steps (true/false/% steps completed)
@@ -86,14 +89,16 @@ Zet.declare('StandardITSLoggingService', {
             @param delay: The interval for sending the heartbeat, in seconds.
             @param id: The UUID for this service
         **/
-        self.construct = function construct(gateway, userId, taskId, activityType, context, id){
+        self.construct = function construct(gateway, userId, taskId, url, activityType, context, id){
             self.inherited(construct, [id, gateway]);
             if (userId == null){userId = UUID.genV4().toString();}
             if (taskId == null){taskId = UNKNOWN_PREFIX + '_' + window.location.href;}
+            if (url == null){url = window.location.href;}
             if (activityType == null){activityType = '';}
             if (context == null){context = {};}
             self._userId = userId;
             self._taskId = taskId;
+            self._url = url;
             self._activityType = activityType;
             self._context = context;
             self._startTime = new Date();
@@ -149,7 +154,14 @@ Zet.declare('StandardITSLoggingService', {
         /********************************
          **  LOG MESSAGE GENERATORS    **
          ********************************/
-        
+
+        /** Send the task completed message **/
+        self.sendLoadedTask = function sendLoadedTask(frameName){
+            if (frameName == null){frameName = window.name;}
+            var msg = Message(frameName, LOADED_VERB, self._url, true);
+            self.sendLoggingMessage(msg);
+        };         
+ 
         /** Send the task completed message **/
         self.sendCompletedTask = function sendCompletedTask(score){
             score = self.clampToUnitValue(score);
@@ -236,7 +248,7 @@ Zet.declare('StandardITSLoggingService', {
             This requires the misconception ID, rather than the element.
         **/
         self.sendMisconception = function sendMisconception(misconceptionId, content, stepId, contentType){
-            self._sendInputMessage(SUBMITTED_ANSWER_VERB, misconceptionId, content, stepId, contentType);
+            self._sendInputMessage(MISCONCEPTION_VERB, misconceptionId, content, stepId, contentType);
         };
 
         /** Send the overall level of system support given to the user for this task **/
@@ -337,6 +349,8 @@ Zet.declare('StandardITSLoggingService', {
 });
 
 // Core Verbs (for events that occurred)
+namespace.LOADED_VERB = LOADED_VERB;
+
 namespace.COMPLETED_VERB = COMPLETED_VERB;
 namespace.COMPLETED_ALL_STEPS_VERB = COMPLETED_ALL_STEPS_VERB;
 namespace.COMPLETED_STEP_VERB = COMPLETED_STEP_VERB;

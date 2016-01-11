@@ -7,25 +7,27 @@
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 
         <!-- General Utilities Imports -->   
-        <script type="text/javascript" src="js/Util/emacs5-compatibility-patches.js"></script>
-        <script type="text/javascript" src="js/Util/encoder.js"></script>
+        <script type="text/javascript" src="js/SuperGLU/Util/emacs5-compatibility-patches.js"></script>
+        <script type="text/javascript" src="js/SuperGLU/Util/general-utilities.js"></script>
+        <script type="text/javascript" src="js/SuperGLU/Util/encoder.js"></script>
 
         <!-- SuperGLU Imports -->            
-        <script type="text/javascript" src="js/Util/uuid.js"></script>
-		<script type="text/javascript" src="js/Util/zet.js"></script>
-		<script type="text/javascript" src="js/super-glu.js"></script>  
-		<script type="text/javascript" src="js/Util/serialization.js"></script>
-		<script type="text/javascript" src="js/Core/messaging.js"></script>
-		<script type="text/javascript" src="js/Core/messaging-gateway.js"></script>
+        <script type="text/javascript" src="js/SuperGLU/Util/uuid.js"></script>
+		<script type="text/javascript" src="js/SuperGLU/Util/zet.js"></script>
+		<script type="text/javascript" src="js/SuperGLU/super-glu.js"></script>  
+		<script type="text/javascript" src="js/SuperGLU/Util/serialization.js"></script>
+		<script type="text/javascript" src="js/SuperGLU/Core/messaging.js"></script>
+		<script type="text/javascript" src="js/SuperGLU/Core/messaging-gateway.js"></script>
         
         <!-- SuperGLU Services --> 
-		<script type="text/javascript" src="js/Services/Orchestration/heartbeat-service.js"></script>
+		<script type="text/javascript" src="js/SuperGLU/Services/Orchestration/heartbeat-service.js"></script>
+		<script type="text/javascript" src="js/SuperGLU/Services/LoggingService/standard-its-logging.js"></script>
 
         <!-- Reference-Implementation Data --> 
 		<script type="text/javascript" src="js/reference-data.js"></script>
 
 		<script type="text/javascript">
-			var SIMPLE_ACTIVITY_SERVICE,            // Test service to send messages to the parent about an activity
+			var LOGGING_SERVICE,                    // Test service to send messages to the parent about an activity
                 GATEWAY_SERVICE,                    // Gateway service for relaying messages in this frame
                 PARENT_POSTING_STUB,                // Stub that represents the parent frame's messaging gateway
                 HEARTBEAT_SERVICE,                  // Heartbeat service, to generate a steady heartbeat
@@ -39,72 +41,41 @@
                 DEFAULT_PARENT_NAME = "MainPostingGateway";
             
             // Allow the Parent to set the PostMessageGateway name
-            if (FRAME_NAME == null){
+            if (FRAME_NAME == null || FRAME_NAME == ""){
                 FRAME_NAME = DEFAULT_FRAME_NAME;
             }
             if (PARENT_NAME == null){
                 PARENT_NAME = DEFAULT_PARENT_NAME;
             }
             
-            /** Create a custom service for sending simple messages. If not for a
-                simple example, would subclass BaseService instead of TestService.
-                The only difference is that TestService has convenience functions to
-                send ad-hoc messages and that it prints messages received to the console.
-            **/
-            Zet.declare('SimpleActivityService', {
-                // Better Practice: superclass : SuperGLU.Messaging_Gateway.BaseService,
-                superclass : SuperGLU.Messaging_Gateway.TestService,
-                defineBody : function(self){
-                    // Public Properties
-                    /** Function called when the page is ready and loaded 
-                        Message Format: <Frame name> "Loaded" <URL> result=true **/
-                    self.sendLoadedMessage = function sendLoadedMessage(){
-                        self.sendTestMessage(FRAME_NAME, LOADED_VERB, window.location.href, true);
-                    };
-                    
-                    /** Example of better practice composing message manually **/
-                    self.sendAlternateLoadedMessage = function sendAlternateLoadedMessage(){
-                        var msg = SuperGLU.Messaging.Message(FRAME_NAME, LOADED_VERB, window.location.href, true);
-                        self.sendMessage(msg);
-                    };
-                    
-                    /** Send a completed message when the activity is done **/
-                    self.sendCompletedMessage = function sendCompletedMessage(score){
-                        var actor = getParameterByName('student'),
-                            itemId = window.location.protocol + window.location.pathname,
-                            context = {};
-                            context['classId'] = getParameterByName('class');
-                            context['groupId'] = getParameterByName('group');
-                            context['referrerId'] = getParameterByName('referrerId');
-                        // Note: The item identifier could be anything appropriate to link to that activity (i.e., not just an href)
-                        // Note 2: We have extra context fields in a dictionary to include all sorts of other useful data.  I tend 
-                        //         to send along things like the browser type, a session unique ID, and similar stuff.  There are 
-                        //         easy ways to add the same metadata to every single message sent from a given gateway.  Timestamps
-                        //         are already added automatically to every message, so no worries on those.
-                        var msg;
-                        msg = SuperGLU.Messaging.Message(actor, COMPLETED_VERB, itemId, score, Messaging.INFORM_ACT, context);
-                        self.sendMessage(msg);
-                    };
-                }
-            });
             
             /** Create and hook up the child frame services, in the form:
                 MAIN_POSTING_GATEWAY [stub] (id="MainPostingGateway")
                     - CHILD_GATEWAY (id="ActivityFrame")
-                        - SIMPLE_ACTIVITY_SERVICE (id="ChildTestService")
+                        - LOGGING_SERVICE
                         - HEARTBEAT_SERVICE (id=Random UUID)
             **/
-            var gatewayScope = {};
-                gatewayScope[ReferenceData.REFERENCE_IMPLEMENTATION_VERSION_KEY] = ReferenceData.version;
-                gatewayScope[ReferenceData.USER_AGENT_KEY] = navigator.userAgent;
-            SIMPLE_ACTIVITY_SERVICE = SimpleActivityService("ChildTestService");
+            var gatewayScope = {},
+                loggingScope = {},
+                taskId = removeURLParams(null, ['p1', 'p2', 'p3', 'p4', 'p5', 'p6', 'p7']);
+            gatewayScope[ReferenceData.REFERENCE_IMPLEMENTATION_VERSION_KEY] = ReferenceData.version;
+            gatewayScope[ReferenceData.USER_AGENT_KEY] = navigator.userAgent;
+            loggingScope['ASSISTments_p1'] = getParameterByName('p1');
+            loggingScope['ASSISTments_p2'] = getParameterByName('p2');
+            loggingScope['ASSISTments_p3'] = getParameterByName('p3');
+            loggingScope['ASSISTments_p4'] = getParameterByName('p4');
+            loggingScope['ASSISTments_p5'] = getParameterByName('p5');
+            loggingScope['ASSISTments_p6'] = getParameterByName('p6');
+            loggingScope['ASSISTments_p7'] = getParameterByName('p7');
+            LOGGING_SERVICE = SuperGLU.Standard_ITS_Logging.StandardITSLoggingService(null,
+                getParameterByName('p1'), taskId, null, getParameterByName('p7'), loggingScope);
             HEARTBEAT_SERVICE = SuperGLU.Heartbeat_Service.HeartbeatService(null, HEARTBEAT_NAME, 30);
 			PARENT_POSTING_STUB = SuperGLU.Messaging_Gateway.PostMessageGatewayStub(PARENT_NAME, null, null, parent);
             
             /** Create a gateway as: GatewayId, Child Nodes (Gateways/Services/Stubs), Parent Gateway, Scope added to each message**/
 			GATEWAY_SERVICE = SuperGLU.Messaging_Gateway.PostMessageGateway(FRAME_NAME, 
-                [SIMPLE_ACTIVITY_SERVICE, HEARTBEAT_SERVICE], 
-                PARENT_POSTING_STUB, null, gatewayScope);
+                [LOGGING_SERVICE, HEARTBEAT_SERVICE, PARENT_POSTING_STUB], 
+                null, gatewayScope);
             HEARTBEAT_SERVICE.start();
 
             /** Calculate Score **/
@@ -112,43 +83,19 @@
                 return parseFloat(document.getElementById("MyScore").value);
             };
             
-            // Function called when clicking a button
-            // This broadcasts a semantic message into the gateway node
-            // The message will then be relayed to various connected gateways.
-            // If no other gateways exist, nothing more will occur.
-            // In this case, the parent will display a message indicating receiving the message.
+            /** Function called when clicking a button
+                This broadcasts a semantic message into the gateway node
+                The message will then be relayed to various connected gateways.
+                If no other gateways exist, nothing more will occur.
+                In this case, the parent will display a message indicating receiving the message. 
+            **/
             var onClickTheOnlyButton = function(){
-                var actor = getParameterByName('p1'),
-					firstName = getParameterByName('p6'),							// This can be used to address the student by first name
-                    itemId = window.location.protocol + window.location.pathname,
-                    score = calculateScore(),
-                    context = {};
-					context['p1'] = getParameterByName('p1');
-                    context['p2'] = getParameterByName('p2');
-                    context['p3'] = getParameterByName('p3');
-                    context['p4'] = getParameterByName('p4');
-                    context['p5'] = getParameterByName('p5');
-                    context['p6'] = getParameterByName('p6');
-                    context['p7'] = getParameterByName('p7');
-                TEST_SERVICE.sendTestMessage(actor, COMPLETED_VERB, itemId, score, Messaging.INFORM_ACT, context);
-                HEARTBEAT_SERVICE.stop();
-                // Note: The item identifier could be anything appropriate to link to that activity (i.e., not just an href)
-                // Note 2: We have extra context fields in a dictionary to include all sorts of other useful data.  I tend 
-                //         to send along things like the browser type, a session unique ID, and similar stuff.  There are 
-                //         easy ways to add the same metadata to every single message sent from a given gateway.  Timestamps
-                //         are already added automatically to every message, so no worries on those.
-                SIMPLE_ACTIVITY_SERVICE.sendCompletedMessage(score);
+                var firstName = getParameterByName('p6'),	// This can be used to address the student by first name
+                    score = calculateScore();
+                LOGGING_SERVICE.sendCompletedTask(score);
                 HEARTBEAT_SERVICE.stop();
             };
-            
-            // A really stupid function for grabbing URL Query params
-            // Don't use this in real life, please.  Use JQuery, pURL or something else robust.
-            function getParameterByName(name) {
-                name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
-                var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
-                    results = regex.exec(location.search);
-                return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
-            }
+          
             
             // Function to run after loading the window
             var oldOnload = window.onload;
@@ -156,7 +103,7 @@
                 if (oldOnload != null){ 
                     oldOnload();
                 }
-                SIMPLE_ACTIVITY_SERVICE.sendLoadedMessage();
+                LOGGING_SERVICE.sendLoadedTask(FRAME_NAME);
             };
 		</script>
     </head>

@@ -7,18 +7,19 @@
 		<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
         
         <!-- General Utilities Imports --> 
-        <script type="text/javascript" src="js/Util/emacs5-compatibility-patches.js"></script>
+        <script type="text/javascript" src="js/SuperGLU/Util/emacs5-compatibility-patches.js"></script>
         
         <!-- SuperGLU Imports -->              
-        <script type="text/javascript" src="js/Util/uuid.js"></script>
-		<script type="text/javascript" src="js/Util/zet.js"></script>
-		<script type="text/javascript" src="js/super-glu.js"></script>
-		<script type="text/javascript" src="js/Util/serialization.js"></script>
-		<script type="text/javascript" src="js/Core/messaging.js"></script>
-		<script type="text/javascript" src="js/Core/messaging-gateway.js"></script>
+        <script type="text/javascript" src="js/SuperGLU/Util/uuid.js"></script>
+		<script type="text/javascript" src="js/SuperGLU/Util/zet.js"></script>
+		<script type="text/javascript" src="js/SuperGLU/super-glu.js"></script>
+		<script type="text/javascript" src="js/SuperGLU/Util/serialization.js"></script>
+		<script type="text/javascript" src="js/SuperGLU/Core/messaging.js"></script>
+		<script type="text/javascript" src="js/SuperGLU/Core/messaging-gateway.js"></script>
+        <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.1.0/socket.io.min.js"></script>
         
         <!-- SuperGLU Services --> 
-		<script type="text/javascript" src="js/Services/Orchestration/heartbeat-service.js"></script>
+		<script type="text/javascript" src="js/SuperGLU/Services/Orchestration/heartbeat-service.js"></script>
         
         <!-- Reference-Implementation Data --> 
 		<script type="text/javascript" src="js/reference-data.js"></script>
@@ -26,7 +27,8 @@
 		<script type="text/javascript">
             // Set a window name
             window.name = "MainPostingGateway";
-            var MAIN_POSTING_GATEWAY,               // A gateway for relaying messages to other gateways and services (as a tree)
+            var HTTP_MESSAGING_GATEWAY,
+                MAIN_POSTING_GATEWAY,               // A gateway for relaying messages to other gateways and services (as a tree)
                 CHILD_WINDOW,                       // Child window iframe reference
                 CHILD_GATEWAY,                      // A child gateway stub to send HTML5 messages
                 TEST_SERVICE,                       // A test service that can send simple messages and watch for messages
@@ -36,7 +38,8 @@
                 LOADING_WAIT_TIME = 60,             // In seconds, how long to wait for child to load
                 LOADED_VERB = "Loaded",             // A Message verb for the "Loaded" message, which indicates that the activity loaded right
                 HEARTBEAT_NAME = "ChildHeartbeat",  // A Message verb for the heartbeat this frame looks for
-                COMPLETED_VERB = "Completed";       // A Message verb for a "Completed" message, which occurs when the activity is done            
+                COMPLETED_VERB = "Completed";       // A Message verb for a "Completed" message, which occurs when the activity is done
+                DUMP_LOG_VERB = "Dump Logs"         // A Message verb for dumping the logs to console
             
             /** Function for heartbeat monitor call if any heartbeats are skipped. 
                 In practice, would typically close the child frame and go to new activity.
@@ -70,7 +73,7 @@
                         - HEART_MONITOR_SERVICE (id=Random UUID)
                         - TEST_SERVICE (id="ParentTestService")
                         - CHILD_GATEWAY [stub] (id=""ActivityFrame"")
-                            - SIMPLE_ACTIVITY_SERVICE (id="ChildTestService")
+                            - LOGGING_SERVICE
                             - HEARTBEAT_SERVICE (id=Random UUID)
                             
                     In practice, this parent frame and the child iframe gateways each
@@ -87,7 +90,7 @@
                 // Set up Child Frame
                 var childFrameElement = document.getElementById("Child");
                 childFrameElement.name = CHILD_GATEWAY_ID;
-                childFrameElement.src = "ChildWindow.html?student=StudentId&class=ClassId&group=GroupId&referrerId=ReferrerGUID";
+                childFrameElement.src = "ChildWindow.html?taskId=MyUniqueTaskID&p1=p1Data&p2=p2Data&p3=p3Data&p4=p4Data&p5=p5Data&p6=ChuckInP6&p7=ReferrerGUID";
                 CHILD_WINDOW = childFrameElement.contentWindow;
                 
                 // Set up Services and Gateways
@@ -99,7 +102,9 @@
                 /** Create a gateway as: GatewayId, Child Nodes (Gateways/Services/Stubs), Parent Gateway, Scope added to each message**/
                 MAIN_POSTING_GATEWAY = SuperGLU.Messaging_Gateway.PostMessageGateway("MainPostingGateway", 
                     [CHILD_GATEWAY, HEART_MONITOR_SERVICE, TEST_SERVICE], 
-                    null, null, gatewayScope);
+                    null, gatewayScope);
+                // HTTP Gateway disabled for this example
+                //HTTP_MESSAGING_GATEWAY = Messaging_Gateway.HTTPMessagingGateway(null, [MAIN_POSTING_GATEWAY], window.location.protocol + "//" + document.domain + ':' + location.port);
                 window.name = "MainPostingGateway";
                 HEART_MONITOR_SERVICE.start();
                 
@@ -128,6 +133,9 @@
                                ((msg.getVerb() == LOADED_VERB) || 
                                 (msg.getVerb() == Heartbeat_Service.HEARTBEAT_VERB))){
                         IS_CHILD_LOADED = true;
+                    } else if (msg.getVerb() == DUMP_LOG_VERB)
+                    {
+                        console.log("RECEIVED LOG DUMP")
                     }
                 };
                 

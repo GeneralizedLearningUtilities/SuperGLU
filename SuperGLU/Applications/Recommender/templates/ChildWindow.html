@@ -58,36 +58,6 @@
                 superclass : SuperGLU.Messaging_Gateway.TestService,
                 defineBody : function(self){
                     // Public Properties
-                    /** Function called when the page is ready and loaded 
-                        Message Format: <Frame name> "Loaded" <URL> result=true **/
-                    self.sendLoadedMessage = function sendLoadedMessage(){
-                        self.sendTestMessage(FRAME_NAME, LOADED_VERB, window.location.href, true);
-                    };
-                    
-                    /** Example of better practice composing message manually **/
-                    self.sendAlternateLoadedMessage = function sendAlternateLoadedMessage(){
-                        var msg = SuperGLU.Messaging.Message(FRAME_NAME, LOADED_VERB, window.location.href, true);
-                        self.sendMessage(msg);
-                    };
-                    
-                    /** Send a completed message when the activity is done **/
-                    self.sendCompletedMessage = function sendCompletedMessage(score){
-                        var actor = getParameterByName('student'),
-                            itemId = window.location.protocol + window.location.pathname,
-                            context = {};
-                            context['classId'] = getParameterByName('class');
-                            context['groupId'] = getParameterByName('group');
-                            context['referrerId'] = getParameterByName('referrerId');
-                        // Note: The item identifier could be anything appropriate to link to that activity (i.e., not just an href)
-                        // Note 2: We have extra context fields in a dictionary to include all sorts of other useful data.  I tend 
-                        //         to send along things like the browser type, a session unique ID, and similar stuff.  There are 
-                        //         easy ways to add the same metadata to every single message sent from a given gateway.  Timestamps
-                        //         are already added automatically to every message, so no worries on those.
-                        var msg;
-                        msg = SuperGLU.Messaging.Message(actor, COMPLETED_VERB, itemId, score, Messaging.INFORM_ACT, context);
-                        self.sendMessage(msg);
-                    };
-                    
                     
                    /** message to request all logs from server **/
                     self.sendRequestLogMessage = function sendRequestLogMessage(){
