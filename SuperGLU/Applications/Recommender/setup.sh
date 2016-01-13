@@ -18,5 +18,5 @@ pip install eventlet
 # pip install SuperGLU
 
 mkdir static/SuperGLU
-rsync -a --prune-empty-dirs --include '*/' --include '*.js' --exclude '*' SuperGLU/ static/SuperGLU
+rsync -a --prune-empty-dirs --include '*/' --include '*.js' --exclude '*' ../../../SuperGLU/ static/SuperGLU
 

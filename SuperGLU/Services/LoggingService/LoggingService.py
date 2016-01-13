@@ -30,16 +30,24 @@ class BaseLoggingService(BaseService):
 
 class DBLoggingService(BaseLoggingService):
     
-    def __init__(self, anId=None):
+    def __init__(self, anId=None, maxMsgSize=2500000):
+        """
+        Initialize the logging service.
+        @param maxMsgSize: The maximum size for a field. 2.5m by default, which is ~2-5 MB of JSON.
+        @param maxMsgSize: int
+        """
         super(DBLoggingService, self).__init__(anId)
+        self._maxMsgSize = maxMsgSize
         
     def _logMessage(self, msg):
-        incomingMsg = IncomingMessage(rawMessage=serializeObject(msg))
-        if msg.getVerb() != "Dump Logs":
-            incomingMsg.save()
-        copyOfincomingMsg = incomingMsg.find_one(incomingMsg.id);
-      
-        
+        serializedMsg = serializeObject(msg)
+        if len(serializedMsg) <= self._maxMsgSize:
+            incomingMsg = IncomingMessage(rawMessage=serializedMsg)
+            if msg.getVerb() != "Dump Logs":
+                incomingMsg.save()
+            copyOfincomingMsg = incomingMsg.find_one(incomingMsg.id)
+        else:
+            print("Message size too long for msg #: " + msg.getId())
         
     def _dumpLog(self, msg):
        incomingMsg = IncomingMessage(rawMessage=serializeObject(msg))

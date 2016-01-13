@@ -31,6 +31,3 @@ EXPOSE 443
 
 # TODO: Path unlikely to be correct...
 CMD ["bash", "/Application/local.sh"]
-
-
-
