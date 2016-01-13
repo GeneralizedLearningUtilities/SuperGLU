@@ -17,6 +17,6 @@ pip install boto
 pip install eventlet
 # pip install SuperGLU
 
-mkdir static/SuperGLU
-rsync -a --prune-empty-dirs --include '*/' --include '*.js' --exclude '*' ../../../SuperGLU/ static/SuperGLU
-
+# Populate static files
+RUN mkdir .static/SuperGLU
+RUN rsync -a --prune-empty-dirs --include '*/' --include '*.js' --exclude '*' ./SuperGLU ./Applications/Recommender/static/

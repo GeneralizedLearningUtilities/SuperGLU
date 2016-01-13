@@ -7,11 +7,8 @@ sudo apt-get -y install python3-dev
 sudo apt-get install -qy python-setuptools
 sudo easy_install pip
 pip install virtualenv
-pip install SuperGLU
 
 mkdir log
 echo 'this is a log file' > log/Re.log 
-
-ln -s env/lib/python3.4/site-packages/SuperGLU SuperGLU
 
 ./setup.sh
