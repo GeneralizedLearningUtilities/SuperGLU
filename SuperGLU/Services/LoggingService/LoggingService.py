@@ -3,8 +3,15 @@ import csv
 from datetime import datetime
 from SuperGLU.Core.Messaging import Message
 from SuperGLU.Core.MessagingGateway import BaseService
-from SuperGLU.Applications.Recommender.Tables import IncomingMessage
 from SuperGLU.Util.Serialization import serializeObject, nativizeObject
+
+from gludb.simple import DBObject, Field, Index
+from gludb.config import default_database, Database
+
+@DBObject(table_name='IncomingMessages')
+class IncomingMessage(object):
+    rawMessage=Field('rawMessage')
+    
 
 class BaseLoggingService(BaseService):
     """ A service for logging messages """
