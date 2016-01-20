@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import csv
 from datetime import datetime
-from SuperGLU.Core.Messaging import Message
+from SuperGLU.Core.Messaging import Message, MessageLite
 from SuperGLU.Core.MessagingGateway import BaseService
 from SuperGLU.Util.Serialization import serializeObject, nativizeObject
 
@@ -49,10 +49,12 @@ class DBLoggingService(BaseLoggingService):
     def _logMessage(self, msg):
         serializedMsg = serializeObject(msg)
         if len(serializedMsg) <= self._maxMsgSize:
-            incomingMsg = IncomingMessage(rawMessage=serializedMsg)
+            incomingMsg = MessageLite(actor=msg.getActor(), verb=msg.getVerb(), object=msg.getObject(), result=msg.getResult(), speechAct=msg.getSpeechAct(), context=msg.getContext(), timstamp=msg.getTimestamp())
             if msg.getVerb() != "Dump Logs":
+                #print("saving message")
                 incomingMsg.save()
-            copyOfincomingMsg = incomingMsg.find_one(incomingMsg.id)
+                #print("message saved")
+            #copyOfincomingMsg = incomingMsg.find_one(incomingMsg.id)
         else:
             print("Message size too long for msg #: " + msg.getId())
         

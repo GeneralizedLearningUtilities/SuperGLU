@@ -6,6 +6,18 @@ from datetime import datetime
 #from dateutil import parser
 from SuperGLU.Core.FIPA.SpeechActs import INFORM_ACT, SPEECH_ACT_SET
 from SuperGLU.Util.Serialization import Serializable, tokenizeObject, untokenizeObject, makeSerialized, StorageToken, makeNative
+from gludb.simple import DBObject, Field, Index
+
+
+@DBObject(table_name='Messages')
+class MessageLite(object):
+    actor = Field('actor')
+    verb = Field('verb')
+    object = Field('object')
+    result = Field('result')
+    speechAct = Field('speechAct')
+    context = Field('context')
+    timestamp = Field('timestamp')
 
 class Message(Serializable):
     """
@@ -129,6 +141,9 @@ class Message(Serializable):
     #-------------------------------------
     def hasContextValue(self, key):
         return key in self._context
+        
+    def getContext(self):
+        return self._context
 
     def getContextKeys(self):
         return list(self._context.keys())
