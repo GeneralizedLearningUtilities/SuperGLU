@@ -18,6 +18,10 @@ class MessageLite(object):
     speechAct = Field('speechAct')
     context = Field('context')
     timestamp = Field('timestamp')
+    
+    @Index
+    def actorIndex(self):
+        return self.actor
 
 class Message(Serializable):
     """
