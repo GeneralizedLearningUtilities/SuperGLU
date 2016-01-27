@@ -22,6 +22,20 @@ class MessageLite(object):
     @Index
     def actorIndex(self):
         return self.actor
+        
+    @Index
+    def verbIndex(self):
+        return self.verb
+        
+    @Index
+    def objectIndex(self):
+        return self.object
+        
+    def toMessage(self):
+        return Message(self.actor, self.verb, self.object, self.result, self.speechAct, self.context, self.timestamp)
+        
+    def __repr__(self):
+        return self.actor + "|" + self.verb + "|" + self.object + "\n"# + self.result.__repr__() + "|" + self.speechAct + "|" + self.context.__repr__() + "|" +self.timestamp + "\n"
 
 class Message(Serializable):
     """

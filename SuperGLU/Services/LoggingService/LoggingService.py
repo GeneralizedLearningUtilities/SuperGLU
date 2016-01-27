@@ -4,6 +4,7 @@ from datetime import datetime
 from SuperGLU.Core.Messaging import Message, MessageLite
 from SuperGLU.Core.MessagingGateway import BaseService
 from SuperGLU.Util.Serialization import serializeObject, nativizeObject
+from SuperGLU.Services.QueryService.Queries import LearnerDataQueryByActor
 
 from gludb.simple import DBObject, Field, Index
 from gludb.config import default_database, Database
@@ -55,6 +56,7 @@ class DBLoggingService(BaseLoggingService):
                 incomingMsg.save()
                 #print("message saved")
             #copyOfincomingMsg = incomingMsg.find_one(incomingMsg.id)
+            #print(LearnerDataQueryByActor().runQuery('p1Data'));
         else:
             print("Message size too long for msg #: " + msg.getId())
         
