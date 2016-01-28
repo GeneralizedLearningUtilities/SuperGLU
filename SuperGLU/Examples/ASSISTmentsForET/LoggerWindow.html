@@ -34,7 +34,7 @@
                 TEST_SERVICE,                       // A test service that can send simple messages and watch for messages
                 HEART_MONITOR_SERVICE,              // A heart monitor service that looks for a heartbeat named in HEARTBEAT_NAME
                 FRAME_NAME = window.name,           // Name for the current frame
-                ACTIVITY_GATEWAY_ID = parent.name;  // Name to give the postMessage gateway in the activity frame
+                ACTIVITY_GATEWAY_ID = "ActivityFrame";  // Name to give the postMessage gateway in the activity frame
             
             /** When page loaded, set up the services. **/
             var oldOnload = window.onload;
