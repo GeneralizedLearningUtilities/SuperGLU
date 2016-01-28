@@ -1,6 +1,6 @@
-<!-- Imagine this is a wrapper inside of ASSISTments -->
+<!-- A logging frame to insert into your activity -->
 <!DOCTYPE html>
-<html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"> 
     <title>RecommenderLoggingGateway</title>
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
@@ -34,7 +34,7 @@
                 TEST_SERVICE,                       // A test service that can send simple messages and watch for messages
                 HEART_MONITOR_SERVICE,              // A heart monitor service that looks for a heartbeat named in HEARTBEAT_NAME
                 FRAME_NAME = window.name,           // Name for the current frame
-                ACTIVITY_GATEWAY_ID = parent.name;  // Name to give the postMessage gateway in the activity frame
+                ACTIVITY_GATEWAY_ID = "ActivityFrame";  // Name to give the postMessage gateway in the activity frame
             
             /** When page loaded, set up the services. **/
             var oldOnload = window.onload;

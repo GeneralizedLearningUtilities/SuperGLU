@@ -32,8 +32,8 @@
                 PARENT_POSTING_STUB,                // Stub that represents the parent frame's messaging gateway
                 LOGGING_POSTING_STUB,               // Stub for the logging and recommender service
                 HEARTBEAT_SERVICE,                  // Heartbeat service, to generate a steady heartbeat
-                FRAME_NAME = window.name,           // A name to call this frame, for reporting purposes and postMessage
-                PARENT_NAME = parent.name,          // A name to call the parent frame, for reporting purposes and postMessage
+                FRAME_NAME = "ActivityFrame",       // A name to call this frame, for reporting purposes and postMessage
+                PARENT_NAME = "MainPostingGateway", // A name to call the parent frame, for reporting purposes and postMessage
                 LOGGER_FRAME_NAME = "RecommenderLoggingGateway", // Logging window name
                 LOADED_VERB = "Loaded",             // A Message verb for the "Loaded" message, which indicates that the activity loaded right
                 HEARTBEAT_NAME = "ChildHeartbeat",  // A Message verb for the heartbeat this frame looks for
@@ -41,16 +41,6 @@
 
             var DEFAULT_FRAME_NAME = "ActivityFrame",
                 DEFAULT_PARENT_NAME = "MainPostingGateway";
-            
-            // Allow the Parent to set the PostMessageGateway name
-            if (FRAME_NAME == null || FRAME_NAME == ""){
-                FRAME_NAME = DEFAULT_FRAME_NAME;
-                window.name = FRAME_NAME;
-            }
-            if (PARENT_NAME == null){
-                PARENT_NAME = DEFAULT_PARENT_NAME;
-                parent.name = PARENT_NAME;
-            }
             
             /** Create and hook up the child frame services, in the form:
                 MAIN_POSTING_GATEWAY [stub] (id="MainPostingGateway")
@@ -114,6 +104,7 @@
     </head>
     <body>
         <iframe id="RecommenderLoggingGateway" name="RecommenderLoggingGateway" src="LoggerWindow.html" style="width:0px;height:0px;display:none;"></iframe>
+
         <div id="MyScoreURL">Child URL = </div>
         <script type="text/javascript">
             var initialText = document.getElementById("MyScoreURL").innerHTML;
