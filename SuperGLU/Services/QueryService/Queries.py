@@ -11,9 +11,23 @@ class LearnerDataQueryBase (BaseService) :
     def runQuery(self, value):
         raise NotImplementedError("this class is abstract, use the subclasses")
         
+    def runQueryInternal(self, indexName, value):
+        messageLiteList = MessageLite.find_by_index(indexName, value)
+        result = [];
+        for messageLite in messageLiteList:
+            result.append(messageLite.toMessage())
+        return result;
         
-class LearnerDataQueryByActor(LearnerDataQueryBase):
-    
-    
+class LearnerDataQueryByActor(LearnerDataQueryBase):  
     def runQuery(self, value):
-        return MessageLite.find_by_index('actorIndex', value)
+        return super(LearnerDataQueryByActor, self).runQueryInternal('actorIndex', value);
+        
+        
+class LearnerDataQueryByVerb(LearnerDataQueryBase):
+    def runQuery(self, value):
+        return super(LearnerDataQueryByVerb, self).runQueryInternal('verbIndex', value)
+        
+        
+class LearnerDataQueryByObject(LearnerDataQueryBase):
+    def runQuery(self, value):
+        return super(LearnerDataQueryByObject, self).runQueryInternal('objectIndex', value)

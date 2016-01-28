@@ -35,7 +35,7 @@ class MessageLite(object):
         return Message(self.actor, self.verb, self.object, self.result, self.speechAct, self.context, self.timestamp)
         
     def __repr__(self):
-        return self.actor + "|" + self.verb + "|" + self.object + "\n"# + self.result.__repr__() + "|" + self.speechAct + "|" + self.context.__repr__() + "|" +self.timestamp + "\n"
+        return self.actor + "|" + self.verb + "|" + self.object + "|" + self.result.__repr__() + "|" + self.speechAct + "|" + self.context.__repr__() + "|" +self.timestamp + "\n"
 
 class Message(Serializable):
     """
