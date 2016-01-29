@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 import csv
 from datetime import datetime
-from SuperGLU.Core.Messaging import Message, MessageLite
+from SuperGLU.Core.Messaging import Message
+from SuperGLU.Core.MessagingDB import MessageLite
 from SuperGLU.Core.MessagingGateway import BaseService
 from SuperGLU.Util.Serialization import serializeObject, nativizeObject
 from SuperGLU.Services.QueryService.Queries import LearnerDataQueryByActor

@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 from SuperGLU.Util.Serialization import Serializable
 from SuperGLU.Core.MessagingGateway import BaseService
-from SuperGLU.Core.Messaging import Message, MessageLite
+from SuperGLU.Core.Messaging import Message
+from SuperGLU.Core.MessagingDB import MessageLite
 
 #These classes are intended to allow the user to access data stored from the messages.
 
@@ -41,3 +42,6 @@ class LearnerDataQueryByObject(LearnerDataQueryBase):
         
         
 #More advanced Queries
+
+#class SingleStudentQueryBy(LearnerDataQueryBase):
+ #   def runQuery(self, value):
