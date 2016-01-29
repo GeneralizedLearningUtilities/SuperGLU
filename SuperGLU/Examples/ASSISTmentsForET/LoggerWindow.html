@@ -47,7 +47,6 @@
                 
                 // Set up Services and Gateways
                 ACTIVITY_WINDOW = parent;
-                ACTIVITY_GATEWAY_ID = ACTIVITY_WINDOW.name;
                 ACTIVITY_GATEWAY = SuperGLU.Messaging_Gateway.PostMessageGatewayStub(ACTIVITY_GATEWAY_ID, null, null, ACTIVITY_WINDOW);
                 TEST_SERVICE = SuperGLU.Messaging_Gateway.TestService("LoggerTestService");
 			
