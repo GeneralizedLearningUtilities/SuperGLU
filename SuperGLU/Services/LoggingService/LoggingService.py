@@ -19,7 +19,7 @@ class BaseLoggingService(BaseService):
     """ A service for logging messages """
 
     def receiveMessage(self, msg):
-        if isinstance(msg, Message):
+        if isinstance(msg, Message) and msg.getVerb() != "Heartbeat":
             self.logMessage(msg)
             if msg.getVerb() == "RequestLogs":
                 self.dumpLog(msg)
