@@ -72,10 +72,14 @@ var USER_ID_KEY = 'userId',                             // Unique identifier for
     STEP_ID_KEY = 'stepId',                             // Unique ID for the current step or state.
     ACTIVITY_TYPE_KEY = 'activityType',                 // Type of activity being performed
     KC_RELEVANCE_KEY = 'KCRelevance',                   // Knowledge component relevance
-    RESULT_CONTENT_TYPE_KEY = 'resultContentType';      // Type for the content of the help or other media (e.g., 'text', 'html', 'jpg')
+    HELP_TYPE_KEY = 'helpType',                         // Type of the help provided (e.g., Positive, Negative, neutral)
+    RESULT_CONTENT_TYPE_KEY = 'resultContentType';      // Type for the content of the help or other media (e.g., 'text', 'html', 'jpg')     
     
 // Other Constants
-var UNKNOWN_PREFIX = "Unknown";
+var UNKNOWN_PREFIX = 'Unknown',
+    POSITIVE_HELP_TYPE = 'Positive',
+    NEUTRAL_HELP_TYPE = 'Neutral',
+    NEGATIVE_HELP_TYPE = 'Negative';
  
 /** ITS Logging service, for sending learning-relevant messages **/
 Zet.declare('StandardITSLoggingService', {
@@ -203,23 +207,38 @@ Zet.declare('StandardITSLoggingService', {
         }; 
         
          /** Notify that some other help was presented **/
-        self.sendHelp = function sendHelp(content, stepId, contentType){
-            self._sendHelpMessage(TASK_HELP_VERB, content, stepId, contentType);
+        self.sendHelp = function sendHelp(content, stepId, helpType, contentType){
+            self._sendHelpMessage(TASK_HELP_VERB, content, stepId, helpType, contentType);
         };
         
         /** Notify that a hint was presented **/
-        self.sendHint = function sendHint(content, stepId, contentType){
-            self._sendHelpMessage(TASK_HINT_VERB, content, stepId, contentType);
+        self.sendHint = function sendHint(content, stepId, helpType, contentType){
+            self._sendHelpMessage(TASK_HINT_VERB, content, stepId, helpType, contentType);
         };
  
         /** Notify that feedback was presented **/
-        self.sendFeedback = function sendFeedback(content, stepId, contentType){
-            self._sendHelpMessage(TASK_FEEDBACK_VERB, content, stepId, contentType);
+        self.sendFeedback = function sendFeedback(content, stepId, helpType, contentType){
+            self._sendHelpMessage(TASK_FEEDBACK_VERB, content, stepId, helpType, contentType);
+        };
+        
+        /** Notify that positive feedback was presented **/
+        self.sendPositiveFeedback = function sendPositiveFeedback(content, stepId, contentType){
+            self._sendHelpMessage(TASK_FEEDBACK_VERB, content, stepId, POSITIVE_HELP_TYPE, contentType);
+        }; 
+        
+        /** Notify that neutral feedback was presented **/
+        self.sendNeutralFeedback = function sendNeutralFeedback(content, stepId, contentType){
+            self._sendHelpMessage(TASK_FEEDBACK_VERB, content, stepId, NEUTRAL_HELP_TYPE, contentType);
+        }; 
+        
+        /** Notify that negative feedback was presented **/
+        self.sendNegativeFeedback = function sendNegativeFeedback(content, stepId, contentType){
+            self._sendHelpMessage(TASK_FEEDBACK_VERB, content, stepId, NEGATIVE_HELP_TYPE, contentType);
         }; 
         
         /** Notify that task was decomposed **/
-        self.sendTaskDecomposed = function sendTaskDecomposed(content, stepId, contentType){
-            self._sendHelpMessage(TASK_DECOMPOSITION_VERB, content, stepId, contentType);
+        self.sendTaskDecomposed = function sendTaskDecomposed(content, stepId, helpType, contentType){
+            self._sendHelpMessage(TASK_DECOMPOSITION_VERB, content, stepId, helpType, contentType);
         }; 
 
         /** Notify that task presented some content **/
@@ -307,13 +326,15 @@ Zet.declare('StandardITSLoggingService', {
         };         
     
         /** Internal Function to notify server that some help message was presented **/
-        self._sendHelpMessage = function _sendHelpMessage(verb, content, stepId, contentType){
+        self._sendHelpMessage = function _sendHelpMessage(verb, content, stepId, helpType, contentType){
             if ((contentType == null) && content != null){
                 contentType = 'text';
                 content = content.toString();
             }
+            if (helpType == null){ helpType = NEUTRAL_HELP_TYPE;}
             var msg = Message(self._activityType, verb, stepId, content);
             msg.setContextValue(STEP_ID_KEY, stepId);
+            msg.setContextValue(HELP_TYPE_KEY, helpType);
             msg.setContextValue(RESULT_CONTENT_TYPE_KEY, contentType);
             self.sendLoggingMessage(msg);
         };
@@ -385,6 +406,11 @@ namespace.TASK_ID_KEY = TASK_ID_KEY;
 namespace.ACTIVITY_TYPE_KEY = ACTIVITY_TYPE_KEY;
 namespace.KC_RELEVANCE_KEY = KC_RELEVANCE_KEY;
 namespace.RESULT_CONTENT_TYPE_KEY = RESULT_CONTENT_TYPE_KEY;
+namespace.HELP_TYPE_KEY = HELP_TYPE_KEY;
+
+namespace.POSITIVE_HELP_TYPE = POSITIVE_HELP_TYPE;
+namespace.NEUTRAL_HELP_TYPE = NEUTRAL_HELP_TYPE;
+namespace.NEGATIVE_HELP_TYPE = NEGATIVE_HELP_TYPE;
 
 // Classes
 namespace.StandardITSLoggingService = StandardITSLoggingService;
