@@ -2,7 +2,7 @@
 import csv
 from datetime import datetime
 from SuperGLU.Core.Messaging import Message
-from SuperGLU.Core.MessagingDB import MessageLite
+from SuperGLU.Core.MessagingDB import DBLoggedMessage
 from SuperGLU.Core.MessagingGateway import BaseService
 from SuperGLU.Util.Serialization import serializeObject, nativizeObject
 from SuperGLU.Services.QueryService.Queries import LearnerDataQueryByActor
@@ -19,7 +19,7 @@ class BaseLoggingService(BaseService):
     """ A service for logging messages """
 
     def receiveMessage(self, msg):
-        if isinstance(msg, Message):
+        if isinstance(msg, Message) and msg.getVerb() != "Heartbeat":
             self.logMessage(msg)
             if msg.getVerb() == "RequestLogs":
                 self.dumpLog(msg)
@@ -51,7 +51,7 @@ class DBLoggingService(BaseLoggingService):
     def _logMessage(self, msg):
         serializedMsg = serializeObject(msg)
         if len(serializedMsg) <= self._maxMsgSize:
-            incomingMsg = MessageLite(actor=msg.getActor(), verb=msg.getVerb(), object=msg.getObject(), result=msg.getResult(), speechAct=msg.getSpeechAct(), context=msg.getContext(), timstamp=msg.getTimestamp())
+            incomingMsg = DBLoggedMessage(actor=msg.getActor(), verb=msg.getVerb(), object=msg.getObject(), result=msg.getResult(), speechAct=msg.getSpeechAct(), context=msg.getContext(), timstamp=msg.getTimestamp())
             if msg.getVerb() != "Dump Logs":
                 #print("saving message")
                 incomingMsg.save()
