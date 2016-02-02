@@ -32,11 +32,7 @@ class LearnerDataQueryBase (BaseService) :
         
 class LearnerDataQueryByActor(LearnerDataQueryBase):  
     def runQuery(self, value):
-        dbLoggedMessageList = super(LearnerDataQueryByActor, self).runQueryInternal('actorIndex', value);
-        print(dbLoggedMessageList)
-        filter = DBLoggedMessage(actor=None, verb="Completed", object=None, result=None, speechAct=None, context=None)
-        print (super(LearnerDataQueryByActor, self).filterQueryResults(dbLoggedMessageList, filter))
-        
+        dbLoggedMessageList = super(LearnerDataQueryByActor, self).runQueryInternal('actorIndex', value)
         return super(LearnerDataQueryByActor, self).convertResultsToMessageList(dbLoggedMessageList)
         
 class LearnerDataQueryByVerb(LearnerDataQueryBase):
@@ -53,3 +49,14 @@ class LearnerDataQueryByObject(LearnerDataQueryBase):
         
 #More advanced Queries
 
+class KCForUserAfterAGivenTimeQuery(LearnerDataQueryBase):
+    #value should be a filter message
+    def runQuery(self, value):
+        dbLoggedMessageList = super(KCForUserAfterAGivenTimeQuery, self).runQueryInternal('actorIndex', value.actor)
+        filteredMessages = super(KCForUserAfterAGivenTimeQuery, self).filterQueryResults(dbLoggedMessage, value, ">")
+        return super(KCForUserAfterAGivenTimeQuery, self).convertResultsToMessageList(filteredMessages)
+        
+        
+def getKCsForUserAfterAGivenTime(user, kc, time):
+    filter = MessagingDB(actor=user, verb=None, object=None, result=None, speechAct=None, context={"KC" : kc}, timstamp=time)
+    return KCForUserAfterAGivenTimeQuery().runQuery(filter)
