@@ -42,7 +42,7 @@ class DBLoggedMessage(object):
     def toMessage(self):
         return Message(self.actor, self.verb, self.object, self.result, self.speechAct, self.context, self.timestamp)
     
-    def matchOnPartial(self, current):
+    def matchOnPartial(self, current, timestampOperator):
         if self.actor is not None and current.actor != self.actor:
             return False
         
@@ -67,8 +67,17 @@ class DBLoggedMessage(object):
                 if otherContextKey not in current.context and self.context[otherContextKey] != current.context[otherContextKey] :
                     return False
         
-        if self.timestamp is not None and current.timestamp != self.timestamp:
-            return False;
+        if self.timestamp is not None:
+            if timestampOperator == "<" and current.timestamp >= self.timestamp:
+                return False;
+            if timestampOperator == ">" and current.timestamp <= self.timestamp:
+                return False;
+            if timestampOperator == ">=" and current.timestamp < self.timestamp:
+                return False;
+            if timestampOperator == "<=" and current.timestamp > self.timestamp:
+                return False;
+            if timestampOperator == "==" and current.timestamp == self.timestamp:
+                return False;
         
         return True
         

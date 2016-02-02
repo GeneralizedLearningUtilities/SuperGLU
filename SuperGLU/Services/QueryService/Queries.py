@@ -13,8 +13,8 @@ class LearnerDataQueryBase (BaseService) :
         raise NotImplementedError("this class is abstract, use the subclasses")
 
     #filter the results of a query to match a partially filled out message
-    def filterQueryResults(self, queryResults, filter):
-        filterfalse(lambda x : filter.matchOnPartial(x), queryResults)
+    def filterQueryResults(self, queryResults, filter, timestampOperator="=="):
+        filterfalse(lambda x : filter.matchOnPartial(x, timestampOperator), queryResults)
         return queryResults
         
     #return results of query as a list of DBLoggedMessage objects.
