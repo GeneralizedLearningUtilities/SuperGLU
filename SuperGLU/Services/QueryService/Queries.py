@@ -58,5 +58,5 @@ class KCForUserAfterAGivenTimeQuery(LearnerDataQueryBase):
         
         
 def getKCsForUserAfterAGivenTime(user, kc, time):
-    filter = MessagingDB(actor=user, verb=None, object=None, result=None, speechAct=None, context={"KC" : kc}, timstamp=time)
+    filter = MessagingDB(actor=user, verb=None, object=None, result=None, speechAct=None, context={kc : None}, timstamp=time)
     return KCForUserAfterAGivenTimeQuery().runQuery(filter)

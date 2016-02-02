@@ -64,18 +64,18 @@ class DBLoggedMessage(object):
             
             #Note: I am assuming that the context is a dictionary if that isn't true then I'll need to add a type check and handle all possible types 
             for filterContextKey in self.context.keys:
-                #TODO: need to handle values that are lists or tuples
                 if filterContextKey not in current.context.keys:
                     return False;
                 
                 currentValue = current.context[filterContextKey]
                 filterValue = self.context[filterContextKey]
                 
-                if isInstance(currentValue, list) and filterValue not in currentValue:
-                    return False
+                if filterValue is not None:
+                    if isInstance(currentValue, list) and filterValue not in currentValue:
+                        return False
                 
-                if currentValue != filterValue:
-                    return False
+                    if currentValue != filterValue:
+                        return False
         
         if self.timestamp is not None:
             if timestampOperator == "<" and current.timestamp >= self.timestamp:
