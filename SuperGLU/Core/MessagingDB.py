@@ -1,5 +1,6 @@
 from gludb.simple import DBObject, Field, Index
 from SuperGLU.Core.Messaging import Message
+from datetime import datetime
 """
 Module for storing the class that persists the messaging objects into the database.
 """
@@ -42,7 +43,7 @@ class DBLoggedMessage(object):
     def toMessage(self):
         return Message(self.actor, self.verb, self.object, self.result, self.speechAct, self.context, self.timestamp)
     
-    def matchOnPartial(self, current, timestampOperator):
+    def matchOnPartial(self, current, timestampOperator, filteredList):
         if self.actor is not None and current.actor != self.actor:
             return False
         
@@ -63,32 +64,31 @@ class DBLoggedMessage(object):
                 return False
             
             #Note: I am assuming that the context is a dictionary if that isn't true then I'll need to add a type check and handle all possible types 
-            for filterContextKey in self.context.keys:
-                if filterContextKey not in current.context.keys:
+            for filterContextKey in self.context.keys():
+                if filterContextKey not in current.context.keys():
                     return False;
                 
                 currentValue = current.context[filterContextKey]
                 filterValue = self.context[filterContextKey]
-                
                 if filterValue is not None:
                     if isInstance(currentValue, list) and filterValue not in currentValue:
                         return False
                 
                     if currentValue != filterValue:
                         return False
+                        
+        if self.timestamp is not None and current.timestamp != "timestamp":
+            parsedTimestamp = datetime.strptime(current.timestamp, "%Y-%m-%dT%H:%M:%S.%fZ")
+            parsedFilterTimestamp = datetime.strptime(self.timestamp, "%Y-%m-%dT%H:%M:%S.%fZ")
+            
+            if timestampOperator == "<" and parsedTimestamp < parsedFilterTimestamp:
+                return False;
+            if timestampOperator == ">" and parsedFilterTimestamp < parsedTimestamp:
+                return False;
+            if timestampOperator == "==" and parsedFilterTimestamp != parsedTimestamp:
+                return False;
         
-        if self.timestamp is not None:
-            if timestampOperator == "<" and current.timestamp >= self.timestamp:
-                return False;
-            if timestampOperator == ">" and current.timestamp <= self.timestamp:
-                return False;
-            if timestampOperator == ">=" and current.timestamp < self.timestamp:
-                return False;
-            if timestampOperator == "<=" and current.timestamp > self.timestamp:
-                return False;
-            if timestampOperator == "==" and current.timestamp == self.timestamp:
-                return False;
-        
+        filteredList.append(current)
         return True
         
         

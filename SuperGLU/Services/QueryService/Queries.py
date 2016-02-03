@@ -14,8 +14,9 @@ class LearnerDataQueryBase (BaseService) :
 
     #filter the results of a query to match a partially filled out message
     def filterQueryResults(self, queryResults, filter, timestampOperator="=="):
-        filterfalse(lambda x : filter.matchOnPartial(x, timestampOperator), queryResults)
-        return queryResults
+        result = []
+        [not filter.matchOnPartial(x, timestampOperator, result) for x in queryResults if x is not None]
+        return result
         
     #return results of query as a list of DBLoggedMessage objects.
     def runQueryInternal(self, indexName, value):
@@ -53,10 +54,11 @@ class KCForUserAfterAGivenTimeQuery(LearnerDataQueryBase):
     #value should be a filter message
     def runQuery(self, value):
         dbLoggedMessageList = super(KCForUserAfterAGivenTimeQuery, self).runQueryInternal('actorIndex', value.actor)
-        filteredMessages = super(KCForUserAfterAGivenTimeQuery, self).filterQueryResults(dbLoggedMessage, value, ">")
+        filteredMessages = super(KCForUserAfterAGivenTimeQuery, self).filterQueryResults(dbLoggedMessageList, value, "<")
+        print(filteredMessages)
         return super(KCForUserAfterAGivenTimeQuery, self).convertResultsToMessageList(filteredMessages)
         
         
 def getKCsForUserAfterAGivenTime(user, kc, time):
-    filter = MessagingDB(actor=user, verb=None, object=None, result=None, speechAct=None, context={kc : None}, timstamp=time)
+    filter = DBLoggedMessage(actor=user, verb=None, object=None, result=None, speechAct=None, context={kc : None}, timestamp=time)
     return KCForUserAfterAGivenTimeQuery().runQuery(filter)
