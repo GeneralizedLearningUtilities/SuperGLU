@@ -40,6 +40,22 @@ class DBLoggedMessage(object):
     def actorVerbObjIndex(self):
         return (self.actor, self.verb, self.object)
         
+    @Index
+    def userIdIndex(self):
+        return self.context[USER_ID_CONTEXT_KEY]
+        
+    @Index
+    def taskIdIndex(self):
+        return self.context[TASK_ID_CONTEXT_KEY]
+        
+    #@Index
+    #def stepIdIndex(self):
+    #    return self.context[STEP_ID_CONTEXT_KEY]
+        
+    @Index
+    def userTaskIndex(self):
+        return (self.context[USER_ID_CONTEXT_KEY], self.context[TASK_ID_CONTEXT_KEY])
+        
     def toMessage(self):
         return Message(self.actor, self.verb, self.object, self.result, self.speechAct, self.context, self.timestamp)
     
