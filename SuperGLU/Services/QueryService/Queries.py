@@ -63,3 +63,12 @@ class KCForUserAfterAGivenTimeQuery(LearnerDataQueryBase):
 def getKCsForUserAfterAGivenTime(user, kc, time):
     filter = DBLoggedMessage(actor=user, verb=KC_SCORE_VERB, object=kc, result=None, speechAct=None, context=None, timestamp=time)
     return KCForUserAfterAGivenTimeQuery().runQuery(filter)
+
+    
+def getAverageKCScoreAfterAGivenTime(user, kc,time):
+    kcScores = getKCsForUserAfterAGivenTime(user, kc, time)
+    total = 0
+    for x in kcScores:
+        total += x.getResult()
+    result = total / len(kcScores)
+    return result

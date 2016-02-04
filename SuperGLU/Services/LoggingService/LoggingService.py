@@ -5,7 +5,7 @@ from SuperGLU.Core.Messaging import Message
 from SuperGLU.Core.MessagingDB import DBLoggedMessage, COMPLETED_VERB
 from SuperGLU.Core.MessagingGateway import BaseService
 from SuperGLU.Util.Serialization import serializeObject, nativizeObject
-from SuperGLU.Services.QueryService.Queries import LearnerDataQueryByActor, getKCsForUserAfterAGivenTime
+from SuperGLU.Services.QueryService.Queries import LearnerDataQueryByActor, getKCsForUserAfterAGivenTime, getAverageKCScoreAfterAGivenTime
 
 from gludb.simple import DBObject, Field, Index
 from gludb.config import default_database, Database
@@ -56,8 +56,9 @@ class DBLoggingService(BaseLoggingService):
                 #print("saving message")
                 incomingMsg.save()
                 #print("message saved")
-            if msg.getVerb() == COMPLETED_VERB:
-                print(getKCsForUserAfterAGivenTime('p1', 'KC1',"2016-02-04T00:57:14.000Z"))
+            #if msg.getVerb() == COMPLETED_VERB:
+                #print(getKCsForUserAfterAGivenTime('p1', 'KC1',"2016-02-04T00:57:14.000Z"))
+                #print(getAverageKCScoreAfterAGivenTime('p1', 'KC1', "2016-02-04T00:57:14.000Z"))
         else:
             print("Message size too long for msg #: " + msg.getId())
         
