@@ -87,20 +87,29 @@ class DBLoggedMessage(object):
         
     @Index
     def userIdIndex(self):
-        return self.context[USER_ID_CONTEXT_KEY]
-        
+        if USER_ID_CONTEXT_KEY in self.context:
+            return self.context[USER_ID_CONTEXT_KEY]
+        else:
+            return None
     @Index
     def taskIdIndex(self):
-        return self.context[TASK_ID_CONTEXT_KEY]
-        
-    #@Index
-    #def stepIdIndex(self):
-    #    return self.context[STEP_ID_CONTEXT_KEY]
-        
+        if TASK_ID_CONTEXT_KEY in self.context:
+            return self.context[TASK_ID_CONTEXT_KEY]
+        else:
+            return None
+    @Index
+    def stepIdIndex(self):
+        if STEP_ID_CONTEXT_KEY in self.context:
+            return self.context[STEP_ID_CONTEXT_KEY]
+        else:
+            return None
     @Index
     def userTaskIndex(self):
-        return (self.context[USER_ID_CONTEXT_KEY], self.context[TASK_ID_CONTEXT_KEY])
-        
+        if USER_ID_CONTEXT_KEY in self.context and TASK_ID_CONTEXT_KEY in self.context:
+            return (self.context[USER_ID_CONTEXT_KEY], self.context[TASK_ID_CONTEXT_KEY])
+        else:
+            return None
+            
     def toMessage(self):
         return Message(self.actor, self.verb, self.object, self.result, self.speechAct, self.context, self.timestamp)
     

@@ -58,7 +58,7 @@ class DBLoggingService(BaseLoggingService):
                 #print("message saved")
             #if msg.getVerb() == COMPLETED_VERB:
                 #print(getKCsForUserAfterAGivenTime('p1', 'KC1',"2016-02-04T00:57:14.000Z"))
-                print(getAverageKCScoreAfterAGivenTime('p1', 'KC1', "2016-02-04T00:57:14.000Z"))
+                #print(getAverageKCScoreAfterAGivenTime('p1', 'KC1', "2016-02-04T23:27:14.000Z"))
         else:
             print("Message size too long for msg #: " + msg.getId())
         
