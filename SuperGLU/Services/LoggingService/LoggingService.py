@@ -2,7 +2,7 @@
 import csv
 from datetime import datetime
 from SuperGLU.Core.Messaging import Message
-from SuperGLU.Core.MessagingDB import DBLoggedMessage
+from SuperGLU.Core.MessagingDB import DBLoggedMessage, COMPLETED_VERB
 from SuperGLU.Core.MessagingGateway import BaseService
 from SuperGLU.Util.Serialization import serializeObject, nativizeObject
 from SuperGLU.Services.QueryService.Queries import LearnerDataQueryByActor, getKCsForUserAfterAGivenTime
@@ -56,7 +56,8 @@ class DBLoggingService(BaseLoggingService):
                 #print("saving message")
                 incomingMsg.save()
                 #print("message saved")
-            #print(getKCsForUserAfterAGivenTime('p1Data', "ASSISTments_p1","2016-02-03T01:06:14.000Z"))
+            if msg.getVerb() == COMPLETED_VERB:
+                print(getKCsForUserAfterAGivenTime('p1', 'KC1',"2016-02-04T00:57:14.000Z"))
         else:
             print("Message size too long for msg #: " + msg.getId())
         

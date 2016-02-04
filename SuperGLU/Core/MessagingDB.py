@@ -137,12 +137,14 @@ class DBLoggedMessage(object):
                 
                     if currentValue != filterValue:
                         return False
-                        
+        
+        
         if self.timestamp is not None and current.timestamp != "timestamp":
             parsedTimestamp = datetime.strptime(current.timestamp, "%Y-%m-%dT%H:%M:%S.%fZ")
             parsedFilterTimestamp = datetime.strptime(self.timestamp, "%Y-%m-%dT%H:%M:%S.%fZ")
             
             if timestampOperator == "<" and parsedTimestamp < parsedFilterTimestamp:
+                #print(current.timestamp + " < " + self.timestamp)
                 return False;
             if timestampOperator == ">" and parsedFilterTimestamp < parsedTimestamp:
                 return False;

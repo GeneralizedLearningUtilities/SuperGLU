@@ -2,7 +2,7 @@
 from SuperGLU.Util.Serialization import Serializable
 from SuperGLU.Core.MessagingGateway import BaseService
 from SuperGLU.Core.Messaging import Message
-from SuperGLU.Core.MessagingDB import DBLoggedMessage
+from SuperGLU.Core.MessagingDB import DBLoggedMessage, KC_SCORE_VERB
 from itertools import filterfalse
 
 #These classes are intended to allow the user to access data stored from the messages.
@@ -53,12 +53,13 @@ class LearnerDataQueryByObject(LearnerDataQueryBase):
 class KCForUserAfterAGivenTimeQuery(LearnerDataQueryBase):
     #value should be a filter message
     def runQuery(self, value):
-        dbLoggedMessageList = super(KCForUserAfterAGivenTimeQuery, self).runQueryInternal('actorIndex', value.actor)
+        dbLoggedMessageList = super(KCForUserAfterAGivenTimeQuery, self).runQueryInternal('actorVerbObjIndex', (value.actor, value.verb, value.object))
+        #print(dbLoggedMessageList)
         filteredMessages = super(KCForUserAfterAGivenTimeQuery, self).filterQueryResults(dbLoggedMessageList, value, "<")
-        print(filteredMessages)
+        #print(filteredMessages)
         return super(KCForUserAfterAGivenTimeQuery, self).convertResultsToMessageList(filteredMessages)
         
         
 def getKCsForUserAfterAGivenTime(user, kc, time):
-    filter = DBLoggedMessage(actor=user, verb=None, object=None, result=None, speechAct=None, context={kc : None}, timestamp=time)
+    filter = DBLoggedMessage(actor=user, verb=KC_SCORE_VERB, object=kc, result=None, speechAct=None, context=None, timestamp=time)
     return KCForUserAfterAGivenTimeQuery().runQuery(filter)
