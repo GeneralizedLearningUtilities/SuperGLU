@@ -14,8 +14,8 @@ class LearnerDataQueryBase (BaseService) :
 
     #filter the results of a query to match a partially filled out message
     def filterQueryResults(self, queryResults, filter, timestampOperator="=="):
-        result = []
-        [not filter.matchOnPartial(x, timestampOperator, result) for x in queryResults if x is not None]
+        result = [x for x in queryResults if x is not None 
+					and filter.matchOnPartial(x, timestampOperator)]
         return result
         
     #return results of query as a list of DBLoggedMessage objects.
@@ -67,8 +67,7 @@ def getKCsForUserAfterAGivenTime(user, kc, time):
     
 def getAverageKCScoreAfterAGivenTime(user, kc,time):
     kcScores = getKCsForUserAfterAGivenTime(user, kc, time)
-    total = 0
-    for x in kcScores:
-        total += x.getResult()
+	
+    total = sum([x.getResult() for x in kcScores])
     result = total / len(kcScores)
     return result

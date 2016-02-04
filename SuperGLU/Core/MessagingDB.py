@@ -104,7 +104,7 @@ class DBLoggedMessage(object):
     def toMessage(self):
         return Message(self.actor, self.verb, self.object, self.result, self.speechAct, self.context, self.timestamp)
     
-    def matchOnPartial(self, current, timestampOperator, filteredList):
+    def matchOnPartial(self, current, timestampOperator):
         if self.actor is not None and current.actor != self.actor:
             return False
         
@@ -151,7 +151,6 @@ class DBLoggedMessage(object):
             if timestampOperator == "==" and parsedFilterTimestamp != parsedTimestamp:
                 return False;
         
-        filteredList.append(current)
         return True
         
         
