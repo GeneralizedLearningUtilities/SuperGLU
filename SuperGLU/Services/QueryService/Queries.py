@@ -68,6 +68,10 @@ def getKCsForUserAfterAGivenTime(user, kc, time):
 def getAverageKCScoreAfterAGivenTime(user, kc,time):
     kcScores = getKCsForUserAfterAGivenTime(user, kc, time)
 	
-    total = sum([x.getResult() for x in kcScores])
-    result = total / len(kcScores)
+    result = 0;
+    
+    if len(kcScores) != 0:
+        total = sum([x.getResult() for x in kcScores])
+        result = total / len(kcScores)
+        
     return result
