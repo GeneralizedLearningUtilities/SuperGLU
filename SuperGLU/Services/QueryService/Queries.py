@@ -2,7 +2,7 @@
 from SuperGLU.Util.Serialization import Serializable
 from SuperGLU.Core.MessagingGateway import BaseService
 from SuperGLU.Core.Messaging import Message
-from SuperGLU.Core.MessagingDB import DBLoggedMessage, KC_SCORE_VERB
+from SuperGLU.Core.MessagingDB import DBLoggedMessage, KC_SCORE_VERB, USER_ID_CONTEXT_KEY, TASK_ID_CONTEXT_KEY, TASK_HINT_VERB, TASK_FEEDBACK_VERB
 from itertools import filterfalse
 
 #These classes are intended to allow the user to access data stored from the messages.
@@ -67,11 +67,44 @@ def getKCsForUserAfterAGivenTime(user, kc, time):
     
 def getAverageKCScoreAfterAGivenTime(user, kc,time):
     kcScores = getKCsForUserAfterAGivenTime(user, kc, time)
-	
     result = 0;
-    
     if len(kcScores) != 0:
         total = sum([x.getResult() for x in kcScores])
         result = total / len(kcScores)
-        
     return result
+    
+   
+class UserTaskQuery (LearnerDataQueryBase):
+
+    def runQuery(self, value):
+        #for the sake of clarity, I'm going to raise an error with specific information if you don't pass in a None value
+        if not USER_ID_CONTEXT_KEY in value.context or not TASK_ID_CONTEXT_KEY in value.context:
+            raise RuntimeError("userId and TaskId cannot be None")
+        
+        dbLoggedMessageList = super(UserTaskQueryBase, self).runQueryInternal('userTaskIndex', (value.context[USER_ID_CONTEXT_KEY], value.context[TASK_ID_CONTEXT_KEY]))
+        #print(dbLoggedMessageList)
+        filteredMessages = super(UserTaskQueryBase, self).filterQueryResults(dbLoggedMessageList, value, "<")
+        #print(filteredMessages)
+        return super(UserTaskQueryBase, self).convertResultsToMessageList(filteredMessages)
+        
+def getTotalScoreForAGivenUserAndTask(user, task, timestamp=None):
+    context = {USER_ID_CONTEXT_KEY: user, TASK_ID_CONTEXT_KEY: task}
+    filter = DBLoggedMessage(actor=user, verb=KC_SCORE_VERB, object=None, result=None, speechAct=None, context=context, timestamp=timestamp)
+    kcScores = UserTaskQuery().runQuery(value)
+    return sum([x.getResult() for x in kcScores])
+    
+def getTotalScoreForAGivenUserTaskAndKC(user, task, kc, timestamp=None):
+    context = {USER_ID_CONTEXT_KEY: user, TASK_ID_CONTEXT_KEY: task}
+    filter = DBLoggedMessage(actor=user, verb=KC_SCORE_VERB, object=kc, result=None, speechAct=None, context=context, timestamp=timestamp)
+    kcScores = UserTaskQuery().runQuery(value)
+    return sum([x.getResult() for x in kcScores])
+    
+def getAllHintsForSingleUserAndTask(user, task, timestamp=None):
+    context = {USER_ID_CONTEXT_KEY: user, TASK_ID_CONTEXT_KEY: task}
+    filter = DBLoggedMessage(actor=user, verb=TASK_HINT_VERB, object=None, result=None, speechAct=None, context=context, timestamp=timestamp)
+    hints = UserTaskQuery().runQuery(value)
+
+def getAllFeedbackForSingleUserAndTask(user, task, timestamp=None):
+    context = {USER_ID_CONTEXT_KEY: user, TASK_ID_CONTEXT_KEY: task}
+    filter = DBLoggedMessage(actor=user, verb=TASK_FEEDBACK_VERB, object=None, result=None, speechAct=None, context=context, timestamp=timestamp)
+    hints = UserTaskQuery().runQuery(value)    
