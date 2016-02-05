@@ -81,30 +81,30 @@ class UserTaskQuery (LearnerDataQueryBase):
         if not USER_ID_CONTEXT_KEY in value.context or not TASK_ID_CONTEXT_KEY in value.context:
             raise RuntimeError("userId and TaskId cannot be None")
         
-        dbLoggedMessageList = super(UserTaskQueryBase, self).runQueryInternal('userTaskIndex', (value.context[USER_ID_CONTEXT_KEY], value.context[TASK_ID_CONTEXT_KEY]))
+        dbLoggedMessageList = super(UserTaskQuery, self).runQueryInternal('userTaskIndex', (value.context[USER_ID_CONTEXT_KEY], value.context[TASK_ID_CONTEXT_KEY]))
         #print(dbLoggedMessageList)
-        filteredMessages = super(UserTaskQueryBase, self).filterQueryResults(dbLoggedMessageList, value, "<")
+        filteredMessages = super(UserTaskQuery, self).filterQueryResults(dbLoggedMessageList, value, "<")
         #print(filteredMessages)
-        return super(UserTaskQueryBase, self).convertResultsToMessageList(filteredMessages)
+        return super(UserTaskQuery, self).convertResultsToMessageList(filteredMessages)
         
 def getTotalScoreForAGivenUserAndTask(user, task, timestamp=None):
     context = {USER_ID_CONTEXT_KEY: user, TASK_ID_CONTEXT_KEY: task}
     filter = DBLoggedMessage(actor=user, verb=KC_SCORE_VERB, object=None, result=None, speechAct=None, context=context, timestamp=timestamp)
-    kcScores = UserTaskQuery().runQuery(value)
+    kcScores = UserTaskQuery().runQuery(filter)
     return sum([x.getResult() for x in kcScores])
     
 def getTotalScoreForAGivenUserTaskAndKC(user, task, kc, timestamp=None):
     context = {USER_ID_CONTEXT_KEY: user, TASK_ID_CONTEXT_KEY: task}
     filter = DBLoggedMessage(actor=user, verb=KC_SCORE_VERB, object=kc, result=None, speechAct=None, context=context, timestamp=timestamp)
-    kcScores = UserTaskQuery().runQuery(value)
+    kcScores = UserTaskQuery().runQuery(filter)
     return sum([x.getResult() for x in kcScores])
     
 def getAllHintsForSingleUserAndTask(user, task, timestamp=None):
     context = {USER_ID_CONTEXT_KEY: user, TASK_ID_CONTEXT_KEY: task}
     filter = DBLoggedMessage(actor=user, verb=TASK_HINT_VERB, object=None, result=None, speechAct=None, context=context, timestamp=timestamp)
-    hints = UserTaskQuery().runQuery(value)
+    hints = UserTaskQuery().runQuery(filter)
 
 def getAllFeedbackForSingleUserAndTask(user, task, timestamp=None):
     context = {USER_ID_CONTEXT_KEY: user, TASK_ID_CONTEXT_KEY: task}
     filter = DBLoggedMessage(actor=user, verb=TASK_FEEDBACK_VERB, object=None, result=None, speechAct=None, context=context, timestamp=timestamp)
-    hints = UserTaskQuery().runQuery(value)    
+    hints = UserTaskQuery().runQuery(filter)    

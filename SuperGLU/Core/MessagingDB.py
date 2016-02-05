@@ -141,7 +141,7 @@ class DBLoggedMessage(object):
                 currentValue = current.context[filterContextKey]
                 filterValue = self.context[filterContextKey]
                 if filterValue is not None:
-                    if isInstance(currentValue, list) and filterValue not in currentValue:
+                    if isinstance(currentValue, list) and filterValue not in currentValue:
                         return False
                 
                     if currentValue != filterValue:
