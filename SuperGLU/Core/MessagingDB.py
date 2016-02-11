@@ -105,6 +105,7 @@ class DBLoggedMessage(object):
             return None
     @Index
     def userTaskIndex(self):
+        print("entering userTaskIndex")
         if USER_ID_CONTEXT_KEY in self.context and TASK_ID_CONTEXT_KEY in self.context:
             return (self.context[USER_ID_CONTEXT_KEY], self.context[TASK_ID_CONTEXT_KEY])
         else:

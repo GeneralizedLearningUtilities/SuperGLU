@@ -5,7 +5,8 @@ from SuperGLU.Core.Messaging import Message
 from SuperGLU.Core.MessagingDB import DBLoggedMessage, COMPLETED_VERB
 from SuperGLU.Core.MessagingGateway import BaseService
 from SuperGLU.Util.Serialization import serializeObject, nativizeObject
-from SuperGLU.Services.QueryService.Queries import LearnerDataQueryByActor, getKCsForUserAfterAGivenTime, getAverageKCScoreAfterAGivenTime, getTotalScoreForAGivenUserAndTask
+from SuperGLU.Services.QueryService.Queries import LearnerDataQueryByActor, getKCsForUserAfterAGivenTime, getAverageKCScoreAfterAGivenTime, getTotalScoreForAGivenUserAndTask, getKCsForAGivenUserAndTask
+from SuperGLU.Services.StudentModel.PersistentData import Session
 
 from gludb.simple import DBObject, Field, Index
 from gludb.config import default_database, Database
@@ -58,8 +59,14 @@ class DBLoggingService(BaseLoggingService):
                 #print("message saved")
             if msg.getVerb() == COMPLETED_VERB:
                 #print(getKCsForUserAfterAGivenTime('p1', 'KC1',"2016-02-04T00:57:14.000Z"))
-                print(getAverageKCScoreAfterAGivenTime('p1', 'KC1', "2016-02-04T23:27:14.000Z"))
-                print(getTotalScoreForAGivenUserAndTask('p1', 'http://localhost:5533/QueryLogDebug.html?'))
+                #print(getAverageKCScoreAfterAGivenTime('p1', 'KC1', "2016-02-04T23:27:14.000Z"))
+                #print(getTotalScoreForAGivenUserAndTask('p1', 'http://localhost:5533/QueryLogDebug.html?'))
+                data = Session()
+                data.task = 'http://localhost:5533/QueryLogDebug.html?'
+                data.students = ['p1']
+                data.startTime = '2016-02-04T23:27:14.000Z'
+                performance = data.getPerformance(False)
+                print(performance)
         else:
             print("Message size too long for msg #: " + msg.getId())
         
