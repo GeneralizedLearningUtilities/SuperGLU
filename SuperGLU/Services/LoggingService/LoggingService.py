@@ -54,9 +54,7 @@ class DBLoggingService(BaseLoggingService):
         if len(serializedMsg) <= self._maxMsgSize:
             incomingMsg = DBLoggedMessage(actor=msg.getActor(), verb=msg.getVerb(), object=msg.getObject(), result=msg.getResult(), speechAct=msg.getSpeechAct(), context=msg.getContext(), timestamp=msg.getTimestamp())
             if msg.getVerb() != "Dump Logs":
-                #print("saving message")
                 incomingMsg.save()
-                #print("message saved")
             if msg.getVerb() == COMPLETED_VERB:
                 #print(getKCsForUserAfterAGivenTime('p1', 'KC1',"2016-02-04T00:57:14.000Z"))
                 #print(getAverageKCScoreAfterAGivenTime('p1', 'KC1', "2016-02-04T23:27:14.000Z"))
@@ -65,7 +63,7 @@ class DBLoggingService(BaseLoggingService):
                 data.task = 'http://localhost:5533/QueryLogDebug.html?'
                 data.students = ['p1']
                 data.startTime = '2016-02-04T23:27:14.000Z'
-                performance = data.getPerformance(False)
+                performance = data.getFeedback(False)
                 print(performance)
         else:
             print("Message size too long for msg #: " + msg.getId())

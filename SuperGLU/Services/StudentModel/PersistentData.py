@@ -1,6 +1,6 @@
 import datetime
 from gludb.simple import DBObject, Field, Index
-from SuperGLU.Services.QueryService.Queries import getKCsForAGivenUserAndTask
+from SuperGLU.Services.QueryService.Queries import getKCsForAGivenUserAndTask, getAllHintsForSingleUserAndTask, getAllFeedbackForSingleUserAndTask
 """
 """
 
@@ -54,8 +54,8 @@ class Session(object):
     endCondition   = Field('')
     performance    = Field(dict)
     classId        = Field('')
-    hints          = Field(dict)
-    feedback       = Field(dict)
+    hints          = Field(list)
+    feedback       = Field(list)
     messageIds     = Field(list)
     sourceDataN    = Field(-1)
     sourceDataHash = Field(-1)
@@ -70,14 +70,14 @@ class Session(object):
             
         return None
         
-    def getPerformance(self, useCachedValue):
+    def getPerformance(self, useCachedValue = False):
         if useCachedValue:
             return self.performance
         
         self.performance = dict()
         
         if self.task is None or self.startTime is None:
-            return dict
+            return self.performance
         
         for currentStudent in self.students:
             self.performance[currentStudent] = dict()
@@ -89,4 +89,44 @@ class Session(object):
         
         return self.performance
         
-    #def getHints(self, useCachedValue):
+    def getHints(self, useCachedValue = False):
+        if useCachedValue:
+            return self.hints
+        else:
+            self.hints = list()
+            
+            if self.task is None or self.startTime is None:
+                return self.hints
+                
+            for currentStudent in self.students:
+                studentHints = getAllHintsForSingleUserAndTask(currentStudent, self.task, self.startTime, False)
+                for currentHint in studentHints:         
+                    self.hints.append(currentHint)
+                    if currentHint.id not in self.messageIds:
+                        self.messageIds.append(currentHint)
+            return self.hints
+            
+    def getFeedback(self, useCachedValue = False):
+        if useCachedValue:
+            return self.feedback
+        else:
+            self.feedback = list()
+            
+            if self.task is None or self.startTime is None:
+                return self.feedback
+                
+            for currentStudent in self.students:
+                studentFeedback = getAllFeedbackForSingleUserAndTask(currentStudent, self.task, self.startTime, False)
+                for currentFeedback in studentFeedback:         
+                    self.feedback.append(currentFeedback)
+                    if currentFeedback.id not in self.messageIds:
+                        self.messageIds.append(currentFeedback)
+            return self.feedback
+            
+            
+    def getSourceDataN(self, useCachedValue = False):
+        if useCachedValue:
+            return self.sourceDataN
+        else:
+            self.sourceDataN = len(self.messageIds)
+            return self.sourceDataN

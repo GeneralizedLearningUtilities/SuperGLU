@@ -109,10 +109,12 @@ def getTotalScoreForAGivenUserTaskAndKC(user, task, kc, timestamp=None, returnFu
     
 def getAllHintsForSingleUserAndTask(user, task, timestamp=None, returnFullMesage=True):
     context = {USER_ID_CONTEXT_KEY: user, TASK_ID_CONTEXT_KEY: task}
-    filter = DBLoggedMessage(actor=user, verb=TASK_HINT_VERB, object=None, result=None, speechAct=None, context=context, timestamp=timestamp)
+    filter = DBLoggedMessage(actor=None, verb=TASK_HINT_VERB, object=None, result=None, speechAct=None, context=context, timestamp=timestamp)
     hints = UserTaskQuery().runQuery(filter, returnFullMesage)
+    return hints
 
 def getAllFeedbackForSingleUserAndTask(user, task, timestamp=None, returnFullMesage=True):
     context = {USER_ID_CONTEXT_KEY: user, TASK_ID_CONTEXT_KEY: task}
-    filter = DBLoggedMessage(actor=user, verb=TASK_FEEDBACK_VERB, object=None, result=None, speechAct=None, context=context, timestamp=timestamp)
-    hints = UserTaskQuery().runQuery(filter, returnFullMesage)    
+    filter = DBLoggedMessage(actor=None, verb=TASK_FEEDBACK_VERB, object=None, result=None, speechAct=None, context=context, timestamp=timestamp)
+    feedback = UserTaskQuery().runQuery(filter, returnFullMesage) 
+    return feedback
