@@ -41,6 +41,14 @@ class DBSystem(object):
             self.taskCache = [DBTasks.find_one(x) for x in self.tasks]
         return self.taskCache
     
+    def addTasks(self, newTask):
+        if newTask is None:
+            return #don't bother adding null values
+        self.taskCache.append(newTask)
+        if newTask.id is None:
+            newTask.save()
+        self.tasks.append(newTask.id)
+    
 @DBObject(table_name="Tasks")
 class DBTask(object):
     ids  = Field(list)
@@ -90,6 +98,15 @@ class DBSession(object):
         if not useCachedValue:
             self.studentCache = [DBStudent.find_one(x) for x in self.students]
         return self.studentCache
+    
+    #takes a DBStudent object as an argument
+    def addStudent(self, newStudent):
+        if newStudent is None:
+            return
+        if newStudent.id is None:
+            newStudent.save()
+        self.studentCache.append(newStudent)
+        self.students.append(newStudent.id)        
     
     def setStartTime(self, sTime):
         self.startTime = sTime.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
@@ -170,11 +187,28 @@ class DBStudent (object):
         if not useCachedValue:
             self.sessionCache = [DBSession.find_one(x) for x in self.sessionIds]
         return self.sessionCache
+        
+    def addSession(self, newSession):
+        if newSession is None:
+            return
+        if newSession.id is None:
+            newSession.save()
+        self.sessionCache.append(newSession)
+        self.sessionIds.append(newSession.id)
             
     def getStudentModels(self, useCachedValue):
         if not useCachedValue:
             self.studentModelCache = [DBDBStudentModel.find_one(x) for x in self.studentModelIds]
         return self.studentModelCache
+        
+    def addStudentModel(self, newStudentModel):
+        if newStudentModel is None:
+            return
+        if newStudentModel.id is None:
+            newStudentModel.save()
+        
+        self.studentModelCache.append(newStudentModel)
+        self.studentModelIds.append(newStudentModel.id)
         
 
 @DBObject(table_name="Classes")
@@ -195,13 +229,27 @@ class DBClass (object):
         if not useCachedValue:
             self.studentCache = [DBStudent.find_one(x) for x in self.students]
         return self.studentCache
-        
+    
+    def addStudent(self, newStudent):
+        if newStudent is None:
+            return
+        if newStudent.id is None:
+            newStudent.save()
+        self.studentCache.append(newStudent)
+        self.students.append(newStudent.id)
     
     def getTopics(self, useCachedValue = False):
         if not useCachedValue:
             self.topicsCache = [DBTopic.find_one(x) for x in self.topics]
         return self.topicsCache
-            
+    
+    def addTopic(self, newTopic):
+        if newTopic is None:
+            return
+        if newTopic.id is None:
+            newTopic.save()
+        self.topicsCache.append(newTopic)
+        self.topics.append(newTopic.id)
             
 @DBObject(table_name="StudentModels")
 class DBStudentModel (object):
