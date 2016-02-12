@@ -6,7 +6,7 @@ from SuperGLU.Core.MessagingDB import DBLoggedMessage, COMPLETED_VERB
 from SuperGLU.Core.MessagingGateway import BaseService
 from SuperGLU.Util.Serialization import serializeObject, nativizeObject
 from SuperGLU.Services.QueryService.Queries import LearnerDataQueryByActor, getKCsForUserAfterAGivenTime, getAverageKCScoreAfterAGivenTime, getTotalScoreForAGivenUserAndTask, getKCsForAGivenUserAndTask
-from SuperGLU.Services.StudentModel.PersistentData import Session
+from SuperGLU.Services.StudentModel.PersistentData import DBSession
 
 from gludb.simple import DBObject, Field, Index
 from gludb.config import default_database, Database
@@ -59,7 +59,7 @@ class DBLoggingService(BaseLoggingService):
                 #print(getKCsForUserAfterAGivenTime('p1', 'KC1',"2016-02-04T00:57:14.000Z"))
                 #print(getAverageKCScoreAfterAGivenTime('p1', 'KC1', "2016-02-04T23:27:14.000Z"))
                 #print(getTotalScoreForAGivenUserAndTask('p1', 'http://localhost:5533/QueryLogDebug.html?'))
-                data = Session()
+                data = DBSession()
                 data.task = 'http://localhost:5533/QueryLogDebug.html?'
                 data.students = ['p1']
                 data.startTime = '2016-02-04T23:27:14.000Z'
