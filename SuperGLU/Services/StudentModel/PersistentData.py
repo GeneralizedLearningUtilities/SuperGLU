@@ -1,4 +1,6 @@
 import datetime
+import uuid
+import hashlib
 from gludb.simple import DBObject, Field, Index
 from SuperGLU.Services.QueryService.Queries import getKCsForAGivenUserAndTask, getAllHintsForSingleUserAndTask, getAllFeedbackForSingleUserAndTask
 """
@@ -169,6 +171,14 @@ class DBSession(object):
         if not useCachedValue:
             self.sourceDataN = len(self.messageIds)
         return self.sourceDataN
+        
+    
+    def getSourceDataHash(self, useCachedValue = False):
+        if not useCachedValue:
+            uuidsAsString = ''.join(self.messageIds)
+            uuidsAsBytes = uuidsAsString.encode()
+            self.sourceDataHash = str(hashlib.sha256(uuidsAsBytes).hexdigest())
+        return self.sourceDataHash
             
 
 @DBObject(table_name="Students")
