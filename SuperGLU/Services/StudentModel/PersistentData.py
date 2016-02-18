@@ -40,7 +40,7 @@ class DBSystem(object):
 
     def getTasks(self, useCachedValue=False):
         if not useCachedValue:
-            self.taskCache = [DBTasks.find_one(x) for x in self.tasks]
+            self.taskCache = [DBTask.find_one(x) for x in self.tasks]
         return self.taskCache
     
     def addTasks(self, newTask):
@@ -208,7 +208,7 @@ class DBStudent (object):
             
     def getStudentModels(self, useCachedValue):
         if not useCachedValue:
-            self.studentModelCache = [DBDBStudentModel.find_one(x) for x in self.studentModelIds]
+            self.studentModelCache = [DBStudentModel.find_one(x) for x in self.studentModelIds]
         return self.studentModelCache
         
     def addStudentModel(self, newStudentModel):
@@ -266,7 +266,11 @@ class DBStudentModel (object):
     studentId = Field('')
     kcMastery = Field(dict)
     
-    studentCache = None
+    studentCache = []
+    
+    @Index
+    def sudentIdIndex(self):
+        return studentId
     
     def getStudent(self, useCachedValue= False):
         if studentId is not '':

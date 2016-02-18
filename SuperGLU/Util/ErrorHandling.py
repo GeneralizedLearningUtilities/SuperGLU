@@ -29,6 +29,11 @@ ERROR_LOGGER.addHandler(logging.StreamHandler())
 
 #def attachLogFile(fileName):
 #    pass
+
+#Level of Detail for logging
+#Set to 1 for production builds 
+#unless your trying to isolate a nasty error
+LEVEL_OF_DETAIL = 5
                 
 def errorHandler(errInfo, mode=None, warning=False):
     if errInfo is not None:
@@ -64,6 +69,11 @@ def logWarning(*args, **kwds):
             stack = kwds.get('stack')
         errorHandler(sys.exc_info()[:2] + (stack,),
                      LOG_ERRORS_MODE, True)
+        
+def logInfo(msg, lod):
+    if lod <= LEVEL_OF_DETAIL:
+        #look into not using print here
+        print(msg)
     
 def _getErrorMode():
     return ERROR_MODE
