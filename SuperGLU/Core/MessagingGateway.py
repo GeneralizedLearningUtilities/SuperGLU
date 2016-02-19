@@ -250,7 +250,7 @@ class TestService(BaseService):
 
     def sendTestString(self, aStr):
         logWarning("Test Service is Sending: ", aStr)
-        self.sendMessage(Messaging.Message("TestService", "Sent Test", "To Server", aStr))
+        self.sendMessage(Message("TestService", "Sent Test", "To Server", aStr))
 
     def sendTestMessage(self, actor, verb, obj, result, speechAct, context=None):
         if context is None: context = {}
@@ -259,5 +259,5 @@ class TestService(BaseService):
 
     def sendTestMessage(self, callback, actor, verb, obj, result, speechAct, context=None):
         if context is None: context = {}
-        msg = Messaging.Message(actor, verb, obj, result, speechAct, context=context)
+        msg = Message(actor, verb, obj, result, speechAct, context=context)
         that._makeRequest(msg, callback)

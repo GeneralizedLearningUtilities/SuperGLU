@@ -1,6 +1,6 @@
-import datetime
 import uuid
 import hashlib
+from datetime import datetime
 from gludb.simple import DBObject, Field, Index
 from SuperGLU.Services.QueryService.Queries import getKCsForAGivenUserAndTask, getAllHintsForSingleUserAndTask, getAllFeedbackForSingleUserAndTask
 """
@@ -16,6 +16,7 @@ def initDerivedDataTables():
     DBClass.ensure_table()
     DBStudentModel.ensure_table()
     DBClassModel.ensure_table()
+    DBStudentAlias.ensure_table()
 
 @DBObject(table_name="Systems")
 class DBSystem(object):
@@ -183,7 +184,7 @@ class DBSession(object):
 
 @DBObject(table_name="Students")
 class DBStudent (object):
-    ids             = Field(list)
+    id              = Field('')
     sessionIds      = Field(list)
     oAuthIds        = Field(dict)
     studentModelIds = Field(list)
@@ -192,6 +193,10 @@ class DBStudent (object):
     #non-persistant fields
     sessionCache = []
     studentModelCache = []
+    
+    @Index
+    def StudentIDIndex(self):
+        return self.id
     
     def getSessions(self, useCachedValue):
         if not useCachedValue:
@@ -219,6 +224,20 @@ class DBStudent (object):
         
         self.studentModelCache.append(newStudentModel)
         self.studentModelIds.append(newStudentModel.id)
+        
+        
+@DBObject(table_name="StudentAliases")
+class DBStudentAlias (object):
+    trueId = Field('')
+    alias  = Field('')
+    
+    @Index
+    def AliasIndex(self):
+        return self.alias
+    
+    def GetStudent(self):
+        student = DBStudent.find_by_index("StudentIDIndex", self.trueId)
+        return student
         
 
 @DBObject(table_name="Classes")
@@ -270,12 +289,12 @@ class DBStudentModel (object):
     
     @Index
     def sudentIdIndex(self):
-        return studentId
+        return self.studentId
     
     def getStudent(self, useCachedValue= False):
-        if studentId is not '':
+        if self.studentId is not '':
             if not useCachedValue:
-                self.studentCache = DBStudent.find_one(studentId)
+                self.studentCache = DBStudent.find_one(self.studentId)
             return self.studentCache
         else:
             return None
