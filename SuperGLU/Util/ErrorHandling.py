@@ -33,7 +33,7 @@ ERROR_LOGGER.addHandler(logging.StreamHandler())
 #Level of Detail for logging
 #Set to 1 for production builds 
 #unless your trying to isolate a nasty error
-LEVEL_OF_DETAIL = 5
+LEVEL_OF_DETAIL = 6
                 
 def errorHandler(errInfo, mode=None, warning=False):
     if errInfo is not None:

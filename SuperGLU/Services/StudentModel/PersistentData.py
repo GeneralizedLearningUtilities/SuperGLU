@@ -3,6 +3,7 @@ import hashlib
 from datetime import datetime
 from gludb.simple import DBObject, Field, Index
 from SuperGLU.Services.QueryService.Queries import getKCsForAGivenUserAndTask, getAllHintsForSingleUserAndTask, getAllFeedbackForSingleUserAndTask
+from SuperGLU.Util.ErrorHandling import logInfo
 """
 This module contains secondary database objects that contain data derived from the logged messages
 """
@@ -217,13 +218,18 @@ class DBStudent (object):
         return self.studentModelCache
         
     def addStudentModel(self, newStudentModel):
+        logInfo("Entering DBStudent.addStudentModel", 5)
         if newStudentModel is None:
             return
-        if newStudentModel.id is None:
+        if newStudentModel.id is None or newStudentModel.id is '':
+            logInfo('student model Id has not been saved', 6)
             newStudentModel.save()
         
         self.studentModelCache.append(newStudentModel)
+        if self.studentModelIds is None:
+            self.studentModelIds = []
         self.studentModelIds.append(newStudentModel.id)
+        logInfo('student Model id = {0} '.format(str(newStudentModel.id)), 6)
         
         
 @DBObject(table_name="StudentAliases")
@@ -235,7 +241,7 @@ class DBStudentAlias (object):
     def AliasIndex(self):
         return self.alias
     
-    def GetStudent(self):
+    def getStudent(self):
         student = DBStudent.find_by_index("StudentIDIndex", self.trueId)
         return student
         
