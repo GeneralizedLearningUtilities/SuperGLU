@@ -3,8 +3,8 @@ from SuperGLU.Util.Serialization import Serializable
 from SuperGLU.Core.MessagingGateway import BaseService
 from SuperGLU.Core.Messaging import Message
 from SuperGLU.Util.ErrorHandling import logInfo
-from SuperGLU.Core.MessagingDB import KC_SCORE_VERB
-from SuperGLU.Services.StudentModel.PersistentData import DBStudentAlias, DBStudentModel, DBStudent
+from SuperGLU.Core.MessagingDB import KC_SCORE_VERB, SESSION_ID_CONTEXT_KEY
+from SuperGLU.Services.StudentModel.PersistentData import DBStudentAlias, DBStudentModel, DBStudent, DBSession
 
 
 """
@@ -31,7 +31,14 @@ class StudentModelMessaging(BaseService):
         
         if(msg.getVerb() == KC_SCORE_VERB):
             logInfo('{0} is processing a {1} message'.format(STUDENT_MODEL_SERVICE_NAME, KC_SCORE_VERB), 4)
-            student = self.retrieveStudentFromCacheOrDB(msg.getActor())
+            student = self.retrieveStudentFromCacheOrDB(msg.getActor(), msg)
+            
+            session = student.getSessionWithId(msg.getContextValue(SESSION_ID_CONTEXT_KEY))
+            if session is None:
+                session = self.createSession(msg, student)
+            else:
+                logInfo('found session {0}'.format(session.sessionId), 5)
+                                
             if len(student.studentModelIds) == 0:
                 logInfo('No student model associated with student {0}.  Creating a new one'.format(msg.getActor()), 3)
                 student.addStudentModel(DBStudentModel(studentId=student.id))
@@ -41,9 +48,22 @@ class StudentModelMessaging(BaseService):
                 
             logInfo('finished processing {0}'.format(KC_SCORE_VERB), 4)
             
+    
+    def createStudent(self, studentId, msg):
+        studentUUID = str(uuid4())
+        student = DBStudent(id=studentUUID, sessionIds=[], oAuthIds={}, studentModelIds=[], kcGoals={})
+        student.save()
+        newStudentAlias = DBStudentAlias(trueId=studentUUID, alias=studentId)
+        newStudentAlias.save()
+        return student
+    
+    def createSession(self, msg, student):
+        logInfo("Could not find session with id:{0}.  Creating new Session".format(msg.getContextValue(SESSION_ID_CONTEXT_KEY)), 3)
+        session = DBSession(sessionId = msg.getContextValue(SESSION_ID_CONTEXT_KEY))
+        student.addSession(session)
+        return session
                 
-                
-    def retrieveStudentFromCacheOrDB(self, studentId):
+    def retrieveStudentFromCacheOrDB(self, studentId, msg):
         logInfo("Entering retrieveStudentFromCacheOrDB", 5)
         student = self.studentCache.get(studentId)
         if student is not None:
@@ -59,11 +79,7 @@ class StudentModelMessaging(BaseService):
                     
             if student is None:
                 logInfo('{0} could not find student with id: {1} in database.  Creating new student'.format(STUDENT_MODEL_SERVICE_NAME, studentId), 3)
-                studentUUID = str(uuid4())
-                student = DBStudent(id=studentUUID, sessionIds=[], oAuthIds={}, studentModelIds=[], kcGoals={})
-                student.save()
-                newStudentAlias = DBStudentAlias(trueId=studentUUID, alias=studentId)
-                newStudentAlias.save()
+                student = self.createStudent(studentId, msg)
             #Cache the result so we don't need to worry about looking it up again.
             self.studentCache[studentId] = student
             return student  

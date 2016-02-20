@@ -76,6 +76,7 @@ class DBTopic(object):
 
 @DBObject(table_name="Sessions")
 class DBSession(object):
+    sessionId      = Field('')
     students       = Field(list)
     system         = Field('')
     task           = Field('')
@@ -97,6 +98,10 @@ class DBSession(object):
     @classmethod
     def getSessionFromUUID(self, sessionId):
         return DBSession.find_one(sessionId)
+    
+    @Index
+    def SessionIdIndex(self):
+        return self.sessionId
     
     def getStudents(self, useCachedValue = False):
         if not useCachedValue:
@@ -203,14 +208,34 @@ class DBStudent (object):
         if not useCachedValue:
             self.sessionCache = [DBSession.find_one(x) for x in self.sessionIds]
         return self.sessionCache
+    
+    def getSessionWithId(self, sessionId):
+        if not sessionId in self.sessionIds:
+            return None
         
+        for x in self.sessionCache:
+            if x.sessionId == sessionId:
+                return x
+        
+        session = DBSession.find_by_index("SessionIdIndex", sessionId)
+        
+        if session is not None and session.sessionId not in self.sessionIds:
+            self.sessionIds.append(session.sessionId) 
+                    
+        return session
+               
     def addSession(self, newSession):
         if newSession is None:
             return
-        if newSession.id is None:
+        
+        if newSession.sessionId in self.sessionIds:
+            return
+        
+        if newSession.id is None or newSession.id is '':
             newSession.save()
         self.sessionCache.append(newSession)
-        self.sessionIds.append(newSession.id)
+        self.sessionIds.append(newSession.sessionId)
+        self.save()
             
     def getStudentModels(self, useCachedValue):
         if not useCachedValue:
@@ -222,14 +247,13 @@ class DBStudent (object):
         if newStudentModel is None:
             return
         if newStudentModel.id is None or newStudentModel.id is '':
-            logInfo('student model Id has not been saved', 6)
             newStudentModel.save()
         
         self.studentModelCache.append(newStudentModel)
         if self.studentModelIds is None:
             self.studentModelIds = []
         self.studentModelIds.append(newStudentModel.id)
-        logInfo('student Model id = {0} '.format(str(newStudentModel.id)), 6)
+        self.save()
         
         
 @DBObject(table_name="StudentAliases")

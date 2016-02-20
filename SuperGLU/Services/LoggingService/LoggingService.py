@@ -64,7 +64,7 @@ class DBLoggingService(BaseLoggingService):
                 data.students = ['p1']
                 data.startTime = '2016-02-04T23:27:14.000Z'
                 performance = data.getFeedback(False)
-                print(performance)
+                #print(performance)
         else:
             print("Message size too long for msg #: " + msg.getId())
         

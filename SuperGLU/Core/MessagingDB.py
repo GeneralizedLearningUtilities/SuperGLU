@@ -39,6 +39,7 @@ DISENGAGEMENT_VERB = 'Disengagement'               # Metric for disengagement (e
 MASTERY_VERB = 'Mastery'
 
 #Context Keys
+SESSION_ID_CONTEXT_KEY = 'sessionId'
 USER_ID_CONTEXT_KEY = 'userId'                             # Unique identifier for the user
 DURATION_CONTEXT_KEY = 'duration'                          # Duration spent on the task, 
 TASK_ID_CONTEXT_KEY = 'taskId'                             # ID for the task being performed
@@ -105,7 +106,6 @@ class DBLoggedMessage(object):
             return None
     @Index
     def userTaskIndex(self):
-        print("entering userTaskIndex")
         if USER_ID_CONTEXT_KEY in self.context and TASK_ID_CONTEXT_KEY in self.context:
             return (self.context[USER_ID_CONTEXT_KEY], self.context[TASK_ID_CONTEXT_KEY])
         else:
