@@ -3,8 +3,9 @@ from SuperGLU.Util.Serialization import Serializable
 from SuperGLU.Core.MessagingGateway import BaseService
 from SuperGLU.Core.Messaging import Message
 from SuperGLU.Util.ErrorHandling import logInfo
-from SuperGLU.Core.MessagingDB import KC_SCORE_VERB, SESSION_ID_CONTEXT_KEY
+from SuperGLU.Core.MessagingDB import KC_SCORE_VERB, SESSION_ID_CONTEXT_KEY, DATE_TIME_FORMAT
 from SuperGLU.Services.StudentModel.PersistentData import DBStudentAlias, DBStudentModel, DBStudent, DBSession
+from datetime import datetime
 
 
 """
@@ -38,7 +39,7 @@ class StudentModelMessaging(BaseService):
                 session = self.createSession(msg, student)
             else:
                 logInfo('found session {0}'.format(session.sessionId), 5)
-                                
+                                            
             if len(student.studentModelIds) == 0:
                 logInfo('No student model associated with student {0}.  Creating a new one'.format(msg.getActor()), 3)
                 student.addStudentModel(DBStudentModel(studentId=student.id))
@@ -60,8 +61,20 @@ class StudentModelMessaging(BaseService):
     def createSession(self, msg, student):
         logInfo("Could not find session with id:{0}.  Creating new Session".format(msg.getContextValue(SESSION_ID_CONTEXT_KEY)), 3)
         session = DBSession(sessionId = msg.getContextValue(SESSION_ID_CONTEXT_KEY))
+        session.messageIds = []
+        session.hints = []
+        session.feedback = []
+        session.performance = {}
+        session.startTime = datetime.utcnow().strftime(DATE_TIME_FORMAT)
         student.addSession(session)
         return session
+    
+    def updateSession(self, msg, session):
+        session.messageIds.append(msg.getId())
+        startTime = datetime.strptime(session.startTime, DATE_TIME_FORMAT)
+        delta = datetime.utcnow() - startTime
+        session.duration = delta.seconds
+        
                 
     def retrieveStudentFromCacheOrDB(self, studentId, msg):
         logInfo("Entering retrieveStudentFromCacheOrDB", 5)

@@ -190,7 +190,7 @@ class DBSession(object):
 
 @DBObject(table_name="Students")
 class DBStudent (object):
-    id              = Field('')
+    studentId       = Field('')
     sessionIds      = Field(list)
     oAuthIds        = Field(dict)
     studentModelIds = Field(list)
@@ -202,7 +202,7 @@ class DBStudent (object):
     
     @Index
     def StudentIDIndex(self):
-        return self.id
+        return self.studentId
     
     def getSessions(self, useCachedValue):
         if not useCachedValue:

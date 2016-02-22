@@ -56,6 +56,9 @@ NEUTRAL_HELP_TYPE = 'Neutral'
 NEGATIVE_HELP_TYPE = 'Negative'
  
 
+#DateTime Format
+DATE_TIME_FORMAT = "%Y-%m-%dT%H:%M:%S.%fZ"
+
 @DBObject(table_name="DBLoggedMessage")
 class DBLoggedMessage(object):
     actor = Field('actor')
@@ -150,8 +153,8 @@ class DBLoggedMessage(object):
         
         
         if self.timestamp is not None and current.timestamp != "timestamp":
-            parsedTimestamp = datetime.strptime(current.timestamp, "%Y-%m-%dT%H:%M:%S.%fZ")
-            parsedFilterTimestamp = datetime.strptime(self.timestamp, "%Y-%m-%dT%H:%M:%S.%fZ")
+            parsedTimestamp = datetime.strptime(current.timestamp, DATE_TIME_FORMAT)
+            parsedFilterTimestamp = datetime.strptime(self.timestamp, DATE_TIME_FORMAT)
             
             if timestampOperator == "<" and parsedTimestamp < parsedFilterTimestamp:
                 #print(current.timestamp + " < " + self.timestamp)
