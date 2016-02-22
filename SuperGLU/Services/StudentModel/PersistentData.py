@@ -208,21 +208,6 @@ class DBStudent (object):
         if not useCachedValue:
             self.sessionCache = [DBSession.find_one(x) for x in self.sessionIds]
         return self.sessionCache
-    
-    def getSessionWithId(self, sessionId):
-        if not sessionId in self.sessionIds:
-            return None
-        
-        for x in self.sessionCache:
-            if x.sessionId == sessionId:
-                return x
-        
-        session = DBSession.find_by_index("SessionIdIndex", sessionId)
-        
-        if session is not None and session.sessionId not in self.sessionIds:
-            self.sessionIds.append(session.sessionId) 
-                    
-        return session
                
     def addSession(self, newSession):
         if newSession is None:

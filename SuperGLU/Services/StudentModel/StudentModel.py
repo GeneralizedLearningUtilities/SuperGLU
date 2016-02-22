@@ -18,6 +18,7 @@ STUDENT_MODEL_SERVICE_NAME = "Student Model Service"
 class StudentModelMessaging(BaseService):
     
     studentCache = {}
+    sessionCache = {}
                 
     def receiveMessage(self, msg):
         logInfo('{0} received message: {1}'.format(STUDENT_MODEL_SERVICE_NAME, self.messageToString(msg)), 1)
@@ -30,15 +31,17 @@ class StudentModelMessaging(BaseService):
         #depending on the content of the message react differently
         logInfo('Entering StudentModelMessaging.routeMessage', 5)
         
+        session = self.retrieveSessionFromCacheOrDB(msg.getContextValue(SESSION_ID_CONTEXT_KEY))
+        if session is None:
+            session = self.createSession(msg)
+        else:
+            logInfo('found session {0}'.format(session.sessionId), 5)
+        
         if(msg.getVerb() == KC_SCORE_VERB):
             logInfo('{0} is processing a {1} message'.format(STUDENT_MODEL_SERVICE_NAME, KC_SCORE_VERB), 4)
             student = self.retrieveStudentFromCacheOrDB(msg.getActor(), msg)
-            
-            session = student.getSessionWithId(msg.getContextValue(SESSION_ID_CONTEXT_KEY))
-            if session is None:
-                session = self.createSession(msg, student)
-            else:
-                logInfo('found session {0}'.format(session.sessionId), 5)
+            student.addSession(session)
+           
                                             
             if len(student.studentModelIds) == 0:
                 logInfo('No student model associated with student {0}.  Creating a new one'.format(msg.getActor()), 3)
@@ -51,14 +54,16 @@ class StudentModelMessaging(BaseService):
             
     
     def createStudent(self, studentId, msg):
+        logInfo('{0} could not find student with id: {1} in database.  Creating new student'.format(STUDENT_MODEL_SERVICE_NAME, studentId), 3)
         studentUUID = str(uuid4())
         student = DBStudent(id=studentUUID, sessionIds=[], oAuthIds={}, studentModelIds=[], kcGoals={})
         student.save()
+        self.studentCache[studentId] = student
         newStudentAlias = DBStudentAlias(trueId=studentUUID, alias=studentId)
         newStudentAlias.save()
         return student
     
-    def createSession(self, msg, student):
+    def createSession(self, msg):
         logInfo("Could not find session with id:{0}.  Creating new Session".format(msg.getContextValue(SESSION_ID_CONTEXT_KEY)), 3)
         session = DBSession(sessionId = msg.getContextValue(SESSION_ID_CONTEXT_KEY))
         session.messageIds = []
@@ -66,7 +71,9 @@ class StudentModelMessaging(BaseService):
         session.feedback = []
         session.performance = {}
         session.startTime = datetime.utcnow().strftime(DATE_TIME_FORMAT)
-        student.addSession(session)
+        session.id = msg.getContextValue(SESSION_ID_CONTEXT_KEY)
+        session.save()
+        self.sessionCache[session.id] = session
         return session
     
     def updateSession(self, msg, session):
@@ -75,11 +82,24 @@ class StudentModelMessaging(BaseService):
         delta = datetime.utcnow() - startTime
         session.duration = delta.seconds
         
+    def retrieveSessionFromCacheOrDB(self, sessionId, useCache=True):
+        if sessionId is None:
+            return None
+        
+        if sessionId in self.sessionCache.keys() and useCache:
+            return self.sessionCache[sessionId]
+        
+        session = DBSession.find_one(sessionId)
+        
+        if session is not None:
+            self.sessionCache[session.id] = session 
+                    
+        return session
                 
-    def retrieveStudentFromCacheOrDB(self, studentId, msg):
+    def retrieveStudentFromCacheOrDB(self, studentId, msg, useCache=True):
         logInfo("Entering retrieveStudentFromCacheOrDB", 5)
         student = self.studentCache.get(studentId)
-        if student is not None:
+        if student is not None and useCache:
             logInfo('{0} found student object with id:{1}'.format(STUDENT_MODEL_SERVICE_NAME, studentId), 4)
             return student
         else:
@@ -91,7 +111,6 @@ class StudentModelMessaging(BaseService):
                     student = studentAlias.getStudent()
                     
             if student is None:
-                logInfo('{0} could not find student with id: {1} in database.  Creating new student'.format(STUDENT_MODEL_SERVICE_NAME, studentId), 3)
                 student = self.createStudent(studentId, msg)
             #Cache the result so we don't need to worry about looking it up again.
             self.studentCache[studentId] = student
