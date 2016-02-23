@@ -112,8 +112,13 @@ class DBSession(object):
     def addStudent(self, newStudent):
         if newStudent is None:
             return
+        
+        if newStudent.id in self.students:
+            return
+        
         if newStudent.id is None:
             newStudent.save()
+            
         self.studentCache.append(newStudent)
         self.students.append(newStudent.id)        
     

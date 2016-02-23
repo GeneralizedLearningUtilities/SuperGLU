@@ -3,7 +3,7 @@ from SuperGLU.Util.Serialization import Serializable
 from SuperGLU.Core.MessagingGateway import BaseService
 from SuperGLU.Core.Messaging import Message
 from SuperGLU.Util.ErrorHandling import logInfo
-from SuperGLU.Core.MessagingDB import KC_SCORE_VERB, SESSION_ID_CONTEXT_KEY, DATE_TIME_FORMAT
+from SuperGLU.Core.MessagingDB import KC_SCORE_VERB, SESSION_ID_CONTEXT_KEY, DATE_TIME_FORMAT, TASK_ID_CONTEXT_KEY, TASK_HINT_VERB, TASK_FEEDBACK_VERB
 from SuperGLU.Services.StudentModel.PersistentData import DBStudentAlias, DBStudentModel, DBStudent, DBSession
 from datetime import datetime
 
@@ -22,7 +22,9 @@ class StudentModelMessaging(BaseService):
                 
     def receiveMessage(self, msg):
         logInfo('{0} received message: {1}'.format(STUDENT_MODEL_SERVICE_NAME, self.messageToString(msg)), 1)
-        reply = self.routeMessage(msg)
+        
+        if msg is not None:
+            reply = self.routeMessage(msg)
         
         if reply is not None:
             logInfo('{0} is sending reply:{1}'.format(STUDENT_MODEL_SERVICE_NAME, self.messageToString(reply)), 1)
@@ -32,17 +34,24 @@ class StudentModelMessaging(BaseService):
         logInfo('Entering StudentModelMessaging.routeMessage', 5)
         
         session = self.retrieveSessionFromCacheOrDB(msg.getContextValue(SESSION_ID_CONTEXT_KEY))
+        
         if session is None:
             session = self.createSession(msg)
-        else:
-            logInfo('found session {0}'.format(session.sessionId), 5)
+            
+        self.updateSession(msg, session)
         
-        if(msg.getVerb() == KC_SCORE_VERB):
+        if msg.getVerb() == KC_SCORE_VERB:
             logInfo('{0} is processing a {1} message'.format(STUDENT_MODEL_SERVICE_NAME, KC_SCORE_VERB), 4)
             student = self.retrieveStudentFromCacheOrDB(msg.getActor(), msg)
             student.addSession(session)
-           
-                                            
+            session.addStudent(student)
+            
+            if student.studentId not in session.performance.keys():
+                session.performance[student.studentId] = {}
+            
+            session.performance[student.studentId][msg.getObject()] = msg.getResult()
+            
+            #This may not be correct.  I don't think I have the algorithm to compute kcMastery yet.                                
             if len(student.studentModelIds) == 0:
                 logInfo('No student model associated with student {0}.  Creating a new one'.format(msg.getActor()), 3)
                 student.addStudentModel(DBStudentModel(studentId=student.id))
@@ -50,7 +59,18 @@ class StudentModelMessaging(BaseService):
             for ii in student.getStudentModels(False):
                 ii.kcMastery[msg.getObject()] = msg.getResult()
                 
-            logInfo('finished processing {0}'.format(KC_SCORE_VERB), 4)
+            logInfo('{0} finished processing {1}'.format(STUDENT_MODEL_SERVICE_NAME, KC_SCORE_VERB), 4)
+        elif msg.getVerb() == TASK_HINT_VERB:
+            logInfo('{0} is processing a {1} message'.format(STUDENT_MODEL_SERVICE_NAME, TASK_HINT_VERB), 4)
+            session.hints.append(msg.getResult())
+            logInfo('{0} finished processing {1}'.format(STUDENT_MODEL_SERVICE_NAME, TASK_HINT_VERB), 4)
+        elif msg.getVerb() == TASK_FEEDBACK_VERB:
+            logInfo('{0} is processing a {1} message'.format(STUDENT_MODEL_SERVICE_NAME, TASK_FEEDBACK_VERB), 4)
+            session.feedback.append(msg.getResult())
+            logInfo('{0} finished processing {1}'.format(STUDENT_MODEL_SERVICE_NAME, TASK_FEEDBACK_VERB), 4)
+        
+        
+        session.save()
             
     
     def createStudent(self, studentId, msg):
@@ -72,6 +92,7 @@ class StudentModelMessaging(BaseService):
         session.performance = {}
         session.startTime = datetime.utcnow().strftime(DATE_TIME_FORMAT)
         session.id = msg.getContextValue(SESSION_ID_CONTEXT_KEY)
+        session.task = msg.getContextValue(TASK_ID_CONTEXT_KEY)
         session.save()
         self.sessionCache[session.id] = session
         return session
@@ -87,11 +108,14 @@ class StudentModelMessaging(BaseService):
             return None
         
         if sessionId in self.sessionCache.keys() and useCache:
+            logInfo('{0} found cached session object with id:{1}'.format(STUDENT_MODEL_SERVICE_NAME, sessionId), 4)
             return self.sessionCache[sessionId]
         
+        logInfo('{0} could not find cached session object with id: {1}.  Falling back to database.'.format(STUDENT_MODEL_SERVICE_NAME, sessionId), 3)
         session = DBSession.find_one(sessionId)
         
         if session is not None:
+            logInfo('found session {0}.  Storing in Cache'.format(session.sessionId), 5)
             self.sessionCache[session.id] = session 
                     
         return session
