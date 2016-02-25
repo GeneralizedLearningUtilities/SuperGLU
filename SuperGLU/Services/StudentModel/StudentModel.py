@@ -4,7 +4,9 @@ from SuperGLU.Core.MessagingGateway import BaseService
 from SuperGLU.Core.Messaging import Message
 from SuperGLU.Util.ErrorHandling import logInfo
 from SuperGLU.Core.MessagingDB import KC_SCORE_VERB, SESSION_ID_CONTEXT_KEY, DATE_TIME_FORMAT, TASK_ID_CONTEXT_KEY, TASK_HINT_VERB, TASK_FEEDBACK_VERB
+from SuperGLU.Core.FIPA.SpeechActs import INFORM_ACT
 from SuperGLU.Services.StudentModel.PersistentData import DBStudentAlias, DBStudentModel, DBStudent, DBSession
+from SuperGLU.Services.StudentModel.StudentModelFactories import BasicStudentModelFactory
 from datetime import datetime
 
 
@@ -33,44 +35,56 @@ class StudentModelMessaging(BaseService):
         #depending on the content of the message react differently
         logInfo('Entering StudentModelMessaging.routeMessage', 5)
         
-        session = self.retrieveSessionFromCacheOrDB(msg.getContextValue(SESSION_ID_CONTEXT_KEY))
         
-        if session is None:
-            session = self.createSession(msg)
-            
-        self.updateSession(msg, session)
+        #Only considering 
+        if msg.getSpeechAct() == INFORM_ACT:
         
-        if msg.getVerb() == KC_SCORE_VERB:
-            logInfo('{0} is processing a {1} message'.format(STUDENT_MODEL_SERVICE_NAME, KC_SCORE_VERB), 4)
-            student = self.retrieveStudentFromCacheOrDB(msg.getActor(), msg)
-            student.addSession(session)
-            session.addStudent(student)
+            if msg.getVerb() == KC_SCORE_VERB:
+                logInfo('{0} is processing a {1},{2} message'.format(STUDENT_MODEL_SERVICE_NAME, KC_SCORE_VERB, INFORM_ACT), 4)
+                session = self.retrieveSessionFromCacheOrDB(msg.getContextValue(SESSION_ID_CONTEXT_KEY))
+        
+                if session is None:
+                    session = self.createSession(msg)
             
-            if student.studentId not in session.performance.keys():
-                session.performance[student.studentId] = {}
-            
-            session.performance[student.studentId][msg.getObject()] = msg.getResult()
-            
-            #This may not be correct.  I don't think I have the algorithm to compute kcMastery yet.                                
-            if len(student.studentModelIds) == 0:
-                logInfo('No student model associated with student {0}.  Creating a new one'.format(msg.getActor()), 3)
-                student.addStudentModel(DBStudentModel(studentId=student.id))
-            
-            for ii in student.getStudentModels(False):
-                ii.kcMastery[msg.getObject()] = msg.getResult()
+                self.updateSession(msg, session)
                 
-            logInfo('{0} finished processing {1}'.format(STUDENT_MODEL_SERVICE_NAME, KC_SCORE_VERB), 4)
-        elif msg.getVerb() == TASK_HINT_VERB:
-            logInfo('{0} is processing a {1} message'.format(STUDENT_MODEL_SERVICE_NAME, TASK_HINT_VERB), 4)
-            session.hints.append(msg.getResult())
-            logInfo('{0} finished processing {1}'.format(STUDENT_MODEL_SERVICE_NAME, TASK_HINT_VERB), 4)
-        elif msg.getVerb() == TASK_FEEDBACK_VERB:
-            logInfo('{0} is processing a {1} message'.format(STUDENT_MODEL_SERVICE_NAME, TASK_FEEDBACK_VERB), 4)
-            session.feedback.append(msg.getResult())
-            logInfo('{0} finished processing {1}'.format(STUDENT_MODEL_SERVICE_NAME, TASK_FEEDBACK_VERB), 4)
+                student = self.retrieveStudentFromCacheOrDB(msg.getActor(), msg)
+                student.addSession(session)
+                session.addStudent(student)
+                
+                if student.studentId not in session.performance.keys():
+                    session.performance[student.studentId] = {}
+                
+                session.performance[student.studentId][msg.getObject()] = msg.getResult()
+                
+                session.save()    
+                logInfo('{0} finished processing {1},{2}'.format(STUDENT_MODEL_SERVICE_NAME, KC_SCORE_VERB, INFORM_ACT), 4)
+            elif msg.getVerb() == TASK_HINT_VERB:
+                logInfo('{0} is processing a {1},{2} message'.format(STUDENT_MODEL_SERVICE_NAME, TASK_HINT_VERB, INFORM_ACT), 4)
+                session = self.retrieveSessionFromCacheOrDB(msg.getContextValue(SESSION_ID_CONTEXT_KEY))
         
+                if session is None:
+                    session = self.createSession(msg)
+            
+                self.updateSession(msg, session)
+                
+                session.hints.append(msg.getResult())
+                session.save()
+                logInfo('{0} finished processing {1},{2}'.format(STUDENT_MODEL_SERVICE_NAME, TASK_HINT_VERB, INFORM_ACT), 4)
+            elif msg.getVerb() == TASK_FEEDBACK_VERB:
+                logInfo('{0} is processing a {1},{2} message'.format(STUDENT_MODEL_SERVICE_NAME, TASK_FEEDBACK_VERB, INFORM_ACT), 4)
+                session = self.retrieveSessionFromCacheOrDB(msg.getContextValue(SESSION_ID_CONTEXT_KEY))
         
-        session.save()
+                if session is None:
+                    session = self.createSession(msg)
+            
+                self.updateSession(msg, session)
+                session.feedback.append(msg.getResult())
+                session.save()
+                logInfo('{0} finished processing {1}, {2}'.format(STUDENT_MODEL_SERVICE_NAME, TASK_FEEDBACK_VERB, INFORM_ACT), 4)
+                
+            
+            
             
     
     def createStudent(self, studentId, msg):
@@ -91,17 +105,36 @@ class StudentModelMessaging(BaseService):
         session.feedback = []
         session.performance = {}
         session.startTime = datetime.utcnow().strftime(DATE_TIME_FORMAT)
+        session.duration = 0
         session.id = msg.getContextValue(SESSION_ID_CONTEXT_KEY)
         session.task = msg.getContextValue(TASK_ID_CONTEXT_KEY)
         session.save()
         self.sessionCache[session.id] = session
         return session
     
+    
+    def createNewStudentModel(self, studentId):
+        #DBStudentAlias List
+        studentsWithId = DBStudentAlias.find_by_index("AliasIndex", studentId)
+        
+        for studentAlias in studentsWithId:
+            student = DBStudent.find_one(studentAlias.trueId)
+            
+            if student is None:
+                logInfo('failed to find student with Id: {0} and alias {1}'.format(studentAlias.trueId, studentAlias.alias), 1)
+            else:
+                BasicStudentModelFactory().buildStudentModel(student)
+    
+    
+    
     def updateSession(self, msg, session):
         session.messageIds.append(msg.getId())
         startTime = datetime.strptime(session.startTime, DATE_TIME_FORMAT)
-        delta = datetime.utcnow() - startTime
-        session.duration = delta.seconds
+        msgTimestamp = datetime.strptime(msg.getTimestamp(), DATE_TIME_FORMAT)
+        delta = msgTimestamp - startTime
+        #only update if the duration increases
+        if delta.seconds > session.duration:
+            session.duration = delta.seconds
         
     def retrieveSessionFromCacheOrDB(self, sessionId, useCache=True):
         if sessionId is None:
@@ -115,7 +148,7 @@ class StudentModelMessaging(BaseService):
         session = DBSession.find_one(sessionId)
         
         if session is not None:
-            logInfo('found session {0}.  Storing in Cache'.format(session.sessionId), 5)
+            logInfo('{0} found session {1}.  Storing in Cache'.format(STUDENT_MODEL_SERVICE_NAME, session.sessionId), 5)
             self.sessionCache[session.id] = session 
                     
         return session

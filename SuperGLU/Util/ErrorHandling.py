@@ -73,7 +73,7 @@ def logWarning(*args, **kwds):
 def logInfo(msg, lod):
     if lod <= LEVEL_OF_DETAIL:
         #look into not using print here
-        print(msg)
+        logWarning(msg)
     
 def _getErrorMode():
     return ERROR_MODE

@@ -302,10 +302,10 @@ class DBClass (object):
             
 @DBObject(table_name="StudentModels")
 class DBStudentModel (object):
-    studentId = Field('')
-    kcMastery = Field(dict)
+    studentId = Field('') #string
+    kcMastery = Field(dict) #Dictionary<string, float>
     
-    studentCache = []
+    studentCache = None #type:DBStudent
     
     @Index
     def sudentIdIndex(self):
@@ -318,6 +318,7 @@ class DBStudentModel (object):
             return self.studentCache
         else:
             return None
+        
 
 @DBObject(table_name="ClassModels")
 class DBClassModel(object):
