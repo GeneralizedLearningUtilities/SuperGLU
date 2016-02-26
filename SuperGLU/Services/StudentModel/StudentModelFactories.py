@@ -19,7 +19,7 @@ class BasicStudentModelFactory(StudentModelFactoryBase):
         sessionList = student.getSessions(False)
         
         if len(sessionList) == 0:
-            logInfo('student {0} has not started any sessions.  cannot build student model'.format(student.studentId), 1)
+            logInfo('student {0} has not started any sessions.  cannot build student model'.format(student.studentId), 2)
             return None
         
         #Dictionary<string, tuple(float totalScore, int numberOfEntries)>

@@ -3,8 +3,8 @@ from SuperGLU.Util.Serialization import Serializable
 from SuperGLU.Core.MessagingGateway import BaseService
 from SuperGLU.Core.Messaging import Message
 from SuperGLU.Util.ErrorHandling import logInfo
-from SuperGLU.Core.MessagingDB import KC_SCORE_VERB, SESSION_ID_CONTEXT_KEY, DATE_TIME_FORMAT, TASK_ID_CONTEXT_KEY, TASK_HINT_VERB, TASK_FEEDBACK_VERB
-from SuperGLU.Core.FIPA.SpeechActs import INFORM_ACT
+from SuperGLU.Core.MessagingDB import KC_SCORE_VERB, SESSION_ID_CONTEXT_KEY, DATE_TIME_FORMAT, TASK_ID_CONTEXT_KEY, TASK_HINT_VERB, TASK_FEEDBACK_VERB, MASTERY_VERB
+from SuperGLU.Core.FIPA.SpeechActs import INFORM_ACT, REQUEST_ACT
 from SuperGLU.Services.StudentModel.PersistentData import DBStudentAlias, DBStudentModel, DBStudent, DBSession
 from SuperGLU.Services.StudentModel.StudentModelFactories import BasicStudentModelFactory
 from datetime import datetime
@@ -30,12 +30,13 @@ class StudentModelMessaging(BaseService):
         
         if reply is not None:
             logInfo('{0} is sending reply:{1}'.format(STUDENT_MODEL_SERVICE_NAME, self.messageToString(reply)), 1)
+            self.sendMessage(reply)
         
     def routeMessage(self, msg):
         #depending on the content of the message react differently
         logInfo('Entering StudentModelMessaging.routeMessage', 5)
         
-        
+        result = None
         #Only considering 
         if msg.getSpeechAct() == INFORM_ACT:
         
@@ -82,8 +83,15 @@ class StudentModelMessaging(BaseService):
                 session.feedback.append(msg.getResult())
                 session.save()
                 logInfo('{0} finished processing {1}, {2}'.format(STUDENT_MODEL_SERVICE_NAME, TASK_FEEDBACK_VERB, INFORM_ACT), 4)
-                
-            
+        elif msg.getSpeechAct() == REQUEST_ACT:
+            #I'm going to assume the that the student id is the object, but that may not be the case
+            if msg.getVerb() == MASTERY_VERB:
+                logInfo('{0} is processing a {1}, {2} message'.format(STUDENT_MODEL_SERVICE_NAME, MASTERY_VERB, REQUEST_ACT), 4)
+                newStudentModel = self.createNewStudentModel(msg.getObject())
+                result = Message(actor=STUDENT_MODEL_SERVICE_NAME, verb=MASTERY_VERB, object=newStudentModel.studentId, result=newStudentModel.kcMastery, context=msg.getContext())
+                logInfo('{0} finished processing {1},{2}'.format(STUDENT_MODEL_SERVICE_NAME, MASTERY_VERB, REQUEST_ACT), 4)
+        
+        return result
             
             
     
