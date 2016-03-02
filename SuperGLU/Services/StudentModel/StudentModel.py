@@ -3,9 +3,9 @@ from SuperGLU.Util.Serialization import Serializable
 from SuperGLU.Core.MessagingGateway import BaseService
 from SuperGLU.Core.Messaging import Message
 from SuperGLU.Util.ErrorHandling import logInfo
-from SuperGLU.Core.MessagingDB import KC_SCORE_VERB, SESSION_ID_CONTEXT_KEY, DATE_TIME_FORMAT, TASK_ID_CONTEXT_KEY, TASK_HINT_VERB, TASK_FEEDBACK_VERB, MASTERY_VERB
+from SuperGLU.Core.MessagingDB import KC_SCORE_VERB, SESSION_ID_CONTEXT_KEY, DATE_TIME_FORMAT, TASK_ID_CONTEXT_KEY, TASK_HINT_VERB, TASK_FEEDBACK_VERB, MASTERY_VERB, CLASS_ID_CONTEXT_KEY
 from SuperGLU.Core.FIPA.SpeechActs import INFORM_ACT, REQUEST_ACT
-from SuperGLU.Services.StudentModel.PersistentData import DBStudentAlias, DBStudentModel, DBStudent, DBSession
+from SuperGLU.Services.StudentModel.PersistentData import DBStudentAlias, DBStudentModel, DBStudent, DBSession, DBClasssAlias, DBClass
 from SuperGLU.Services.StudentModel.StudentModelFactories import BasicStudentModelFactory
 from datetime import datetime
 
@@ -21,6 +21,7 @@ class StudentModelMessaging(BaseService):
     
     studentCache = {}
     sessionCache = {}
+    classCache = {}
                 
     def receiveMessage(self, msg):
         logInfo('{0} received message: {1}'.format(STUDENT_MODEL_SERVICE_NAME, self.messageToString(msg)), 1)
@@ -43,6 +44,7 @@ class StudentModelMessaging(BaseService):
             if msg.getVerb() == KC_SCORE_VERB:
                 logInfo('{0} is processing a {1},{2} message'.format(STUDENT_MODEL_SERVICE_NAME, KC_SCORE_VERB, INFORM_ACT), 4)
                 session = self.retrieveSessionFromCacheOrDB(msg.getContextValue(SESSION_ID_CONTEXT_KEY))
+                clazz = self.retrieveClassFromCacheOrDB(msg.getContextValue(CLASS_ID_CONTEXT_KEY), msg)
         
                 if session is None:
                     session = self.createSession(msg)
@@ -52,6 +54,13 @@ class StudentModelMessaging(BaseService):
                 student = self.retrieveStudentFromCacheOrDB(msg.getActor(), msg)
                 student.addSession(session)
                 session.addStudent(student)
+                
+                if clazz is not None:
+                    if student.studentId not in clazz.students:
+                        clazz.addStudent(student)
+                    if msg.getObject() not in clazz.kcs:
+                        clazz.kcs.append(msg.getObject)
+                    clazz.save()
                 
                 if student.studentId not in session.performance.keys():
                     session.performance[student.studentId] = {}
@@ -120,6 +129,16 @@ class StudentModelMessaging(BaseService):
         self.sessionCache[session.id] = session
         return session
     
+    def createClass(self, classId, msg):
+        logInfo('{0} could not find class with id: {1} in database.  Creating new class'.format(STUDENT_MODEL_SERVICE_NAME, classId), 3)
+        classUUID = str(uuid4())
+        clazz = DBClass(id=classUUID, ids=[classId], name='', roles={}, students=[], kcs=[])
+        clazz.save()
+        self.classCache[classId] = clazz
+        newClassAlias = DBClasssAlias(trueId=classUUID, alias=classId)
+        newClassAlias.save()
+        return clazz    
+    
     
     def createNewStudentModel(self, studentId):
         #DBStudentAlias List
@@ -169,7 +188,8 @@ class StudentModelMessaging(BaseService):
             return student
         else:
             logInfo('{0} could not find cached student object with id: {1}.  Falling back to database.'.format(STUDENT_MODEL_SERVICE_NAME, studentId), 3)
-            studentAliasList = DBStudentAlias.find_by_index("StudentIDIndex", studentId)
+            studentAliasList = DBStudentAlias.find_by_index("AliasIndex", studentId)
+            
             if len(studentAliasList) > 0:
                 #there should only be one object returned, should put it a log statement if that isn't correct.
                 for studentAlias in studentAliasList:
@@ -179,4 +199,27 @@ class StudentModelMessaging(BaseService):
                 student = self.createStudent(studentId, msg)
             #Cache the result so we don't need to worry about looking it up again.
             self.studentCache[studentId] = student
-            return student  
+            return student
+        
+        
+    def retrieveClassFromCacheOrDB(self, classId, msg, useCache=True):
+        logInfo("Entering retrieveClassFromCacheOrDB with arguments {0}".format(classId), 5)
+        if classId is None or classId == '':
+            return None
+        clazz = self.studentCache.get(classId)
+        if clazz is not None and useCache:
+            logInfo('{0} found classroom object with id:{1}'.format(STUDENT_MODEL_SERVICE_NAME, clazz), 4)
+            return clazz
+        else:
+            logInfo('{0} could not find cached classroom object with id: {1}.  Falling back to database.'.format(STUDENT_MODEL_SERVICE_NAME, classId), 3)
+            classAliasList = DBClasssAlias.find_by_index("AliasIndex", classId)
+            if len(classAliasList) > 0:
+                #there should only be one object returned, should put it a log statement if that isn't correct.
+                for classAlias in classAliasList:
+                    clazz = classAlias.getStudent()
+                    
+            if clazz is None:
+                clazz = self.createClass(classId, msg)
+            #Cache the result so we don't need to worry about looking it up again.
+            self.classCache[classId] = clazz
+            return clazz  

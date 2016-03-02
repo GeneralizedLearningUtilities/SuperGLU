@@ -39,6 +39,7 @@ DISENGAGEMENT_VERB = 'Disengagement'               # Metric for disengagement (e
 MASTERY_VERB = 'Mastery'
 
 #Context Keys
+CLASS_ID_CONTEXT_KEY = 'classId'
 SESSION_ID_CONTEXT_KEY = 'sessionId'
 USER_ID_CONTEXT_KEY = 'userId'                             # Unique identifier for the user
 DURATION_CONTEXT_KEY = 'duration'                          # Duration spent on the task, 

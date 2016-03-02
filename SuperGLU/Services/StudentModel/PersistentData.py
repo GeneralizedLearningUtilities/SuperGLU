@@ -256,7 +256,7 @@ class DBStudentAlias (object):
         return self.alias
     
     def getStudent(self):
-        student = DBStudent.find_by_index("StudentIDIndex", self.trueId)
+        student = DBStudent.find_one(self.trueId)
         return student
         
 
@@ -299,6 +299,20 @@ class DBClass (object):
             newTopic.save()
         self.topicsCache.append(newTopic)
         self.topics.append(newTopic.id)
+        
+
+@DBObject(table_name="ClassAliases")
+class DBClasssAlias:
+    trueId = Field('')
+    alias  = Field('')
+    
+    @Index
+    def AliasIndex(self):
+        return self.alias
+    
+    def getClass(self):
+        clazz = DBClass.find_one(self.trueId)
+        return clazz
             
 @DBObject(table_name="StudentModels")
 class DBStudentModel (object):
