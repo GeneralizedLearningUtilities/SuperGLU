@@ -61,7 +61,8 @@
             loggingScope['ASSISTments_p6'] = getParameterByName('p6');
             loggingScope['ASSISTments_p7'] = getParameterByName('p7');
             LOGGING_SERVICE = SuperGLU.Standard_ITS_Logging.StandardITSLoggingService(null,
-                getParameterByName('p1'), taskId, null, getParameterByName('p7'), loggingScope);
+                getParameterByName('p1'), getParameterByName('p2'), taskId, null, 
+				getParameterByName('p7'), loggingScope);
             HEARTBEAT_SERVICE = SuperGLU.Heartbeat_Service.HeartbeatService(null, HEARTBEAT_NAME, 30);
 			PARENT_POSTING_STUB = SuperGLU.Messaging_Gateway.PostMessageGatewayStub(PARENT_NAME, null, null, parent);
             

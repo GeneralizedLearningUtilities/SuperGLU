@@ -70,6 +70,7 @@ var USER_ID_KEY = 'userId',                             // Unique identifier for
     DURATION_KEY = 'duration',                          // Duration spent on the task, 
     TASK_ID_KEY = 'taskId',                             // ID for the task being performed
     STEP_ID_KEY = 'stepId',                             // Unique ID for the current step or state.
+	CLASSROOM_ID_KEY = 'classroomId',					// Unique ID for the classroom
     ACTIVITY_TYPE_KEY = 'activityType',                 // Type of activity being performed
     KC_RELEVANCE_KEY = 'KCRelevance',                   // Knowledge component relevance
     HELP_TYPE_KEY = 'helpType',                         // Type of the help provided (e.g., Positive, Negative, neutral)
@@ -93,7 +94,7 @@ Zet.declare('StandardITSLoggingService', {
             @param delay: The interval for sending the heartbeat, in seconds.
             @param id: The UUID for this service
         **/
-        self.construct = function construct(gateway, userId, taskId, url, activityType, context, id){
+        self.construct = function construct(gateway, userId, classroomId, taskId, url, activityType, context, id){
             self.inherited(construct, [id, gateway]);
             if (userId == null){userId = UUID.genV4().toString();}
             if (taskId == null){taskId = UNKNOWN_PREFIX + '_' + window.location.href;}
@@ -101,6 +102,7 @@ Zet.declare('StandardITSLoggingService', {
             if (activityType == null){activityType = '';}
             if (context == null){context = {};}
             self._userId = userId;
+			self._classroomId = classroomId;
             self._taskId = taskId;
             self._url = url;
             self._activityType = activityType;
@@ -134,6 +136,7 @@ Zet.declare('StandardITSLoggingService', {
             var key;
             msg.setContextValue(USER_ID_KEY, self._userId);
             msg.setContextValue(TASK_ID_KEY, self._taskId);
+			msg.setContextValue(CLASSROOM_ID_KEY, self._classroomId);
             msg.setContextValue(ACTIVITY_TYPE_KEY, self._activityType);  
             msg.setContextValue(DURATION_KEY, self.calcDuration());     
             for (key in self._context){
