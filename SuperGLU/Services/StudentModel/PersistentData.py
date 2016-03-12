@@ -2,6 +2,7 @@ import uuid
 import hashlib
 from datetime import datetime
 from gludb.simple import DBObject, Field, Index
+from SuperGLU.Util.Serialization import Serializable, tokenizeObject, untokenizeObject
 from SuperGLU.Services.QueryService.Queries import getKCsForAGivenUserAndTask, getAllHintsForSingleUserAndTask, getAllFeedbackForSingleUserAndTask
 from SuperGLU.Util.ErrorHandling import logInfo
 """
@@ -60,11 +61,74 @@ class DBTask(object):
     kcs  = Field(list)
     url  = Field('')
     
+  
+    
     def __repr__(self):
         return str(self.ids) + "|" + self.name + "|" + str(self.kcs) + "|" + self.url
+    
+    
+    def toSerializable(self):
+        result = SerializableTask()
+        result.initializeFromDBTask(self)
+        return result
         
+
+class SerializableTask(Serializable):
+
+    # Main Keys
+    TASK_ID_KEY = 'taskId'
+    IDS_KEY = "ids"
+    NAME_KEY = "name"
+    KCS_KEY = "kcs"
+    URL_KEY = "url"
+
+    
+    _taskId = None
+    _ids = []
+    _name = None
+    _kcs = []
+    _url = None
+    
+    def saveToToken(self):
+        token = super(SerializableTask, self).saveToToken()
+        if self._taskId is not None:
+            token[self.TASK_ID_KEY] = tokenizeObject(self._taskId)
+        if self._ids is not None:
+            token[self.IDS_KEY] = tokenizeObject(self._ids)
+        if self._object is not None:
+            token[self.NAME_KEY] = tokenizeObject(self._name)
+        if self._result is not None:
+            token[self.KCS_KEY] = tokenizeObject(self._kcs)
+        if self._speechAct is not None:
+            token[self.URL_KEY] = tokenizeObject(self._url)
+        return token
+    
+    def initializeFromToken(self, token, context=None):
+        super(SerializableTask, self).initializeFromToken(token, context)
+        self._taskId = untokenizeObject(token.get(self.TASK_ID_KEY, None))
+        self._ids = untokenizeObject(token.get(self.IDS_KEY, []))
+        self._name = untokenizeObject(token.get(self.NAME_KEY, None))
+        self._kcs = untokenizeObject(token.get(self.KCS_KEY, []))
+        self._url = untokenizeObject(token.get(self.URL_KEY, None))
         
-        
+    
+    def toDB(self):
+        result = DBTask()
+        result.ids = self._ids
+        result.id = self._taskId
+        result.name = self._name
+        result.kcs = self._kcs
+        result.url = self._url
+        return result
+    
+    def initializeFromDBTask(self, dbTask):
+        self._taskId = dbTask.id
+        self._ids = dbTask.ids
+        self._name = dbTask.name
+        self._kcs = dbTask.kcs
+        self._url = dbTask.url
+                 
+            
 @DBObject(table_name="Topics")
 class DBTopic(object):
     kcList       = Field(list)

@@ -128,79 +128,15 @@ class BaseStorageService(BaseService):
     def processStorageInform(self, bucket, verb, key=None, value=None,
                              tags=None, aType=None, allowCreate=None,
                              name=None, description=None, dataType=None):
-        if verb == self.VALUE_VERB:
-            logWarning("IS SETTING", value)
-            if isinstance(value, Serializable):
-                logWarning("IS SERIALIZABLE")
-                dataType = SERIALIZABLE_DATA_TYPE
-                if key is None:
-                    key = value.getId()
-                elif key != value.getId():
-                    logWarning('BAD KEY for Storage (%s != %s)'%(key, value.getId()))
-                    return False
-                if isinstance(value, NamedSerializable):
-                    if name is None:
-                        name = value.getName()
-                    elif name != value.getName():
-                        logWarning('BAD NAME for Storage(%s != %s)'%(name, value.getName()))
-                        return False
-                value = serializeObject(value, JSON_FORMAT)
-            return bucket.setValue(key, value, name, description, tags, aType,
-                                   dataType, True, allowCreate)
-        elif verb == self.VOID_VERB:
-            return bucket.delValue(key, name)
+        raise NotImplementedError
     
     def processStorageRequest(self, bucket, verb, key=None,
                               tags=None, aType=None, name=None):
-        if verb == self.HAS_ELEMENT_VERB:
-            return bucket.hasRef(key, name)
-        elif verb == self.CONTAINS_VERB:
-            keys = bucket.getMatchingKeys(tags, aType)
-            names = [bucket.getName(aKey) for aKey in keys]
-            return keys, names
-        elif verb == self.VALUE_VERB:
-            if isinstance(key, (tuple, list)):
-                values = []
-                for k in key:
-                    value = bucket.getValue(key, None)
-                    if bucket.getDataType(key, None) == SERIALIZABLE_DATA_TYPE:
-                        value = nativizeObject(value, JSON_FORMAT)
-                    values.append(value)
-                return values
-            elif isinstance(name, (tuple, list)):
-                values = []
-                for n in name:
-                    value = bucket.getValue(None, n)
-                    if bucket.getDataType(None, n) == SERIALIZABLE_DATA_TYPE:
-                        value = nativizeObject(value, JSON_FORMAT)
-                    values.append(value)
-                return values
-            else:
-                value = bucket.getValue(key, name)
-                if bucket.getDataType(key, name) == SERIALIZABLE_DATA_TYPE:
-                    value = nativizeObject(value, JSON_FORMAT)
-                return value
-        elif verb == INFORM_REF_ACT:
-            if key is not None:
-                return (key, bucket.getName(key))
-            elif name is not None:
-                return (bucket.resolveRef(None, name), name)
-            else:
-                return None
-        elif verb == self.ASSIGNED_TAGS:
-            return bucket.getObjectTags(key, name)
-        elif verb == self.ASSIGNED_URI_VERB:
-            return bucket.getLink(key, name)
-        else:
-            return False
+        raise NotImplementedError
+       
 
     def getValue(self, bucket, key=None, name=None):
-        if isinstance(bucket, basestring):
-            bucket = self.getBucket(bucket)
-        value = bucket.getValue(key, name)
-        if bucket.getDataType(key, name) == SERIALIZABLE_DATA_TYPE:
-            value = nativizeObject(value, JSON_FORMAT)
-        return value
+        raise NotImplementedError
     
     def processStorageRename(self, bucket, verb, key, newName, name):
         if verb == self.HAS_ELEMENT_VERB:
@@ -254,3 +190,89 @@ class BaseStorageService(BaseService):
         msg.setContextValue(Message.CONTEXT_CONVERSATION_ID_KEY, oldId)
         return msg
 
+
+
+"""
+This is a legacy class that stores data by serializing it 
+"""
+class SerializedStorage(BaseStorageService):
+    
+    
+    def processStorageInform(self, bucket, verb, key=None, value=None,
+                             tags=None, aType=None, allowCreate=None,
+                             name=None, description=None, dataType=None):
+        if verb == self.VALUE_VERB:
+            logWarning("IS SETTING", value)
+            if isinstance(value, Serializable):
+                logWarning("IS SERIALIZABLE")
+                dataType = SERIALIZABLE_DATA_TYPE
+                if key is None:
+                    key = value.getId()
+                elif key != value.getId():
+                    logWarning('BAD KEY for Storage (%s != %s)'%(key, value.getId()))
+                    return False
+                if isinstance(value, NamedSerializable):
+                    if name is None:
+                        name = value.getName()
+                    elif name != value.getName():
+                        logWarning('BAD NAME for Storage(%s != %s)'%(name, value.getName()))
+                        return False
+                value = serializeObject(value, JSON_FORMAT)
+            return bucket.setValue(key, value, name, description, tags, aType,
+                                   dataType, True, allowCreate)
+        elif verb == self.VOID_VERB:
+            return bucket.delValue(key, name)
+        
+        
+    def processStorageRequest(self, bucket, verb, key=None,
+                          tags=None, aType=None, name=None):
+        if verb == self.HAS_ELEMENT_VERB:
+            return bucket.hasRef(key, name)
+        elif verb == self.CONTAINS_VERB:
+            keys = bucket.getMatchingKeys(tags, aType)
+            names = [bucket.getName(aKey) for aKey in keys]
+            return keys, names
+        elif verb == self.VALUE_VERB:
+            if isinstance(key, (tuple, list)):
+                values = []
+                for k in key:
+                    value = bucket.getValue(key, None)
+                    if bucket.getDataType(key, None) == SERIALIZABLE_DATA_TYPE:
+                        value = nativizeObject(value, JSON_FORMAT)
+                    values.append(value)
+                return values
+            elif isinstance(name, (tuple, list)):
+                values = []
+                for n in name:
+                    value = bucket.getValue(None, n)
+                    if bucket.getDataType(None, n) == SERIALIZABLE_DATA_TYPE:
+                        value = nativizeObject(value, JSON_FORMAT)
+                    values.append(value)
+                return values
+            else:
+                value = bucket.getValue(key, name)
+                if bucket.getDataType(key, name) == SERIALIZABLE_DATA_TYPE:
+                    value = nativizeObject(value, JSON_FORMAT)
+                return value
+        elif verb == INFORM_REF_ACT:
+            if key is not None:
+                return (key, bucket.getName(key))
+            elif name is not None:
+                return (bucket.resolveRef(None, name), name)
+            else:
+                return None
+        elif verb == self.ASSIGNED_TAGS:
+            return bucket.getObjectTags(key, name)
+        elif verb == self.ASSIGNED_URI_VERB:
+            return bucket.getLink(key, name)
+        else:
+            return False
+        
+        
+    def getValue(self, bucket, key=None, name=None):
+        if isinstance(bucket, basestring):
+            bucket = self.getBucket(bucket)
+        value = bucket.getValue(key, name)
+        if bucket.getDataType(key, name) == SERIALIZABLE_DATA_TYPE:
+            value = nativizeObject(value, JSON_FORMAT)
+        return value

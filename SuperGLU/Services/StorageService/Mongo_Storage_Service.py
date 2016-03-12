@@ -8,7 +8,7 @@ import uuid
 from mongoengine import (connect, Document, DictField, MapField, 
                          ListField, StringField, IntField, URLField,
                          DynamicField)
-from SuperGLU.Services.StorageService.Storage_Service_Interface import (BaseStorageService,
+from SuperGLU.Services.StorageService.Storage_Service_Interface import (SerializedStorage,
     DATA_TYPE_DB, DATA_TYPE_MEDIA, SERIALIZABLE_DATA_TYPE)
 from SuperGLU.Util.ErrorHandling import logError, logWarning
 from SuperGLU.Util.Serialization import nativizeObject, serializeObject, NamedSerializable, JSON_FORMAT
@@ -47,7 +47,7 @@ class S3StorageObject(Document):
     description = StringField()
     link = URLField()
 
-class MongoStorageService(BaseStorageService):
+class MongoStorageService(SerializedStorage):
     """ Service that wraps Mongo-backed Buckets """
 
     def __init__(self, conn=None, *args, **kwds):
