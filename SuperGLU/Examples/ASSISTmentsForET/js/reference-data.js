@@ -8,6 +8,6 @@ if (typeof window === "undefined") {
 // Version Numbering
 namespace.REFERENCE_IMPLEMENTATION_VERSION_KEY = "reference-implementation-version";
 namespace.USER_AGENT_KEY = "UserAgent";
-namespace.version = "1.0.3";
+namespace.version = "1.0.4";
 
 })(window.ReferenceData = window.ReferenceData || {});
