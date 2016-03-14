@@ -19,6 +19,8 @@ def initDerivedDataTables():
     DBStudentModel.ensure_table()
     DBClassModel.ensure_table()
     DBStudentAlias.ensure_table()
+    DBClasssAlias.ensure_table()
+    DBKCTaskAssociations.ensure_table()
 
 @DBObject(table_name="Systems")
 class DBSystem(object):
@@ -71,6 +73,25 @@ class DBTask(object):
         result = SerializableTask()
         result.initializeFromDBTask(self)
         return result
+    
+    def saveToDB(self):
+        self.save()
+        for kc in self.kcs:
+            alias = DBKCTaskAssociations()
+            alias.kc = kc
+            alias.taskID = self.id
+            alias.save()
+
+    
+
+@DBObject(table_name="KC_TaskAssociations")
+class DBKCTaskAssociations(object):
+    kc = Field('')
+    taskID = Field('')
+    
+    @Index
+    def kcIndex(self):
+        return self.kc
         
 
 class SerializableTask(Serializable):

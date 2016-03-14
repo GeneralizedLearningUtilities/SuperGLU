@@ -4,10 +4,10 @@ This storage service provides the functionality to manually store data
 @author: auerbach
 '''
 
-from SuperGLU.Services.StorageService.Storage_Service_Interface import BaseStorageService, SERIALIZABLE_DATA_TYPE, JSON_FORMAT
+from SuperGLU.Services.StorageService.Storage_Service_Interface import BaseStorageService
 from SuperGLU.Services.StudentModel.PersistentData import DBTask, SerializableTask
 from SuperGLU.Util.ErrorHandling import logWarning
-from SuperGLU.Util.Serialization import Serializable, NamedSerializable, serializeObject
+from SuperGLU.Util.Serialization import Serializable, NamedSerializable
 
 
 
@@ -41,7 +41,6 @@ class GLUDBStorageService(BaseStorageService):
             logWarning("IS SETTING", value)
             if isinstance(value, Serializable):
                 logWarning("IS SERIALIZABLE")
-                dataType = SERIALIZABLE_DATA_TYPE
                 if key is None:
                     key = value.getId()
                 elif key != value.getId():
@@ -54,10 +53,6 @@ class GLUDBStorageService(BaseStorageService):
                         logWarning('BAD NAME for Storage(%s != %s)'%(name, value.getName()))
                         return False
                 dbValue = value.toDB()
-                dbValue.save()
+                dbValue.saveToDB()
         elif verb == self.VOID_VERB:
             return bucket.delValue(key, name)
-    
-    def processStorageRequest(self, bucket, verb, key=None,
-                              tags=None, aType=None, name=None):
-        raise NotImplementedError
