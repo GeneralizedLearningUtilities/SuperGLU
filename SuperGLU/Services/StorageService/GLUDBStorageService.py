@@ -52,6 +52,8 @@ class GLUDBStorageService(BaseStorageService):
                     elif name != value.getName():
                         logWarning('BAD NAME for Storage(%s != %s)'%(name, value.getName()))
                         return False
+                #NOTE we are assuming that the value class and dbValue class have the toDB and saveToDB functions respectively.
+                #If they do not have them they must be implemented or the system will not save the data.
                 dbValue = value.toDB()
                 dbValue.saveToDB()
         elif verb == self.VOID_VERB:
