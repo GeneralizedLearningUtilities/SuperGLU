@@ -51,8 +51,9 @@ class DBLoggingService(BaseLoggingService):
         
     def _logMessage(self, msg):
         serializedMsg = serializeObject(msg)
-        if len(serializedMsg) <= self._maxMsgSize:
-            incomingMsg = DBLoggedMessage(actor=msg.getActor(), verb=msg.getVerb(), object=msg.getObject(), result=msg.getResult(), speechAct=msg.getSpeechAct(), context=msg.getContext(), timestamp=msg.getTimestamp())
+        if len(serializedMsg) <= self._maxMsgSize and msg is not None:
+            #incomingMsg = DBLoggedMessage(actor=msg.getActor(), verb=msg.getVerb(), object=msg.getObject(), result=msg.getResult(), speechAct=msg.getSpeechAct(), context=msg.getContext(), timestamp=msg.getTimestamp())
+            incomingMsg = DBLoggedMessage.convert(msg)
             incomingMsg.id = msg.getId()
             if msg.getVerb() != "Dump Logs":
                 incomingMsg.save()

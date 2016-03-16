@@ -6,8 +6,9 @@ This storage service provides the functionality to manually store data
 
 from SuperGLU.Services.StorageService.Storage_Service_Interface import BaseStorageService
 from SuperGLU.Services.StudentModel.PersistentData import DBTask, SerializableTask
-from SuperGLU.Util.ErrorHandling import logWarning
+from SuperGLU.Util.ErrorHandling import logWarning, logInfo
 from SuperGLU.Util.Serialization import Serializable, NamedSerializable
+from SuperGLU.Util.SerializationGLUDB import DBSerializable
 
 
 
@@ -54,7 +55,15 @@ class GLUDBStorageService(BaseStorageService):
                         return False
                 #NOTE we are assuming that the value class and dbValue class have the toDB and saveToDB functions respectively.
                 #If they do not have them they must be implemented or the system will not save the data.
-                dbValue = value.toDB()
-                dbValue.saveToDB()
+                try:
+                    dbValue = DBSerializable.convert(value)
+                    dbValue.saveToDB()
+                except NotImplementedError:
+                    #for now do nothing
+                    logInfo('failed to serialize object', 1)
+                return True
+        
+        #GLUDB does not currently allow for deletion of items so this should always return false
         elif verb == self.VOID_VERB:
-            return bucket.delValue(key, name)
+            return False
+            #return bucket.delValue(key, name)

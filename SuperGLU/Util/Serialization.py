@@ -40,6 +40,8 @@ class SerializationError(Exception): pass
 class InvalidTokenClassError(SerializationError): pass
 
 # Serialization Format Constants
+DEFAULT_BRIDGE_NAME = 'DefaultDBSerializable'
+
 JSON_FORMAT = 'json'
 XML_FORMAT = 'xml'
 PICKLE_FORMAT = 'pickle'
@@ -121,6 +123,7 @@ class SerializableFactoryMetaclass(abc.ABCMeta):
     _FACTORY_MAP = {}
     RESERVED_CLASS_NAMES = []
     CLASS_ID_KEY = "CLASS_ID"
+    STORAGE_BRIDGES_KEY = "_STORAGE_BRIDGES"
 
     def __new__(self, name, bases, dct):
         if self.CLASS_ID_KEY in dct:
@@ -130,6 +133,8 @@ class SerializableFactoryMetaclass(abc.ABCMeta):
             dct[self.CLASS_ID_KEY] = classId
             #error = TypeError("Serializable <%s> did not have a class id for the factory: %s"%(name, self))
             #tryRaiseError(error, 1)
+        if self.STORAGE_BRIDGES_KEY not in dct:
+            dct[self.STORAGE_BRIDGES_KEY] = {}
         return super(SerializableFactoryMetaclass, self).__new__(self, name, bases, dct)
     
     def __init__(self, name, bases, dct):
@@ -139,12 +144,14 @@ class SerializableFactoryMetaclass(abc.ABCMeta):
     def _getFactoryClass(self, classId):
         """ Get a class from the class factory. """
         return self._FACTORY_MAP.get(classId, None)
-        
+
 
 class Serializable(object, metaclass=SerializableFactoryMetaclass):
     """
     A serializable object, that can be saved to token and opened from token
     """
+    # Stores a registry of storage bridge connections
+    _STORAGE_BRIDGES = {}
 
     def __init__(self, id=None):
         if id is None:
@@ -227,6 +234,14 @@ class Serializable(object, metaclass=SerializableFactoryMetaclass):
             raise InvalidTokenClassError("%s failed to import: %s"%(token.getClassId(), token), sys.exc_info()[2])
         else:
             return token
+
+    @classmethod
+    def getStorageBridge(cls, bridgeName=DEFAULT_BRIDGE_NAME):
+        return cls._STORAGE_BRIDGES.get(bridgeName, None)
+
+    @classmethod
+    def _registerStorageBridge(cls, bridgeClass, bridgeName=DEFAULT_BRIDGE_NAME):
+         cls._STORAGE_BRIDGES[bridgeName] = bridgeClass
 
 
 class NamedSerializable(Serializable):

@@ -1,10 +1,10 @@
-import uuid
 import hashlib
 from datetime import datetime
 from gludb.simple import DBObject, Field, Index
 from SuperGLU.Util.Serialization import Serializable, tokenizeObject, untokenizeObject
 from SuperGLU.Services.QueryService.Queries import getKCsForAGivenUserAndTask, getAllHintsForSingleUserAndTask, getAllFeedbackForSingleUserAndTask
 from SuperGLU.Util.ErrorHandling import logInfo
+from SuperGLU.Util.SerializationGLUDB import DBSerializable
 """
 This module contains secondary database objects that contain data derived from the logged messages
 """
@@ -57,13 +57,19 @@ class DBSystem(object):
         self.tasks.append(newTask.id)
     
 @DBObject(table_name="Tasks")
-class DBTask(object):
+class DBTask(DBSerializable):
     ids  = Field(list)
     name = Field('')
     kcs  = Field(list)
     url  = Field('')
     
-  
+    def DBTask(self, serializableDBTask = None):
+        if serializableDBTask is not None:
+            self.id = serializableDBTask.taskID
+            self.ids = serializableDBTask._ids
+            self.name = serializableDBTask._name
+            self.kcs = serializableDBTask._kcs
+            self.url = serializableDBTask._url
     
     def __repr__(self):
         return str(self.ids) + "|" + self.name + "|" + str(self.kcs) + "|" + self.url
