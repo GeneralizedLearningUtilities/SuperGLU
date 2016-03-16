@@ -4,7 +4,9 @@ This module contains the generic code for translating json serializable objects 
 @author: auerbach
 '''
 import abc
-from SuperGLU.Util.Serialization import DEFAULT_BRIDGE_NAME, Serializable
+from SuperGLU.Util.Serialization import DEFAULT_BRIDGE_NAME, Serializable,\
+    serializeObject
+from gludb.simple import DBObject, Field, Index
 
 GLUDB_BRIDGE_NAME = 'gludb'
 
@@ -56,3 +58,26 @@ class DBSerializable(object, metaclass=DBSerializableFactoryMetaclass):
     def saveToDB(self):
         raise NotImplementedError
     
+    
+
+@DBObject(table_name="unknownJSON")
+class JSONtoDBSerializable(object):
+    """
+    If no other class is available just store the JSON to the database
+    """
+    
+    jsonString = Field('')
+    classId    = Field('')
+    
+    def JSONtoDBSerializable(self, serializableObject=None):
+        if serializableObject is not None:
+            self.jsonString = serializeObject(serializableObject)
+            self.classId = serializableObject.getClassId()
+    
+    @Index
+    def classIdIndex(self):
+        return self.classId
+    
+    
+    def saveToDB(self):
+        self.save()

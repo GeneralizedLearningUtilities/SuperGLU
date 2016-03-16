@@ -8,7 +8,8 @@ from SuperGLU.Services.StorageService.Storage_Service_Interface import BaseStora
 from SuperGLU.Services.StudentModel.PersistentData import DBTask, SerializableTask
 from SuperGLU.Util.ErrorHandling import logWarning, logInfo
 from SuperGLU.Util.Serialization import Serializable, NamedSerializable
-from SuperGLU.Util.SerializationGLUDB import DBSerializable
+from SuperGLU.Util.SerializationGLUDB import DBSerializable,\
+    JSONtoDBSerializable
 
 
 
@@ -59,8 +60,9 @@ class GLUDBStorageService(BaseStorageService):
                     dbValue = DBSerializable.convert(value)
                     dbValue.saveToDB()
                 except NotImplementedError:
-                    #for now do nothing
                     logInfo('failed to serialize object', 1)
+                    dbValue = JSONtoDBSerializable(value)
+                    dbValue.saveToDB()
                 return True
         
         #GLUDB does not currently allow for deletion of items so this should always return false
