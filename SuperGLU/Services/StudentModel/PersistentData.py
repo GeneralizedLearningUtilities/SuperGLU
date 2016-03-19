@@ -4,7 +4,7 @@ from gludb.simple import DBObject, Field, Index
 from SuperGLU.Util.Serialization import Serializable, tokenizeObject, untokenizeObject
 from SuperGLU.Services.QueryService.Queries import getKCsForAGivenUserAndTask, getAllHintsForSingleUserAndTask, getAllFeedbackForSingleUserAndTask
 from SuperGLU.Util.ErrorHandling import logInfo
-from SuperGLU.Util.SerializationGLUDB import DBSerializable
+from SuperGLU.Util.SerializationGLUDB import DBSerializable, GLUDB_BRIDGE_NAME
 """
 This module contains secondary database objects that contain data derived from the logged messages
 """
@@ -55,13 +55,149 @@ class DBSystem(object):
         if newTask.id is None:
             newTask.save()
         self.tasks.append(newTask.id)
+
+
+class SerializableAssistmentsItem(Serializable):
     
+    #Keys
+    ITEM_ID_KEY = 'itemID'
+    PROBLEM_SET_ID_KEY = 'problemSetID'
+    PROBLEM_SET_NAME_KEY = 'problemSetName'
+    ASSIGNMENTS_KEY = 'assignments'
+    
+    _itemID = None
+    _problemSetID = None
+    _problemSetName = None
+    _assignments = [] #list of tuples containing id, name, baseURL
+
+    def saveToToken(self):
+        token = super(SerializableAssistmentsItem, self).saveToToken()
+        if self._itemID is not None:
+            token[self.ITEM_ID_KEY] = tokenizeObject(self._itemID)
+        if self._problemSetID is not None:
+            token[self.PROBLEM_SET_ID_KEY] = tokenizeObject(self._problemSetID)
+        if self._problemSetName is not None:
+            token[self.PROBLEM_SET_NAME_KEY] = tokenizeObject(self._problemSetName)
+        if self._assignments is not None:
+            token[self.ASSIGNMENTS_KEY] = tokenizeObject(self._assignments)
+        return token
+    
+    def initializeFromToken(self, token, context=None):
+        super(SerializableAssistmentsItem, self).initializeFromToken(token, context)
+        self._itemID = untokenizeObject(token.get(self.ITEM_ID_KEY, None))
+        self._problemSetID = untokenizeObject(token.get(self.PROBLEM_SET_ID_KEY, None))
+        self._problemSetName = untokenizeObject(token.get(self.PROBLEM_SET_NAME_KEY, None))
+        self._assignments = untokenizeObject(token.get(self.ASSIGNMENTS_KEY, []))
+
+
+#Does this need to be it's own separate table?
+@DBObject(table_name="AssistmentsAssignmentItems")
+class DBAssistmentsItem(DBSerializable):
+    
+    BRIDGE_NAME = GLUDB_BRIDGE_NAME
+    SOURCE_CLASS = SerializableAssistmentsItem
+    
+    _itemID = Field('')
+    _problemSetID = Field('')
+    _problemSetName = Field('')
+    _assignments = Field(list) #list of tuples containing id, name, baseURL
+    
+    
+    def DBAssistmentsItem(self, serializableDBAssismentsAssignment = None):
+        if serializableDBAssismentsAssignment is not None:
+            self._itemID = serializableDBAssismentsAssignment._itemID
+            self._problemSetID = serializableDBAssismentsAssignment._problemSetID
+            self._problemSetName = serializableDBAssismentsAssignment._problemSetName
+            self._assignments = serializableDBAssismentsAssignment._assignments
+    
+        
+    def toSerializable(self):
+        result = SerializableAssistmentsItem()
+        
+        result._itemID = self._itemID
+        result._problemSetID = self._problemSetID
+        result._problemSetName = self._problemSetName
+        result._assignments = self._assignments 
+        
+        return result
+    
+    def saveToDB(self):
+        self.save()
+
+class SerializableTask(Serializable):
+
+    # Main Keys
+    TASK_ID_KEY = "taskId"
+    IDS_KEY = "ids"
+    NAME_KEY = "name"
+    KCS_KEY = "kcs"
+    BASE_URL_KEY = "baseURL"
+    ASSISTMENTS_ITEM_KEY = "assistmentsItem"
+
+    
+    _taskId = None
+    _ids = []
+    _name = None
+    _kcs = []
+    _baseURL = None
+    _assistmentsItem = None
+    
+    
+    def saveToToken(self):
+        token = super(SerializableTask, self).saveToToken()
+        if self._taskId is not None:
+            token[self.TASK_ID_KEY] = tokenizeObject(self._taskId)
+        if self._ids is not None:
+            token[self.IDS_KEY] = tokenizeObject(self._ids)
+        if self._object is not None:
+            token[self.NAME_KEY] = tokenizeObject(self._name)
+        if self._result is not None:
+            token[self.KCS_KEY] = tokenizeObject(self._kcs)
+        if self._speechAct is not None:
+            token[self.BASE_URL_KEY] = tokenizeObject(self._baseURL)
+        if self._assistmentsItem is not None:
+            token[self.ASSISTMENTS_ITEM_KEY] = tokenizeObject(self._assistmentsItem)
+        return token
+    
+    def initializeFromToken(self, token, context=None):
+        super(SerializableTask, self).initializeFromToken(token, context)
+        self._taskId = untokenizeObject(token.get(self.TASK_ID_KEY, None))
+        self._ids = untokenizeObject(token.get(self.IDS_KEY, []))
+        self._name = untokenizeObject(token.get(self.NAME_KEY, None))
+        self._kcs = untokenizeObject(token.get(self.KCS_KEY, []))
+        self._baseURL = untokenizeObject(token.get(self.BASE_URL_KEY, None))
+        self._assistmentsItem = untokenizeObject(token.get(self.ASSISTMENTS_ITEM_KEY), None)
+        
+    
+    def toDB(self):
+        result = DBTask()
+        result.ids = self._ids
+        result.id = self._taskId
+        result.name = self._name
+        result.kcs = self._kcs
+        result.baseURL = self._baseURL
+        result.assistmentsItem = self._assistmentsItem
+        return result
+    
+    def initializeFromDBTask(self, dbTask):
+        self._taskId = dbTask.id
+        self._ids = dbTask.ids
+        self._name = dbTask.name
+        self._kcs = dbTask.kcs
+        self._baseURL = dbTask.baseURL
+        self._assistmentsItem = dbTask.assistmentsItem
+                 
+                     
 @DBObject(table_name="Tasks")
 class DBTask(DBSerializable):
     ids  = Field(list)
     name = Field('')
     kcs  = Field(list)
-    url  = Field('')
+    baseURL  = Field('')
+    assistmentsItem = Field('')
+    
+    BRIDGE_NAME = GLUDB_BRIDGE_NAME
+    SOURCE_CLASS = SerializableTask
     
     def DBTask(self, serializableDBTask = None):
         if serializableDBTask is not None:
@@ -69,10 +205,11 @@ class DBTask(DBSerializable):
             self.ids = serializableDBTask._ids
             self.name = serializableDBTask._name
             self.kcs = serializableDBTask._kcs
-            self.url = serializableDBTask._url
+            self.baseURL = serializableDBTask._baseURL
+            self.assistmentsItem = serializableDBTask._assistmentsItem
     
     def __repr__(self):
-        return str(self.ids) + "|" + self.name + "|" + str(self.kcs) + "|" + self.url
+        return str(self.ids) + "|" + self.name + "|" + str(self.kcs) + "|" + self.baseURL
     
     
     def toSerializable(self):
@@ -99,63 +236,7 @@ class DBKCTaskAssociations(object):
     def kcIndex(self):
         return self.kc
         
-
-class SerializableTask(Serializable):
-
-    # Main Keys
-    TASK_ID_KEY = 'taskId'
-    IDS_KEY = "ids"
-    NAME_KEY = "name"
-    KCS_KEY = "kcs"
-    URL_KEY = "url"
-
-    
-    _taskId = None
-    _ids = []
-    _name = None
-    _kcs = []
-    _url = None
-    
-    def saveToToken(self):
-        token = super(SerializableTask, self).saveToToken()
-        if self._taskId is not None:
-            token[self.TASK_ID_KEY] = tokenizeObject(self._taskId)
-        if self._ids is not None:
-            token[self.IDS_KEY] = tokenizeObject(self._ids)
-        if self._object is not None:
-            token[self.NAME_KEY] = tokenizeObject(self._name)
-        if self._result is not None:
-            token[self.KCS_KEY] = tokenizeObject(self._kcs)
-        if self._speechAct is not None:
-            token[self.URL_KEY] = tokenizeObject(self._url)
-        return token
-    
-    def initializeFromToken(self, token, context=None):
-        super(SerializableTask, self).initializeFromToken(token, context)
-        self._taskId = untokenizeObject(token.get(self.TASK_ID_KEY, None))
-        self._ids = untokenizeObject(token.get(self.IDS_KEY, []))
-        self._name = untokenizeObject(token.get(self.NAME_KEY, None))
-        self._kcs = untokenizeObject(token.get(self.KCS_KEY, []))
-        self._url = untokenizeObject(token.get(self.URL_KEY, None))
         
-    
-    def toDB(self):
-        result = DBTask()
-        result.ids = self._ids
-        result.id = self._taskId
-        result.name = self._name
-        result.kcs = self._kcs
-        result.url = self._url
-        return result
-    
-    def initializeFromDBTask(self, dbTask):
-        self._taskId = dbTask.id
-        self._ids = dbTask.ids
-        self._name = dbTask.name
-        self._kcs = dbTask.kcs
-        self._url = dbTask.url
-                 
-            
 @DBObject(table_name="Topics")
 class DBTopic(object):
     kcList       = Field(list)
