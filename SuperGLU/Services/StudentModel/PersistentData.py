@@ -149,11 +149,11 @@ class SerializableTask(Serializable):
             token[self.TASK_ID_KEY] = tokenizeObject(self._taskId)
         if self._ids is not None:
             token[self.IDS_KEY] = tokenizeObject(self._ids)
-        if self._object is not None:
+        if self._name is not None:
             token[self.NAME_KEY] = tokenizeObject(self._name)
-        if self._result is not None:
+        if self._kcs is not None:
             token[self.KCS_KEY] = tokenizeObject(self._kcs)
-        if self._speechAct is not None:
+        if self._baseURL is not None:
             token[self.BASE_URL_KEY] = tokenizeObject(self._baseURL)
         if self._assistmentsItem is not None:
             token[self.ASSISTMENTS_ITEM_KEY] = tokenizeObject(self._assistmentsItem)

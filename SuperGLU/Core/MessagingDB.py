@@ -7,6 +7,7 @@ Module for storing the class that persists the messaging objects into the databa
 from SuperGLU.Util.SerializationGLUDB import DBSerializable, GLUDB_BRIDGE_NAME
 
 LOADED_VERB = "Loaded";
+ELECTRONIX_TUTOR_TASK_UPLOAD_VERB = 'ElectronixTutorTaskUpload'
     
 COMPLETED_VERB = 'Completed'                       # Finished task, return result (e.g., score)
 COMPLETED_ALL_STEPS_VERB = 'CompletedAllSteps'     # Completed all steps (true/false/% steps completed)

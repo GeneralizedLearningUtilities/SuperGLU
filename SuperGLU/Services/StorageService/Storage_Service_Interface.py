@@ -61,9 +61,9 @@ class BaseStorageService(BaseService):
         return bucket.exportData()
         
     def receiveMessage(self, msg):
-        if ((msg.getActor() == STORAGE_SERVICE_NAME) and
-            (msg.getContextValue(self.BUCKET_KEY, None) is not None) and
-            (self.hasBucket(msg.getContextValue(self.BUCKET_KEY)))):
+        #if ((msg.getActor() == STORAGE_SERVICE_NAME) and
+        #    (msg.getContextValue(self.BUCKET_KEY, None) is not None) and
+        #    (self.hasBucket(msg.getContextValue(self.BUCKET_KEY)))):
             bucket = self.getBucket(msg.getContextValue(self.BUCKET_KEY))
             # Inform: Set some value(s)
             if (msg.getSpeechAct() == INFORM_ACT):
