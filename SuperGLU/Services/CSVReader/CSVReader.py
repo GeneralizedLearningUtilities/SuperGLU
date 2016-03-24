@@ -14,12 +14,15 @@ from SuperGLU.Core.MessagingDB import ELECTRONIX_TUTOR_TASK_UPLOAD_VERB
 
 
 CSV_READER_SERVICE_NAME = "CSV Reader Service"
+TASKS_OBJECT = "tasks"
 
 class CSVReader (BaseService):
     
     LINE_DELIMITER = '\n'
     CELL_DELIMITER = ','
     PIPE_DELIMITER = '|||'
+    
+    
     
     
     
@@ -40,7 +43,8 @@ class CSVReader (BaseService):
                 reply = Message()
                 reply.setSpeechAct(INFORM_ACT)
                 reply.setVerb(VALUE_VERB)
-                reply.setObject(taskList)    
+                reply.setObject(TASKS_OBJECT)
+                reply.setResult(taskList)    
         
         
         if reply is not None:

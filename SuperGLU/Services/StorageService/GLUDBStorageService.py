@@ -56,14 +56,19 @@ class GLUDBStorageService(BaseStorageService):
                         return False
                 #NOTE we are assuming that the value class and dbValue class have the toDB and saveToDB functions respectively.
                 #If they do not have them they must be implemented or the system will not save the data.
-                try:
-                    dbValue = DBSerializable.convert(value)
-                    dbValue.saveToDB()
-                except NotImplementedError:
-                    logInfo('failed to serialize object', 1)
-                    dbValue = JSONtoDBSerializable(value)
-                    dbValue.saveToDB()
-                return True
+            try:
+                
+                if isinstance(value, list):
+                    for valueObject in value:
+                        logInfo("saving task {0} to database".format(valueObject._name), 4)
+                        dbValue = DBSerializable.convert(valueObject) 
+                        dbValue.saveToDB()
+                                        
+            except NotImplementedError:
+                logInfo('failed to serialize object', 1)
+                dbValue = JSONtoDBSerializable(value)
+                dbValue.saveToDB()
+            return True
         
         #GLUDB does not currently allow for deletion of items so this should always return false
         elif verb == self.VOID_VERB:
