@@ -5,6 +5,7 @@ from datetime import datetime
 Module for storing the class that persists the messaging objects into the database.
 """
 from SuperGLU.Util.SerializationGLUDB import DBSerializable, GLUDB_BRIDGE_NAME
+from SuperGLU.Util.ErrorHandling import logInfo
 
 LOADED_VERB = "Loaded";
 ELECTRONIX_TUTOR_TASK_UPLOAD_VERB = 'ElectronixTutorTaskUpload'
@@ -75,12 +76,12 @@ class DBLoggedMessage(DBSerializable):
     BRIDGE_NAME = GLUDB_BRIDGE_NAME
     SOURCE_CLASS = Message
     
-    def DBLoggedMessage(self, message=None):
+    def create(self, message=None):
         if message is not None:
             self.actor     = message.getActor()
             self.verb      = message.getVerb()
             self.object    = message.getObject()
-            self.result    = message.getResult()
+            self.result    = DBSerializable.convert(message.getResult())
             self.speechAct = message.getSpeechAct()
             self.context   = message.getContext()
             self.timestamp = message.getTimestamp()

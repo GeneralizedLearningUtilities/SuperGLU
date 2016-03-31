@@ -7,6 +7,7 @@ import abc
 from SuperGLU.Util.Serialization import DEFAULT_BRIDGE_NAME, Serializable,\
     serializeObject
 from gludb.simple import DBObject, Field, Index
+from SuperGLU.Util.ErrorHandling import logInfo
 
 GLUDB_BRIDGE_NAME = 'gludb'
 
@@ -47,13 +48,29 @@ class DBSerializable(object, metaclass=DBSerializableFactoryMetaclass):
     BRIDGE_NAME = GLUDB_BRIDGE_NAME
     SOURCE_CLASS = Serializable
     
-    
-    
     @classmethod
-    def convert(cls, sourceObject):
-        bridgeClass = sourceObject.getStorageBridge(cls.BRIDGE_NAME)
-        result = bridgeClass(sourceObject)
-        return result
+    def convert(cls, sourceObject):#TODO: Handle lists of serializable objects
+        if isinstance(sourceObject, list):
+            result = list()
+            for obj in sourceObject:
+                if isinstance(obj, Serializable):
+                    
+                    bridgeClass = obj.getStorageBridge(cls.BRIDGE_NAME)
+                    resultPart = bridgeClass(obj)
+                    resultPart.create(obj)
+                    result.append(resultPart)
+                else:
+                    result.append(obj)
+            
+            return result
+        else:
+            if isinstance(sourceObject, Serializable):
+                bridgeClass = sourceObject.getStorageBridge(cls.BRIDGE_NAME)
+                result = bridgeClass(sourceObject)
+                result.create(sourceObject)
+                return result
+            else:
+                return sourceObject
     
     def saveToDB(self):
         raise NotImplementedError
@@ -69,7 +86,7 @@ class JSONtoDBSerializable(object):
     jsonString = Field('')
     classId    = Field('')
     
-    def JSONtoDBSerializable(self, serializableObject=None):
+    def create(self, serializableObject=None):
         if serializableObject is not None:
             self.jsonString = serializeObject(serializableObject)
             self.classId = serializableObject.getClassId()

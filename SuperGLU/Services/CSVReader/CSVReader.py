@@ -82,7 +82,7 @@ class CSVReader (BaseService):
                 task._kcs = kcs
                 
                 task._name = cells[2]
-                task._taskId = cells[1]
+                task._ids.append(cells[1])
                 task._baseURL = cells[6]
                 
                 #if there is an assismentsItem associated with this task

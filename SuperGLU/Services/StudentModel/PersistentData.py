@@ -1,7 +1,8 @@
 import hashlib
 from datetime import datetime
 from gludb.simple import DBObject, Field, Index
-from SuperGLU.Util.Serialization import Serializable, tokenizeObject, untokenizeObject
+from SuperGLU.Util.Serialization import Serializable, tokenizeObject, untokenizeObject,\
+    makeSerialized
 from SuperGLU.Services.QueryService.Queries import getKCsForAGivenUserAndTask, getAllHintsForSingleUserAndTask, getAllFeedbackForSingleUserAndTask
 from SuperGLU.Util.ErrorHandling import logInfo
 from SuperGLU.Util.SerializationGLUDB import DBSerializable, GLUDB_BRIDGE_NAME
@@ -21,6 +22,7 @@ def initDerivedDataTables():
     DBStudentAlias.ensure_table()
     DBClasssAlias.ensure_table()
     DBKCTaskAssociations.ensure_table()
+    DBAssistmentsItem.ensure_table()
 
 @DBObject(table_name="Systems")
 class DBSystem(object):
@@ -89,8 +91,9 @@ class SerializableAssistmentsItem(Serializable):
         self._problemSetName = untokenizeObject(token.get(self.PROBLEM_SET_NAME_KEY, None))
         self._assignments = untokenizeObject(token.get(self.ASSIGNMENTS_KEY, []))
 
+    def __repr__(self):
+        return self._itemID + "|||" + self._problemSetID + "|||" + self._problemSetName + "|||" + str(self._assignments)
 
-#Does this need to be it's own separate table?
 @DBObject(table_name="AssistmentsAssignmentItems")
 class DBAssistmentsItem(DBSerializable):
     
@@ -103,13 +106,18 @@ class DBAssistmentsItem(DBSerializable):
     _assignments = Field(list) #list of tuples containing id, name, baseURL
     
     
-    def DBAssistmentsItem(self, serializableDBAssismentsAssignment = None):
+    def create(self, serializableDBAssismentsAssignment = None):
         if serializableDBAssismentsAssignment is not None:
             self._itemID = serializableDBAssismentsAssignment._itemID
             self._problemSetID = serializableDBAssismentsAssignment._problemSetID
             self._problemSetName = serializableDBAssismentsAssignment._problemSetName
             self._assignments = serializableDBAssismentsAssignment._assignments
+            
+        return self
     
+    
+    def __repr__(self):
+        return self._itemID + "|||" + self._problemSetID + "|||" + self._problemSetName + "|||" + str(self._assignments)
         
     def toSerializable(self):
         result = SerializableAssistmentsItem()
@@ -172,7 +180,7 @@ class SerializableTask(Serializable):
     def toDB(self):
         result = DBTask()
         result.ids = self._ids
-        result.id = self._taskId
+        result.taskId = self._taskId
         result.name = self._name
         result.kcs = self._kcs
         result.baseURL = self._baseURL
@@ -180,7 +188,7 @@ class SerializableTask(Serializable):
         return result
     
     def initializeFromDBTask(self, dbTask):
-        self._taskId = dbTask.id
+        self._taskId = dbTask.taskId
         self._ids = dbTask.ids
         self._name = dbTask.name
         self._kcs = dbTask.kcs
@@ -191,26 +199,36 @@ class SerializableTask(Serializable):
 @DBObject(table_name="Tasks")
 class DBTask(DBSerializable):
     ids  = Field(list)
+    taskId = Field('')
     name = Field('')
     kcs  = Field(list)
     baseURL  = Field('')
     assistmentsItem = Field('')
     
+    assistmentsItemCache = None
+    
     BRIDGE_NAME = GLUDB_BRIDGE_NAME
     SOURCE_CLASS = SerializableTask
     
-    def DBTask(self, serializableDBTask = None):
+    def create(self, serializableDBTask = None):
+        logInfo("found DBTask constructor", 5)
         if serializableDBTask is not None:
-            self.id = serializableDBTask.taskID
+            self.taskId = serializableDBTask._taskId
             self.ids = serializableDBTask._ids
             self.name = serializableDBTask._name
             self.kcs = serializableDBTask._kcs
             self.baseURL = serializableDBTask._baseURL
-            self.assistmentsItem = serializableDBTask._assistmentsItem
+            self.assistmentsItemCache = DBSerializable.convert(serializableDBTask._assistmentsItem)
+            
+        return self
     
     def __repr__(self):
         return str(self.ids) + "|" + self.name + "|" + str(self.kcs) + "|" + self.baseURL
     
+    
+    @Index
+    def nameIndex(self):
+        return self.name
     
     def toSerializable(self):
         result = SerializableTask()
@@ -218,13 +236,36 @@ class DBTask(DBSerializable):
         return result
     
     def saveToDB(self):
-        self.save()
-        for kc in self.kcs:
-            alias = DBKCTaskAssociations()
-            alias.kc = kc
-            alias.taskID = self.id
-            alias.save()
-
+        
+        existingTasksWithSameName = DBTask.find_by_index('nameIndex', self.name)
+        
+        existingTask = None
+        
+        for possibleExistingTask in existingTasksWithSameName:
+            if self.ids == possibleExistingTask.ids:
+                existingTask = possibleExistingTask
+        
+        if existingTask is None:
+            logInfo("task with name {0} does not yet exist".format(self.name), 3)
+            self.assistmentsItem = self.assistmentsItemCache.save()
+            self.save()
+            for kc in self.kcs:#TODO: figure out what tod do with these
+                alias = DBKCTaskAssociations()
+                alias.kc = kc
+                alias.taskID = self.id
+                alias.save()
+                
+        else:
+            logInfo("task with name {0} already exists, overwriting".format(self.name), 3)
+            existingTask.name = self.name
+            existingTask.ids = self.ids
+            existingTask.kcs = self.kcs
+            existingTask.baseURL = self.baseURL
+            
+            self.assistmentsItemCache.id = existingTask.assistmentsItem
+            existingTask.assistmentsItemCache = self.assistmentsItemCache
+            existingTask.assistmentsItemCache.save()
+            existingTask.save()
     
 
 @DBObject(table_name="KC_TaskAssociations")
