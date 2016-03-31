@@ -81,7 +81,7 @@ class DBLoggedMessage(DBSerializable):
             self.actor     = message.getActor()
             self.verb      = message.getVerb()
             self.object    = message.getObject()
-            self.result    = DBSerializable.convert(message.getResult())
+            self.result    = str(message.getResult())#DBSerializable.convert(message.getResult())
             self.speechAct = message.getSpeechAct()
             self.context   = message.getContext()
             self.timestamp = message.getTimestamp()
