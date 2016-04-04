@@ -71,6 +71,7 @@ class SerializableAssistmentsItem(Serializable):
     _problemSetID = None
     _problemSetName = None
     _assignments = [] #list of tuples containing id, name, baseURL
+   
 
     def saveToToken(self):
         token = super(SerializableAssistmentsItem, self).saveToToken()
@@ -105,6 +106,10 @@ class DBAssistmentsItem(DBSerializable):
     _problemSetName = Field('')
     _assignments = Field(list) #list of tuples containing id, name, baseURL
     
+    
+    @Index
+    def itemIdIndex(self):
+        return self._itemID
     
     def create(self, serializableDBAssismentsAssignment = None):
         if serializableDBAssismentsAssignment is not None:
@@ -141,6 +146,8 @@ class SerializableTask(Serializable):
     KCS_KEY = "kcs"
     BASE_URL_KEY = "baseURL"
     ASSISTMENTS_ITEM_KEY = "assistmentsItem"
+    DESCRIPTION_KEY = "description"
+    CAN_BE_RECOMMENDED_INDIVIDUALLY_KEY = "canBeRecommendedIndividually"
 
     
     _taskId = None
@@ -149,6 +156,8 @@ class SerializableTask(Serializable):
     _kcs = []
     _baseURL = None
     _assistmentsItem = None
+    _canBeRecommendedIndividually = True
+    _description = None
     
     
     def saveToToken(self):
@@ -165,6 +174,10 @@ class SerializableTask(Serializable):
             token[self.BASE_URL_KEY] = tokenizeObject(self._baseURL)
         if self._assistmentsItem is not None:
             token[self.ASSISTMENTS_ITEM_KEY] = tokenizeObject(self._assistmentsItem)
+        if self._description is not None:
+            token[self.DESCRIPTION_KEY] = tokenizeObject(self._description)
+        if self._canBeRecommendedIndividually is not None:
+            token[self.CAN_BE_RECOMMENDED_INDIVIDUALLY_KEY] = tokenizeObject(self._canBeRecommendedIndividually)
         return token
     
     def initializeFromToken(self, token, context=None):
@@ -175,7 +188,8 @@ class SerializableTask(Serializable):
         self._kcs = untokenizeObject(token.get(self.KCS_KEY, []))
         self._baseURL = untokenizeObject(token.get(self.BASE_URL_KEY, None))
         self._assistmentsItem = untokenizeObject(token.get(self.ASSISTMENTS_ITEM_KEY), None)
-        
+        self._description = untokenizeObject(token.get(self.DESCRIPTION_KEY), None)
+        self._canBeRecommendedIndividually = untokenizeObject(token.get(self.CAN_BE_RECOMMENDED_INDIVIDUALLY_KEY), True)
     
     def toDB(self):
         result = DBTask()
@@ -185,6 +199,7 @@ class SerializableTask(Serializable):
         result.kcs = self._kcs
         result.baseURL = self._baseURL
         result.assistmentsItem = self._assistmentsItem
+        result.description = self._description
         return result
     
     def initializeFromDBTask(self, dbTask):
@@ -194,6 +209,8 @@ class SerializableTask(Serializable):
         self._kcs = dbTask.kcs
         self._baseURL = dbTask.baseURL
         self._assistmentsItem = dbTask.assistmentsItem
+        self._description = dbTask.description
+        self._canBeRecommendedIndividually = dbTask.canBeRecommendedIndivdually
                  
                      
 @DBObject(table_name="Tasks")
@@ -204,6 +221,8 @@ class DBTask(DBSerializable):
     kcs  = Field(list)
     baseURL  = Field('')
     assistmentsItem = Field('')
+    description = Field('')
+    canBeRecommendedIndividually = Field(True)
     
     assistmentsItemCache = None
     
@@ -219,6 +238,8 @@ class DBTask(DBSerializable):
             self.kcs = serializableDBTask._kcs
             self.baseURL = serializableDBTask._baseURL
             self.assistmentsItemCache = DBSerializable.convert(serializableDBTask._assistmentsItem)
+            self.description = serializableDBTask._description
+            self.canBeRecommendedIndividually = serializableDBTask._canBeRecommendedIndividually
             
         return self
     
@@ -261,6 +282,8 @@ class DBTask(DBSerializable):
             existingTask.ids = self.ids
             existingTask.kcs = self.kcs
             existingTask.baseURL = self.baseURL
+            existingTask.description = self.description
+            existingTask.canBeRecommendedIndividually = self.canBeRecommendedIndividually
             
             self.assistmentsItemCache.id = existingTask.assistmentsItem
             existingTask.assistmentsItemCache = self.assistmentsItemCache
@@ -276,6 +299,10 @@ class DBKCTaskAssociations(object):
     @Index
     def kcIndex(self):
         return self.kc
+    
+    @Index
+    def taskIDIndex(self):
+        return self.taskID
         
         
 @DBObject(table_name="Topics")

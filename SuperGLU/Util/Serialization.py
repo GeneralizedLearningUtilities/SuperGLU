@@ -59,16 +59,16 @@ def nativizeObject(obj, context=None, sFormat=JSON_FORMAT):
 
 # Convenience functions to serialize and unserialize
 #---------------------------------------------
-def makeSerialized(obj, sFormat=JSON_FORMAT):
+def makeSerialized(storageToken, sFormat=JSON_FORMAT):
     """ Serialize some object(s) Must already be tokenized """
     if sFormat is None:
         sFormat = JSON_FORMAT
     if sFormat == JSON_FORMAT:
-        return JSONRWFormat.serialize(obj)
+        return JSONRWFormat.serialize(storageToken)
     elif sFormat == XML_FORMAT:
-        return XMLRWFormat.serialize(obj)
+        return XMLRWFormat.serialize(storageToken)
     elif sFormat == PICKLE_FORMAT:
-        return PickleRWFormat.serialize(obj)
+        return PickleRWFormat.serialize(storageToken)
     else:
         raise TypeError("No serialization format of type: %s"%(sFormat,))
 

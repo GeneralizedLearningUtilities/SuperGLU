@@ -56,6 +56,8 @@ class CSVReader (BaseService):
         logInfo('Entering CSVReader.processCSVFile', 4)
         lines = csvString.split(sep=self.LINE_DELIMITER)
         
+        relatedTasks = dict()
+        
         #list of tasks
         result = []
         
@@ -75,7 +77,7 @@ class CSVReader (BaseService):
                 
                 
                 logInfo('{0} is extracting the knowledge components'.format(CSV_READER_SERVICE_NAME), 5)
-                kcCell = cells[10]
+                kcCell = cells[14]
                 kcs = kcCell.split(self.PIPE_DELIMITER)
                 
                 logInfo('{0} is constructing the next serializable task object'.format(CSV_READER_SERVICE_NAME), 5)
@@ -83,23 +85,23 @@ class CSVReader (BaseService):
                 
                 task._name = cells[2]
                 task._ids.append(cells[1])
-                task._baseURL = cells[6]
+                task._baseURL = cells[7]
                 
                 #if there is an assismentsItem associated with this task
-                if cells[11] is not None and cells[11] is not '':
+                if cells[15] is not None and cells[15] is not '':
                     assistmentsItem = SerializableAssistmentsItem()
-                    assistmentsItem._itemID = cells[11]
-                    assistmentsItem._problemSetID = cells[12]
-                    assistmentsItem._problemSetName = cells[13]
+                    assistmentsItem._itemID = cells[15]
+                    assistmentsItem._problemSetID = cells[16]
+                    assistmentsItem._problemSetName = cells[17]
                     assistmentsItem._assignments = []
                     
                     logInfo('{0} is checking for assistments data'.format(CSV_READER_SERVICE_NAME), 5)
-                    if cells[14] is not None and cells[14] is not '':
-                        assistmentsItem._assignments.append((cells[14], cells[15], cells[16]))
-                    if cells[17] is not None and cells[17] is not '':
-                        assistmentsItem._assignments.append((cells[17], cells[18], cells[19]))
-                    if cells[20] is not None and cells[20] is not '':
-                        assistmentsItem._assignments.append((cells[20], cells[21], cells[22]))
+                    if cells[19] is not None and cells[19] is not '':
+                        assistmentsItem._assignments.append((cells[18], cells[19], cells[20]))
+                    if cells[22] is not None and cells[22] is not '':
+                        assistmentsItem._assignments.append((cells[21], cells[22], cells[23]))
+                    if cells[25] is not None and cells[25] is not '':
+                        assistmentsItem._assignments.append((cells[24], cells[25], cells[26]))
                     
                     task._assistmentsItem = assistmentsItem 
                 else:
@@ -109,6 +111,26 @@ class CSVReader (BaseService):
                 #logInfo('{0} constructed task: {1}'.format(CSV_READER_SERVICE_NAME, serializeObject(task)), 5)
                 logInfo('{0} constructed task with name: {1}'.format(CSV_READER_SERVICE_NAME, task._name), 5)
                 result.append(task)
+                
+                #make additional tasks to represent combined tasks
+                if task._assistmentsItem._problemSetID not in relatedTasks.keys():
+                    relatedTasks[task._assistmentsItem._problemSetID] = []
+                
+                relatedTasks[task._assistmentsItem._problemSetID].append(task)
+                    
+        
+        for key in relatedTasks.keys():
+            relatedTaskList = relatedTasks[key]
+            if len(relatedTaskList) > 1:
+                collectedTask = SerializableTask()
+                collectedTask._ids = []
+                for relatedTask in relatedTaskList:
+                    relatedTask._canBeRecommendedIndividually = False
+                    collectedTask._ids.append(relatedTask._ids[0])
+                    collectedTask._name = relatedTask._name
+                
+                result.append(collectedTask)
+
         
         logInfo('Exiting CSVReader.processCSVFile', 4)    
         return result

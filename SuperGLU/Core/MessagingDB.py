@@ -9,6 +9,7 @@ from SuperGLU.Util.ErrorHandling import logInfo
 
 LOADED_VERB = "Loaded";
 ELECTRONIX_TUTOR_TASK_UPLOAD_VERB = 'ElectronixTutorTaskUpload'
+HEARTBEAT_VERB = "Heartbeat"
     
 COMPLETED_VERB = 'Completed'                       # Finished task, return result (e.g., score)
 COMPLETED_ALL_STEPS_VERB = 'CompletedAllSteps'     # Completed all steps (true/false/% steps completed)

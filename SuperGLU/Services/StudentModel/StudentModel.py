@@ -3,7 +3,8 @@ from SuperGLU.Util.Serialization import Serializable
 from SuperGLU.Core.MessagingGateway import BaseService
 from SuperGLU.Core.Messaging import Message
 from SuperGLU.Util.ErrorHandling import logInfo
-from SuperGLU.Core.MessagingDB import KC_SCORE_VERB, SESSION_ID_CONTEXT_KEY, DATE_TIME_FORMAT, TASK_ID_CONTEXT_KEY, TASK_HINT_VERB, TASK_FEEDBACK_VERB, MASTERY_VERB, CLASS_ID_CONTEXT_KEY
+from SuperGLU.Core.MessagingDB import KC_SCORE_VERB, SESSION_ID_CONTEXT_KEY, DATE_TIME_FORMAT, TASK_ID_CONTEXT_KEY, TASK_HINT_VERB, TASK_FEEDBACK_VERB, MASTERY_VERB, CLASS_ID_CONTEXT_KEY,\
+    HEARTBEAT_VERB
 from SuperGLU.Core.FIPA.SpeechActs import INFORM_ACT, REQUEST_ACT
 from SuperGLU.Services.StudentModel.PersistentData import DBStudentAlias, DBStudentModel, DBStudent, DBSession, DBClasssAlias, DBClass
 from SuperGLU.Services.StudentModel.StudentModelFactories import BasicStudentModelFactory
@@ -24,13 +25,14 @@ class StudentModelMessaging(BaseService):
     classCache = {}
                 
     def receiveMessage(self, msg):
-        logInfo('{0} received message: {1}'.format(STUDENT_MODEL_SERVICE_NAME, self.messageToString(msg)), 1)
+        if msg.getVerb() != HEARTBEAT_VERB:
+            logInfo('{0} received message: {1}'.format(STUDENT_MODEL_SERVICE_NAME, self.messageToString(msg)), 2)
         
         if msg is not None:
             reply = self.routeMessage(msg)
         
         if reply is not None:
-            logInfo('{0} is sending reply:{1}'.format(STUDENT_MODEL_SERVICE_NAME, self.messageToString(reply)), 1)
+            logInfo('{0} is sending reply:{1}'.format(STUDENT_MODEL_SERVICE_NAME, self.messageToString(reply)), 2)
             self.sendMessage(reply)
         
     def routeMessage(self, msg):
