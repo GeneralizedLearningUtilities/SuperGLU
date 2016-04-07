@@ -123,12 +123,52 @@ class CSVReader (BaseService):
             relatedTaskList = relatedTasks[key]
             if len(relatedTaskList) > 1:
                 collectedTask = SerializableTask()
+
                 collectedTask._ids = []
+                collectedTask._ids.append()
+                
+                kcSet = set()
+                assignmentSet = set()
+                collectedAssistmentsItem = SerializableAssistmentsItem()
+                
                 for relatedTask in relatedTaskList:
                     relatedTask._canBeRecommendedIndividually = False
-                    collectedTask._ids.append(relatedTask._ids[0])
-                    collectedTask._name = relatedTask._name
+                    # Subtask ids instead of ids field
+                    collectedTask._subtasks.append(relatedTask._ids[0])
+                    
+                    if len(collectedTask._ids == 0):
+                        collectedTask._ids.append(relatedTask._ids[0])
+                    else:
+                        collectedTask._ids[0].append("~")
+                        collectedTask._ids[0].append(relatedTask._ids[0])
+                    
+                    if not collectedTask._name:
+                        collectedTask._name = relatedTask._name
+                    if not collectedTask._baseURL:
+                        collectedTask._baseURL = relatedTask._baseURL
+                    if not collectedTask._description:
+                        collectedTask._description = relatedTask._description
+                    if not collectedAssistmentsItem._itemID:
+                        collectedAssistmentsItem._itemID = relatedTask._assistmentsItem._itemID
+                    if not collectedAssistmentsItem._problemSetID:
+                        collectedAssistmentsItem._problemSetID = relatedTask._assistmentsItem._problemSetID
+                    if not collectedAssistmentsItem._problemSetName:
+                        collectedAssistmentsItem._problemSetName = relatedTask._assistmentsItem._problemSetName 
+                    # Add all the data
+                    
+                    for kc in relatedTask._kcs:
+                        kcSet.add(kc)
+                    
+                    if relatedTask._assistmentsItem is not None:
+                        for assignment in relatedTask._assistmentsItem._assignments:
+                            assignmentSet.add(assignment)
+                    
                 
+                collectedTask._kcs = list(kcSet) # This is the complete set accumulated from all subtasks
+                collectedAssistmentsItem._assignments = list(assignmentSet)# The assignments inside of this should be the set of all non-duplicate, non-empty ASSISTments assignments from the subtasks
+                
+                collectedTask._assistmentsItem = collectedAssistmentsItem
+                    
                 result.append(collectedTask)
 
         
