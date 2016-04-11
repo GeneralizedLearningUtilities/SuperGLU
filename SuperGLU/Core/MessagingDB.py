@@ -66,13 +66,13 @@ DATE_TIME_FORMAT = "%Y-%m-%dT%H:%M:%S.%fZ"
 
 @DBObject(table_name="DBLoggedMessage")
 class DBLoggedMessage(DBSerializable):
-    actor = Field('actor')
-    verb = Field('verb')
-    object = Field('object')
-    result = Field('result')
-    speechAct = Field('speechAct')
-    context = Field('context')
-    timestamp = Field('timestamp')
+    actor = Field('')
+    verb = Field('')
+    object = Field('')
+    result = Field('')
+    speechAct = Field('')
+    context = Field('')
+    timestamp = Field('')
     
     BRIDGE_NAME = GLUDB_BRIDGE_NAME
     SOURCE_CLASS = Message

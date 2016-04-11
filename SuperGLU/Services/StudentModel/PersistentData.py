@@ -447,12 +447,12 @@ class DBStudent (object):
     studentId       = Field('')
     sessionIds      = Field(list)
     oAuthIds        = Field(dict)
-    studentModelIds = Field(list)
+    studentModelIds = Field(dict)
     kcGoals         = Field(dict)
     
     #non-persistant fields
     sessionCache = []
-    studentModelCache = []
+    studentModelCache = {}
     
     @Index
     def StudentIDIndex(self):
@@ -478,7 +478,7 @@ class DBStudent (object):
             
     def getStudentModels(self, useCachedValue):
         if not useCachedValue:
-            self.studentModelCache = [DBStudentModel.find_one(x) for x in self.studentModelIds]
+            self.studentModelCache = {x:DBStudentModel.find_one(self.studentModelIds[x]) for x in self.studentModelIds.keys()}
         return self.studentModelCache
         
     def addStudentModel(self, newStudentModel):
@@ -488,10 +488,10 @@ class DBStudent (object):
         if newStudentModel.id is None or newStudentModel.id is '':
             newStudentModel.save()
         
-        self.studentModelCache.append(newStudentModel)
+        self.studentModelCache[type(newStudentModel)] = newStudentModel
         if self.studentModelIds is None:
-            self.studentModelIds = []
-        self.studentModelIds.append(newStudentModel.id)
+            self.studentModelIds = {}
+        self.studentModelIds[type(newStudentModel)] = newStudentModel.id
         self.save()
         
         
