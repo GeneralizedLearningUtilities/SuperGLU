@@ -91,6 +91,7 @@ class StudentModelMessaging(BaseService):
     studentModel_internal = StudentModel()
                 
     def receiveMessage(self, msg):
+        super(StudentModelMessaging, self).receiveMessage(msg)
         if msg.getVerb() != HEARTBEAT_VERB:
             logInfo('{0} received message: {1}'.format(STUDENT_MODEL_SERVICE_NAME, self.messageToString(msg)), 2)
         
@@ -126,7 +127,12 @@ class StudentModelMessaging(BaseService):
             if msg.getVerb() == MASTERY_VERB:
                 logInfo('{0} is processing a {1}, {2} message'.format(STUDENT_MODEL_SERVICE_NAME, MASTERY_VERB, REQUEST_ACT), 4)
                 newStudentModel = self.studentModel_internal.createNewStudentModel(msg.getObject())
-                result = Message(actor=STUDENT_MODEL_SERVICE_NAME, verb=MASTERY_VERB, object=newStudentModel.studentId, result=newStudentModel.kcMastery, context=msg.getContext())
+                result = self._createRequestReply(msg)
+                result.setActor(STUDENT_MODEL_SERVICE_NAME)
+                result.setVerb(MASTERY_VERB)
+                result.setSpeechAct(INFORM_ACT)
+                result.setObject(newStudentModel.studentId)
+                result.setResult(newStudentModel.toSerializable())
                 logInfo('{0} finished processing {1},{2}'.format(STUDENT_MODEL_SERVICE_NAME, MASTERY_VERB, REQUEST_ACT), 4)
         
         return result

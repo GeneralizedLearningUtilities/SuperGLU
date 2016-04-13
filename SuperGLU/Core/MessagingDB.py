@@ -10,6 +10,8 @@ from SuperGLU.Util.ErrorHandling import logInfo
 LOADED_VERB = "Loaded";
 ELECTRONIX_TUTOR_TASK_UPLOAD_VERB = 'ElectronixTutorTaskUpload'
 HEARTBEAT_VERB = "Heartbeat"
+
+RECOMMENDED_TASKS_VERB = "RecommendedTasks"        # Message concerns the results of the recommender.  
     
 COMPLETED_VERB = 'Completed'                       # Finished task, return result (e.g., score)
 COMPLETED_ALL_STEPS_VERB = 'CompletedAllSteps'     # Completed all steps (true/false/% steps completed)
@@ -52,7 +54,8 @@ STEP_ID_CONTEXT_KEY = 'stepId'                             # Unique ID for the c
 ACTIVITY_TYPE_CONTEXT_KEY = 'activityType'                 # Type of activity being performed
 KC_RELEVANCE_CONTEXT_KEY = 'KCRelevance'                   # Knowledge component relevance
 HELP_TYPE_CONTEXT_KEY = 'helpType'                         # Type of the help provided (e.g., Positive, Negative, neutral)
-RESULT_CONTENT_TYPE_CONTEXT_KEY = 'resultContentType'      # Type for the content of the help or other media (e.g., 'text', 'html', 'jpg')     
+RESULT_CONTENT_TYPE_CONTEXT_KEY = 'resultContentType'      # Type for the content of the help or other media (e.g., 'text', 'html', 'jpg')
+STUDENT_MODEL_CONTEXT_KEY = "studentModel"                 # student model for the student to which this message pertains
     
 #Other Constants
 UNKNOWN_PREFIX = 'Unknown'

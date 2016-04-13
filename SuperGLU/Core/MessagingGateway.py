@@ -63,6 +63,13 @@ class BaseMessagingNode(Serializable):
             # Remove from the requests, unless asked for a permanent feed
             if oldMsg.getSpeechAct() != REQUEST_WHENEVER_ACT:
                 del self._requests[key]
+                
+    def _createRequestReply(self, msg):
+        oldId = msg.getId()
+        msg = msg.clone()
+        msg.updateId()
+        msg.setContextValue(Message.CONTEXT_CONVERSATION_ID_KEY, oldId)
+        return msg
 
    # Pack/Unpack Messages
     def messageToString(self, msg):

@@ -252,6 +252,11 @@ class DBTask(DBSerializable):
             
         return self
     
+    def getAssistementsItem(self, useCachedValue=False):
+        if not useCachedValue:
+            self.assistmentsItemCache = DBAssistmentsItem.find_one(self.assistmentsItem)
+        return self.assistmentsItemCache
+    
     def __repr__(self):
         return str(self.ids) + "|" + self.name + "|" + str(self.kcs) + "|" + self.baseURL
     
@@ -562,9 +567,49 @@ class DBClasssAlias:
     def getClass(self):
         clazz = DBClass.find_one(self.trueId)
         return clazz
+
+
+class SerializableStudentModel(Serializable):
+    # Main Keys
+    STUDENT_ID_KEY = "studentId"
+    KC_MASTERY_KEY = "kcMastery"
+
+    
+    _studentId = None
+    _kcMastery = {}
+    
+    
+    def saveToToken(self):
+        token = super(SerializableTask, self).saveToToken()
+        if self._studentId is not None:
+            token[self.STUDENT_ID_KEY] = tokenizeObject(self._studentId)
+        if self._kcMastery is not None:
+            token[self.KC_MASTERY_KEY] = tokenizeObject(self._kcMastery)
+        return token
+    
+    def initializeFromToken(self, token, context=None):
+        super(SerializableTask, self).initializeFromToken(token, context)
+        self._studentId = untokenizeObject(token.get(self.STUDENT_ID_KEY, None))
+        self._kcMastery = untokenizeObject(token.get(self.KC_MASTERY_KEY, {}))
+    
+    def toDB(self):
+        result = DBStudentModel()
+        result.studentId = self._studentId
+        result.kcMastery = self._kcMastery
+        return result
+    
+    def initializeFromDBTask(self, dbTask):
+        self._studentId = dbTask.studentId
+        self._kcMastery = dbTask.kcMastery
+
+
             
 @DBObject(table_name="StudentModels")
 class DBStudentModel (object):
+    
+    BRIDGE_NAME = GLUDB_BRIDGE_NAME
+    SOURCE_CLASS = SerializableStudentModel
+  
     studentId = Field('') #string
     kcMastery = Field(dict) #Dictionary<string, float>
     
@@ -582,6 +627,15 @@ class DBStudentModel (object):
         else:
             return None
         
+    def toSerializable(self):
+        result = SerializableStudentModel()
+        result.initializeFromDBTask(self)
+        return result
+    
+    def saveToDB(self):#TODO: test before using widely
+        self.save()
+
+
 
 @DBObject(table_name="ClassModels")
 class DBClassModel(object):
