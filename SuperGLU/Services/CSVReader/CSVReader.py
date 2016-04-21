@@ -83,7 +83,16 @@ class CSVReader (BaseService):
                 logInfo('{0} is constructing the next serializable task object'.format(CSV_READER_SERVICE_NAME), 5)
                 task._kcs = kcs
                 
-                task._name = cells[2]
+                if cells[2] is not None or cells[2] != "":
+                    task._name = cells[1]
+                else:
+                    task._name = cells[2]
+                
+                if cells[3] is not None or cells[3] != "":
+                    task._description = cells[3]
+                else:
+                    task._description = task._name
+                
                 task._ids.append(cells[1])
                 task._baseURL = cells[7]
                 
@@ -96,12 +105,12 @@ class CSVReader (BaseService):
                     assistmentsItem._assignments = []
                     
                     logInfo('{0} is checking for assistments data'.format(CSV_READER_SERVICE_NAME), 5)
+                    if cells[18] is not None and cells[18] is not '':
+                        assistmentsItem._assignments.append(cells[18])
                     if cells[19] is not None and cells[19] is not '':
-                        assistmentsItem._assignments.append((cells[18], cells[19], cells[20]))
-                    if cells[22] is not None and cells[22] is not '':
-                        assistmentsItem._assignments.append((cells[21], cells[22], cells[23]))
-                    if cells[25] is not None and cells[25] is not '':
-                        assistmentsItem._assignments.append((cells[24], cells[25], cells[26]))
+                        assistmentsItem._assignments.append(cells[19])
+                    if cells[20] is not None and cells[20] is not '':
+                        assistmentsItem._assignments.append(cells[20])
                     
                     task._assistmentsItem = assistmentsItem 
                 else:

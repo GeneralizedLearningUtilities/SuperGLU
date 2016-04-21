@@ -28,13 +28,21 @@ class StudentModel(DBBridge):
         #DBStudentAlias List
         studentsWithId = DBStudentAlias.find_by_index("AliasIndex", studentId)
         
+        if len(studentsWithId) == 0:
+            logInfo('failed to find student alias {0}'.format(studentId), 1)
+            student = self.createStudent(studentId, None)
+            return BasicStudentModelFactory.buildStudentModel(self, student)
+        
         for studentAlias in studentsWithId:
             student = DBStudent.find_one(studentAlias.trueId)
             
             if student is None:
                 logInfo('failed to find student with Id: {0} and alias {1}'.format(studentAlias.trueId, studentAlias.alias), 1)
+                student = self.createStudent(studentId, None)
+                return BasicStudentModelFactory.buildStudentModel(self, student)
             else:
-                BasicStudentModelFactory().buildStudentModel(student)
+                return BasicStudentModelFactory().buildStudentModel(student)
+                
         
     def informKCScoreVerb(self, msg):
         session = self.retrieveSessionFromCacheOrDB(msg.getContextValue(SESSION_ID_CONTEXT_KEY))

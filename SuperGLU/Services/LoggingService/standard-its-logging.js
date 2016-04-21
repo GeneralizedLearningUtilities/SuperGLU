@@ -32,6 +32,8 @@ var Zet = SuperGLU.Zet,
 
 // Operational Verbs
 var LOADED_VERB = "Loaded";
+
+var RECOMMENDED_TASKS_VERB = "RecommendedTasks"
     
 // Task Performance Verbs
 var COMPLETED_VERB = 'Completed',                       // Finished task, return result (e.g., score)
@@ -326,7 +328,13 @@ Zet.declare('StandardITSLoggingService', {
 
         self.sendWheelspinning = function sendWheelspinning(value, evidence, stepId){
             self._sendMetricMessage(WHEELSPINNING_VERB, value, evidence, stepId, true);
-        };         
+        };
+
+        self.sendRequestRecommendedTasks = function sendRequestRecommendedTasks(userName)
+        {
+            var msg = Message(userName, RECOMMENDED_TASKS_VERB, "", "", "Request");
+            self.sendLoggingMessage(msg);
+        };
     
         /** Internal Function to notify server that some help message was presented **/
         self._sendHelpMessage = function _sendHelpMessage(verb, content, stepId, helpType, contentType){

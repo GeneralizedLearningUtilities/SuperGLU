@@ -3,7 +3,7 @@ from SuperGLU.Core.FIPA.SpeechActs import (INFORM_ACT, INFORM_REF_ACT,
     CONFIRM_ACT, DISCONFIRM_ACT, REQUEST_ACT,)
 from SuperGLU.Core.Messaging import Message
 from SuperGLU.Core.MessagingGateway import BaseService
-from SuperGLU.Util.ErrorHandling import logError, logWarning
+from SuperGLU.Util.ErrorHandling import logError, logWarning, logInfo
 from SuperGLU.Util.Serialization import (Serializable, NamedSerializable,
     nativizeObject, serializeObject, JSON_FORMAT)
 
@@ -132,7 +132,7 @@ class BaseStorageService(BaseService):
     
     def processStorageRequest(self, bucket, verb, key=None,
                               tags=None, aType=None, name=None):
-        raise NotImplementedError
+        logInfo("No handlers for REQUEST messages available", 5)
        
 
     def getValue(self, bucket, key=None, name=None):

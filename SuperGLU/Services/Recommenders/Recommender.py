@@ -10,9 +10,9 @@ from SuperGLU.Services.QueryService.DBBridge import DBBridge
 from SuperGLU.Services.StudentModel import StudentModel
 from SuperGLU.Services.StudentModel.PersistentData import DBTask
 from SuperGLU.Services.StudentModel.StudentModelFactories import BasicStudentModelFactory
-from SuperGLU.Core.MessagingDB import RECOMMENDED_TASKS_VERB, STUDENT_MODEL_VERB,\
-    MASTERY_VERB
+from SuperGLU.Core.MessagingDB import RECOMMENDED_TASKS_VERB, MASTERY_VERB
 
+RECOMMENDER_SERVICE_NAME = "Recommender"
 
 class Recommender(DBBridge):
     
@@ -52,7 +52,7 @@ class Recommender(DBBridge):
 
 class RecommenderMessaging (BaseService):
     
-    recommender = Recommender()
+    recommender = Recommender(RECOMMENDER_SERVICE_NAME)
 
     def studentModelCallBack(self, msg):
         logInfo("Entering Recommender.studentModelCallback", 5)
@@ -66,7 +66,7 @@ class RecommenderMessaging (BaseService):
         
     
     def receiveMessage(self, msg):
-        super(RecommenderMessaging, self).receiveMessage()
+        super(RecommenderMessaging, self).receiveMessage(msg)
         #depending on the content of the message react differently
         logInfo('Entering Reccomender.receiveMessage', 5)
         
