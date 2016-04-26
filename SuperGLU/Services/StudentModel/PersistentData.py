@@ -206,6 +206,7 @@ class SerializableTask(Serializable):
         result.baseURL = self._baseURL
         result.assistmentsItem = self._assistmentsItem
         result.description = self._description
+        result.canBeRecommendedIndividually = self._canBeRecommendedIndividually
         return result
     
     def initializeFromDBTask(self, dbTask):
@@ -217,7 +218,7 @@ class SerializableTask(Serializable):
         self._baseURL = dbTask.baseURL
         self._assistmentsItem = dbTask.assistmentsItem
         self._description = dbTask.description
-        self._canBeRecommendedIndividually = dbTask.canBeRecommendedIndivdually
+        self._canBeRecommendedIndividually = dbTask.canBeRecommendedIndividually
                  
                      
 @DBObject(table_name="Tasks")

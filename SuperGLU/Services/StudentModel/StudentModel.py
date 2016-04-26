@@ -139,8 +139,11 @@ class StudentModelMessaging(BaseService):
                 result.setActor(STUDENT_MODEL_SERVICE_NAME)
                 result.setVerb(MASTERY_VERB)
                 result.setSpeechAct(INFORM_ACT)
-                result.setObject(newStudentModel.studentId)
-                result.setResult(newStudentModel.toSerializable())
+                result.setObject(msg.getObject())
+                if newStudentModel is not None:
+                    result.setResult(newStudentModel.toSerializable())
+                else:
+                    result.setResult(None)
                 logInfo('{0} finished processing {1},{2}'.format(STUDENT_MODEL_SERVICE_NAME, MASTERY_VERB, REQUEST_ACT), 4)
         
         return result
