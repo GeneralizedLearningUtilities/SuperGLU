@@ -539,9 +539,9 @@ Zet.declare('StandardITSLoggingService', {
             self._sendMetricMessage(WHEELSPINNING_VERB, value, evidence, stepId, true);
         };
 
-        self.sendRequestRecommendedTasks = function sendRequestRecommendedTasks(userName)
+        self.sendRequestRecommendedTasks = function sendRequestRecommendedTasks(userName, numberOfRecommendations)
         {
-            var msg = Message(userName, RECOMMENDED_TASKS_VERB, "", "", "Request");
+            var msg = Message(userName, RECOMMENDED_TASKS_VERB, numberOfRecommendations, "", "Request");
             self.sendLoggingMessage(msg);
         };
     
