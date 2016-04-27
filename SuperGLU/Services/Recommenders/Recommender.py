@@ -37,6 +37,16 @@ class Recommender(DBBridge):
             return 0.0
             
     
+    #remove erroneous entries from task list.
+    #this isn't strictly necessary, but it guards against a corrupted database.
+    def validateTasks(self, taskList):
+        validTasks = []
+        
+        for task in taskList:
+            if len(task._ids) > 0:
+                validTasks.append(task)
+        
+        return validTasks
     
     def getRecommendedTasks(self, studentId, studentModel, numberOfTasksRequested):
         
@@ -45,14 +55,18 @@ class Recommender(DBBridge):
         dbtaskList = DBTask.find_all()
         taskList = [x.toSerializable() for x in dbtaskList]
         
-        logInfo("task List is {0}".format(taskList), 6)
-        
+        taskList = self.validateTasks(taskList)
+                
         for task in taskList:
             taskMastery.append((self.calculateMasteryOfTask(task, studentModel), task))
             
         sortedTaskMastery = sorted(taskMastery, key=lambda taskMastery : taskMastery[0], reverse=True)
         
-        result = sortedTaskMastery[0-numberOfTasksRequested]
+        #logInfo("sortedTaskMastery={0}".format(sortedTaskMastery), 6)
+        
+        result = sortedTaskMastery[0:numberOfTasksRequested]
+        
+        #logInfo(msg, lod)
         
         return result
     

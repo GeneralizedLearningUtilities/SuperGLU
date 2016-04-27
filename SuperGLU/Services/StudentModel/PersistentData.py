@@ -136,6 +136,7 @@ class DBAssistmentsItem(DBSerializable):
     
     def saveToDB(self):
         self.save()
+        return self.id
 
 class SerializableTask(Serializable):
 
@@ -216,7 +217,8 @@ class SerializableTask(Serializable):
         self._name = dbTask.name
         self._kcs = dbTask.kcs
         self._baseURL = dbTask.baseURL
-        self._assistmentsItem = dbTask.assistmentsItemCache
+        if dbTask.assistmentsItemCache is not None:
+            self._assistmentsItem = dbTask.assistmentsItemCache.toSerializable()
         self._description = dbTask.description
         self._canBeRecommendedIndividually = dbTask.canBeRecommendedIndividually
         
@@ -315,6 +317,8 @@ class DBTask(DBSerializable):
             logInfo("assistmentsItemcacheValue3 = {0}".format(existingTask.assistmentsItemCache), 6)
             logInfo("assistmentsItemID = {0}".format(existingTask.assistmentsItem), 6)
             existingTask.save()
+            
+        return self.id
     
 
 @DBObject(table_name="KC_TaskAssociations")
