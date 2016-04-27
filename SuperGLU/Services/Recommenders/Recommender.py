@@ -11,6 +11,7 @@ from SuperGLU.Services.StudentModel import StudentModel
 from SuperGLU.Services.StudentModel.PersistentData import DBTask
 from SuperGLU.Services.StudentModel.StudentModelFactories import BasicStudentModelFactory
 from SuperGLU.Core.MessagingDB import RECOMMENDED_TASKS_VERB, MASTERY_VERB
+from builtins import int
 
 RECOMMENDER_SERVICE_NAME = "Recommender"
 
@@ -29,7 +30,7 @@ class Recommender(DBBridge):
             if len(task._kcs) > 0:#really wish I didn't have to do this, but math is math
                 result = total / len(task._kcs)
             else:
-                result = 1.0#what should we do if a task has no knowledge components associated with it?
+                result = 0.0#what should we do if a task has no knowledge components associated with it?
                 
             return result
         else:
@@ -79,7 +80,8 @@ class RecommenderMessaging (BaseService):
 
     def studentModelCallBack(self, msg, oldMsg):
         logInfo("Entering Recommender.studentModelCallback", 5)
-        recommendedTasks = self.recommender.getRecommendedTasks(msg.getObject(), msg.getResult(), 3)
+        numberOfRecommendations = int(oldMsg.getResult())
+        recommendedTasks = self.recommender.getRecommendedTasks(msg.getObject(), msg.getResult(), numberOfRecommendations)
         outMsg = self._createRequestReply(oldMsg)#need to make sure this how we send the reply
         outMsg.setSpeechAct(INFORM_ACT)
         outMsg.setVerb(RECOMMENDED_TASKS_VERB)
@@ -98,6 +100,7 @@ class RecommenderMessaging (BaseService):
                 outMsg = self._createRequestReply(msg)
                 outMsg.setVerb(MASTERY_VERB)
                 outMsg.setObject(msg.getActor())
+                outMsg.setResult(msg.getObject())
                 self._makeRequest(outMsg, self.studentModelCallBack)
         
             
