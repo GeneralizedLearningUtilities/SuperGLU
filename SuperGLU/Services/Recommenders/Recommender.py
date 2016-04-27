@@ -45,6 +45,8 @@ class Recommender(DBBridge):
         dbtaskList = DBTask.find_all()
         taskList = [x.toSerializable() for x in dbtaskList]
         
+        logInfo("task List is {0}".format(taskList), 6)
+        
         for task in taskList:
             taskMastery.append((self.calculateMasteryOfTask(task, studentModel), task))
             
@@ -64,7 +66,7 @@ class RecommenderMessaging (BaseService):
     def studentModelCallBack(self, msg, oldMsg):
         logInfo("Entering Recommender.studentModelCallback", 5)
         recommendedTasks = self.recommender.getRecommendedTasks(msg.getObject(), msg.getResult(), 3)
-        outMsg = self._createRequestReply(msg)#need to make sure this how we send the reply
+        outMsg = self._createRequestReply(oldMsg)#need to make sure this how we send the reply
         outMsg.setSpeechAct(INFORM_ACT)
         outMsg.setVerb(RECOMMENDED_TASKS_VERB)
         outMsg.setResult(recommendedTasks)

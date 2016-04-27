@@ -74,11 +74,15 @@ class CSVReader (BaseService):
             if len(cells) > 1:
             
                 task = SerializableTask()
-                
+                task._ids = []
                 
                 logInfo('{0} is extracting the knowledge components'.format(CSV_READER_SERVICE_NAME), 5)
                 kcCell = cells[14]
                 kcs = kcCell.split(self.PIPE_DELIMITER)
+                
+                while '' in kcs:#need to remove the empty kc cells.
+                    kcs.remove('')
+                
                 
                 logInfo('{0} is constructing the next serializable task object'.format(CSV_READER_SERVICE_NAME), 5)
                 task._kcs = kcs
@@ -134,7 +138,7 @@ class CSVReader (BaseService):
                 collectedTask = SerializableTask()
 
                 collectedTask._ids = []
-                collectedTask._ids.append()
+                collectedTask._ids.append()#What's going on here?
                 
                 kcSet = set()
                 assignmentSet = set()

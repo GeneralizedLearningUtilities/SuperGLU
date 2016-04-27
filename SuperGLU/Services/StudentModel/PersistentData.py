@@ -204,7 +204,7 @@ class SerializableTask(Serializable):
         result.name = self._name
         result.kcs = self._kcs
         result.baseURL = self._baseURL
-        result.assistmentsItem = self._assistmentsItem
+        result.assistmentsItemCache = self._assistmentsItem
         result.description = self._description
         result.canBeRecommendedIndividually = self._canBeRecommendedIndividually
         return result
@@ -216,9 +216,12 @@ class SerializableTask(Serializable):
         self._name = dbTask.name
         self._kcs = dbTask.kcs
         self._baseURL = dbTask.baseURL
-        self._assistmentsItem = dbTask.assistmentsItem
+        self._assistmentsItem = dbTask.assistmentsItemCache
         self._description = dbTask.description
         self._canBeRecommendedIndividually = dbTask.canBeRecommendedIndividually
+        
+    def __repr__(self):
+        return "taskID:{0}|ids:{1}|subtasks:{2}|name:{3}|kcs:{4}|baseURL:{5}|assistmentItem:{6}|description:{7}|individualRecommend:{8}".format(self._taskId, self._ids, self._subtasks, self._name, self._kcs, self._baseURL, self._assistmentsItem, self._description, self._canBeRecommendedIndividually)
                  
                      
 @DBObject(table_name="Tasks")
@@ -247,7 +250,9 @@ class DBTask(DBSerializable):
             self.name = serializableDBTask._name
             self.kcs = serializableDBTask._kcs
             self.baseURL = serializableDBTask._baseURL
+            logInfo("serializable assistmentsItem = {0}".format(serializableDBTask._assistmentsItem), 6)
             self.assistmentsItemCache = DBSerializable.convert(serializableDBTask._assistmentsItem)
+            logInfo("assistmentsItemcacheValue = {0}".format(self.assistmentsItemCache), 6)
             self.description = serializableDBTask._description
             self.canBeRecommendedIndividually = serializableDBTask._canBeRecommendedIndividually
             
@@ -267,6 +272,8 @@ class DBTask(DBSerializable):
         return self.name
     
     def toSerializable(self):
+        if self.assistmentsItemCache is None:
+            self.getAssistementsItem()   
         result = SerializableTask()
         result.initializeFromDBTask(self)
         return result
@@ -276,14 +283,16 @@ class DBTask(DBSerializable):
         existingTasksWithSameName = DBTask.find_by_index('nameIndex', self.name)
         
         existingTask = None
-        
+        logInfo("assistmentsItemcacheValue2 = {0}".format(self.assistmentsItemCache), 6)
         for possibleExistingTask in existingTasksWithSameName:
             if self.ids == possibleExistingTask.ids:
                 existingTask = possibleExistingTask
         
         if existingTask is None:
             logInfo("task with name {0} does not yet exist".format(self.name), 3)
-            self.assistmentsItem = self.assistmentsItemCache.save()
+            self.assistmentsItem = self.assistmentsItemCache.saveToDB()
+            logInfo("assistmentsItemID = {0}".format(self.assistmentsItem), 6)
+            logInfo("assistmentsItemcacheValue4 = {0}".format(self.assistmentsItemCache), 6)
             self.save()
             for kc in self.kcs:#TODO: figure out what tod do with these
                 alias = DBKCTaskAssociations()
@@ -302,7 +311,9 @@ class DBTask(DBSerializable):
             
             self.assistmentsItemCache.id = existingTask.assistmentsItem
             existingTask.assistmentsItemCache = self.assistmentsItemCache
-            existingTask.assistmentsItemCache.save()
+            existingTask.assistmentsItem = existingTask.assistmentsItemCache.saveToDB()
+            logInfo("assistmentsItemcacheValue3 = {0}".format(existingTask.assistmentsItemCache), 6)
+            logInfo("assistmentsItemID = {0}".format(existingTask.assistmentsItem), 6)
             existingTask.save()
     
 
