@@ -38,6 +38,25 @@ class Recommender(DBBridge):
             return 0.0
             
     
+    def checkNovelty(self, studentId, taskList):
+        student = self.retrieveStudentFromCacheOrDB(studentId, None, False)
+        
+        tasksToRemove = []
+        
+        if len(student.sessionIds) > 0:
+            sessions = student.getSessions(False)
+            for task in taskList:
+                for session in sessions:
+                    if session.task is not None and session.task.name == task.name:
+                        tasksToRemove.append(task)
+            
+        
+        for taskToRemove in tasksToRemove:
+            taskList.remove(taskToRemove)
+            
+        return taskList
+    
+    
     #remove erroneous entries from task list.
     #this isn't strictly necessary, but it guards against a corrupted database.
     def validateTasks(self, taskList):
@@ -57,6 +76,7 @@ class Recommender(DBBridge):
         taskList = [x.toSerializable() for x in dbtaskList]
         
         taskList = self.validateTasks(taskList)
+        taskList = self.checkNovelty(studentId, taskList)
                 
         for task in taskList:
             taskMastery.append((self.calculateMasteryOfTask(task, studentModel), task))
