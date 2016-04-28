@@ -39,6 +39,7 @@ class DBBridge(object):
         session.performance = {}
         session.startTime = datetime.utcnow().strftime(DATE_TIME_FORMAT)
         session.duration = 0
+        session.subtaskNumber = -1
         session.id = msg.getContextValue(SESSION_ID_CONTEXT_KEY)
         session.task = msg.getContextValue(TASK_ID_CONTEXT_KEY)
         session.save()
@@ -124,4 +125,4 @@ class DBBridge(object):
                 clazz = self.createClass(classId, msg)
             #Cache the result so we don't need to worry about looking it up again.
             self.classCache[classId] = clazz
-            return clazz  
+            return clazz

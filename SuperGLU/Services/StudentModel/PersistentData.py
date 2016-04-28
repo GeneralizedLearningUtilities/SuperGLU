@@ -350,6 +350,7 @@ class DBSession(object):
     students       = Field(list)
     system         = Field('')
     task           = Field('')
+    assignmentNumber= Field('')
     startTime      = Field('')
     duration       = Field(-1.0)
     endCondition   = Field('')
@@ -363,6 +364,7 @@ class DBSession(object):
     
     #Non-persistent Fields
     studentCache = []
+    taskCache = None
     
     #keeping this method here as an example of how to query based on UUID
     @classmethod
@@ -372,6 +374,15 @@ class DBSession(object):
     @Index
     def SessionIdIndex(self):
         return self.sessionId
+    
+    
+    def getTask(self, useCachedValue = False):
+        if self.task is None or self.task == '':
+            return None
+        
+        if not useCachedValue:
+            self.taskCache = DBTask.find_one(self.task)
+        return self.taskCache
     
     def getStudents(self, useCachedValue = False):
         if not useCachedValue:

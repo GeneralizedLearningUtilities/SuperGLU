@@ -47,7 +47,7 @@ class Recommender(DBBridge):
             sessions = student.getSessions(False)
             for task in taskList:
                 for session in sessions:
-                    if session.task is not None and session.task.name == task.name:
+                    if session.task is not None and session.task.name == task.name:#add more conditions to allow us to recommend the same task twice
                         tasksToRemove.append(task)
             
         

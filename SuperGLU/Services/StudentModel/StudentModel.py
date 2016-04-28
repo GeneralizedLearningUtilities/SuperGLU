@@ -23,7 +23,28 @@ class StudentModel(DBBridge):
     
     def __init__(self):
         super(StudentModel, self).__init__(STUDENT_MODEL_SERVICE_NAME)
+ 
+    def countAssistmentAssignments(self, student, task):
+        if task.assistmentsItem == None:
+            return None
         
+        sessions = student.getSessions(False)
+        latestTask = 0
+        for session in sessions:
+            sessionTask = session.getTask()
+            if sessionTask.name == task.name:
+                latestTask = session.assignmentNumber
+        
+        return latestTask
+    
+    #TODO: remove this hack and replace it with a more stable
+    def addAssignmentNumber(self, session, student):
+        sessionTask = session.getTask(False) 
+        if session.assignmentNumber == -1 and sessionTask.assistmentsItem is not None:
+            numberOfAssistmentAssignments = self.countAssistmentAssignments(student, sessionTask)
+            session.assignmentNumber = numberOfAssistmentAssignments + 1
+    
+    
     def createNewStudentModel(self, studentId):
         #DBStudentAlias List
         studentsWithId = DBStudentAlias.find_by_index("AliasIndex", studentId)
@@ -53,7 +74,13 @@ class StudentModel(DBBridge):
     
         self.updateSession(msg, session)
         
+        
+        
         student = self.retrieveStudentFromCacheOrDB(msg.getActor(), msg)
+        
+       
+        self.addAssignmentNumber(session, student)
+
         student.addSession(session)
         session.addStudent(student)
         
