@@ -66,15 +66,18 @@ class SerializableAssistmentsItem(Serializable):
     PROBLEM_SET_ID_KEY = 'problemSetID'
     PROBLEM_SET_NAME_KEY = 'problemSetName'
     ASSIGNMENTS_KEY = 'assignments'
+    ASSIGNMENT_NUMBER_KEY = "assignmentNumber"
     
     _itemID = None
     _problemSetID = None
     _problemSetName = None
     _assignments = [] #list of tuples containing id, name, baseURL
-   
+    _assignmentNumber = None
 
     def saveToToken(self):
         token = super(SerializableAssistmentsItem, self).saveToToken()
+        if self._assignmentNumber is not None:
+            token[self.ASSIGNMENT_NUMBER_KEY] = tokenizeObject(self._assignmentNumber)
         if self._itemID is not None:
             token[self.ITEM_ID_KEY] = tokenizeObject(self._itemID)
         if self._problemSetID is not None:
@@ -87,13 +90,14 @@ class SerializableAssistmentsItem(Serializable):
     
     def initializeFromToken(self, token, context=None):
         super(SerializableAssistmentsItem, self).initializeFromToken(token, context)
+        self._assignmentNumber = untokenizeObject(token.get(self.ASSIGNMENT_NUMBER_KEY), None)
         self._itemID = untokenizeObject(token.get(self.ITEM_ID_KEY, None))
         self._problemSetID = untokenizeObject(token.get(self.PROBLEM_SET_ID_KEY, None))
         self._problemSetName = untokenizeObject(token.get(self.PROBLEM_SET_NAME_KEY, None))
         self._assignments = untokenizeObject(token.get(self.ASSIGNMENTS_KEY, []))
 
     def __repr__(self):
-        return self._itemID + "|||" + self._problemSetID + "|||" + self._problemSetName + "|||" + str(self._assignments)
+        return self._itemID + "|||" + self._problemSetID + "|||" + self._problemSetName + "|||" + str(self._assignments) + "|||" + str(self._assignmentNumber)
 
 @DBObject(table_name="AssistmentsAssignmentItems")
 class DBAssistmentsItem(DBSerializable):

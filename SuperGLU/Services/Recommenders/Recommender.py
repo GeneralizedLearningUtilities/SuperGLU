@@ -68,6 +68,14 @@ class Recommender(DBBridge):
         
         return validTasks
     
+    def findAssignmentNumber(self, task, sessions):
+        possibleTaskNumber = -1
+        for session in sessions:
+            if task.name == session.getTask().name:
+                possibleTaskNumber = session.assignmentNumber
+                
+        return possibleTaskNumber + 1;
+    
     def getRecommendedTasks(self, studentId, studentModel, numberOfTasksRequested):
         
         taskMastery = list()
@@ -87,7 +95,12 @@ class Recommender(DBBridge):
         
         result = sortedTaskMastery[0:numberOfTasksRequested]
         
-        #logInfo(msg, lod)
+        student = self.retrieveStudentFromCacheOrDB(studentId, None, False)
+        sessions = student.getSessions(False)
+        
+        for task in result:
+            if task[1]._assistmentsItem is not None:
+                task[1]._assistmentsItem._assignmentNumber = self.findAssignmentNumber(task, sessions)
         
         return result
     
