@@ -75,7 +75,7 @@ class CSVReader (BaseService):
             
                 task = SerializableTask()
                 task._ids = []
-                
+                task._system = cells[0]
                 logInfo('{0} is extracting the knowledge components'.format(CSV_READER_SERVICE_NAME), 5)
                 kcCell = cells[14]
                 kcs = kcCell.split(self.PIPE_DELIMITER)

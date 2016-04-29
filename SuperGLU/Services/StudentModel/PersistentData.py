@@ -142,6 +142,7 @@ class SerializableTask(Serializable):
 
     # Main Keys
     TASK_ID_KEY = "taskId"
+    SYSTEM_KEY = "system"
     IDS_KEY = "ids"
     NAME_KEY = "name"
     KCS_KEY = "kcs"
@@ -153,6 +154,7 @@ class SerializableTask(Serializable):
 
     
     _taskId = None
+    _system = None
     _subtasks = []
     _ids = []
     _name = None
@@ -167,6 +169,8 @@ class SerializableTask(Serializable):
         token = super(SerializableTask, self).saveToToken()
         if self._taskId is not None:
             token[self.TASK_ID_KEY] = tokenizeObject(self._taskId)
+        if self._system is not None:
+            token[self.SYSTEM_KEY] = tokenizeObject(self._system)
         if self._ids is not None:
             token[self.IDS_KEY] = tokenizeObject(self._ids)
         if self._subtasks is not []:
@@ -187,6 +191,7 @@ class SerializableTask(Serializable):
     
     def initializeFromToken(self, token, context=None):
         super(SerializableTask, self).initializeFromToken(token, context)
+        self._system = untokenizeObject(token.get(self.SYSTEM_KEY), None)
         self._taskId = untokenizeObject(token.get(self.TASK_ID_KEY, None))
         self._ids = untokenizeObject(token.get(self.IDS_KEY, []))
         self._subtasks = untokenizeObject(token.get(self.SUBTASKS_KEY, []))
@@ -199,6 +204,7 @@ class SerializableTask(Serializable):
     
     def toDB(self):
         result = DBTask()
+        result.system = self._system
         result.ids = self._ids
         result.subtasks = self._subtasks
         result.taskId = self._taskId
@@ -217,6 +223,7 @@ class SerializableTask(Serializable):
         self._name = dbTask.name
         self._kcs = dbTask.kcs
         self._baseURL = dbTask.baseURL
+        self._system = dbTask.system
         if dbTask.assistmentsItemCache is not None:
             self._assistmentsItem = dbTask.assistmentsItemCache.toSerializable()
         self._description = dbTask.description
@@ -229,6 +236,7 @@ class SerializableTask(Serializable):
 @DBObject(table_name="Tasks")
 class DBTask(DBSerializable):
     ids  = Field(list)
+    system = Field('')
     subtasks = Field(list)
     taskId = Field('')
     name = Field('')
@@ -247,14 +255,13 @@ class DBTask(DBSerializable):
         logInfo("found DBTask constructor", 5)
         if serializableDBTask is not None:
             self.taskId = serializableDBTask._taskId
+            self.system = serializableDBTask._system
             self.ids = serializableDBTask._ids
             self.subtasks = serializableDBTask._subtasks
             self.name = serializableDBTask._name
             self.kcs = serializableDBTask._kcs
             self.baseURL = serializableDBTask._baseURL
-            logInfo("serializable assistmentsItem = {0}".format(serializableDBTask._assistmentsItem), 6)
             self.assistmentsItemCache = DBSerializable.convert(serializableDBTask._assistmentsItem)
-            logInfo("assistmentsItemcacheValue = {0}".format(self.assistmentsItemCache), 6)
             self.description = serializableDBTask._description
             self.canBeRecommendedIndividually = serializableDBTask._canBeRecommendedIndividually
             
