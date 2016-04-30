@@ -37,7 +37,7 @@ var Zet = SuperGLU.Zet,
 // Operational Verbs
 var LOADED_VERB = "Loaded";
 
-var RECOMMENDED_TASKS_VERB = "RecommendedTasks"
+var RECOMMENDED_TASKS_VERB = "RecommendedTasks";
     
 // Task Performance Verbs
 var COMPLETED_VERB = 'Completed',                       // Finished task, return result (e.g., score)
@@ -79,6 +79,7 @@ var USER_ID_KEY = 'userId',                             // Unique identifier for
                                                         // Intended to help to compare different user or system behavior in a comparable task state.
 	CLASSROOM_ID_KEY = 'classroomId',					// Unique ID for the classroom
     ACTIVITY_TYPE_KEY = 'activityType',                 // Type of activity being performed
+    TOPIC_ID_KEY = 'topicId'                            // Topic ID for the current activity 
     KC_RELEVANCE_KEY = 'KCRelevance',                   // Knowledge component relevance
     NUM_OBSERVATIONS_KEY = 'numberOfObservations',      // Number of observations for some behavior that is measured
     HELP_TYPE_KEY = 'helpType',                         // Type of the help provided (e.g., Positive, Negative, neutral)
@@ -652,10 +653,13 @@ namespace.CONFUSION_VERB = CONFUSION_VERB;
 namespace.DISENGAGEMENT_VERB = DISENGAGEMENT_VERB;
 namespace.MASTERY_VERB = MASTERY_VERB;
 
+namespace.RECOMMENDED_TASKS_VERB = RECOMMENDED_TASKS_VERB;
+
 // Context Keys
 namespace.DURATION_KEY = DURATION_KEY;
 namespace.TASK_ID_KEY = TASK_ID_KEY;
 namespace.ACTIVITY_TYPE_KEY = ACTIVITY_TYPE_KEY;
+namespace.TOPIC_ID_KEY = TOPIC_ID_KEY;
 namespace.KC_RELEVANCE_KEY = KC_RELEVANCE_KEY;
 namespace.RESULT_CONTENT_TYPE_KEY = RESULT_CONTENT_TYPE_KEY;
 namespace.HELP_TYPE_KEY = HELP_TYPE_KEY;
