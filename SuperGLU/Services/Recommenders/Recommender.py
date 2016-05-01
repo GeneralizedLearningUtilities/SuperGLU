@@ -6,6 +6,7 @@ This Module contains the first cut of the recommender service
 from SuperGLU.Util.ErrorHandling import logInfo
 from SuperGLU.Core.FIPA.SpeechActs import INFORM_ACT, REQUEST_ACT
 from SuperGLU.Core.MessagingGateway import BaseService
+from SuperGLU.Core.Messaging import Message
 from SuperGLU.Services.QueryService.DBBridge import DBBridge
 from SuperGLU.Services.StudentModel import StudentModel
 from SuperGLU.Services.StudentModel.PersistentData import DBTask
@@ -27,10 +28,12 @@ class Recommender(DBBridge):
                     taskMastery = studentModel.kcMastery[kc]
                 total += 1 - taskMastery
                 
-            if len(task._kcs) > 0:#really wish I didn't have to do this, but math is math
+            if len(task._kcs) > 0:
+                #really wish I didn't have to do this, but math is math
                 result = total / len(task._kcs)
             else:
-                result = 0.0#what should we do if a task has no knowledge components associated with it?
+                #what should we do if a task has no knowledge components associated with it?
+                result = 0.0
                 
             return result
         else:
@@ -77,7 +80,7 @@ class Recommender(DBBridge):
         return possibleTaskNumber + 1;
     
     def getRecommendedTasks(self, studentId, studentModel, numberOfTasksRequested):
-        
+        print("MAKING RECOMMENDATIONS")
         taskMastery = list()
         
         dbtaskList = DBTask.find_all()
@@ -101,40 +104,47 @@ class Recommender(DBBridge):
         for task in result:
             if task[1]._assistmentsItem is not None:
                 task[1]._assistmentsItem._assignmentNumber = self.findAssignmentNumber(task, sessions)
-        
+            print("TASK: " + str(task))
+        print("RESULT:" + str(result))
         return result
     
     
     
 
-class RecommenderMessaging (BaseService):
-    
+class RecommenderMessaging(BaseService):
+
+    ORIGINAL_MESSAGE_KEY = "OriginalRecommendationMessage"
     recommender = Recommender(RECOMMENDER_SERVICE_NAME)
 
     def studentModelCallBack(self, msg, oldMsg):
         logInfo("Entering Recommender.studentModelCallback", 5)
-        numberOfRecommendations = int(oldMsg.getResult())
+        recMsg = oldMsg.getContextValue(self.ORIGINAL_MESSAGE_KEY, Message())
+        if isinstance(recMsg.getResult(), (int, float)):
+            numberOfRecommendations = int(recMsg.getResult())
+        else:
+            numberOfRecommendations = 3
         recommendedTasks = self.recommender.getRecommendedTasks(msg.getObject(), msg.getResult(), numberOfRecommendations)
-        outMsg = self._createRequestReply(oldMsg)#need to make sure this how we send the reply
+        self.sendRecommendations(recommendedTasks, recMsg)
+
+    def sendRecommendations(self, recommendedTasks, msgTemplate=None):
+        if msgTemplate is None: msgTemplate = Message()
+        #need to make sure this how we send the reply
+        outMsg = self._createRequestReply(msgTemplate)
         outMsg.setSpeechAct(INFORM_ACT)
         outMsg.setVerb(RECOMMENDED_TASKS_VERB)
         outMsg.setResult(recommendedTasks)
         self.sendMessage(outMsg)
-        
-        
     
     def receiveMessage(self, msg):
         super(RecommenderMessaging, self).receiveMessage(msg)
         #depending on the content of the message react differently
-        logInfo('Entering Reccomender.receiveMessage', 5)
-        
-        if msg.getSpeechAct() == REQUEST_ACT:
-            if msg.getVerb() == RECOMMENDED_TASKS_VERB:
-                outMsg = self._createRequestReply(msg)
-                outMsg.setVerb(MASTERY_VERB)
-                outMsg.setObject(msg.getActor())
-                outMsg.setResult(msg.getObject())
-                self._makeRequest(outMsg, self.studentModelCallBack)
+        logInfo('Entering Recommender.receiveMessage', 5)
+        if (msg.getSpeechAct() == REQUEST_ACT and
+            msg.getVerb() == RECOMMENDED_TASKS_VERB):
+            outMsg = Message(None, MASTERY_VERB, msg.getActor(), msg.getObject())
+            #TODO: Replace with the ability to store context w/ the request in the base class
+            outMsg.setContextValue(self.ORIGINAL_MESSAGE_KEY, msg)
+            self._makeRequest(outMsg, self.studentModelCallBack)
         
             
     

@@ -144,8 +144,10 @@ if (typeof SuperGLU === "undefined"){
             // Exact Match
             } else if (instance.constructor == create){
                 return true;
-            } else {
+            } else if (instance.instanceOf != null) {
                 return instance.instanceOf(create);
+            } else {
+                return false;
             }
 		};
 

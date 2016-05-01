@@ -1,13 +1,16 @@
-from gludb.simple import DBObject, Field, Index
-from SuperGLU.Core.Messaging import Message
-from datetime import datetime
 """
 Module for storing the class that persists the messaging objects into the database.
 """
+from datetime import datetime
+
+from gludb.simple import DBObject, Field, Index
+
+from SuperGLU.Core.Messaging import Message
+from SuperGLU.Util.Serialization import tokenizeObject, untokenizeObject, nativizeObject, serializeObject
 from SuperGLU.Util.SerializationGLUDB import DBSerializable, GLUDB_BRIDGE_NAME
 from SuperGLU.Util.ErrorHandling import logInfo
 
-LOADED_VERB = "Loaded";
+LOADED_VERB = "Loaded"
 ELECTRONIX_TUTOR_TASK_UPLOAD_VERB = 'ElectronixTutorTaskUpload'
 HEARTBEAT_VERB = "Heartbeat"
 
@@ -85,9 +88,9 @@ class DBLoggedMessage(DBSerializable):
             self.actor     = message.getActor()
             self.verb      = message.getVerb()
             self.object    = message.getObject()
-            self.result    = str(message.getResult())#DBSerializable.convert(message.getResult())
+            self.result    = serializeObject(message.getResult())
             self.speechAct = message.getSpeechAct()
-            self.context   = message.getContext()
+            self.context   = serializeObject(message.getContext())
             self.timestamp = message.getTimestamp()
     
     @Index
@@ -136,7 +139,7 @@ class DBLoggedMessage(DBSerializable):
             return None
             
     def toMessage(self):
-        return Message(self.actor, self.verb, self.object, self.result, self.speechAct, self.context, self.timestamp)
+        return Message(self.actor, self.verb, self.object, nativizeObject(self.result), self.speechAct, nativizeObject(self.context), self.timestamp)
     
     def matchOnPartial(self, current, timestampOperator):
         if self.actor is not None and current.actor != self.actor:
@@ -161,7 +164,7 @@ class DBLoggedMessage(DBSerializable):
             #Note: I am assuming that the context is a dictionary if that isn't true then I'll need to add a type check and handle all possible types 
             for filterContextKey in self.context.keys():
                 if filterContextKey not in current.context.keys():
-                    return False;
+                    return False
                 
                 currentValue = current.context[filterContextKey]
                 filterValue = self.context[filterContextKey]
