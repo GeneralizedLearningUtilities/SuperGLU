@@ -10,6 +10,7 @@ from SuperGLU.Util.Serialization import (Serializable, serializeObject,
 
 CATCH_BAD_MESSAGES = False
 SESSION_KEY = 'sessionId'
+ORIGINATING_SERVICE_ID_KEY = 'originatingServiceId'
 
 class BaseMessagingNode(Serializable):
     """ Base class for messaging """
@@ -113,6 +114,7 @@ class MessagingGateway(BaseMessagingNode):
     def dispatchMessage(self, msg, senderId=None):
         """ Send a message from a child node to parent and sibling nodes """
         self.addContextDataToMsg(msg)
+        msg.setContextValue(ORIGINATING_SERVICE_ID_KEY, senderId)
         self.sendMessage(msg)
         self._distributeMessage(self._nodes, msg, senderId)
     
@@ -217,11 +219,11 @@ class HTTPMessagingGateway(MessagingGateway):
             time.sleep(wait)
             if not self._messages.empty():
                 sid, sessionId, msg = self.dequeueAJAXMessage()
-                # sessionId in 
                 #if sessionId and len(self._socketio.server.rooms(sessionId)) > 0:
-                self._socketio.emit(msgKey, {dataKey: msg, sessionKey: sessionId}, namespace=messagesNS, room=sessionId)
-               # elif False:
-                #    logWarning("ERROR: Could not find room %s (Message was: %s)"%(sessionId, msg))
+                if sessionId:
+                    self._socketio.emit(msgKey, {dataKey: msg, sessionKey: sessionId}, namespace=messagesNS, room=sessionId)
+                else:
+                    logWarning("ERROR: Could not find room %s (Message was: %s)"%(sessionId, msg))
                 
 
 class BaseService(BaseMessagingNode):

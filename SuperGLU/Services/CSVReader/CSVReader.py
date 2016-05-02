@@ -22,10 +22,6 @@ class CSVReader (BaseService):
     CELL_DELIMITER = ','
     PIPE_DELIMITER = '|||'
     
-    
-    
-    
-    
     def receiveMessage(self, msg):
         #depending on the content of the message react differently
         logInfo('Entering CSVReader.receiveMessage', 5)

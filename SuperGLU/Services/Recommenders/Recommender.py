@@ -118,13 +118,17 @@ class RecommenderMessaging(BaseService):
 
     def studentModelCallBack(self, msg, oldMsg):
         logInfo("Entering Recommender.studentModelCallback", 5)
+        # Make sure that it is the right student's score for the request
         recMsg = oldMsg.getContextValue(self.ORIGINAL_MESSAGE_KEY, Message())
-        if isinstance(recMsg.getResult(), (int, float)):
-            numberOfRecommendations = int(recMsg.getResult())
-        else:
-            numberOfRecommendations = 3
-        recommendedTasks = self.recommender.getRecommendedTasks(msg.getObject(), msg.getResult(), numberOfRecommendations)
-        self.sendRecommendations(recommendedTasks, recMsg)
+        if (msg.getVerb() == MASTERY_VERB and
+            msg.getSpeechAct() == INFORM_ACT and
+            msg.getObject() == recMsg.getActor()):
+            if isinstance(recMsg.getResult(), (int, float)):
+                numberOfRecommendations = int(recMsg.getResult())
+            else:
+                numberOfRecommendations = 3
+            recommendedTasks = self.recommender.getRecommendedTasks(msg.getObject(), msg.getResult(), numberOfRecommendations)
+            self.sendRecommendations(recommendedTasks, recMsg)
 
     def sendRecommendations(self, recommendedTasks, msgTemplate=None):
         if msgTemplate is None: msgTemplate = Message()
@@ -133,6 +137,9 @@ class RecommenderMessaging(BaseService):
         outMsg.setSpeechAct(INFORM_ACT)
         outMsg.setVerb(RECOMMENDED_TASKS_VERB)
         outMsg.setResult(recommendedTasks)
+        # @TODO: This shouldn't be a problem, yet it seems to be on the JS side when it is stored as a storage token?
+        if outMsg.hasContextValue(self.ORIGINAL_MESSAGE_KEY):
+            outMsg.delContextValue(self.ORIGINAL_MESSAGE_KEY)
         self.sendMessage(outMsg)
     
     def receiveMessage(self, msg):
@@ -141,7 +148,7 @@ class RecommenderMessaging(BaseService):
         logInfo('Entering Recommender.receiveMessage', 5)
         if (msg.getSpeechAct() == REQUEST_ACT and
             msg.getVerb() == RECOMMENDED_TASKS_VERB):
-            outMsg = Message(None, MASTERY_VERB, msg.getActor(), msg.getObject())
+            outMsg = Message(None, MASTERY_VERB, msg.getActor(), msg.getObject(), REQUEST_ACT)
             #TODO: Replace with the ability to store context w/ the request in the base class
             outMsg.setContextValue(self.ORIGINAL_MESSAGE_KEY, msg)
             self._makeRequest(outMsg, self.studentModelCallBack)

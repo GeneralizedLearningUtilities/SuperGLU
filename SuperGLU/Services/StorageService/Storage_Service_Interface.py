@@ -10,6 +10,8 @@ from SuperGLU.Util.Serialization import (Serializable, NamedSerializable,
 STORAGE_SERVICE_NAME = "StorageService"
 SERIALIZABLE_DATA_TYPE = "Serializable"
 
+VALUE_VERB = "Value"
+
 DATA_TYPE_DB = 0
 DATA_TYPE_MEDIA = 1
 
@@ -25,7 +27,7 @@ class BaseStorageService(BaseService):
 
     HAS_ELEMENT_VERB = "HasElement"
     CONTAINS_VERB = "Contains"
-    VALUE_VERB = "Value"
+    VALUE_VERB = VALUE_VERB
     ASSIGNED_TAGS = "AssignedTags"
     ASSIGNED_URI_VERB = "AssignedURI"
     VOID_VERB = "Void"
@@ -61,9 +63,12 @@ class BaseStorageService(BaseService):
         return bucket.exportData()
         
     def receiveMessage(self, msg):
+        # TODO: Restore bucket management 
         #if ((msg.getActor() == STORAGE_SERVICE_NAME) and
         #    (msg.getContextValue(self.BUCKET_KEY, None) is not None) and
         #    (self.hasBucket(msg.getContextValue(self.BUCKET_KEY)))):
+        
+        if (msg.getActor() == STORAGE_SERVICE_NAME):
             bucket = self.getBucket(msg.getContextValue(self.BUCKET_KEY))
             # Inform: Set some value(s)
             if (msg.getSpeechAct() == INFORM_ACT):
