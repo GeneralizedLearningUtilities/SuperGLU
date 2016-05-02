@@ -115,26 +115,30 @@ class DBLoggedMessage(DBSerializable):
         
     @Index
     def userIdIndex(self):
-        if USER_ID_CONTEXT_KEY in self.context:
-            return self.context[USER_ID_CONTEXT_KEY]
+        context = nativizeObject(self.context)
+        if USER_ID_CONTEXT_KEY in context:
+            return context[USER_ID_CONTEXT_KEY]
         else:
             return None
     @Index
     def taskIdIndex(self):
-        if TASK_ID_CONTEXT_KEY in self.context:
-            return self.context[TASK_ID_CONTEXT_KEY]
+        context = nativizeObject(self.context)
+        if TASK_ID_CONTEXT_KEY in context:
+            return context[TASK_ID_CONTEXT_KEY]
         else:
             return None
     @Index
     def stepIdIndex(self):
-        if STEP_ID_CONTEXT_KEY in self.context:
-            return self.context[STEP_ID_CONTEXT_KEY]
+        context = nativizeObject(self.context)
+        if STEP_ID_CONTEXT_KEY in context:
+            return context[STEP_ID_CONTEXT_KEY]
         else:
             return None
     @Index
     def userTaskIndex(self):
-        if USER_ID_CONTEXT_KEY in self.context and TASK_ID_CONTEXT_KEY in self.context:
-            return (self.context[USER_ID_CONTEXT_KEY], self.context[TASK_ID_CONTEXT_KEY])
+        context = nativizeObject(self.context)
+        if USER_ID_CONTEXT_KEY in context and TASK_ID_CONTEXT_KEY in context:
+            return (context[USER_ID_CONTEXT_KEY], context[TASK_ID_CONTEXT_KEY])
         else:
             return None
             
@@ -153,28 +157,28 @@ class DBLoggedMessage(DBSerializable):
             
         if self.speechAct is not None and current.speechAct != current.speechAct:
             return False
-        
-        if self.result is not None and current.result != self.result:
+
+        result = nativizeObject(self.result)
+        if result is not None and current.result != result:
             return False
-        
-        if self.context is not None:
+
+        context = nativizeObject(self.context)
+        if context is not None:
             if current.context is None:
                 return False
             
             #Note: I am assuming that the context is a dictionary if that isn't true then I'll need to add a type check and handle all possible types 
-            for filterContextKey in self.context.keys():
+            for filterContextKey in context.keys():
                 if filterContextKey not in current.context.keys():
                     return False
                 
                 currentValue = current.context[filterContextKey]
-                filterValue = self.context[filterContextKey]
+                filterValue = context[filterContextKey]
                 if filterValue is not None:
                     if isinstance(currentValue, list) and filterValue not in currentValue:
                         return False
-                
-                    if currentValue != filterValue:
+                    elif currentValue != filterValue:
                         return False
-        
         
         if self.timestamp is not None and current.timestamp != "timestamp":
             parsedTimestamp = datetime.strptime(current.timestamp, DATE_TIME_FORMAT)

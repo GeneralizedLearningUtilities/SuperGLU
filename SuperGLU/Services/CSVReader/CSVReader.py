@@ -3,6 +3,8 @@ Created on Mar 18, 2016
 This module is responsible for converting the tasks csv file to tasks objects and sends them out to the storage service
 @author: auerbach
 '''
+import csv
+import io
 from SuperGLU.Core.MessagingGateway import BaseService
 from SuperGLU.Services.StudentModel.PersistentData import SerializableTask, SerializableAssistmentsItem
 from SuperGLU.Core.FIPA.SpeechActs import INFORM_ACT
@@ -15,6 +17,22 @@ from SuperGLU.Core.MessagingDB import ELECTRONIX_TUTOR_TASK_UPLOAD_VERB
 
 CSV_READER_SERVICE_NAME = "CSV Reader Service"
 TASKS_OBJECT = "tasks"
+
+SYSTEM_COL_NAME = "System"
+TASK_ID_COL_NAME = "Problem ID (Name)"
+TASK_DISPLAY_COL_NAME = "Problem Display Name"
+DESCRIPTION_COL_NAME = "Description"
+TOPIC_COL_NAME = "Topic"
+TYPE_COL_NAME = "Type"
+DATE_COL_NAME = "Curriculum Week+Day"
+BASE_URL_COL_NAME = "Base Link (Original)"
+KC_SET_COL_NAME = "KC Set"
+ASSISTMENTS_PROB_ID_COL_NAME = "ASSISTments Problem ID (Single Item)"
+ASSISTMENTS_SET_ID_COL_NAME = "ASSISTments Problem Set ID"
+ASSISTMENTS_SET_NAME_COL_NAME = "ASSISTments Problem Set Name"
+ASSISTMENTS_ASSIGN_COL_NAMES =("ASSISTments Assign 1 URL", "ASSISTments Assign 2 URL",
+                               "ASSISTments Set 3 URL")
+ENABLED_COL_NAME = "Enabled"
 
 class CSVReader (BaseService):
     
@@ -35,90 +53,94 @@ class CSVReader (BaseService):
                 csvString = msg.getResult()
                 taskList = self.processCSVFile(csvString)
                 reply = Message(STORAGE_SERVICE_NAME, VALUE_VERB, TASKS_OBJECT, taskList)
+                print("# Tasks = %s"%(len(taskList,)))
         
         if reply is not None:
             logInfo('{0} is broadcasting a {1}, {2} message'.format(CSV_READER_SERVICE_NAME, INFORM_ACT, VALUE_VERB), 4)
             self.sendMessage(reply)
+
+    def hasCellData(self, s):
+        return s is not None and s != ''
     
     def processCSVFile(self, csvString):
         #List of strings
         logInfo('Entering CSVReader.processCSVFile', 4)
-        lines = csvString.split(sep=self.LINE_DELIMITER)
+        #lines = csvString.split(sep=self.LINE_DELIMITER)
+        dictLines = csv.DictReader(io.StringIO(csvString))
+        lines = [a for a in dictLines]
         
         relatedTasks = dict()
-        
         #list of tasks
         result = []
-        
-        #remove the line containing the labels
-        lines.pop(0)
-        
-        for line in lines:
-            
+
+        for row in lines:
             logInfo('{0} is splitting the line into cells'.format(CSV_READER_SERVICE_NAME), 5)
-            cells = line.split(sep=self.CELL_DELIMITER)
             
-            logInfo(len(cells), 6)
-            
-            if len(cells) > 1:
-            
+            logInfo(len(row), 6)
+
+            # Extract Row Data
+            systemId = row.get(SYSTEM_COL_NAME, '')
+            taskId = row.get(TASK_ID_COL_NAME, '')
+            taskDisplayName = row.get(TASK_DISPLAY_COL_NAME, '')
+            description = row.get(DESCRIPTION_COL_NAME, '')
+            baseURL = row.get(BASE_URL_COL_NAME, '')
+            assistmentsItem = row.get(ASSISTMENTS_PROB_ID_COL_NAME, '') 
+            assistmentsSetId = row.get(ASSISTMENTS_SET_ID_COL_NAME, '')
+            assistmentsSetName = row.get(ASSISTMENTS_SET_NAME_COL_NAME, '')
+            kcCell = row.get(KC_SET_COL_NAME, '')
+                
+            isEnabled = True
+            if row.get(ENABLED_COL_NAME, 'True') == 'FALSE':
+                isEnabled = False
+        
+            if isEnabled and (self.hasCellData(taskId) or self.hasCellData(taskDisplayName)):
+                # Create the Task
+                logInfo('{0} is constructing the next serializable task object'.format(CSV_READER_SERVICE_NAME), 5)
                 task = SerializableTask()
                 task._ids = []
-                task._system = cells[0]
+                task._system = systemId
                 logInfo('{0} is extracting the knowledge components'.format(CSV_READER_SERVICE_NAME), 5)
-                kcCell = cells[14]
-                kcs = kcCell.split(self.PIPE_DELIMITER)
-                
-                while '' in kcs:#need to remove the empty kc cells.
-                    kcs.remove('')
-                
-                
-                logInfo('{0} is constructing the next serializable task object'.format(CSV_READER_SERVICE_NAME), 5)
-                task._kcs = kcs
-                
-                if cells[2] is not None or cells[2] != "":
-                    task._name = cells[1]
+                task._kcs = [a for a in kcCell.split(self.PIPE_DELIMITER) if a != '']
+
+                if not self.hasCellData(taskDisplayName):
+                    task._name = taskId
                 else:
-                    task._name = cells[2]
+                    task._name = taskDisplayName
                 
-                if cells[3] is not None or cells[3] != "":
-                    task._description = cells[3]
+                if self.hasCellData(description):
+                    task._description = description
                 else:
                     task._description = task._name
                 
-                task._ids.append(cells[1])
-                task._baseURL = cells[7]
+                task._ids.append(taskId)
+                task._baseURL = baseURL
                 
                 #if there is an assismentsItem associated with this task
-                if cells[15] is not None and cells[15] is not '':
+                if self.hasCellData(assistmentsItem):
                     assistmentsItem = SerializableAssistmentsItem()
-                    assistmentsItem._itemID = cells[15]
-                    assistmentsItem._problemSetID = cells[16]
-                    assistmentsItem._problemSetName = cells[17]
+                    assistmentsItem._itemID = assistmentsItem
+                    assistmentsItem._problemSetID = assistmentsSetId
+                    assistmentsItem._problemSetName = assistmentsSetName
                     assistmentsItem._assignments = []
-                    
                     logInfo('{0} is checking for assistments data'.format(CSV_READER_SERVICE_NAME), 5)
-                    if cells[18] is not None and cells[18] is not '':
-                        assistmentsItem._assignments.append(cells[18])
-                    if cells[19] is not None and cells[19] is not '':
-                        assistmentsItem._assignments.append(cells[19])
-                    if cells[20] is not None and cells[20] is not '':
-                        assistmentsItem._assignments.append(cells[20])
-                    
+                    for colName in ASSISTMENTS_ASSIGN_COL_NAMES:
+                        colData = row.get(colName, '')
+                        if self.hasCellData(colData):
+                            assistmentsItem._assignments.append(colData)
                     task._assistmentsItem = assistmentsItem 
                 else:
-                    task._assistmentsItem = None 
+                    task._assistmentsItem = None
                 
                 #this could cause performance trouble so only use this log if you need to.
                 #logInfo('{0} constructed task: {1}'.format(CSV_READER_SERVICE_NAME, serializeObject(task)), 5)
                 logInfo('{0} constructed task with name: {1}'.format(CSV_READER_SERVICE_NAME, task._name), 5)
-                result.append(task)
-                
-                #make additional tasks to represent combined tasks
-                if task._assistmentsItem._problemSetID not in relatedTasks.keys():
-                    relatedTasks[task._assistmentsItem._problemSetID] = []
-                
-                relatedTasks[task._assistmentsItem._problemSetID].append(task)
+                if isEnabled:
+                    result.append(task)
+                    #make additional tasks to represent combined tasks
+                    if (task._assistmentsItem):
+                        if (task._assistmentsItem._problemSetID not in relatedTasks):
+                            relatedTasks[task._assistmentsItem._problemSetID] = []
+                        relatedTasks[task._assistmentsItem._problemSetID].append(task)
                     
         
         for key in relatedTasks.keys():
