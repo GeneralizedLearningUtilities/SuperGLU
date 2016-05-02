@@ -223,7 +223,7 @@ class HTTPMessagingGateway(MessagingGateway):
                 if sessionId:
                     self._socketio.emit(msgKey, {dataKey: msg, sessionKey: sessionId}, namespace=messagesNS, room=sessionId)
                 else:
-                    logWarning("ERROR: Could not find room %s (Message was: %s)"%(sessionId, msg))
+                    logWarning("Could not find room %s (Message was: %s)"%(sessionId, msg))
                 
 
 class BaseService(BaseMessagingNode):
