@@ -8,7 +8,7 @@ from SuperGLU.Services.StudentModel.PersistentData import SerializableTask, Seri
 from SuperGLU.Core.FIPA.SpeechActs import INFORM_ACT
 from SuperGLU.Util.ErrorHandling import logInfo
 from SuperGLU.Core.Messaging import Message
-from SuperGLU.Services.Authentication.UserDataService import VALUE_VERB
+from SuperGLU.Services.StorageService.Storage_Service_Interface import VALUE_VERB, STORAGE_SERVICE_NAME
 from SuperGLU.Util.Serialization import serializeObject
 from SuperGLU.Core.MessagingDB import ELECTRONIX_TUTOR_TASK_UPLOAD_VERB
 
@@ -32,16 +32,9 @@ class CSVReader (BaseService):
         
             if msg.getVerb() == ELECTRONIX_TUTOR_TASK_UPLOAD_VERB:
                 logInfo('{0} is processing a {1},{2} message'.format(CSV_READER_SERVICE_NAME, ELECTRONIX_TUTOR_TASK_UPLOAD_VERB, INFORM_ACT), 4)
-                
                 csvString = msg.getResult()
                 taskList = self.processCSVFile(csvString)
-                
-                reply = Message()
-                reply.setSpeechAct(INFORM_ACT)
-                reply.setVerb(VALUE_VERB)
-                reply.setObject(TASKS_OBJECT)
-                reply.setResult(taskList)    
-        
+                reply = Message(STORAGE_SERVICE_NAME, VALUE_VERB, TASKS_OBJECT, taskList)
         
         if reply is not None:
             logInfo('{0} is broadcasting a {1}, {2} message'.format(CSV_READER_SERVICE_NAME, INFORM_ACT, VALUE_VERB), 4)
