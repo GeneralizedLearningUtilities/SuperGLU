@@ -20,12 +20,12 @@ def initDerivedDataTables():
     DBClass.ensure_table()
     DBStudentModel.ensure_table()
     DBClassModel.ensure_table()
-    DBStudentAlias.ensure_table()
-   
+    DBStudentAlias.ensure_table()   
     DBKCTaskAssociations.ensure_table()
     DBAssistmentsItem.ensure_table()
-    DBLoggedMessage.ensure_table()
     DBClasssAlias.ensure_table()
+    DBLoggedMessage.ensure_table()
+    
 
 @DBObject(table_name="Systems")
 class DBSystem(object):
@@ -639,7 +639,7 @@ class DBClasssAlias:
     alias  = Field('')
     
     @Index
-    def AliasIndex(self):
+    def Alias2Index(self):
         return self.alias
     
     def getClass(self):
