@@ -10,6 +10,7 @@ from SuperGLU.Services.StudentModel.PersistentData import DBSession
 
 from gludb.simple import DBObject, Field, Index
 from gludb.config import default_database, Database
+from SuperGLU.Services.Authentication.UserDataService import VALUE_VERB
 
 @DBObject(table_name='IncomingMessages')
 class IncomingMessage(object):
@@ -55,7 +56,7 @@ class DBLoggingService(BaseLoggingService):
             #incomingMsg = DBLoggedMessage(actor=msg.getActor(), verb=msg.getVerb(), object=msg.getObject(), result=msg.getResult(), speechAct=msg.getSpeechAct(), context=msg.getContext(), timestamp=msg.getTimestamp())
             incomingMsg = DBLoggedMessage.convert(msg)
             incomingMsg.id = msg.getId()
-            if msg.getVerb() != "Dump Logs":
+            if msg.getVerb() != "Dump Logs" or msg.getVerb() != VALUE_VERB:
                 incomingMsg.save()
             if msg.getVerb() == COMPLETED_VERB:
                 #print(getKCsForUserAfterAGivenTime('p1', 'KC1',"2016-02-04T00:57:14.000Z"))
