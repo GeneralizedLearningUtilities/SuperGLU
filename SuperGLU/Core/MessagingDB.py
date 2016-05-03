@@ -114,14 +114,14 @@ class DBLoggedMessage(DBSerializable):
         return (self.actor, self.verb, self.object)
         
     @Index
-    def userIdIndex(self):
+    def userIdMIndex(self):
         context = nativizeObject(self.context)
         if USER_ID_CONTEXT_KEY in context:
             return context[USER_ID_CONTEXT_KEY]
         else:
             return None
     @Index
-    def taskIdIndex(self):
+    def taskIdMIndex(self):
         context = nativizeObject(self.context)
         if TASK_ID_CONTEXT_KEY in context:
             return context[TASK_ID_CONTEXT_KEY]
