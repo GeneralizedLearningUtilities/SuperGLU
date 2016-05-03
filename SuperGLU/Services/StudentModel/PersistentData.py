@@ -152,7 +152,6 @@ class DBAssistmentsItem(DBSerializable):
     
     def saveToDB(self):
         self.save()
-        return self.id
 
 class LearningTask(Serializable):
 
@@ -254,6 +253,8 @@ class LearningTask(Serializable):
         self._system = dbTask.system
         if dbTask.assistmentsItemCache is not None:
             self._assistmentsItem = dbTask.assistmentsItemCache.toSerializable()
+        else:
+            self._assistmentsItem = None
         self._description = dbTask.description
         self._canBeRecommendedIndividually = dbTask.canBeRecommendedIndividually
 
@@ -274,7 +275,7 @@ class DBTask(DBSerializable):
     displayName = Field('')
     kcs  = Field(list)
     baseURL  = Field('')
-    assistmentsItem = Field('')
+    assistmentsItemId = Field('')
     description = Field('')
     canBeRecommendedIndividually = Field(True)
     
@@ -294,15 +295,21 @@ class DBTask(DBSerializable):
             self.displayName = serializableDBTask._displayName
             self.kcs = serializableDBTask._kcs
             self.baseURL = serializableDBTask._baseURL
-            self.assistmentsItemCache = DBSerializable.convert(serializableDBTask._assistmentsItem)
+            if serializableDBTask._assistmentsItem is not None:
+                self.assistmentsItemCache = DBSerializable.convert(serializableDBTask._assistmentsItem)
+                self.assistmentsItemId = serializableDBTask._assistmentsItem.getId()
+            else:
+                self.assistmentsItemCache = None
+                self.assistmentsItemId = None
             self.description = serializableDBTask._description
             self.canBeRecommendedIndividually = serializableDBTask._canBeRecommendedIndividually
         return self
     
     def getAssistementsItem(self, useCachedValue=False):
         if not useCachedValue:
-            self.assistmentsItemCache = DBAssistmentsItem.find_one(self.assistmentsItem)
-        return self.assistmentsItemCache
+            return DBAssistmentsItem.find_one(self.assistmentsItemId)
+        else:
+            return self.assistmentsItemCache
     
     def __repr__(self):
         return str(self.ids) + "|" + self.name + "|" + str(self.kcs) + "|" + self.baseURL
@@ -313,7 +320,7 @@ class DBTask(DBSerializable):
     
     def toSerializable(self):
         if self.assistmentsItemCache is None:
-            self.getAssistementsItem()   
+            self.assistmentsItemCache = self.getAssistementsItem()   
         result = LearningTask()
         result.initializeFromDBTask(self)
         return result
@@ -328,8 +335,10 @@ class DBTask(DBSerializable):
         
         if existingTask is None:
             logInfo("task with name {0} does not yet exist".format(self.name), 3)
-            self.assistmentsItem = self.assistmentsItemCache.saveToDB()
-            logInfo("assistmentsItemId = {0}".format(self.assistmentsItem), 6)
+            if self.assistmentsItemCache:
+                self.assistmentsItemCache.saveToDB()
+                self.assistmentsItemId = assistmentsItemCache.id
+            logInfo("assistmentsItemId = {0}".format(self.assistmentsItemId), 6)
             logInfo("assistmentsItemcacheValue4 = {0}".format(self.assistmentsItemCache), 6)
             self.save()
             for kc in self.kcs:#TODO: figure out what tod do with these
@@ -348,11 +357,13 @@ class DBTask(DBSerializable):
             existingTask.description = self.description
             existingTask.canBeRecommendedIndividually = self.canBeRecommendedIndividually
             
-            self.assistmentsItemCache.id = existingTask.assistmentsItem
+            self.assistmentsItemCache.id = existingTask.assistmentsItemId
             existingTask.assistmentsItemCache = self.assistmentsItemCache
-            existingTask.assistmentsItem = existingTask.assistmentsItemCache.saveToDB()
+            if existingTask.assistmentsItemCache:
+                existingTask.assistmentsItemCache.saveToDB()
+            existingTask.assistmentsItemId = existingTask.assistmentsItemCache.id
             logInfo("assistmentsItemcacheValue3 = {0}".format(existingTask.assistmentsItemCache), 6)
-            logInfo("assistmentsItemId = {0}".format(existingTask.assistmentsItem), 6)
+            logInfo("assistmentsItemId = {0}".format(existingTask.assistmentsItemId), 6)
             existingTask.save()
             
         return self.id

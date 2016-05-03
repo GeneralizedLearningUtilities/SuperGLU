@@ -120,12 +120,12 @@ class CSVReader (BaseService):
                     assistmentsItem._problemSetId = assistmentsSetId
                     assistmentsItem._problemSetName = assistmentsSetName
                     assistmentsItem._assignments = []
-                    # logInfo('{0} is checking for assistments data'.format(CSV_READER_SERVICE_NAME), 5)
+                    logInfo('{0} is checking for assistments data'.format(CSV_READER_SERVICE_NAME), 5)
                     for colName in ASSISTMENTS_ASSIGN_COL_NAMES:
                         colData = row.get(colName, '')
                         if self.hasCellData(colData):
                             assistmentsItem._assignments.append(colData)
-                    task._assistmentsItem = assistmentsItem 
+                    task._assistmentsItem = assistmentsItem
                 else:
                     task._assistmentsItem = None
                 

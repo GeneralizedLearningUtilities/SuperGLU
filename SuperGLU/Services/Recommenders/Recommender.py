@@ -19,26 +19,24 @@ RECOMMENDER_SERVICE_NAME = "Recommender"
 class Recommender(DBBridge):
     
     def calcMaxMasteryGain(self, task, studentModel):
-        
         if studentModel is not None:
             total = 0.0
             for kc in task._kcs:
                 taskMastery = 0.0
                 if kc in studentModel.kcMastery.keys():
                     taskMastery = studentModel.kcMastery[kc]
-                total += 1 - taskMastery
+                total += 1.0 - taskMastery
                 
             if len(task._kcs) > 0:
                 #really wish I didn't have to do this, but math is math
                 result = total / len(task._kcs)
             else:
-                #what should we do if a task has no knowledge components associated with it?
+                # No KC's so no possible gain.
                 result = 0.0
-                
             return result
         else:
-            #if no student model exists then set all task mastery to  zero
-            return 0.0
+            #if no student model exists then mastery all zero, so max gain possible
+            return 1.0
             
     # TODO: This isn't weighted properly, instead is excluding repeats
     def checkNovelty(self, studentId, taskList):
@@ -55,17 +53,14 @@ class Recommender(DBBridge):
             taskList.remove(taskToRemove) 
         return taskList
     
-    
     #remove erroneous entries from task list.
     #this isn't strictly necessary, but it guards against a corrupted database.
     def validateTasks(self, taskList):
         print("TASK LIST:" + str(taskList))
         validTasks = []
-        
         for task in taskList:
             if len(task._aliasIds) > 0:
                 validTasks.append(task)
-        
         return validTasks
     
     def findAssignmentNumber(self, task, sessions):
@@ -73,8 +68,7 @@ class Recommender(DBBridge):
         for session in sessions:
             if task.name == session.getTask().name:
                 possibleTaskNumber = session.assignmentNumber
-                
-        return possibleTaskNumber + 1;
+        return possibleTaskNumber + 1
     
     def getRecommendedTasks(self, studentId, studentModel, numberOfTasksRequested):
         print("MAKING RECOMMENDATIONS")
@@ -82,7 +76,6 @@ class Recommender(DBBridge):
         
         dbtaskList = DBTask.find_all()
         taskList = [x.toSerializable() for x in dbtaskList]
-        
         taskList = self.validateTasks(taskList)
         taskList = self.checkNovelty(studentId, taskList)
                 
@@ -92,17 +85,18 @@ class Recommender(DBBridge):
         sortedTaskMastery = sorted(taskMastery, key=lambda taskMastery : taskMastery[0], reverse=True)
         
         #logInfo("sortedTaskMastery={0}".format(sortedTaskMastery), 6)
-        
-        result = sortedTaskMastery[0:numberOfTasksRequested]
-        
+        result = sortedTaskMastery
+        print("RESULT: " + str(len(result)))
         student = self.retrieveStudentFromCacheOrDB(studentId, None, False)
         sessions = student.getSessions(False)
-        
-        for task in result:
-            if task[1]._assistmentsItem is not None:
-                task[1]._assistmentsItem._assignmentNumber = self.findAssignmentNumber(task, sessions)
+        for gain, task in result:
+            if task._assistmentsItem is not None:
+                task._assistmentsItem._assignmentNumber = self.findAssignmentNumber(task, sessions)
             print("TASK: " + str(task))
-        result = [task for gain, task in result if task._assistmentsItem.getActiveAssignmentURL()]
+            print(str(task._assistmentsItem))
+        result = [task for gain, task in result if task._assistmentsItem is not None and
+                      task._assistmentsItem.getActiveAssignmentURL() is not None]
+        result = result[0:numberOfTasksRequested]
         print("RESULT:" + str(result))
         return result
     
