@@ -6,6 +6,7 @@ from SuperGLU.Util.Serialization import Serializable, tokenizeObject, untokenize
 from SuperGLU.Services.QueryService.Queries import getKCsForAGivenUserAndTask, getAllHintsForSingleUserAndTask, getAllFeedbackForSingleUserAndTask
 from SuperGLU.Util.ErrorHandling import logInfo
 from SuperGLU.Util.SerializationGLUDB import DBSerializable, GLUDB_BRIDGE_NAME
+from SuperGLU.Core.MessagingDB import DBLoggedMessage
 """
 This module contains secondary database objects that contain data derived from the logged messages
 """
@@ -20,9 +21,11 @@ def initDerivedDataTables():
     DBStudentModel.ensure_table()
     DBClassModel.ensure_table()
     DBStudentAlias.ensure_table()
-    DBClasssAlias.ensure_table()
+   
     DBKCTaskAssociations.ensure_table()
     DBAssistmentsItem.ensure_table()
+    DBLoggedMessage.ensure_table()
+    DBClasssAlias.ensure_table()
 
 @DBObject(table_name="Systems")
 class DBSystem(object):
