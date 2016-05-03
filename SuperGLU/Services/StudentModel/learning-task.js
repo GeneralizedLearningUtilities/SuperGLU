@@ -27,7 +27,8 @@ if (typeof SuperGLU === "undefined"){
 
 (function(namespace, undefined) {
 // External Modules
-var Serialization = SuperGLU.Serialization,
+var Zet = SuperGLU.Zet,
+    Serialization = SuperGLU.Serialization,
     tokenizeObject = Serialization.tokenizeObject,
     untokenizeObject = Serialization.untokenizeObject;
 
@@ -41,31 +42,19 @@ var TASK_ID_KEY = "taskId",
     ASSISTMENTS_ITEM_KEY = "assistmentsItem",
     DESCRIPTION_KEY = "description",
     CAN_BE_RECOMMENDED_INDIVIDUALLY_KEY = "canBeRecommendedIndividually",
-    SUBTASKS_KEY ="subtasks";
-    
+    SUBTASKS_KEY ="subtasks",
+    // ASSISTments Storage Keys
+    ASSISTMENTS_ITEM_ID_KEY = "itemId",
+    PROBLEM_SET_ID_KEY = "problemSetId",
+    PROBLEM_SET_NAME_KEY = "problemSetName",
+    ASSIGNMENTS_KEY = "assignments",
+    ASSIGNMENT_NUMBER_KEY = "assignmentNumber";
  
 /** Learning Task Data, for linking to a task **/
 Zet.declare('LearningTask', {
     superclass : Serialization.Serializable,
     defineBody : function(self){
 		// Public Properties
-
-        /** Initialize the heartbeat service 
-            @param gateway: The parent gateway for this service
-            @type gateway: Messaging_Gateway.MessagingGateway
-            @param userId: Unique ID for the user
-            @type userId: uuid string
-            @param classroomId: Unique ID for the classroom cohort (optional). Leave as null if unknown.
-            @type classroomId: uuid string
-            @param taskId: Unique ID for the task being performed.
-            @type taskId: uuid string
-            @param url: The current base URL for the task that is being performed. This should not include situational parameters like the user id.
-            @type url: url string
-            @param activityType: The type of activity. This should be a unique system UUID (e.g., "AutoTutor_asdf2332gsa" or "www.autotutor.com/asdf2332gsa"). This ID should be the same for all activities presented by this system, since it will be used to query their results.
-            @type activityType: uuid string
-            @param id: The UUID for this service. If left blank, this will use a random UUID (recommended).
-            @type id: string
-        **/
         self.construct = function construct(taskId, aliasIds, name, displayName, description,
                                             system, subtasks, kcs, baseURL, assistmentsItem,
                                             canRecommendIndividually, anId){
@@ -94,14 +83,6 @@ Zet.declare('LearningTask', {
             self._canBeRecommendedIndividually = canRecommendIndividually;
 		};
         
-        /** Calculate the duration so far 
-            @param startTime: The start time to calculate the duration against. If blank, uses the default start time for this service.
-            @param startTime: Date
-            @param endTime: The end time to calculate the duration against. If blank, uses the current time.
-            @param endTime: Date
-            @returns: Duration since the start time (endTime-startTime), in seconds.
-            @rtype: float
-        **/
         self.saveToToken = function saveToToken(){
             var token = self.inherited(saveToToken, []);
             token.setitem(TASK_ID_KEY, tokenizeObject(self._taskId));
@@ -120,23 +101,73 @@ Zet.declare('LearningTask', {
         
         self.initializeFromToken = function initializeFromToken(token, context){
             self.inherited(initializeFromToken, [token, context]);
-            self._taskId = untokenizeObject(token.getitem(TASK_ID_KEY, true, null));
-			self._system = untokenizeObject(token.getitem(SYSTEM_KEY, true, null));
-            self._subtasks = untokenizeObject(token.getitem(SUBTASKS_KEY, true, []));
-            self._aliasIds = untokenizeObject(token.getitem(ALIAS_IDS_KEY, true, []));
-            self._name = untokenizeObject(token.getitem(NAME_KEY, true, null));
-            self._displayName = untokenizeObject(token.getitem(DISPLAY_NAME_KEY, true, null));
-            self._description = untokenizeObject(token.getitem(DESCRIPTION_KEY, true, null));
-            self._kcs = untokenizeObject(token.getitem(KCS_KEY, true, []));
-            self._baseURL = untokenizeObject(token.getitem(BASE_URL_KEY, true, null));
-            self._assistmentsItem = untokenizeObject(token.getitem(ASSISTMENTS_ITEM_KEY, true, null));
-            self._canBeRecommendedIndividually = untokenizeObject(token.getitem(CAN_BE_RECOMMENDED_INDIVIDUALLY_KEY, true, null));
+            self._taskId = untokenizeObject(token.getitem(TASK_ID_KEY, true, null), context);
+			self._system = untokenizeObject(token.getitem(SYSTEM_KEY, true, null), context);
+            self._subtasks = untokenizeObject(token.getitem(SUBTASKS_KEY, true, []), context);
+            self._aliasIds = untokenizeObject(token.getitem(ALIAS_IDS_KEY, true, []), context);
+            self._name = untokenizeObject(token.getitem(NAME_KEY, true, null), context);
+            self._displayName = untokenizeObject(token.getitem(DISPLAY_NAME_KEY, true, null), context);
+            self._description = untokenizeObject(token.getitem(DESCRIPTION_KEY, true, null), context);
+            self._kcs = untokenizeObject(token.getitem(KCS_KEY, true, []), context);
+            self._baseURL = untokenizeObject(token.getitem(BASE_URL_KEY, true, null), context);
+            self._assistmentsItem = untokenizeObject(token.getitem(ASSISTMENTS_ITEM_KEY, true, null), context);
+            self._canBeRecommendedIndividually = untokenizeObject(token.getitem(CAN_BE_RECOMMENDED_INDIVIDUALLY_KEY, true, null), context);
+        };
+    }
+});
+
+
+/** ASSISTments Learning Task Linkages **/
+Zet.declare('SerializableAssistmentsItem', {
+    superclass : Serialization.Serializable,
+    defineBody : function(self){
+		// Public Properties
+        self.construct = function construct(itemId, problemSetId, problemSetName, assignments, 
+                                            assignmentNumber, anId){
+            self.inherited(construct, [anId]);
+            if (itemId == null){itemId = null;}
+            if (problemSetId == null){problemSetId = null;}
+            if (problemSetName == null){problemSetName = null;}
+            if (assignments == null){assignments = [];}
+            if (assignmentNumber == null){assignmentNumber = null;}
+            self._itemId = itemId;
+            self._problemSetId = problemSetId;
+            self._problemSetName = problemSetName;
+            self._assignments = assignments;
+            self._assignmentNumber = assignmentNumber;
+		};
+        
+        self.getActiveAssignmentURL = function getActiveAssignmentURL(){
+            if (self._assignmentNumber < self._assignments.length){
+                return self._assignments[self._assignmentNumber];
+            }
+            return null;
+        };
+
+        self.saveToToken = function saveToToken(){
+            var token = self.inherited(saveToToken, []);
+            token.setitem(ASSIGNMENT_NUMBER_KEY, tokenizeObject(self._assignmentNumber));
+            token.setitem(ASSISTMENTS_ITEM_ID_KEY, tokenizeObject(self._itemId));
+            token.setitem(PROBLEM_SET_ID_KEY, tokenizeObject(self._problemSetId));
+            token.setitem(PROBLEM_SET_NAME_KEY, tokenizeObject(self._problemSetName));
+            token.setitem(ASSIGNMENTS_KEY, tokenizeObject(self._assignments));
+            return token;
+        };
+        
+        self.initializeFromToken = function initializeFromToken(token, context){
+            self.inherited(initializeFromToken, [token, context]);
+            self._assignmentNumber = untokenizeObject(token.getitem(ASSIGNMENT_NUMBER_KEY, true, null), context);
+			self._itemId = untokenizeObject(token.getitem(ASSISTMENTS_ITEM_ID_KEY, true, null), context);
+            self._problemSetId = untokenizeObject(token.getitem(PROBLEM_SET_ID_KEY, true, null), context);
+            self._problemSetName = untokenizeObject(token.getitem(PROBLEM_SET_NAME_KEY, true, null), context);
+            self._assignments = untokenizeObject(token.getitem(ASSIGNMENTS_KEY, true, []), context);
         };
     }
 });
 
 // Classes
 namespace.LearningTask = LearningTask;
+namespace.SerializableAssistmentsItem = SerializableAssistmentsItem;
 
 SuperGLU.LearningTask = namespace;
 })(window.LearningTask = window.LearningTask || {});

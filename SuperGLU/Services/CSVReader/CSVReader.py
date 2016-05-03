@@ -91,29 +91,33 @@ class CSVReader (BaseService):
                 # Create the Task
                 # logInfo('{0} is constructing the next serializable task object'.format(CSV_READER_SERVICE_NAME), 5)
                 task = LearningTask()
-                task._ids = []
+                task._aliasIds = []
                 task._system = systemId
                 # logInfo('{0} is extracting the knowledge components'.format(CSV_READER_SERVICE_NAME), 5)
                 task._kcs = [a for a in kcCell.split(self.PIPE_DELIMITER) if a != '']
 
+                task._taskId = taskId
+                task._name = taskDisplayName
                 if not self.hasCellData(taskDisplayName):
-                    task._name = taskId
-                else:
-                    task._name = taskDisplayName
+                    task._name = task._taskId
+                elif not self.hasCellData(taskId):
+                    task._taskId = taskId
+
+                task._displayName = taskDisplayName  
                 
                 if self.hasCellData(description):
                     task._description = description
                 else:
                     task._description = task._name
                 
-                task._ids.append(taskId)
+                task._aliasIds.append(taskId)
                 task._baseURL = baseURL
                 
                 #if there is an assismentsItem associated with this task
                 if self.hasCellData(assistmentsItemId):
                     assistmentsItem = SerializableAssistmentsItem()
-                    assistmentsItem._itemID = assistmentsItemId
-                    assistmentsItem._problemSetID = assistmentsSetId
+                    assistmentsItem._itemId = assistmentsItemId
+                    assistmentsItem._problemSetId = assistmentsSetId
                     assistmentsItem._problemSetName = assistmentsSetName
                     assistmentsItem._assignments = []
                     # logInfo('{0} is checking for assistments data'.format(CSV_READER_SERVICE_NAME), 5)
@@ -132,9 +136,9 @@ class CSVReader (BaseService):
                     result.append(task)
                     #make additional tasks to represent combined tasks
                     if (task._assistmentsItem):
-                        if (task._assistmentsItem._problemSetID not in relatedTasks):
-                            relatedTasks[task._assistmentsItem._problemSetID] = []
-                        relatedTasks[task._assistmentsItem._problemSetID].append(task)
+                        if (task._assistmentsItem._problemSetId not in relatedTasks):
+                            relatedTasks[task._assistmentsItem._problemSetId] = []
+                        relatedTasks[task._assistmentsItem._problemSetId].append(task)
                     
         
         for key in relatedTasks.keys():
@@ -166,10 +170,10 @@ class CSVReader (BaseService):
                         collectedTask._baseURL = relatedTask._baseURL
                     if not collectedTask._description:
                         collectedTask._description = relatedTask._description
-                    if not collectedAssistmentsItem._itemID:
-                        collectedAssistmentsItem._itemID = relatedTask._assistmentsItem._itemID
-                    if not collectedAssistmentsItem._problemSetID:
-                        collectedAssistmentsItem._problemSetID = relatedTask._assistmentsItem._problemSetID
+                    if not collectedAssistmentsItem._itemId:
+                        collectedAssistmentsItem._itemId = relatedTask._assistmentsItem._itemId
+                    if not collectedAssistmentsItem._problemSetId:
+                        collectedAssistmentsItem._problemSetId = relatedTask._assistmentsItem._problemSetId
                     if not collectedAssistmentsItem._problemSetName:
                         collectedAssistmentsItem._problemSetName = relatedTask._assistmentsItem._problemSetName 
                     # Add all the data

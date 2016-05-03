@@ -18,7 +18,7 @@ RECOMMENDER_SERVICE_NAME = "Recommender"
 
 class Recommender(DBBridge):
     
-    def calculateMasteryOfTask(self, task, studentModel):
+    def calcMaxMasteryGain(self, task, studentModel):
         
         if studentModel is not None:
             total = 0.0
@@ -40,23 +40,19 @@ class Recommender(DBBridge):
             #if no student model exists then set all task mastery to  zero
             return 0.0
             
-    
+    # TODO: This isn't weighted properly, instead is excluding repeats
     def checkNovelty(self, studentId, taskList):
         student = self.retrieveStudentFromCacheOrDB(studentId, None, False)
-        
         tasksToRemove = []
-        
         if len(student.sessionIds) > 0:
             sessions = student.getSessions(False)
             for task in taskList:
                 for session in sessions:
-                    if session.task is not None and session.task.name == task.name:#add more conditions to allow us to recommend the same task twice
+                    #add more conditions to allow us to recommend the same task twice
+                    if session.task is not None and session.task.name == task.name:
                         tasksToRemove.append(task)
-            
-        
         for taskToRemove in tasksToRemove:
-            taskList.remove(taskToRemove)
-            
+            taskList.remove(taskToRemove) 
         return taskList
     
     
@@ -67,7 +63,7 @@ class Recommender(DBBridge):
         validTasks = []
         
         for task in taskList:
-            if len(task._ids) > 0:
+            if len(task._aliasIds) > 0:
                 validTasks.append(task)
         
         return validTasks
@@ -91,7 +87,7 @@ class Recommender(DBBridge):
         taskList = self.checkNovelty(studentId, taskList)
                 
         for task in taskList:
-            taskMastery.append((self.calculateMasteryOfTask(task, studentModel), task))
+            taskMastery.append((self.calcMaxMasteryGain(task, studentModel), task))
             
         sortedTaskMastery = sorted(taskMastery, key=lambda taskMastery : taskMastery[0], reverse=True)
         
@@ -106,6 +102,7 @@ class Recommender(DBBridge):
             if task[1]._assistmentsItem is not None:
                 task[1]._assistmentsItem._assignmentNumber = self.findAssignmentNumber(task, sessions)
             print("TASK: " + str(task))
+        result = [task for gain, task in result if task._assistmentsItem.getActiveAssignmentURL()]
         print("RESULT:" + str(result))
         return result
     

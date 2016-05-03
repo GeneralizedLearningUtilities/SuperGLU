@@ -97,7 +97,7 @@ Zet.declare('StandardITSLoggingService', {
     defineBody : function(self){
 		// Public Properties
 
-        /** Initialize the heartbeat service 
+        /** Initialize the standard ITS logger service
             @param gateway: The parent gateway for this service
             @type gateway: Messaging_Gateway.MessagingGateway
             @param userId: Unique ID for the user

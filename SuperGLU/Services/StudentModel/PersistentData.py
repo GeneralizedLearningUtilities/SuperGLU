@@ -62,26 +62,38 @@ class DBSystem(object):
 class SerializableAssistmentsItem(Serializable):
     
     #Keys
-    ITEM_ID_KEY = 'itemID'
-    PROBLEM_SET_ID_KEY = 'problemSetID'
+    ITEM_ID_KEY = 'itemId'
+    PROBLEM_SET_ID_KEY = 'problemSetId'
     PROBLEM_SET_NAME_KEY = 'problemSetName'
     ASSIGNMENTS_KEY = 'assignments'
     ASSIGNMENT_NUMBER_KEY = "assignmentNumber"
-    
-    _itemID = None
-    _problemSetID = None
-    _problemSetName = None
-    _assignments = [] #list of tuples containing id, name, baseURL
-    _assignmentNumber = None
+
+    def __init__(self, itemId=None, problemSetId=None, problemSetName=None,
+                 assignments=None, assignmentNumber=None, anId=None):
+        super(SerializableAssistmentsItem, self).__init__(anId)
+        if assignments is None: assignments = []
+        self._itemId = itemId
+        self._problemSetId = problemSetId
+        self._problemSetName = problemSetName
+        self._assignmentNumber = assignmentNumber
+        #list of tuples containing id, name, url
+        self._assignments = assignments
+
+    def getActiveAssignmentURL(self):
+        if (self._assignmentNumber < len(self._assignments) and
+            len(self._assignments[self._assignmentNumber]) >= 3):
+            return self._assignments[self._assignmentNumber][2]
+        else:
+            return None
 
     def saveToToken(self):
         token = super(SerializableAssistmentsItem, self).saveToToken()
         if self._assignmentNumber is not None:
             token[self.ASSIGNMENT_NUMBER_KEY] = tokenizeObject(self._assignmentNumber)
-        if self._itemID is not None:
-            token[self.ITEM_ID_KEY] = tokenizeObject(self._itemID)
-        if self._problemSetID is not None:
-            token[self.PROBLEM_SET_ID_KEY] = tokenizeObject(self._problemSetID)
+        if self._itemId is not None:
+            token[self.ITEM_ID_KEY] = tokenizeObject(self._itemId)
+        if self._problemSetId is not None:
+            token[self.PROBLEM_SET_ID_KEY] = tokenizeObject(self._problemSetId)
         if self._problemSetName is not None:
             token[self.PROBLEM_SET_NAME_KEY] = tokenizeObject(self._problemSetName)
         if self._assignments is not None:
@@ -90,14 +102,14 @@ class SerializableAssistmentsItem(Serializable):
     
     def initializeFromToken(self, token, context=None):
         super(SerializableAssistmentsItem, self).initializeFromToken(token, context)
-        self._assignmentNumber = untokenizeObject(token.get(self.ASSIGNMENT_NUMBER_KEY), None)
-        self._itemID = untokenizeObject(token.get(self.ITEM_ID_KEY, None))
-        self._problemSetID = untokenizeObject(token.get(self.PROBLEM_SET_ID_KEY, None))
-        self._problemSetName = untokenizeObject(token.get(self.PROBLEM_SET_NAME_KEY, None))
-        self._assignments = untokenizeObject(token.get(self.ASSIGNMENTS_KEY, []))
+        self._assignmentNumber = untokenizeObject(token.get(self.ASSIGNMENT_NUMBER_KEY, None), context)
+        self._itemId = untokenizeObject(token.get(self.ITEM_ID_KEY, None), context)
+        self._problemSetId = untokenizeObject(token.get(self.PROBLEM_SET_ID_KEY, None), context)
+        self._problemSetName = untokenizeObject(token.get(self.PROBLEM_SET_NAME_KEY, None), context)
+        self._assignments = untokenizeObject(token.get(self.ASSIGNMENTS_KEY, []), context)
 
     def __repr__(self):
-        return self._itemID + "|||" + self._problemSetID + "|||" + self._problemSetName + "|||" + str(self._assignments) + "|||" + str(self._assignmentNumber)
+        return self._itemId + "|||" + self._problemSetId + "|||" + self._problemSetName + "|||" + str(self._assignments) + "|||" + str(self._assignmentNumber)
 
 @DBObject(table_name="AssistmentsAssignmentItems")
 class DBAssistmentsItem(DBSerializable):
@@ -105,20 +117,20 @@ class DBAssistmentsItem(DBSerializable):
     BRIDGE_NAME = GLUDB_BRIDGE_NAME
     SOURCE_CLASS = SerializableAssistmentsItem
     
-    _itemID = Field('')
-    _problemSetID = Field('')
+    _itemId = Field('')
+    _problemSetId = Field('')
     _problemSetName = Field('')
     _assignments = Field(list) #list of tuples containing id, name, baseURL
     
     
     @Index
     def itemIdIndex(self):
-        return self._itemID
+        return self._itemId
     
     def create(self, serializableDBAssismentsAssignment = None):
         if serializableDBAssismentsAssignment is not None:
-            self._itemID = serializableDBAssismentsAssignment._itemID
-            self._problemSetID = serializableDBAssismentsAssignment._problemSetID
+            self._itemId = serializableDBAssismentsAssignment._itemId
+            self._problemSetId = serializableDBAssismentsAssignment._problemSetId
             self._problemSetName = serializableDBAssismentsAssignment._problemSetName
             self._assignments = serializableDBAssismentsAssignment._assignments
             
@@ -126,13 +138,13 @@ class DBAssistmentsItem(DBSerializable):
     
     
     def __repr__(self):
-        return self._itemID + "|||" + self._problemSetID + "|||" + self._problemSetName + "|||" + str(self._assignments)
+        return self._itemId + "|||" + self._problemSetId + "|||" + self._problemSetName + "|||" + str(self._assignments)
         
     def toSerializable(self):
         result = SerializableAssistmentsItem()
         
-        result._itemID = self._itemID
-        result._problemSetID = self._problemSetID
+        result._itemId = self._itemId
+        result._problemSetId = self._problemSetId
         result._problemSetName = self._problemSetName
         result._assignments = self._assignments 
         
@@ -186,7 +198,7 @@ class LearningTask(Serializable):
             token[self.NAME_KEY] = tokenizeObject(self._name)
         if self._displayName is not None:
             token[self.DISPLAY_NAME_KEY] = tokenizeObject(self._displayName)
-         if self._system is not None:
+        if self._system is not None:
             token[self.SYSTEM_KEY] = tokenizeObject(self._system)
         if self._subtasks is not []:
             token[self.SUBTASKS_KEY] = tokenizeObject(self._subtasks)
@@ -204,17 +216,17 @@ class LearningTask(Serializable):
     
     def initializeFromToken(self, token, context=None):
         super(LearningTask, self).initializeFromToken(token, context)
-        self._taskId = untokenizeObject(token.get(self.TASK_ID_KEY, None))
-        self._aliasIds = untokenizeObject(token.get(self.ALIAS_IDS_KEY, []))
+        self._taskId = untokenizeObject(token.get(self.TASK_ID_KEY, None), context)
+        self._aliasIds = untokenizeObject(token.get(self.ALIAS_IDS_KEY, []), context)
         self._name = untokenizeObject(token.get(self.NAME_KEY, None))
-        self._displayName = untokenizeObject(token.get(self.DISPLAY_NAME_KEY, None))
-        self._description = untokenizeObject(token.get(self.DESCRIPTION_KEY), None)
-        self._system = untokenizeObject(token.get(self.SYSTEM_KEY), None)
-        self._subtasks = untokenizeObject(token.get(self.SUBTASKS_KEY, []))
-        self._kcs = untokenizeObject(token.get(self.KCS_KEY, []))
-        self._baseURL = untokenizeObject(token.get(self.BASE_URL_KEY, None))
-        self._assistmentsItem = untokenizeObject(token.get(self.ASSISTMENTS_ITEM_KEY), None)
-        self._canBeRecommendedIndividually = untokenizeObject(token.get(self.CAN_BE_RECOMMENDED_INDIVIDUALLY_KEY), True)
+        self._displayName = untokenizeObject(token.get(self.DISPLAY_NAME_KEY, None), context)
+        self._description = untokenizeObject(token.get(self.DESCRIPTION_KEY, None), context)
+        self._system = untokenizeObject(token.get(self.SYSTEM_KEY, None), context)
+        self._subtasks = untokenizeObject(token.get(self.SUBTASKS_KEY, []), context)
+        self._kcs = untokenizeObject(token.get(self.KCS_KEY, []), context)
+        self._baseURL = untokenizeObject(token.get(self.BASE_URL_KEY, None), context)
+        self._assistmentsItem = untokenizeObject(token.get(self.ASSISTMENTS_ITEM_KEY, None), context)
+        self._canBeRecommendedIndividually = untokenizeObject(token.get(self.CAN_BE_RECOMMENDED_INDIVIDUALLY_KEY, True), context)
     
     def toDB(self):
         result = DBTask()
@@ -245,9 +257,9 @@ class LearningTask(Serializable):
         self._description = dbTask.description
         self._canBeRecommendedIndividually = dbTask.canBeRecommendedIndividually
 
-        # TODO: Figure out why we need this as such, rather than __str__?
+    # TODO: Figure out why we need this as such, rather than __str__?
     def __repr__(self):
-        return "taskID:{0}|ids:{1}|subtasks:{2}|name:{3}|kcs:{4}|baseURL:{5}|assistmentItem:{6}|description:{7}|individualRecommend:{8}|displayName:{9}".format(
+        return "taskId:{0}|ids:{1}|subtasks:{2}|name:{3}|kcs:{4}|baseURL:{5}|assistmentItem:{6}|description:{7}|individualRecommend:{8}|displayName:{9}".format(
             self._taskId, self._aliasIds, self._subtasks, self._name, self._kcs, self._baseURL,
             self._assistmentsItem, self._description, self._canBeRecommendedIndividually, self._displayName)
                  
@@ -295,7 +307,6 @@ class DBTask(DBSerializable):
     def __repr__(self):
         return str(self.ids) + "|" + self.name + "|" + str(self.kcs) + "|" + self.baseURL
     
-    
     @Index
     def nameIndex(self):
         return self.name
@@ -308,9 +319,7 @@ class DBTask(DBSerializable):
         return result
     
     def saveToDB(self):
-        
         existingTasksWithSameName = DBTask.find_by_index('nameIndex', self.name)
-        
         existingTask = None
         logInfo("assistmentsItemcacheValue2 = {0}".format(self.assistmentsItemCache), 6)
         for possibleExistingTask in existingTasksWithSameName:
@@ -320,13 +329,13 @@ class DBTask(DBSerializable):
         if existingTask is None:
             logInfo("task with name {0} does not yet exist".format(self.name), 3)
             self.assistmentsItem = self.assistmentsItemCache.saveToDB()
-            logInfo("assistmentsItemID = {0}".format(self.assistmentsItem), 6)
+            logInfo("assistmentsItemId = {0}".format(self.assistmentsItem), 6)
             logInfo("assistmentsItemcacheValue4 = {0}".format(self.assistmentsItemCache), 6)
             self.save()
             for kc in self.kcs:#TODO: figure out what tod do with these
                 alias = DBKCTaskAssociations()
                 alias.kc = kc
-                alias.taskID = self.id
+                alias.taskId = self.id
                 alias.save()
                 
         else:
@@ -343,7 +352,7 @@ class DBTask(DBSerializable):
             existingTask.assistmentsItemCache = self.assistmentsItemCache
             existingTask.assistmentsItem = existingTask.assistmentsItemCache.saveToDB()
             logInfo("assistmentsItemcacheValue3 = {0}".format(existingTask.assistmentsItemCache), 6)
-            logInfo("assistmentsItemID = {0}".format(existingTask.assistmentsItem), 6)
+            logInfo("assistmentsItemId = {0}".format(existingTask.assistmentsItem), 6)
             existingTask.save()
             
         return self.id
@@ -352,15 +361,15 @@ class DBTask(DBSerializable):
 @DBObject(table_name="KC_TaskAssociations")
 class DBKCTaskAssociations(object):
     kc = Field('')
-    taskID = Field('')
+    taskId = Field('')
     
     @Index
     def kcIndex(self):
         return self.kc
     
     @Index
-    def taskIDIndex(self):
-        return self.taskID
+    def taskIdIndex(self):
+        return self.taskId
         
         
 @DBObject(table_name="Topics")
@@ -515,7 +524,7 @@ class DBStudent (object):
     studentModelCache = {}
     
     @Index
-    def StudentIDIndex(self):
+    def StudentIdIndex(self):
         return self.studentId
     
     def getSessions(self, useCachedValue):
