@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
-import time
 import json
+import time
+import traceback
 from queue import Queue
 from SuperGLU.Core.FIPA.SpeechActs import REQUEST_WHENEVER_ACT
 from SuperGLU.Core.Messaging import Message
@@ -24,7 +25,9 @@ class BaseMessagingNode(Serializable):
         self._requests = {}
 
     def sendMessage(self, msg):
+        print("%s sending %s"%(self.__class__.__name__, msg))
         if self._gateway is not None:
+            print("Actually sent it.")
             self._gateway.dispatchMessage(msg, self.getId())
 
     def receiveMessage(self, msg):
@@ -115,8 +118,12 @@ class MessagingGateway(BaseMessagingNode):
         """ Send a message from a child node to parent and sibling nodes """
         self.addContextDataToMsg(msg)
         msg.setContextValue(ORIGINATING_SERVICE_ID_KEY, senderId)
+        logWarning("Message DISPATCH")
+        logWarning(msg)
         self.sendMessage(msg)
+        logWarning("Message DISPATCH SENT: %s"%(msg,))
         self._distributeMessage(self._nodes, msg, senderId)
+        logWarning("Message DISTRIBUTED: %s"%(msg,))
     
     def distributeMessage(self, msg, senderId=None):
         """ Pass a message down all interested children (except sender) """
@@ -173,10 +180,11 @@ class HTTPMessagingGateway(MessagingGateway):
     def receiveMessage(self, msg):
         """ Get message from a child and process/distribute it """
         super(HTTPMessagingGateway, self).receiveMessage(msg)
-        logWarning("message Received")
-        logWarning(msg)
+        logWarning("Message Received")
         self.queueAJAXMessage(msg)
+        logWarning("Message Distributing %s"%msg.getId())
         self.distributeMessage(msg)
+        logWarning("Message Distributed %s"%msg.getId())
 
     # Handling Websocket Communication
     def clearPendingAJAXMessages(self):
@@ -184,11 +192,15 @@ class HTTPMessagingGateway(MessagingGateway):
 
     def queueAJAXMessage(self, msg):
         #logWarning("QUEUE MSG", msg.saveToSerialized())
-        sessionId = msg.getContextValue(SESSION_KEY, None)
-        sid = msg.getContextValue("sid", None)
-        msg = serializeObject(msg)
-        self._messages.put((sid, sessionId, msg))
-        print ("message away")
+        try:
+            sessionId = msg.getContextValue(SESSION_KEY, None)
+            sid = msg.getContextValue("sid", None)
+            msg = serializeObject(msg)
+            self._messages.put((sid, sessionId, msg))
+            print ("AJAX message queued")
+        except Exception as err:
+            print("AJAX message failed to queue")
+            logError(err, stack=traceback.format_exc())
 
     def dequeueAJAXMessage(self):
         return self._messages.get()

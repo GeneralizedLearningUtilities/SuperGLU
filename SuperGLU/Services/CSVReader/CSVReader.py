@@ -6,7 +6,7 @@ This module is responsible for converting the tasks csv file to tasks objects an
 import csv
 import io
 from SuperGLU.Core.MessagingGateway import BaseService
-from SuperGLU.Services.StudentModel.PersistentData import SerializableTask, SerializableAssistmentsItem
+from SuperGLU.Services.StudentModel.PersistentData import LearningTask, SerializableAssistmentsItem
 from SuperGLU.Core.FIPA.SpeechActs import INFORM_ACT
 from SuperGLU.Util.ErrorHandling import logInfo
 from SuperGLU.Core.Messaging import Message
@@ -52,8 +52,8 @@ class CSVReader (BaseService):
                 logInfo('{0} is processing a {1},{2} message'.format(CSV_READER_SERVICE_NAME, ELECTRONIX_TUTOR_TASK_UPLOAD_VERB, INFORM_ACT), 4)
                 csvString = msg.getResult()
                 taskList = self.processCSVFile(csvString)
+                print("STORAGE SERVICE NAME: %s"%(STORAGE_SERVICE_NAME))
                 reply = Message(STORAGE_SERVICE_NAME, VALUE_VERB, TASKS_OBJECT, taskList)
-                print("# Tasks = %s"%(len(taskList,)))
         
         if reply is not None:
             logInfo('{0} is broadcasting a {1}, {2} message'.format(CSV_READER_SERVICE_NAME, INFORM_ACT, VALUE_VERB), 4)
@@ -64,8 +64,6 @@ class CSVReader (BaseService):
     
     def processCSVFile(self, csvString):
         #List of strings
-        logInfo('Entering CSVReader.processCSVFile', 4)
-        #lines = csvString.split(sep=self.LINE_DELIMITER)
         dictLines = csv.DictReader(io.StringIO(csvString))
         lines = [a for a in dictLines]
         
@@ -74,17 +72,13 @@ class CSVReader (BaseService):
         result = []
 
         for row in lines:
-            logInfo('{0} is splitting the line into cells'.format(CSV_READER_SERVICE_NAME), 5)
-            
-            logInfo(len(row), 6)
-
             # Extract Row Data
             systemId = row.get(SYSTEM_COL_NAME, '')
             taskId = row.get(TASK_ID_COL_NAME, '')
             taskDisplayName = row.get(TASK_DISPLAY_COL_NAME, '')
             description = row.get(DESCRIPTION_COL_NAME, '')
             baseURL = row.get(BASE_URL_COL_NAME, '')
-            assistmentsItem = row.get(ASSISTMENTS_PROB_ID_COL_NAME, '') 
+            assistmentsItemId = row.get(ASSISTMENTS_PROB_ID_COL_NAME, '') 
             assistmentsSetId = row.get(ASSISTMENTS_SET_ID_COL_NAME, '')
             assistmentsSetName = row.get(ASSISTMENTS_SET_NAME_COL_NAME, '')
             kcCell = row.get(KC_SET_COL_NAME, '')
@@ -95,11 +89,11 @@ class CSVReader (BaseService):
         
             if isEnabled and (self.hasCellData(taskId) or self.hasCellData(taskDisplayName)):
                 # Create the Task
-                logInfo('{0} is constructing the next serializable task object'.format(CSV_READER_SERVICE_NAME), 5)
-                task = SerializableTask()
+                # logInfo('{0} is constructing the next serializable task object'.format(CSV_READER_SERVICE_NAME), 5)
+                task = LearningTask()
                 task._ids = []
                 task._system = systemId
-                logInfo('{0} is extracting the knowledge components'.format(CSV_READER_SERVICE_NAME), 5)
+                # logInfo('{0} is extracting the knowledge components'.format(CSV_READER_SERVICE_NAME), 5)
                 task._kcs = [a for a in kcCell.split(self.PIPE_DELIMITER) if a != '']
 
                 if not self.hasCellData(taskDisplayName):
@@ -116,13 +110,13 @@ class CSVReader (BaseService):
                 task._baseURL = baseURL
                 
                 #if there is an assismentsItem associated with this task
-                if self.hasCellData(assistmentsItem):
+                if self.hasCellData(assistmentsItemId):
                     assistmentsItem = SerializableAssistmentsItem()
-                    assistmentsItem._itemID = assistmentsItem
+                    assistmentsItem._itemID = assistmentsItemId
                     assistmentsItem._problemSetID = assistmentsSetId
                     assistmentsItem._problemSetName = assistmentsSetName
                     assistmentsItem._assignments = []
-                    logInfo('{0} is checking for assistments data'.format(CSV_READER_SERVICE_NAME), 5)
+                    # logInfo('{0} is checking for assistments data'.format(CSV_READER_SERVICE_NAME), 5)
                     for colName in ASSISTMENTS_ASSIGN_COL_NAMES:
                         colData = row.get(colName, '')
                         if self.hasCellData(colData):
@@ -133,7 +127,7 @@ class CSVReader (BaseService):
                 
                 #this could cause performance trouble so only use this log if you need to.
                 #logInfo('{0} constructed task: {1}'.format(CSV_READER_SERVICE_NAME, serializeObject(task)), 5)
-                logInfo('{0} constructed task with name: {1}'.format(CSV_READER_SERVICE_NAME, task._name), 5)
+                # logInfo('{0} constructed task with name: {1}'.format(CSV_READER_SERVICE_NAME, task._name), 5)
                 if isEnabled:
                     result.append(task)
                     #make additional tasks to represent combined tasks
@@ -146,7 +140,7 @@ class CSVReader (BaseService):
         for key in relatedTasks.keys():
             relatedTaskList = relatedTasks[key]
             if len(relatedTaskList) > 1:
-                collectedTask = SerializableTask()
+                collectedTask = LearningTask()
 
                 collectedTask._ids = []
                 collectedTask._ids.append()#What's going on here?

@@ -67,7 +67,7 @@ class BaseStorageService(BaseService):
         #if ((msg.getActor() == STORAGE_SERVICE_NAME) and
         #    (msg.getContextValue(self.BUCKET_KEY, None) is not None) and
         #    (self.hasBucket(msg.getContextValue(self.BUCKET_KEY)))):
-        
+        print("STORAGE RECEIVED MESSAGE: %s"%(msg,))
         if (msg.getActor() == STORAGE_SERVICE_NAME):
             bucket = self.getBucket(msg.getContextValue(self.BUCKET_KEY))
             # Inform: Set some value(s)

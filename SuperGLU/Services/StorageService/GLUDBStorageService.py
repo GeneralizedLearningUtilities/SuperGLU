@@ -5,14 +5,11 @@ This storage service provides the functionality to manually store data
 '''
 
 from SuperGLU.Services.StorageService.Storage_Service_Interface import BaseStorageService
-from SuperGLU.Services.StudentModel.PersistentData import DBTask, SerializableTask
+from SuperGLU.Services.StudentModel.PersistentData import DBTask, LearningTask
 from SuperGLU.Util.ErrorHandling import logWarning, logInfo
 from SuperGLU.Util.Serialization import Serializable, NamedSerializable
 from SuperGLU.Util.SerializationGLUDB import DBSerializable,\
     JSONtoDBSerializable
-
-
-
 
 
 class GLUDBStorageService(BaseStorageService):

@@ -63,6 +63,7 @@ class Recommender(DBBridge):
     #remove erroneous entries from task list.
     #this isn't strictly necessary, but it guards against a corrupted database.
     def validateTasks(self, taskList):
+        print("TASK LIST:" + str(taskList))
         validTasks = []
         
         for task in taskList:

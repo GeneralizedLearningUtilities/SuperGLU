@@ -142,13 +142,14 @@ class DBAssistmentsItem(DBSerializable):
         self.save()
         return self.id
 
-class SerializableTask(Serializable):
+class LearningTask(Serializable):
 
     # Main Keys
     TASK_ID_KEY = "taskId"
     SYSTEM_KEY = "system"
-    IDS_KEY = "ids"
+    ALIAS_IDS_KEY = "aliasIds"
     NAME_KEY = "name"
+    DISPLAY_NAME_KEY = "displayName"
     KCS_KEY = "kcs"
     BASE_URL_KEY = "baseURL"
     ASSISTMENTS_ITEM_KEY = "assistmentsItem"
@@ -156,31 +157,39 @@ class SerializableTask(Serializable):
     CAN_BE_RECOMMENDED_INDIVIDUALLY_KEY = "canBeRecommendedIndividually"
     SUBTASKS_KEY ="subtasks"
 
-    
-    _taskId = None
-    _system = None
-    _subtasks = []
-    _ids = []
-    _name = None
-    _kcs = []
-    _baseURL = None
-    _assistmentsItem = None
-    _canBeRecommendedIndividually = True
-    _description = None
-    
+    def __init__(self, taskId=None, aliasIds=None, name=None, displayName=None, description=None,
+                 system=None, subtasks=None, kcs=None, baseURL=None, assistmentsItem=None,
+                 canRecommendIndividually = True, anId=None):
+        super(LearningTask, self).__init__(anId)
+        if aliasIds is None: aliasIds = []
+        if subtasks is None: subtasks = []
+        if kcs is None: kcs = []
+        self._taskId = taskId
+        self._aliasIds = aliasIds
+        self._name = name
+        self._displayName = displayName
+        self._description = description
+        self._system = system
+        self._subtasks = subtasks
+        self._kcs = kcs
+        self._baseURL = baseURL
+        self._assistmentsItem = assistmentsItem
+        self._canBeRecommendedIndividually = canRecommendIndividually
     
     def saveToToken(self):
-        token = super(SerializableTask, self).saveToToken()
+        token = super(LearningTask, self).saveToToken()
         if self._taskId is not None:
             token[self.TASK_ID_KEY] = tokenizeObject(self._taskId)
-        if self._system is not None:
-            token[self.SYSTEM_KEY] = tokenizeObject(self._system)
-        if self._ids is not None:
-            token[self.IDS_KEY] = tokenizeObject(self._ids)
-        if self._subtasks is not []:
-            token[self.SUBTASKS_KEY] = tokenizeObject(self._subtasks)
+        if self._aliasIds is not None:
+            token[self.ALIAS_IDS_KEY] = tokenizeObject(self._aliasIds)
         if self._name is not None:
             token[self.NAME_KEY] = tokenizeObject(self._name)
+        if self._displayName is not None:
+            token[self.DISPLAY_NAME_KEY] = tokenizeObject(self._displayName)
+         if self._system is not None:
+            token[self.SYSTEM_KEY] = tokenizeObject(self._system)
+        if self._subtasks is not []:
+            token[self.SUBTASKS_KEY] = tokenizeObject(self._subtasks)
         if self._kcs is not None:
             token[self.KCS_KEY] = tokenizeObject(self._kcs)
         if self._baseURL is not None:
@@ -194,25 +203,27 @@ class SerializableTask(Serializable):
         return token
     
     def initializeFromToken(self, token, context=None):
-        super(SerializableTask, self).initializeFromToken(token, context)
-        self._system = untokenizeObject(token.get(self.SYSTEM_KEY), None)
+        super(LearningTask, self).initializeFromToken(token, context)
         self._taskId = untokenizeObject(token.get(self.TASK_ID_KEY, None))
-        self._ids = untokenizeObject(token.get(self.IDS_KEY, []))
-        self._subtasks = untokenizeObject(token.get(self.SUBTASKS_KEY, []))
+        self._aliasIds = untokenizeObject(token.get(self.ALIAS_IDS_KEY, []))
         self._name = untokenizeObject(token.get(self.NAME_KEY, None))
+        self._displayName = untokenizeObject(token.get(self.DISPLAY_NAME_KEY, None))
+        self._description = untokenizeObject(token.get(self.DESCRIPTION_KEY), None)
+        self._system = untokenizeObject(token.get(self.SYSTEM_KEY), None)
+        self._subtasks = untokenizeObject(token.get(self.SUBTASKS_KEY, []))
         self._kcs = untokenizeObject(token.get(self.KCS_KEY, []))
         self._baseURL = untokenizeObject(token.get(self.BASE_URL_KEY, None))
         self._assistmentsItem = untokenizeObject(token.get(self.ASSISTMENTS_ITEM_KEY), None)
-        self._description = untokenizeObject(token.get(self.DESCRIPTION_KEY), None)
         self._canBeRecommendedIndividually = untokenizeObject(token.get(self.CAN_BE_RECOMMENDED_INDIVIDUALLY_KEY), True)
     
     def toDB(self):
         result = DBTask()
         result.system = self._system
-        result.ids = self._ids
+        result.ids = self._aliasIds
         result.subtasks = self._subtasks
         result.taskId = self._taskId
         result.name = self._name
+        result.displayName = self._displayName
         result.kcs = self._kcs
         result.baseURL = self._baseURL
         result.assistmentsItemCache = self._assistmentsItem
@@ -222,9 +233,10 @@ class SerializableTask(Serializable):
     
     def initializeFromDBTask(self, dbTask):
         self._taskId = dbTask.taskId
-        self._ids = dbTask.ids
+        self._aliasIds = dbTask.ids
         self._subtasks = dbTask.subtasks
         self._name = dbTask.name
+        self._displayName = dbTask.displayName
         self._kcs = dbTask.kcs
         self._baseURL = dbTask.baseURL
         self._system = dbTask.system
@@ -232,9 +244,12 @@ class SerializableTask(Serializable):
             self._assistmentsItem = dbTask.assistmentsItemCache.toSerializable()
         self._description = dbTask.description
         self._canBeRecommendedIndividually = dbTask.canBeRecommendedIndividually
-        
+
+        # TODO: Figure out why we need this as such, rather than __str__?
     def __repr__(self):
-        return "taskID:{0}|ids:{1}|subtasks:{2}|name:{3}|kcs:{4}|baseURL:{5}|assistmentItem:{6}|description:{7}|individualRecommend:{8}".format(self._taskId, self._ids, self._subtasks, self._name, self._kcs, self._baseURL, self._assistmentsItem, self._description, self._canBeRecommendedIndividually)
+        return "taskID:{0}|ids:{1}|subtasks:{2}|name:{3}|kcs:{4}|baseURL:{5}|assistmentItem:{6}|description:{7}|individualRecommend:{8}|displayName:{9}".format(
+            self._taskId, self._aliasIds, self._subtasks, self._name, self._kcs, self._baseURL,
+            self._assistmentsItem, self._description, self._canBeRecommendedIndividually, self._displayName)
                  
                      
 @DBObject(table_name="Tasks")
@@ -244,6 +259,7 @@ class DBTask(DBSerializable):
     subtasks = Field(list)
     taskId = Field('')
     name = Field('')
+    displayName = Field('')
     kcs  = Field(list)
     baseURL  = Field('')
     assistmentsItem = Field('')
@@ -253,22 +269,22 @@ class DBTask(DBSerializable):
     assistmentsItemCache = None
     
     BRIDGE_NAME = GLUDB_BRIDGE_NAME
-    SOURCE_CLASS = SerializableTask
+    SOURCE_CLASS = LearningTask
     
     def create(self, serializableDBTask = None):
         logInfo("found DBTask constructor", 5)
         if serializableDBTask is not None:
             self.taskId = serializableDBTask._taskId
             self.system = serializableDBTask._system
-            self.ids = serializableDBTask._ids
+            self.ids = serializableDBTask._aliasIds
             self.subtasks = serializableDBTask._subtasks
             self.name = serializableDBTask._name
+            self.displayName = serializableDBTask._displayName
             self.kcs = serializableDBTask._kcs
             self.baseURL = serializableDBTask._baseURL
             self.assistmentsItemCache = DBSerializable.convert(serializableDBTask._assistmentsItem)
             self.description = serializableDBTask._description
             self.canBeRecommendedIndividually = serializableDBTask._canBeRecommendedIndividually
-            
         return self
     
     def getAssistementsItem(self, useCachedValue=False):
@@ -287,7 +303,7 @@ class DBTask(DBSerializable):
     def toSerializable(self):
         if self.assistmentsItemCache is None:
             self.getAssistementsItem()   
-        result = SerializableTask()
+        result = LearningTask()
         result.initializeFromDBTask(self)
         return result
     
@@ -316,6 +332,7 @@ class DBTask(DBSerializable):
         else:
             logInfo("task with name {0} already exists, overwriting".format(self.name), 3)
             existingTask.name = self.name
+            existingTask.displayName = self.displayName
             existingTask.ids = self.ids
             existingTask.kcs = self.kcs
             existingTask.baseURL = self.baseURL
@@ -618,7 +635,7 @@ class SerializableStudentModel(Serializable):
     
     
     def saveToToken(self):
-        token = super(SerializableTask, self).saveToToken()
+        token = super(SerializableStudentModel, self).saveToToken()
         if self._studentId is not None:
             token[self.STUDENT_ID_KEY] = tokenizeObject(self._studentId)
         if self._kcMastery is not None:
@@ -626,7 +643,7 @@ class SerializableStudentModel(Serializable):
         return token
     
     def initializeFromToken(self, token, context=None):
-        super(SerializableTask, self).initializeFromToken(token, context)
+        super(SerializableStudentModel, self).initializeFromToken(token, context)
         self._studentId = untokenizeObject(token.get(self.STUDENT_ID_KEY, None))
         self._kcMastery = untokenizeObject(token.get(self.KC_MASTERY_KEY, {}))
     
