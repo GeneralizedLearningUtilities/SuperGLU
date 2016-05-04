@@ -311,7 +311,10 @@ class DBTask(DBSerializable):
     def getAssistementsItem(self, useCachedValue=False):
         if not useCachedValue:
             logInfo("assistmentItemId={0}".format(self.assistmentsItemId), 6)
-            return DBAssistmentsItem.find_one(self.assistmentsItemId)
+            if self.assistmentsItemId is not None:
+                return DBAssistmentsItem.find_one(self.assistmentsItemId)
+            else: 
+                return None
         else:
             return self.assistmentsItemCache
     
