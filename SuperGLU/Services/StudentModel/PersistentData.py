@@ -340,7 +340,7 @@ class DBTask(DBSerializable):
             logInfo("task with name {0} does not yet exist".format(self.name), 3)
             if self.assistmentsItemCache:
                 self.assistmentsItemCache.saveToDB()
-                self.assistmentsItemId = assistmentsItemCache.id
+                self.assistmentsItemId = self.assistmentsItemCache.id
             logInfo("assistmentsItemId = {0}".format(self.assistmentsItemId), 6)
             logInfo("assistmentsItemcacheValue4 = {0}".format(self.assistmentsItemCache), 6)
             self.save()
