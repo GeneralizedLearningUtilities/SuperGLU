@@ -97,7 +97,50 @@ class DBLoggedMessage(DBSerializable):
     def actorIndex(self):
         return self.actor
         
-   
+    @Index
+    def verbIndex(self):
+        return self.verb
+        
+    @Index
+    def objectIndex(self):
+        return self.object
+        
+    @Index
+    def actorVerbIndex(self):
+        return (self.actor, self.verb)
+        
+    @Index
+    def actorVerbObjIndex(self):
+        return (self.actor, self.verb, self.object)
+        
+    @Index
+    def userIdMIndex(self):
+        context = nativizeObject(self.context)
+        if USER_ID_CONTEXT_KEY in context:
+            return context[USER_ID_CONTEXT_KEY]
+        else:
+            return None
+    @Index
+    def taskIdMIndex(self):
+        context = nativizeObject(self.context)
+        if TASK_ID_CONTEXT_KEY in context:
+            return context[TASK_ID_CONTEXT_KEY]
+        else:
+            return None
+    @Index
+    def stepIdIndex(self):
+        context = nativizeObject(self.context)
+        if STEP_ID_CONTEXT_KEY in context:
+            return context[STEP_ID_CONTEXT_KEY]
+        else:
+            return None
+    @Index
+    def userTaskIndex(self):
+        context = nativizeObject(self.context)
+        if USER_ID_CONTEXT_KEY in context and TASK_ID_CONTEXT_KEY in context:
+            return (context[USER_ID_CONTEXT_KEY], context[TASK_ID_CONTEXT_KEY])
+        else:
+            return None
             
     def toMessage(self):
         return Message(self.actor, self.verb, self.object, nativizeObject(self.result), self.speechAct, nativizeObject(self.context), self.timestamp)
