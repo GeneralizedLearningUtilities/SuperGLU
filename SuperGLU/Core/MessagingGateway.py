@@ -7,7 +7,8 @@ from SuperGLU.Core.FIPA.SpeechActs import REQUEST_WHENEVER_ACT
 from SuperGLU.Core.Messaging import Message
 from SuperGLU.Util.ErrorHandling import logError, logWarning
 from SuperGLU.Util.Serialization import (Serializable, serializeObject,
-                                nativizeObject)
+                            nativizeObject)
+from edu.usc.ict.vhmsg.vhmsg import VHMSG, getServerFromEnvironment, getPortFromEnvironment, getScopeFromEnvironment
 
 CATCH_BAD_MESSAGES = False
 SESSION_KEY = 'sessionId'
@@ -161,6 +162,52 @@ class MessagingGateway(BaseMessagingNode):
                 msg.setContextValue(key, self._scope[key]);
                     
 
+
+class StompVHMSGMessagingGateway(MessagingGateway):
+    
+    vhmsgComm = None
+    SUPER_GLU_VH_MSG_HEADER = "SuperGLU"
+    
+    #if you don't specify the server address, port and scope for the vhmsg then it will grab it from environment variables,
+    #if the environment variables don't exist then it will default to a hard coded (localhost, 61613, /DEFAULT_SCOPE)
+    
+    #vhSubscriptions is a list of tuples (firstWord, handlerFunction)
+    def __init__(self, anId=None, nodes=None, gateway=None, authenticator=None, scope=None, vhSubscriptions=[], 
+                 vhServer=getServerFromEnvironment(), vhport=getPortFromEnvironment(), vhscope=getScopeFromEnvironment()):
+        super(StompVHMSGMessagingGateway, self).__init__(anId, nodes, gateway, authenticator, scope)
+        self.vhmsgComm = VHMSG(server=vhServer, port=vhport, scope=vhscope)
+        
+        if vhSubscriptions is not None:
+            for (firstWord, handler) in vhSubscriptions:
+                self.vhmsgComm.subscribe(firstWord, handler)
+                
+        self.vhmsgComm.subscribe("vrKill", self.vrKillHandler)
+        self.vhmsgComm.subscribe(self.SUPER_GLU_VH_MSG_HEADER, self.superGLUHandler)
+    
+    def sendMessage(self, msg):
+        super(StompVHMSGMessagingGateway, self).sendMessage(msg)
+        messageAsString = serializeObject(msg)
+        self.vhmsgComm.sendMessage(self.SUPER_GLU_VH_MSG_HEADER, messageAsString)
+        
+
+    def receiveMessage(self, msg):
+        """ Get message from a child and process/distribute it """
+        super(StompVHMSGMessagingGateway, self).receiveMessage(msg)
+        logWarning("message Received")
+        logWarning(msg)
+        self.distributeMessage(msg)
+    
+    def superGLUHandler(self, firstWord, body):
+        if body is not None:
+            msg =nativizeObject(body)
+            self.receiveMessage(msg)
+    
+    def vrKillHandler(self, firstWord, body):
+        if body == self.componentName or body == "all":
+            self.comm.closeConnection()
+            
+            
+            
 class HTTPMessagingGateway(MessagingGateway):
     MESSAGES_KEY = 'message'
     DATA_KEY = 'data'
