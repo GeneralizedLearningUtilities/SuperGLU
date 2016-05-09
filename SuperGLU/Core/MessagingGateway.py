@@ -176,6 +176,7 @@ class StompVHMSGMessagingGateway(MessagingGateway):
                  vhServer=getServerFromEnvironment(), vhport=getPortFromEnvironment(), vhscope=getScopeFromEnvironment()):
         super(StompVHMSGMessagingGateway, self).__init__(anId, nodes, gateway, authenticator, scope)
         self.vhmsgComm = VHMSG(server=vhServer, port=vhport, scope=vhscope)
+        self.vhmsgComm.openConnection()
         
         if vhSubscriptions is not None:
             for (firstWord, handler) in vhSubscriptions:
@@ -203,7 +204,7 @@ class StompVHMSGMessagingGateway(MessagingGateway):
             self.receiveMessage(msg)
     
     def vrKillHandler(self, firstWord, body):
-        if body == self.componentName or body == "all":
+        if body == self._id or body == "all":
             self.comm.closeConnection()
             
             
