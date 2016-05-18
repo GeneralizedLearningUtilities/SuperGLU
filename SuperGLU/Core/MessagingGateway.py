@@ -9,6 +9,7 @@ from SuperGLU.Util.ErrorHandling import logError, logWarning
 from SuperGLU.Util.Serialization import (Serializable, serializeObject,
                             nativizeObject)
 from edu.usc.ict.vhmsg.vhmsg import VHMSG, getServerFromEnvironment, getPortFromEnvironment, getScopeFromEnvironment
+import datetime
 
 CATCH_BAD_MESSAGES = False
 SESSION_KEY = 'sessionId'
@@ -187,6 +188,10 @@ class StompVHMSGMessagingGateway(MessagingGateway):
     
     def sendMessage(self, msg):
         super(StompVHMSGMessagingGateway, self).sendMessage(msg)
+        
+        if msg.getTimestamp() is None:
+            msg.setTimestamp(datetime.datetime.now().isoformat())
+        
         messageAsString = serializeObject(msg)
         self.vhmsgComm.sendMessage(self.SUPER_GLU_VH_MSG_HEADER, messageAsString)
         
