@@ -8,7 +8,6 @@ from SuperGLU.Core.Messaging import Message
 from SuperGLU.Util.ErrorHandling import logError, logWarning
 from SuperGLU.Util.Serialization import (Serializable, serializeObject,
                             nativizeObject)
-from edu.usc.ict.vhmsg.vhmsg import VHMSG, getServerFromEnvironment, getPortFromEnvironment, getScopeFromEnvironment
 import datetime
 
 CATCH_BAD_MESSAGES = False
