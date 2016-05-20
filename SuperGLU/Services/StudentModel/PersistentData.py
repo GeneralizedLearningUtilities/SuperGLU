@@ -728,3 +728,75 @@ class DBClassModel(object):
         if not useCachedValue:
             self.studentCache = [DBStudent.find_one(x) for x in self.students]
         return self.studentCache
+    
+
+class SerializableCalendarData(Serializable):
+    
+    # Main Keys
+    OWNER_ID_KEY = "ownerId"
+    OWNER_TYPE_KEY = "ownerType"
+    CALENDAR_DATA_KEY = "calendarData"
+    
+    
+    #string
+    ownerId = None
+    
+    #string
+    ownerType = None
+    
+    #string
+    calendarData = None
+    
+    
+    ####Place Index data here####
+
+
+    def saveToToken(self):
+        token = super(SerializableCalendarData, self).saveToToken()
+        if self.ownerId is not None:
+            token[self.OWNER_ID_KEY] = tokenizeObject(self.ownerId)
+        if self.ownerType is not None:
+            token[self.OWNER_TYPE_KEY] = tokenizeObject(self.ownerType)
+        if self.calendarData is not None:
+            token[self.CALENDAR_DATA_KEY] = tokenizeObject(self._kcMastery)
+        return token
+    
+    def initializeFromToken(self, token, context=None):
+        super(SerializableCalendarData, self).initializeFromToken(token, context)
+        self.ownerId = untokenizeObject(token.get(self.OWNER_ID_KEY, None))
+        self.ownerType = untokenizeObject(token.get(self.OWNER_TYPE_KEY, None))
+        self.calendarData = untokenizeObject(token.get(self.CALENDAR_DATA_KEY, None))
+    
+    def toDB(self):
+        result = DBCalendarData()
+        result.ownerId = self.ownerId
+        result.ownerType = self.ownerType
+        result.calendarData = self.calendarData
+        return result
+    
+    def initializeFromDBCalendarData(self, dbCalendarData):
+        self.ownerId = dbCalendarData.ownerId
+        self.ownerType = dbCalendarData.ownerType
+        self.calendarData = dbCalendarData.calendarData
+        
+    
+    
+@DBObject(table_name="CalendarData")
+class DBCalendarData(object):
+    
+    BRIDGE_NAME = GLUDB_BRIDGE_NAME
+    SOURCE_CLASS = SerializableCalendarData
+    
+    ownerId = Field('')
+    ownerType = Field('')
+    calendarData = Field('')
+    
+    
+    def toSerializable(self):
+        result = SerializableCalendarData()
+        result.initializeFromDBCalendarData(self)
+        return result
+    
+    def saveToDB(self):#TODO: test before using widely
+        self.save()
+

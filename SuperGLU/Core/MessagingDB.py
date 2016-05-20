@@ -12,6 +12,7 @@ from SuperGLU.Util.ErrorHandling import logInfo
 
 LOADED_VERB = "Loaded"
 ELECTRONIX_TUTOR_TASK_UPLOAD_VERB = 'ElectronixTutorTaskUpload'
+ELECTRONIX_TUTOR_UPLOAD_VERB = 'ElectronixTutorUploadVerb'
 HEARTBEAT_VERB = "Heartbeat"
 
 RECOMMENDED_TASKS_VERB = "RecommendedTasks"        # Message concerns the results of the recommender.  
