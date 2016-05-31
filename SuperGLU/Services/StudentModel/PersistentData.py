@@ -1,5 +1,6 @@
 import hashlib
 from datetime import datetime
+from icalendar import Calendar
 from gludb.simple import DBObject, Field, Index
 from SuperGLU.Util.Serialization import Serializable, tokenizeObject, untokenizeObject,\
     makeSerialized
@@ -698,7 +699,7 @@ class DBStudentModel (object):
     studentCache = None #type:DBStudent
     
     @Index
-    def sudentIdIndex(self):
+    def studentIdIndex(self):
         return self.studentId
     
     def getStudent(self, useCachedValue= False):
@@ -730,26 +731,40 @@ class DBClassModel(object):
         return self.studentCache
     
 
+#Owner Type enum:
+CLASS_OWNER_TYPE = "class"
+STUDENT_OWNER_TYPE = "student"
+
+#Access Permissions enum:
+PUBLIC_PERMISSION = "public"
+MEMBERS_PERMISSION = "members"
+OWNER_ONLY_PERMISSION = "owner only"
+
 class SerializableCalendarData(Serializable):
     
     # Main Keys
     OWNER_ID_KEY = "ownerId"
     OWNER_TYPE_KEY = "ownerType"
+    PERMISSIONS_KEY = "permissions"
     CALENDAR_DATA_KEY = "calendarData"
     
     
     #string
     ownerId = None
     
-    #string
+    #string (values = {class, student})
     ownerType = None
     
     #string
+    accessPermissions = None
+    
+    #ical string
     calendarData = None
     
     
-    ####Place Index data here####
-
+    def getICalObject(self):
+        return Calendar.from_ical(self.calendarData)
+    
 
     def saveToToken(self):
         token = super(SerializableCalendarData, self).saveToToken()
@@ -757,6 +772,8 @@ class SerializableCalendarData(Serializable):
             token[self.OWNER_ID_KEY] = tokenizeObject(self.ownerId)
         if self.ownerType is not None:
             token[self.OWNER_TYPE_KEY] = tokenizeObject(self.ownerType)
+        if self.accessPermissions is not None:
+            token[self.PERMISSIONS_KEY] = tokenizeObject(self.accessPermissions)
         if self.calendarData is not None:
             token[self.CALENDAR_DATA_KEY] = tokenizeObject(self._kcMastery)
         return token
@@ -766,19 +783,21 @@ class SerializableCalendarData(Serializable):
         self.ownerId = untokenizeObject(token.get(self.OWNER_ID_KEY, None))
         self.ownerType = untokenizeObject(token.get(self.OWNER_TYPE_KEY, None))
         self.calendarData = untokenizeObject(token.get(self.CALENDAR_DATA_KEY, None))
-    
+        self.accessPermissions = untokenizeObject(token.get(self.PERMISSIONS_KEY, None))
+        
     def toDB(self):
         result = DBCalendarData()
         result.ownerId = self.ownerId
         result.ownerType = self.ownerType
         result.calendarData = self.calendarData
+        result.accessPermissions = self.accessPermissions
         return result
     
     def initializeFromDBCalendarData(self, dbCalendarData):
         self.ownerId = dbCalendarData.ownerId
         self.ownerType = dbCalendarData.ownerType
         self.calendarData = dbCalendarData.calendarData
-        
+        self.accessPermissions = dbCalendarData.accessPermissions
     
     
 @DBObject(table_name="CalendarData")
@@ -790,6 +809,12 @@ class DBCalendarData(object):
     ownerId = Field('')
     ownerType = Field('')
     calendarData = Field('')
+    accessPermissions = Field('')
+    
+    ####Place Index data here####
+    @Index
+    def ownerIdIndex(self):
+        return self.ownerId
     
     
     def toSerializable(self):
