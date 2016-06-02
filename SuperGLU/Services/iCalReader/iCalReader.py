@@ -15,6 +15,7 @@ from SuperGLU.Services.StorageService.Storage_Service_Interface import STORAGE_S
 from SuperGLU.Services.QueryService.DBBridge import DBBridge
 from icalendar import Calendar, Event
 from time import strptime
+from datetime import datetime
 
 ICAL_READER_SERVICE_NAME = "iCalReader"
 
@@ -23,12 +24,21 @@ ICAL_OBJECT_TYPE = "iCalendar"
 class ICalReader(DBBridge):
 
 
+    def __init__(self, anId=None):
+        """
+        Initialize the logging service.
+        @param maxMsgSize: The maximum size for a field. 2.5m by default, which is ~2-5 MB of JSON.
+        @param maxMsgSize: int
+        """
+        super(ICalReader, self).__init__(ICAL_READER_SERVICE_NAME)
+
+
     def createCalendarData(self, ownerId=None):
         result = DBCalendarData()
         result.ownerId = ownerId
         result.ownerType = STUDENT_OWNER_TYPE
         result.accessPermissions = PUBLIC_PERMISSION
-        result.calendarData = ""
+        result.calendarData = Calendar().to_ical()
         result.saveToDB()
         return result
     
@@ -59,14 +69,23 @@ class ICalReader(DBBridge):
         
         calenderAsObject = Calendar.from_ical(calendarData.calendarData)
         newEvent = Event()
-        newEvent.add('summary', task._displayName)
-        newEvent.add('comment', task._taskId)
+        newEvent.add('summary', task.displayName)
+        newEvent.add('comment', "taskId = {0}".format(task.taskId))
         
         
-        startTimeAsDateTime = strptime(startTime, DATE_TIME_FORMAT)
+        startTimeAsDateTime = datetime.strptime(startTime, DATE_TIME_FORMAT)
+        newEvent.add('dtstart', startTimeAsDateTime)
         
-        newEvent.add()
-        #calenderAsObject.
+        if endTime is not None:
+            endTimeAsDateTime = datetime.strptime(endTime, DATE_TIME_FORMAT)
+            newEvent.add('dtend', endTimeAsDateTime)
+            
+        elif duration is not None:
+            newEvent.add('duration', duration)
+            
+        calenderAsObject.add_component(newEvent)
+        calendarData.calendarData = calenderAsObject.to_ical()
+        return
             
     def receiveMessage(self, msg):
         
@@ -90,7 +109,7 @@ class ICalReader(DBBridge):
                 #default to public access if none are given
                 calendarData.accessPermissions = msg.getContextValue(CALENDAR_ACCESS_PERMISSIONS_KEY, PUBLIC_PERMISSION)
                 calendarData.calendarData = msg.getResult()
-                reply = Message(actor=STORAGE_SERVICE_NAME, verb=VALUE_VERB, ICAL_OBJECT_TYPE, calendarData)
+                reply = Message(actor=STORAGE_SERVICE_NAME, verb=VALUE_VERB, object=ICAL_OBJECT_TYPE, result=calendarData)
             
         if msg.getSpeechAct() == REQUEST_ACT:
             """
