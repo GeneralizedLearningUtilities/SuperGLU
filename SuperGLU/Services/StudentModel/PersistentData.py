@@ -2,12 +2,12 @@ import hashlib
 from datetime import datetime
 from icalendar import Calendar
 from gludb.simple import DBObject, Field, Index
-from SuperGLU.Util.Serialization import Serializable, tokenizeObject, untokenizeObject,\
-    makeSerialized
+from SuperGLU.Util.Serialization import Serializable, tokenizeObject, untokenizeObject, makeSerialized
 from SuperGLU.Services.QueryService.Queries import getKCsForAGivenUserAndTask, getAllHintsForSingleUserAndTask, getAllFeedbackForSingleUserAndTask
 from SuperGLU.Util.ErrorHandling import logInfo
 from SuperGLU.Util.SerializationGLUDB import DBSerializable, GLUDB_BRIDGE_NAME
 from SuperGLU.Core.MessagingDB import DBLoggedMessage
+
 """
 This module contains secondary database objects that contain data derived from the logged messages
 """
@@ -765,6 +765,10 @@ class SerializableCalendarData(Serializable):
     def getICalObject(self):
         return Calendar.from_ical(self.calendarData)
     
+    
+    def setICalObject(self, ical):
+        self.calendarData = ical.to_ical()
+    
 
     def saveToToken(self):
         token = super(SerializableCalendarData, self).saveToToken()
@@ -810,6 +814,10 @@ class DBCalendarData(object):
     ownerType = Field('')
     calendarData = Field('')
     accessPermissions = Field('')
+    
+    #transactional storage (for the future)
+    #list stores tuples containing (date, calendarData)
+    #calendarHistory = Field(list)
     
     ####Place Index data here####
     @Index

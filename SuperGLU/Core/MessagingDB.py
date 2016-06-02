@@ -12,7 +12,8 @@ from SuperGLU.Util.ErrorHandling import logInfo
 
 LOADED_VERB = "Loaded"
 ELECTRONIX_TUTOR_TASK_UPLOAD_VERB = 'ElectronixTutorTaskUpload'
-ELECTRONIX_TUTOR_UPLOAD_VERB = 'ElectronixTutorUploadVerb'
+ELECTRONIX_TUTOR_UPLOAD_CALENDAR_VERB = 'ElectronixTutorUploadCalendarVerb'
+ADD_TASK_TO_CALENDAR_VERB = 'AddTaskToCalendar'
 HEARTBEAT_VERB = "Heartbeat"
 
 RECOMMENDED_TASKS_VERB = "RecommendedTasks"        # Message concerns the results of the recommender.  
@@ -60,6 +61,11 @@ KC_RELEVANCE_CONTEXT_KEY = 'KCRelevance'                   # Knowledge component
 HELP_TYPE_CONTEXT_KEY = 'helpType'                         # Type of the help provided (e.g., Positive, Negative, neutral)
 RESULT_CONTENT_TYPE_CONTEXT_KEY = 'resultContentType'      # Type for the content of the help or other media (e.g., 'text', 'html', 'jpg')
 STUDENT_MODEL_CONTEXT_KEY = "studentModel"                 # student model for the student to which this message pertains
+
+CALENDAR_ACCESS_PERMISSIONS_KEY = "calendarAccessPermissions"  #this is the context key that contains the access permissions of an uploaded calendar.
+CALENDAR_EVENT_START_TIME_KEY = "calendarEventStartTime"
+CALENDAR_EVENT_DURATION_KEY = "calendarEventDuration"
+CALENDAR_EVENT_END_TIME_KEY = "calendarEndTime"
     
 #Other Constants
 UNKNOWN_PREFIX = 'Unknown'
