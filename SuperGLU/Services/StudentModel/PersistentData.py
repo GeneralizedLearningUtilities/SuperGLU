@@ -7,6 +7,8 @@ from SuperGLU.Services.QueryService.Queries import getKCsForAGivenUserAndTask, g
 from SuperGLU.Util.ErrorHandling import logInfo
 from SuperGLU.Util.SerializationGLUDB import DBSerializable, GLUDB_BRIDGE_NAME
 from SuperGLU.Core.MessagingDB import DBLoggedMessage
+from uuid import uuid4
+import uuid
 
 """
 This module contains secondary database objects that contain data derived from the logged messages
@@ -390,11 +392,87 @@ class DBKCTaskAssociations(object):
     def taskIdIndex(self):
         return self.taskId
         
+
+class SerializableTopic(Serializable):
+    # Main Keys
+    TOPIC_ID_KEY = "topicId"
+    KC_LIST_KEY = "kcList"
+    RESOURCE_LIST_KEY = "resourceList"
+    
+    topicId = ''
+    kcList       = []
+    resourceList = []
+
+    def __init__(self, topicId = None,  kcList = None, resourceList = None, anId=None):
+        super(SerializableTopic, self).__init__(anId)
+        
+        if topicId == None:
+            topicId = ''
+        if kcList == None:
+            kcList = []
+        if resourceList == None:
+            resourceList = []
+        
+        self.topicId = topicId
+        self.kcList = kcList
+        self.resourceList = resourceList
+        
+    
+    def saveToToken(self):
+        token = super(SerializableTopic, self).saveToToken()
+        if self.topicId is not None:
+            token[self.TOPIC_ID_KEY] = tokenizeObject(self.topicId)
+        if self.kcList is not None:
+            token[self.KC_LIST_KEY] = tokenizeObject(self.kcList)
+        if self.resourceList is not None:
+            token[self.RESOURCE_LIST_KEY] = tokenizeObject(self.resourceList)
+        return token
+    
+    def initializeFromToken(self, token, context=None):
+        super(SerializableTopic, self).initializeFromToken(token, context)
+        self.topicId = untokenizeObject(token.get(self.TOPIC_ID_KEY, None), context)
+        self.kcList = untokenizeObject(token.get(self.KC_LIST_KEY, []), context)
+        self.resourceList = untokenizeObject(token.get(self.RESOURCE_LIST_KEY, []))
+    
+    
+    def toDB(self):
+        result = DBTopic()
+        result.topicId = self.topicId
+        result.kcList = self.kcList
+        result.resourceList = self.resourceList
+        return result
+    
+    def initializeFromDBTask(self, dbTask):
+        self.topicId = dbTask.topicId
+        self.kcList = dbTask.kcList
+        self.resourceList = dbTask.resourceList
+        
         
 @DBObject(table_name="Topics")
-class DBTopic(object):
+class DBTopic(DBSerializable):
+    
+    BRIDGE_NAME = GLUDB_BRIDGE_NAME
+    SOURCE_CLASS = SerializableTopic
+    
+    topicId      = Field('')
     kcList       = Field(list)
     resourceList = Field(list)
+    
+    def create(self, serializableTopic = None):
+        if serializableTopic is not None:
+            self.kcList = serializableTopic.kcList
+            self.resourceList = serializableTopic.resourceList
+            self.topicId = serializableTopic.topicId
+        return self
+    
+    
+    def toSerializable(self):
+        result = SerializableTopic()
+        result.initializeFromDBTask(self)
+        return result
+    
+    def saveToDB(self):
+        self.save()
     
     def __repr__(self):
         return str(self.kcList) + "|" + str(self.resourceList)
