@@ -328,6 +328,10 @@ class DBTask(DBSerializable):
     def nameIndex(self):
         return self.name
     
+    @Index
+    def taskIdIndex(self):
+        return self.taskId
+    
     def toSerializable(self):
         if self.assistmentsItemCache is None:
             self.assistmentsItemCache = self.getAssistementsItem()   
@@ -465,6 +469,10 @@ class DBTopic(DBSerializable):
             self.topicId = serializableTopic.topicId
         return self
     
+    
+    @Index
+    def topicIdIndex(self):
+        return self.topicId
     
     def toSerializable(self):
         result = SerializableTopic()

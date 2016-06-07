@@ -40,7 +40,14 @@ class CalendarTest(unittest.TestCase):
         startTime = "2016-06-02T12:00:00.0000Z"
         self.icalReader.addTaskToCalendar(self.dummyTask, self.calendarData, startTime)
         print(self.calendarData.calendarData)
+        self.assertEqual(b'BEGIN:VCALENDAR\r\nBEGIN:VEVENT\r\nSUMMARY:dummyTaskDisplayName\r\nDTSTART;VALUE=DATE-TIME:20160602T120000\r\nCOMMENT:taskId = dummyTaskId\r\nEND:VEVENT\r\nEND:VCALENDAR\r\n', self.calendarData.calendarData)
 
+    def testAddTaskWithEndTime(self):
+        startTime = "2016-06-02T12:00:00.0000Z"
+        endTime = "2016-06-02T14:00:00.0000Z"
+        self.icalReader.addTaskToCalendar(self.dummyTask, self.calendarData, startTime, endTime)
+        print(self.calendarData.calendarData)
+        self.assertEqual(b'BEGIN:VCALENDAR\r\nBEGIN:VEVENT\r\nSUMMARY:dummyTaskDisplayName\r\nDTSTART;VALUE=DATE-TIME:20160602T120000\r\nDTEND;VALUE=DATE-TIME:20160602T140000\r\nCOMMENT:taskId = dummyTaskId\r\nEND:VEVENT\r\nEND:VCALENDAR\r\n', self.calendarData.calendarData)
 
 
 if __name__ == "__main__":

@@ -12,9 +12,12 @@ from SuperGLU.Util.ErrorHandling import logInfo
 
 LOADED_VERB = "Loaded"
 ELECTRONIX_TUTOR_TASK_UPLOAD_VERB = 'ElectronixTutorTaskUpload'
-ELECTRONIX_TUTOR_UPLOAD_CALENDAR_VERB = 'ElectronixTutorUploadCalendarVerb'
-ADD_TASK_TO_CALENDAR_VERB = 'AddTaskToCalendar'
 HEARTBEAT_VERB = "Heartbeat"
+
+ELECTRONIX_TUTOR_UPLOAD_CALENDAR_VERB = 'ElectronixTutorUploadCalendarVerb'  # Verbs concerning the calendar
+ADD_EVENT_TO_CALENDAR_VERB = 'AddEventToCalendar'
+CALENDAR_LOOKUP_VERB = 'calendarLookup'
+
 
 RECOMMENDED_TASKS_VERB = "RecommendedTasks"        # Message concerns the results of the recommender.  
     
@@ -62,10 +65,16 @@ HELP_TYPE_CONTEXT_KEY = 'helpType'                         # Type of the help pr
 RESULT_CONTENT_TYPE_CONTEXT_KEY = 'resultContentType'      # Type for the content of the help or other media (e.g., 'text', 'html', 'jpg')
 STUDENT_MODEL_CONTEXT_KEY = "studentModel"                 # student model for the student to which this message pertains
 
-CALENDAR_ACCESS_PERMISSIONS_KEY = "calendarAccessPermissions"  #this is the context key that contains the access permissions of an uploaded calendar.
-CALENDAR_EVENT_START_TIME_KEY = "calendarEventStartTime"
-CALENDAR_EVENT_DURATION_KEY = "calendarEventDuration"
-CALENDAR_EVENT_END_TIME_KEY = "calendarEndTime"
+CALENDAR_ACCESS_PERMISSIONS_KEY = 'calendarAccessPermissions'  #this is the context key that contains the access permissions of an uploaded calendar.
+CALENDAR_EVENT_START_TIME_KEY = 'calendarEventStartTime'
+CALENDAR_EVENT_DURATION_KEY = 'calendarEventDuration'
+CALENDAR_EVENT_END_TIME_KEY = 'calendarEndTime'
+
+CALENDAR_LOOKUP_START_TIME_KEY = 'calendarLookupStartTime'  #Keys used when looking up calendar information
+CALENDAR_LOOKUP_END_TIME_KEY = 'calendarLookupEndTime'
+CALENDAR_LOOKUP_RELATIVE_TIME_KEY = 'calendarLookup'
+CALENDAR_LOOKUP_EVENT_TYPE_KEY = 'calendarLookupEventType'
+
     
 #Other Constants
 UNKNOWN_PREFIX = 'Unknown'

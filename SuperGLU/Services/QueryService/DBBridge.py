@@ -3,17 +3,21 @@ Created on Apr 11, 2016
 
 @author: auerbach
 '''
-from SuperGLU.Util.ErrorHandling import logInfo
+from SuperGLU.Util.ErrorHandling import logInfo, logWarning
 from uuid import uuid4
-from SuperGLU.Services.StudentModel.PersistentData import DBStudent, DBStudentAlias, DBSession, DBClass, DBClasssAlias
+from SuperGLU.Services.StudentModel.PersistentData import DBStudent, DBStudentAlias, DBSession, DBClass, DBClasssAlias, DBCalendarData, DBTask, DBTopic
 from SuperGLU.Core.MessagingDB import SESSION_ID_CONTEXT_KEY, DATE_TIME_FORMAT, TASK_ID_CONTEXT_KEY
 from datetime import datetime
 from SuperGLU.Services.StudentModel.StudentModelFactories import BasicStudentModelFactory
+from test.test_importlib.import_.test_caching import UseCache
 
 class DBBridge(object):
     studentCache = {}
     sessionCache = {}
     classCache = {}
+    taskCache = {}
+    topicCache = {}
+    calendarCache = {}
 
     serviceName = ''
     
@@ -65,6 +69,49 @@ class DBBridge(object):
         #only update if the duration increases
         if delta.seconds > session.duration:
             session.duration = delta.seconds
+    
+    
+    def retrieveTaskFromCacheOrDB(self, taskId, useCache=True):
+        if taskId is None:
+            return None
+        
+        if taskId in self.taskCache.keys() and useCache:
+            logInfo('{0} found cached task object with id:{1}'.format(self.serviceName, taskId), 4)
+            return self.taskCache[taskId]
+        else:
+            logInfo('{0} could not find cached task object with id: {1}.  Falling back to database.'.format(self.serviceName, taskId), 3)
+            dbTaskList = DBTask.find_by_index("taskIdIndex", taskId)
+            
+            if len(dbTaskList) > 0:
+                task = dbTaskList[0]
+            else:
+                return None
+                    
+            #Cache the result so we don't need to worry about looking it up again.
+            self.taskCache[taskId] = task
+            return task
+    
+    
+    def retrieveTopicFromCacheOrDB(self, topicId, useCache=True):
+        if topicId is None:
+            return None
+        
+        if topicId in self.taskCache.keys() and useCache:
+            logInfo('{0} found cached task object with id:{1}'.format(self.serviceName, topicId), 4)
+            return self.taskCache[topicId]
+        else:
+            logInfo('{0} could not find cached topic object with id: {1}.  Falling back to database.'.format(self.serviceName, topicId), 3)
+            dbTopicList = DBTopic.find_by_index("topicIdIndex", topicId)
+            
+            if len(dbTopicList) > 0:
+                task = dbTopicList[0]
+            else:
+                return None
+                    
+            #Cache the result so we don't need to worry about looking it up again.
+            self.taskCache[topicId] = task
+            return task
+    
         
     def retrieveSessionFromCacheOrDB(self, sessionId, useCache=True):
         if sessionId is None:
@@ -126,3 +173,30 @@ class DBBridge(object):
             #Cache the result so we don't need to worry about looking it up again.
             self.classCache[classId] = clazz
             return clazz
+        
+    def getCalendarFromOwnerId(self, ownerId=None, useCache=True):
+        if ownerId is None:
+            logWarning("NO OWNER ID WAS GIVEN WHEN ATTEMPTING TO LOOK UP CALENDAR")
+            return None
+        
+        if useCache:
+            result = self.calendarCache.get(ownerId)
+            if result is not None:
+                return result;
+        
+        foundCalendars = DBCalendarData.find_by_index("ownerIdIndex", [])
+        
+        calendarData = None
+        
+        if len(foundCalendars) == 0:
+            logInfo("no calendar found, creating a new calendar for owner:{0}".format(ownerId), 1)
+            calendarData = self.createCalendarData(ownerId)
+            return calendarData
+            
+        if len(foundCalendars) > 1:
+            logWarning("{0} owns more than a single calendar.  Database may be corrupted.  Defaulting to the first value".format(ownerId))
+        
+        calendarData = foundCalendars[0]
+        
+        self.calendarCache[ownerId] = calendarData
+        return calendarData
