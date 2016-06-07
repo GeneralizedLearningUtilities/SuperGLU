@@ -9,7 +9,6 @@ from SuperGLU.Services.StudentModel.PersistentData import DBStudent, DBStudentAl
 from SuperGLU.Core.MessagingDB import SESSION_ID_CONTEXT_KEY, DATE_TIME_FORMAT, TASK_ID_CONTEXT_KEY
 from datetime import datetime
 from SuperGLU.Services.StudentModel.StudentModelFactories import BasicStudentModelFactory
-from test.test_importlib.import_.test_caching import UseCache
 
 class DBBridge(object):
     studentCache = {}
