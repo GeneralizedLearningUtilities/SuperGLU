@@ -171,6 +171,9 @@ class ICalReader(DBBridge):
             elif typeOfEvent == TASK_ID:
                 result = [self.retrieveTaskFromCacheOrDB(taskId, True) for taskId in eventNames]
             
+            #remember to return the result in serializable form.    
+            result = [x.toSerializable() for x in result]
+            
         
         return result
             
