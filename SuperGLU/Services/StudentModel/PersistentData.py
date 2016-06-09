@@ -400,14 +400,16 @@ class DBKCTaskAssociations(object):
 class SerializableTopic(Serializable):
     # Main Keys
     TOPIC_ID_KEY = "topicId"
+    TOPIC_DESCRIPTION_KEY = "topicDescription"
     KC_LIST_KEY = "kcList"
     RESOURCE_LIST_KEY = "resourceList"
     
     topicId = ''
+    description = ''
     kcList       = []
     resourceList = []
 
-    def __init__(self, topicId = None,  kcList = None, resourceList = None, anId=None):
+    def __init__(self, topicId = None, description=None,  kcList = None, resourceList = None, anId=None):
         super(SerializableTopic, self).__init__(anId)
         
         if topicId == None:
@@ -419,6 +421,7 @@ class SerializableTopic(Serializable):
         
         self.topicId = topicId
         self.kcList = kcList
+        self.description = description
         self.resourceList = resourceList
         
     
@@ -426,6 +429,8 @@ class SerializableTopic(Serializable):
         token = super(SerializableTopic, self).saveToToken()
         if self.topicId is not None:
             token[self.TOPIC_ID_KEY] = tokenizeObject(self.topicId)
+        if self.description is not None:
+            token[self.TOPIC_DESCRIPTION_KEY] = tokenizeObject(self.description)
         if self.kcList is not None:
             token[self.KC_LIST_KEY] = tokenizeObject(self.kcList)
         if self.resourceList is not None:
@@ -434,6 +439,7 @@ class SerializableTopic(Serializable):
     
     def initializeFromToken(self, token, context=None):
         super(SerializableTopic, self).initializeFromToken(token, context)
+        self.description = untokenizeObject(token.get(self.TOPIC_DESCRIPTION_KEY, None))
         self.topicId = untokenizeObject(token.get(self.TOPIC_ID_KEY, None), context)
         self.kcList = untokenizeObject(token.get(self.KC_LIST_KEY, []), context)
         self.resourceList = untokenizeObject(token.get(self.RESOURCE_LIST_KEY, []))
@@ -443,13 +449,15 @@ class SerializableTopic(Serializable):
         result = DBTopic()
         result.topicId = self.topicId
         result.kcList = self.kcList
+        result.description = self.description
         result.resourceList = self.resourceList
         return result
     
-    def initializeFromDBTask(self, dbTask):
-        self.topicId = dbTask.topicId
-        self.kcList = dbTask.kcList
-        self.resourceList = dbTask.resourceList
+    def initializeFromDBTopic(self, dbTopic):
+        self.topicId = dbTopic.topicId
+        self.kcList = dbTopic.kcList
+        self.description = dbTopic.description
+        self.resourceList = dbTopic.resourceList
         
         
 @DBObject(table_name="Topics")
@@ -459,6 +467,7 @@ class DBTopic(DBSerializable):
     SOURCE_CLASS = SerializableTopic
     
     topicId      = Field('')
+    description  = Field('')
     kcList       = Field(list)
     resourceList = Field(list)
     
@@ -467,6 +476,7 @@ class DBTopic(DBSerializable):
             self.kcList = serializableTopic.kcList
             self.resourceList = serializableTopic.resourceList
             self.topicId = serializableTopic.topicId
+            self.description = serializableTopic.description
         return self
     
     
