@@ -7,7 +7,8 @@ The strings are converted to serializable objects and sent off to the GLUDB stor
 from SuperGLU.Core.MessagingGateway import BaseService
 from SuperGLU.Core.FIPA.SpeechActs import INFORM_ACT, REQUEST_ACT
 from SuperGLU.Core.MessagingDB import ELECTRONIX_TUTOR_UPLOAD_CALENDAR_VERB, CALENDAR_ACCESS_PERMISSIONS_KEY, ADD_EVENT_TO_CALENDAR_VERB, CALENDAR_EVENT_START_TIME_KEY, CALENDAR_EVENT_END_TIME_KEY,\
-    CALENDAR_EVENT_DURATION_KEY, DATE_TIME_FORMAT, CALENDAR_LOOKUP_VERB, CALENDAR_LOOKUP_START_TIME_KEY, CALENDAR_LOOKUP_END_TIME_KEY, CALENDAR_LOOKUP_RELATIVE_TIME_KEY, CALENDAR_LOOKUP_EVENT_TYPE_KEY
+    CALENDAR_EVENT_DURATION_KEY, DATE_TIME_FORMAT, CALENDAR_LOOKUP_VERB, CALENDAR_LOOKUP_START_TIME_KEY, CALENDAR_LOOKUP_END_TIME_KEY, CALENDAR_LOOKUP_RELATIVE_TIME_KEY, CALENDAR_LOOKUP_EVENT_TYPE_KEY,\
+    REQUEST_CALENDAR_VERB
 from SuperGLU.Core.Messaging import Message
 from SuperGLU.Util.ErrorHandling import logInfo, logWarning, logError
 from SuperGLU.Services.StudentModel.PersistentData import SerializableCalendarData, PUBLIC_PERMISSION, DBCalendarData, STUDENT_OWNER_TYPE, LearningTask, SerializableTopic
@@ -194,7 +195,7 @@ class ICalReader(DBBridge):
                 calendarData.ownerType = msg.getObject()
                 #default to public access if none are given
                 calendarData.accessPermissions = msg.getContextValue(CALENDAR_ACCESS_PERMISSIONS_KEY, PUBLIC_PERMISSION)
-                calendarData.calendarData = msg.getResult().encode()#need to know if the client is sending us bytes or strings
+                calendarData.calendarData = msg.getResult().encode('UTF-8')#need to know if the client is sending us bytes or strings
                 reply = Message(actor=STORAGE_SERVICE_NAME, verb=VALUE_VERB, object=ICAL_OBJECT_TYPE, result=calendarData, context=msg.getContext())
             
         if msg.getSpeechAct() == REQUEST_ACT:
@@ -237,8 +238,19 @@ class ICalReader(DBBridge):
                 calendarData = self.getCalendarFromOwnerId(msg.getObject())
                 taskOrTopicList = self.lookupEventInformation(calendarData, eventType, startTime, endTime, duration)
                 reply = Message(actor=ICAL_READER_SERVICE_NAME, verb=CALENDAR_LOOKUP_VERB, object=eventType, result=taskOrTopicList, context=msg.getContext())    
-                
-                
+            
+            """
+            message format for requesting information from a calendar
+            actor = ICAL_READER_SERVICE_NAME
+            verb = requestCalendar
+            object = ownerId
+            """
+            if msg.getVerb() == REQUEST_CALENDAR_VERB:
+                logInfo('{0} is processing a {1},{2} message'.format(ICAL_READER_SERVICE_NAME, REQUEST_CALENDAR_VERB, REQUEST_ACT), 4)
+                calendarData = self.getCalendarFromOwnerId(msg.getObject())
+                iCalDataAsBytes = calendarData.calendarData
+                iCalDataAsString = iCalDataAsBytes.decode('UTF-8')
+                reply = Message(actor=ICAL_READER_SERVICE_NAME, verb=REQUEST_CALENDAR_VERB, object=msg.getObject(), result=iCalDataAsString, context=msg.getContext()) 
                  
         if reply is not None:
             logInfo('{0} is broadcasting a {1}, {2} message'.format(ICAL_READER_SERVICE_NAME, INFORM_ACT, VALUE_VERB), 4)

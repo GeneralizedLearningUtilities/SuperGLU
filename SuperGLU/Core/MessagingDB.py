@@ -17,6 +17,7 @@ HEARTBEAT_VERB = "Heartbeat"
 ELECTRONIX_TUTOR_UPLOAD_CALENDAR_VERB = 'ElectronixTutorUploadCalendarVerb'  # Verbs concerning the calendar
 ADD_EVENT_TO_CALENDAR_VERB = 'AddEventToCalendar'
 CALENDAR_LOOKUP_VERB = 'calendarLookup'
+REQUEST_CALENDAR_VERB = 'requestCalendar'
 
 
 RECOMMENDED_TASKS_VERB = "RecommendedTasks"        # Message concerns the results of the recommender.  
