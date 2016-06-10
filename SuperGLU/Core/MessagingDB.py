@@ -18,6 +18,7 @@ ELECTRONIX_TUTOR_UPLOAD_CALENDAR_VERB = 'ElectronixTutorUploadCalendarVerb'  # V
 ADD_EVENT_TO_CALENDAR_VERB = 'AddEventToCalendar'
 CALENDAR_LOOKUP_VERB = 'calendarLookup'
 REQUEST_CALENDAR_VERB = 'requestCalendar'
+TABLE_OF_CONTENTS_VERB = 'tableOfContents'
 
 
 RECOMMENDED_TASKS_VERB = "RecommendedTasks"        # Message concerns the results of the recommender.  

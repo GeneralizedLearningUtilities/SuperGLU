@@ -8,7 +8,7 @@ from SuperGLU.Core.MessagingGateway import BaseService
 from SuperGLU.Core.FIPA.SpeechActs import INFORM_ACT, REQUEST_ACT
 from SuperGLU.Core.MessagingDB import ELECTRONIX_TUTOR_UPLOAD_CALENDAR_VERB, CALENDAR_ACCESS_PERMISSIONS_KEY, ADD_EVENT_TO_CALENDAR_VERB, CALENDAR_EVENT_START_TIME_KEY, CALENDAR_EVENT_END_TIME_KEY,\
     CALENDAR_EVENT_DURATION_KEY, DATE_TIME_FORMAT, CALENDAR_LOOKUP_VERB, CALENDAR_LOOKUP_START_TIME_KEY, CALENDAR_LOOKUP_END_TIME_KEY, CALENDAR_LOOKUP_RELATIVE_TIME_KEY, CALENDAR_LOOKUP_EVENT_TYPE_KEY,\
-    REQUEST_CALENDAR_VERB
+    REQUEST_CALENDAR_VERB, TABLE_OF_CONTENTS_VERB
 from SuperGLU.Core.Messaging import Message
 from SuperGLU.Util.ErrorHandling import logInfo, logWarning, logError
 from SuperGLU.Services.StudentModel.PersistentData import SerializableCalendarData, PUBLIC_PERMISSION, DBCalendarData, STUDENT_OWNER_TYPE, LearningTask, SerializableTopic
@@ -26,8 +26,9 @@ TOPIC_ID = 'topicId'
 COMMENT_KEY = 'comment'
 START_TIME_KEY = 'dtstart'
 
-class ICalReader(DBBridge):
+class ICalReader(BaseService):
 
+    dbBridge = DBBridge(ICAL_READER_SERVICE_NAME)
 
     def __init__(self, anId=None):
         """
@@ -35,7 +36,7 @@ class ICalReader(DBBridge):
         @param maxMsgSize: The maximum size for a field. 2.5m by default, which is ~2-5 MB of JSON.
         @param maxMsgSize: int
         """
-        super(ICalReader, self).__init__(ICAL_READER_SERVICE_NAME)
+        super(ICalReader, self).__init__()
 
 
     def createCalendarData(self, ownerId=None):
@@ -167,13 +168,26 @@ class ICalReader(DBBridge):
             eventNames = [self.getEventName(event[COMMENT_KEY]) for event in eventList if self.eventMatches(event, typeOfEvent, actualStartTime, actualEndTime) ]
             
             if typeOfEvent == TOPIC_ID:
-                result = [self.retrieveTopicFromCacheOrDB(topicId, True) for topicId in eventNames]
+                result = [self.dbBridge.retrieveTopicFromCacheOrDB(topicId, True) for topicId in eventNames]
             elif typeOfEvent == TASK_ID:
-                result = [self.retrieveTaskFromCacheOrDB(taskId, True) for taskId in eventNames]
+                result = [self.dbBridge.retrieveTaskFromCacheOrDB(taskId, True) for taskId in eventNames]
             
             #remember to return the result in serializable form.    
             result = [x.toSerializable() for x in result]
             
+        
+        return result
+    
+    def buildTableOfContents(self, topicList, taskList):
+        result = {}
+        
+        for topic in topicList:
+            tasksAssociatedWithTopic = []
+            for task in taskList:
+                if task.taskId in topic.resourceList:
+                    tasksAssociatedWithTopic.append(task)
+            
+            result[topic] = tasksAssociatedWithTopic
         
         return result
             
@@ -253,8 +267,27 @@ class ICalReader(DBBridge):
                 calendarData = self.getCalendarFromOwnerId(msg.getObject())
                 iCalDataAsBytes = calendarData.calendarData
                 iCalDataAsString = iCalDataAsBytes.decode('UTF-8')
-                reply = Message(actor=ICAL_READER_SERVICE_NAME, verb=REQUEST_CALENDAR_VERB, object=msg.getObject(), result=iCalDataAsString, context=msg.getContext()) 
-                 
+                reply = Message(actor=ICAL_READER_SERVICE_NAME, verb=REQUEST_CALENDAR_VERB, object=msg.getObject(), result=iCalDataAsString, context=msg.getContext())
+                
+            """
+            message format for requesting the table of contents
+            actor = ICAL_READER_SERVICE_NAME
+            verb = tableOfContents
+            object = ownerId
+            context = startTime (optional), endTime(optional), duration(optional)
+            """
+            if msg.getVerb() == TABLE_OF_CONTENTS_VERB:
+                logInfo('{0} is processing a {1},{2} message'.format(ICAL_READER_SERVICE_NAME, TABLE_OF_CONTENTS_VERB, REQUEST_ACT), 4)
+                calendarData = self.getCalendarFromOwnerId(msg.getObject())
+                startTime = msg.getContextValue(CALENDAR_LOOKUP_START_TIME_KEY, None)
+                endTime = msg.getContextValue(CALENDAR_LOOKUP_END_TIME_KEY, None)
+                duration = msg.getContextValue(CALENDAR_LOOKUP_RELATIVE_TIME_KEY, None)
+                topicList = self.lookupEventInformation(calendarData, TOPIC_ID, startTime, endTime, duration)
+                taskList = self.lookupEventInformation(calendarData, TASK_ID, startTime, endTime, duration) 
+                
+                topicTaskDictionary = self.buildTableOfContents(topicList, taskList)
+                reply = Message(actor=ICAL_READER_SERVICE_NAME, verb=TABLE_OF_CONTENTS_VERB, object=msg.getObject(), result=topicTaskDictionary, context=msg.getContext())
+                
         if reply is not None:
             logInfo('{0} is broadcasting a {1}, {2} message'.format(ICAL_READER_SERVICE_NAME, INFORM_ACT, VALUE_VERB), 4)
             self.sendMessage(reply)   
