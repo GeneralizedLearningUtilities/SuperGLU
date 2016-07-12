@@ -1,31 +1,29 @@
 #!/usr/bin/env python
 
 '''
-
 Created on May 19, 2016
 @author: skarumbaiah
-
 '''
 
-from datetime import datetime
-from uuid import uuid4
-from SuperGLU.Util.Serialization import Serializable
+import random as rand
 from SuperGLU.Core.MessagingGateway import BaseService, BaseMessagingNode
-from SuperGLU.Core.Messaging import Message
 from SuperGLU.Util.ErrorHandling import logInfo
-from SuperGLU.Core.FIPA.SpeechActs import INFORM_ACT, REQUEST_ACT
+from SuperGLU.Services.LoggingService  import LoggingService  
 from SuperGLU.Services.RLService.StateVariable import *
-from SuperGLU.Services import LoggingService  
-from SuperGLU.Services.LoggingService.LoggingService import CSVLoggingService
+from SuperGLU.Services.RLService.Constants import DIAGNOSE, DOOVER, SKIP, ORDER, DONE, PERFORM_ACTION, GET_NEXT_AGENDA_ITEM,TRANSCRIPT_UPDATE, BEGIN_AAR
 import json
 
 """
-    This module contains the Reinforcement Learning service.
-    There are three flavors to it - random, feature space and full state space
+    This module contains the Reinforcement Learning service for 2 functionalities -
+    1. RL Coach - There are three flavors to it - random, feature space and full state space
+    2. RL AAR - for now its random
 """
 
 RL_SERVICE_NAME = "RL Service"
 tutoring_state = {TUTOR_STATE_QUALITY_PREV_ANSWER:1, TUTOR_STATE_STUDENT_QUALITY:2}
+
+#AAR item list
+AAR_item = {}
 
 #super class for model specific subclasses
 class RLPlayer():
@@ -60,6 +58,17 @@ class RLRandom(RLPlayer):
     
     def getActionValue(self,action):
         return 0.5
+    
+    #Random policy for AAR
+    def updateAARItem(self, item):
+        r = rand.random()
+        if r < 0.33:
+            AAR_item[item] = SKIP
+        elif r  < 0.66:
+            AAR_item[item] = DIAGNOSE
+        else:
+            AAR_item[item] = DOOVER
+            
  
 #Function approximation - features to derive policy
 class RLFeature(RLPlayer):
@@ -89,7 +98,8 @@ class RLQValues(RLPlayer):
 class RLServiceMessaging(BaseService):
     
     rLService_internal = RLPlayer()
-    #csvLog = CSVLoggingService("RLPlayerLog.csv")
+    rLService_random = RLRandom()
+    csvLog = LoggingService.CSVLoggingService("RLPlayerLog.csv")
     serializeMsg = BaseMessagingNode()
                 
     def receiveMessage(self, msg):
@@ -98,10 +108,70 @@ class RLServiceMessaging(BaseService):
         #Log the message (for debugging)
         #strMsg = self.serializeMsg.messageToString(msg)
         #jMsg = json.dumps(strMsg)
-        #self.csvLog.logMessage(msg)
+        self.csvLog.logMessage(msg)
         
-        if "HEARTBEAT_VERB" not in msg.getVerb():
-            logInfo('{0} received message: {1}'.format(RL_SERVICE_NAME, self.messageToString(msg)), 2)
+        #find if the message is for AAR item update
+        if TRANSCRIPT_UPDATE in msg.getVerb():
+            logInfo('{0} received AAR item update message: {1}'.format(RL_SERVICE_NAME, self.messageToString(msg)), 2)
+            item = int(msg.getContextValue(ORDER))
+            max_key = int(max(AAR_item.keys(), key=int) if AAR_item else 0)
+            if max_key == -1 or None:
+                max_key = 0
+            
+            if item > max_key+1:
+                diff = item - (max_key+1)
+                for i in range(diff):
+                    missed_item = max_key+1+i
+                    self.rLService_random.updateAARItem(missed_item)
+            print(item)
+            self.rLService_random.updateAARItem(item)
+            print(AAR_item)
+        
+        #if message is to get the next agenda item in AAR
+        elif GET_NEXT_AGENDA_ITEM in msg.getVerb():
+            
+            #if AAR Item list reply as done
+            if not AAR_item:
+                print('Empty AAR')
+                item = -1
+                action = DONE
+            else:
+                #loops through dictionary
+                for item in list(AAR_item.keys()):
+                    action = AAR_item[item]
+                    #if skip don't reply
+                    if action == SKIP:
+                        print('item skipped')
+                        del AAR_item[item]
+                    else:
+                        print('item ' + str(item) +' action ' + action)
+                        #delete item and break
+                        del AAR_item[item]
+                        break
+            
+            #if SKIPs remain, its the end of the item list
+            if action == SKIP:
+                item = -1
+                action = DONE
+             
+            #send message   
+            reply_msg = self._createRequestReply(msg)
+            reply_msg.setResult(action)
+            reply_msg.setVerb(PERFORM_ACTION)
+            reply_msg.setObject(item)
+            
+            if reply_msg is not None:
+                logInfo('{0} is sending reply for AAR agenda item:{1}'.format(RL_SERVICE_NAME, self.messageToString(reply_msg)), 2)
+                self.sendMessage(reply_msg)
+            
+        #start of AAR
+        elif BEGIN_AAR in msg.getVerb():
+            logInfo('{0} received AAR item final update message: {1}'.format(RL_SERVICE_NAME, self.messageToString(msg)), 2)
+            AAR_item['-1'] = 'DONE'            
+        
+        #consider message for state update
+        else:
+            logInfo('{0} received state update message: {1}'.format(RL_SERVICE_NAME, self.messageToString(msg)), 2)
    
             #update state based on the message
             self.rLService_internal.updateState(msg)
@@ -109,42 +179,7 @@ class RLServiceMessaging(BaseService):
             #get state from function call
             state = self.rLService_internal.getState()
             print(state[TUTOR_STATE_QUALITY_PREV_ANSWER])
-        """
-        if msg is not None:
-            reply = self.routeMessage(msg)
-            pass
         
-        if reply is not None:
-            logInfo('{0} is sending reply:{1}'.format(RL_SERVICE_NAME, self.messageToString(reply)), 2)
-            self.sendMessage(reply)
-        """
-        
-    
+    #prepare message to route  
     def routeMessage(self, msg):
-
-        #depending on the content of the message react differently
-        logInfo('Entering RLServiceMessaging.routeMessage', 5)
-        
-        result = None
-        #Only considering inform
-        if msg.getSpeechAct() == INFORM_ACT:
-            self.rLService_internal.informLog(msg)
-            logInfo('{0} finished processing {1}'.format(RL_SERVICE_NAME, INFORM_ACT), 2)
-            
-        elif msg.getSpeechAct() == REQUEST_ACT:
-            logInfo('{0} is processing a {1} message'.format(RL_SERVICE_NAME, REQUEST_ACT), 4)
-            '''
-            newRLService = self.rLService_internal.createNewRLService(msg.getObject())
-            result = self._createRequestReply(msg)
-            result.setActor(RL_SERVICE_NAME)
-            result.setSpeechAct(INFORM_ACT)
-            result.setObject(msg.getObject())
-            if newRLService is not None:
-                result.setResult(newRLService.toSerializable())
-            else:
-                result.setResult(None)
-            logInfo('{0} finished processing {1}'.format(RL_SERVICE_NAME, REQUEST_ACT), 4)
-        
-        return result     
-        '''       
-    
+        pass
