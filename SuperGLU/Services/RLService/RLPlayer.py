@@ -11,12 +11,14 @@ from SuperGLU.Util.ErrorHandling import logInfo
 from SuperGLU.Services.LoggingService  import LoggingService  
 from SuperGLU.Services.RLService.StateVariable import *
 from SuperGLU.Services.RLService.Constants import DIAGNOSE, DOOVER, SKIP, ORDER, DONE, PERFORM_ACTION, GET_NEXT_AGENDA_ITEM,TRANSCRIPT_UPDATE, BEGIN_AAR
-import json
 
 """
     This module contains the Reinforcement Learning service for 2 functionalities -
     1. RL Coach - There are three flavors to it - random, feature space and full state space
     2. RL AAR - for now its random
+    
+    Refer google docs for detailed documentation and design -
+    https://docs.google.com/document/d/1RfX9zMZEjgFuY31qRXaRPC_b64N0yOLxdXTuean8K2s/edit#
 """
 
 RL_SERVICE_NAME = "RL Service"
@@ -167,7 +169,7 @@ class RLServiceMessaging(BaseService):
         #start of AAR
         elif BEGIN_AAR in msg.getVerb():
             logInfo('{0} received AAR item final update message: {1}'.format(RL_SERVICE_NAME, self.messageToString(msg)), 2)
-            AAR_item['-1'] = 'DONE'            
+            AAR_item['-1'] = DONE            
         
         #consider message for state update
         else:
