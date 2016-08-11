@@ -25,9 +25,9 @@ BEGIN_AAR = 'BeginAAR'                          #End of session message
 #State Updates
 CORRECTNESS = 'Correctness'     #Correctness of the learner's response
 #Quality of previous answer
-MIXED = 'mixed'                 #Mixed answer       
-CORRECT = 'correct'             #Correct answer
-INCORRECT = 'incorrect'         #Incorrect answer
+MIXED = 'MIXED'                 #Mixed answer       
+CORRECT = 'CORRECT'             #Correct answer
+INCORRECT = 'INCORRECT'         #Incorrect answer
 #Student levels
 GOOD = 'good'                   
 AVERGAE = 'average'
