@@ -10,8 +10,8 @@ from SuperGLU.Services.StudentModel.PersistentData import DBSession
 
 from gludb.simple import DBObject, Field, Index
 from gludb.config import default_database, Database
-from SuperGLU.Services.Authentication.UserDataService import VALUE_VERB
 
+VALUE_VERB = "Value"
 @DBObject(table_name='IncomingMessages')
 class IncomingMessage(object):
     rawMessage=Field('rawMessage')
@@ -95,7 +95,7 @@ class CSVLoggingService(BaseLoggingService):
         self._quote = quote
 
     def _logMessage(self, msg):
-        with open(self._fileName, 'ab') as aFile:
+        with open(self._fileName, 'a') as aFile:
             writer = csv.writer(aFile, delimiter=self._sep,
                                 quotechar=self._quote)
             outrow = [datetime.now().isoformat()]
