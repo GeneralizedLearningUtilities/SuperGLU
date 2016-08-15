@@ -38,5 +38,5 @@ GIVE_HINT = 'give_hint'                     #Display hint
 GIVE_FEEDBACK = 'give_feedback'             #Display feedback
 GIVE_HINT_FEEDBACK = 'give_hint_feedback'   #Display feedback and hint
 #Message verbs 
-COACHING_ACTIONS = 'coaching_actions'                   #prescribe a coaching action to ELITE
-REQUEST_COACHING_ACTIONS = 'request_coaching_actions'   #ELITE requests a coaching action
+COACHING_ACTIONS = 'coachingActions'                   #prescribe a coaching action to ELITE
+REQUEST_COACHING_ACTIONS = 'requestCoachingActions'   #ELITE requests a coaching action
