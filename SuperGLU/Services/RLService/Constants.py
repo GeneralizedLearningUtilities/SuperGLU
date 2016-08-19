@@ -40,3 +40,4 @@ GIVE_HINT_FEEDBACK = 'give_hint_feedback'   #Display feedback and hint
 #Message verbs 
 COACHING_ACTIONS = 'CoachingActions'                   #prescribe a coaching action to ELITE
 REQUEST_COACHING_ACTIONS = 'RequestCoachingActions'   #ELITE requests a coaching action
+REGISTER_USER_INFO = "RegisterUserInfo"
