@@ -9,7 +9,7 @@ import random as rand
 import csv
 from SuperGLU.Core.MessagingGateway import BaseService, BaseMessagingNode
 from SuperGLU.Util.ErrorHandling import logInfo
-from SuperGLU.Services.LoggingService  import LoggingService  
+#from SuperGLU.Services.LoggingService  import LoggingService  
 from SuperGLU.Services.RLService.Constants import *
 
 """
@@ -22,51 +22,43 @@ from SuperGLU.Services.RLService.Constants import *
 """
 
 RL_SERVICE_NAME = "RL Service"
-tutoring_state = {TUTOR_STATE_QUALITY_PREV_ANSWER:2, TUTOR_STATE_STUDENT_AVG_PERFORMANCE:2}
-avg_performace = {1:0,2:0,3:0}  # 1-Correct, 2-Mixed, 3-Incorrect
+#tutoring state for RL coach
+tutoring_state = {  SCENARIO_NUMBER : 1,                        #Scenario number (1/2) (default 1)
+                    GENDER : 0,                                 #gender of the participant (0(null)/1(male)/2(female)) (default 0)
+                    NUMBER_OF_RESPONSE_PREV : 0,                #Number of responses in previous scenario (clustered in 6 classes) (default 0)
+                    NUMBER_OF_CORRECT_PREV : 0,                 #Number of correct responses in previous scenario (clustered in 6 classes) (default 0)
+                    NUMBER_OF_MIXED_PREV : 0,                   #Number of mixed responses in previous scenario (clustered in 6 classes) (default 0)
+                    NUMBER_OF_INCORRECT_PREV : 0,               #Number of incorrect responses in previous scenario (clustered in 6 classes) (default 0)
+                    SCORE_PREV : 0,                             #Score in previous scenario (clustered in 6 classes) (default 0)
+                    AVG_RESPONSE_TIME_PREV : 0,                 #Average user response time for all responses in previous scenario (clustered in 6 classes) (default 0)
+                    AVG_RESPONSE_TIME_CORRECT_PREV : 0,         #Average user response time for correct responses in previous scenario (clustered in 6 classes) (default 0)
+                    AVG_RESPONSE_TIME_MIXED_PREV : 0,           #Average user response time for mixed responses in previous scenario (clustered in 6 classes) (default 0)
+                    AVG_RESPONSE_TIME_INCORRECT_PREV : 0,       #Average user response time for incorrect responses in previous scenario (clustered in 6 classes) (default 0)
+                    SEEN_BEFORE : 0,                            #Has the system question appeared in the previous scenario? (1(yes)/2(no)) (default 2)
+                    QUALITY_PREV_IF_SEEN : 0,                   #Quality of response in the previous scenario if the same question has appeared (0(null)/1(Correct)/2(Mixed)/3(Incorrect)) (default 0)
+                    QUALITY_ANSWER : 0,                         #correctness of the previous answer 0(null)/1(Correct)/2(Mixed)/3(Incorrect) (default 0)
+                    QUALITY_ANSWER_LAST : 0,                    #correctness of the 2nd last answer 0(null)/1(Correct)/2(Mixed)/3(Incorrect) (default 0)
+                    QUALITY_ANSWER_LAST_LAST : 0,               #correctness of the 3rd last answer 0(null)/1(Correct)/2(Mixed)/3(Incorrect) (default 0)
+                    NUMBER_OF_RESPONSE : 0,                     #Number of responses in current scenario so far (clustered in 6 classes) (default 0)
+                    NUMBER_OF_CORRECT_RESPONSE : 0,             #Number of correct responses in current scenario so far (clustered in 6 classes) (default 0)
+                    NUMBER_OF_MIXED_RESPONSE : 0,               #Number of mixed responses in current scenario so far (clustered in 6 classes) (default 0)
+                    NUMBER_OF_INCORRECT_RESPONSE : 0,           #Number of incorrect responses in current scenario so far (clustered in 6 classes) (default 0)
+                    SCORE : 0,                                  #Score in current scenario so far (clustered in 6 classes) (default 0)
+                    RESPONSE_TIME : 0,                          #User response time for previous question (clustered in 6 classes) (default 0)
+                    RESPONSE_TIME_LAST : 0,                     #User response time for 2nd last question (clustered in 6 classes) (default 0)
+                    RESPONSE_TIME_LAST_LAST : 0,                #User response time for 3rd last question (clustered in 6 classes) (default 0)
+                    AVG_RESPONSE_TIME : 0,                      #Average user response time for all responses in current scenario so far (clustered in 6 classes) (default 0)
+                    AVG_RESPONSE_TIME_CORRECT : 0,              #Average user response time for correct responses in current scenario so far (clustered in 6 classes) (default 0)
+                    AVG_RESPONSE_TIME_MIXED : 0,                #Average user response time for mixed responses in current scenario so far (clustered in 6 classes) (default 0)
+                    AVG_RESPONSE_TIME_INCORRECT : 0             #Average user response time for incorrect responses in current scenario so far (clustered in 6 classes) (default 0)
+                  }
 
 #AAR item list
 AAR_item = {}
 
-#super class for model specific subclasses 
-#performs general action in the player like state updates, logging, etc
-class RLPlayer():
-    
-    def __init__(self):
-        pass
-    
-    #update state with every message
-    def updateState(self,msg):
-        #state update on relevant messages
-        
-        #update quality of answer based on the superGlu message
-        if msg.getObject() == CORRECTNESS:
-            if msg.getResult() == CORRECT:
-                avg_performace[1] += 1
-                tutoring_state[TUTOR_STATE_QUALITY_PREV_ANSWER] = 1
-            elif msg.getResult() == MIXED:
-                avg_performace[2] += 1
-                tutoring_state[TUTOR_STATE_QUALITY_PREV_ANSWER] = 2 
-            elif msg.getResult() == INCORRECT:
-                avg_performace[3] += 1
-                tutoring_state[TUTOR_STATE_QUALITY_PREV_ANSWER] = 3 
-            else:
-                print("Incorrect Correctness value")
-                
-            #update average student performance as the category with maximum 
-            tutoring_state[TUTOR_STATE_STUDENT_AVG_PERFORMANCE] = max(avg_performace, key=avg_performace.get)
-        
-        print(tutoring_state)
-           
-    def informLog(self, msg):
-        pass
-    
-    def getState(self):
-        return tutoring_state   #can also be accessed directly as a global variable   
-
 
 #Random policy
-class RLRandom(RLPlayer):
+class RLRandom():
     #Random policy for Coach
     def getTopAction(self):
         r = rand.random()
@@ -91,7 +83,7 @@ class RLRandom(RLPlayer):
             
  
 #Trained policy using function approximation 
-class RLCoachFeature(RLPlayer):
+class RLCoachFeature():
     
     def __init__(self):
         pass
@@ -119,29 +111,49 @@ class RLCoachFeature(RLPlayer):
         return max(Q)
     
     def getActionValue(self,action):
-        pass
+        pass   
 
 
-#handles incoming and outgoing messages     
-class RLServiceMessaging(BaseService):
+#performs general action in the player like state updates, logging, etc
+class RLPlayer(BaseService):
     
-    rLService_internal = RLPlayer()         #for internal updates
     rLService_random = RLRandom()           #random policy
     rLService_feature = RLCoachFeature()    #trained policy for RL Coach
-    csvLog = LoggingService.CSVLoggingService("RLPlayerLog.csv")
-    serializeMsg = BaseMessagingNode()
     
-    #receive message and take appropriate action by looking at the message attributes like verb         
-    def receiveMessage(self, msg):
-        super(RLServiceMessaging, self).receiveMessage(msg)
+    def __init__(self):
+        pass
+    
+    #update state with every message
+    def updateStateRLCoach(self,msg):
+        #state update on relevant messages
+        '''
+        #update quality of answer based on the superGlu message
+        if msg.getObject() == CORRECTNESS:
+            if msg.getResult() == CORRECT:
+                avg_performace[1] += 1
+                tutoring_state[TUTOR_STATE_QUALITY_PREV_ANSWER] = 1
+            elif msg.getResult() == MIXED:
+                avg_performace[2] += 1
+                tutoring_state[TUTOR_STATE_QUALITY_PREV_ANSWER] = 2 
+            elif msg.getResult() == INCORRECT:
+                avg_performace[3] += 1
+                tutoring_state[TUTOR_STATE_QUALITY_PREV_ANSWER] = 3 
+            else:
+                print("Incorrect Correctness value")
+                
+            #update average student performance as the category with maximum 
+            tutoring_state[TUTOR_STATE_STUDENT_AVG_PERFORMANCE] = max(avg_performace, key=avg_performace.get)
+        '''
+        #get Gender
+        if REGISTER_USER_INFO in msg.getVerb():
+            logInfo('{0} received gender update message: {1}'.format(RL_SERVICE_NAME, self.messageToString(msg)), 2)
         
-        #Log the message (for debugging)
-        #strMsg = self.serializeMsg.messageToString(msg)
-        #jMsg = json.dumps(strMsg)
-        self.csvLog.logMessage(msg)
+        print(tutoring_state)
+    
+    #update AAR item
+    def updateStateRLAAR(self,msg):
         
-        #AAR
-        #if message is for AAR item update
+        #if message is transcript update
         if TRANSCRIPT_UPDATE in msg.getVerb():
             logInfo('{0} received AAR item update message: {1}'.format(RL_SERVICE_NAME, self.messageToString(msg)), 2)
             item = int(msg.getContextValue(ORDER))
@@ -155,15 +167,42 @@ class RLServiceMessaging(BaseService):
                     missed_item = max_key+1+i
                     self.rLService_random.updateAARItem(missed_item)
             print(item)
+            
             if msg.getResult() == CORRECT:
                 AAR_item[item] = SKIP
             else:
                 self.rLService_random.updateAARItem(item)
             print(AAR_item)
+           
+    def informLog(self, msg):
+        pass
+    
+    def getState(self):
+        return tutoring_state   #can also be accessed directly as a global variable       
+
+#handles incoming and outgoing messages     
+class RLServiceMessaging(BaseService):
+    
+    rLService_internal = RLPlayer()         #for internal updates
+    rLService_random = RLRandom()           #random policy
+    rLService_feature = RLCoachFeature()    #trained policy for RL Coach
+    #csvLog = LoggingService.CSVLoggingService("RLPlayerLog.csv")
+    serializeMsg = BaseMessagingNode()
+    
+    #receive message and take appropriate action by looking at the message attributes like verb         
+    def receiveMessage(self, msg):
+        super(RLServiceMessaging, self).receiveMessage(msg)
         
+        #Log the message (for debugging)
+        #strMsg = self.serializeMsg.messageToString(msg)
+        #jMsg = json.dumps(strMsg)
+        
+        #self.csvLog.logMessage(msg)
+        
+        #Check specific messages for AAR and Coach
         #AAR    
         #if message informs the start of AAR
-        elif BEGIN_AAR in msg.getVerb():
+        if BEGIN_AAR in msg.getVerb():
             logInfo('{0} received AAR item final update message: {1}'.format(RL_SERVICE_NAME, self.messageToString(msg)), 2)
             AAR_item['-1'] = DONE
         
@@ -222,11 +261,14 @@ class RLServiceMessaging(BaseService):
         #consider message for state update  - can also reuse TRANSCRIPT_UPDATE for correctness ???
         else:
             logInfo('{0} received state update message: {1}'.format(RL_SERVICE_NAME, self.messageToString(msg)), 2)
-   
-            #update state based on the message
-            self.rLService_internal.updateState(msg)
+            
+            #update RL AAR state based on the message
+            self.rLService_internal.updateStateRLAAR(msg)
+            
+            #update RL coach state based on the message
+            self.rLService_internal.updateStateRLCoach(msg)
             
             #get state from function call
             state = self.rLService_internal.getState()
-            print(state[TUTOR_STATE_QUALITY_PREV_ANSWER])
-            
+
+        
