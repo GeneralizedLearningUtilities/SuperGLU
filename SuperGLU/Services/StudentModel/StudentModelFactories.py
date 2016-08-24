@@ -5,6 +5,7 @@ from SuperGLU.Services.StudentModel.PersistentData import DBStudentModel, DBSess
     this is an abstract class that creates a DBStudentModel object according to some algorithm to be implemented in a subclass
 """
 from SuperGLU.Core.MessagingDB import NEGATIVE_HELP_TYPE
+import math
 class StudentModelFactoryBase(object):
     
     #arguments: DBStudent
@@ -102,7 +103,7 @@ class WeightedStudentModelFactory (BasicStudentModelFactory):
             
             for (feedbackText, feedbackType) in currentSession.feedback:
                 if feedbackType == NEGATIVE_HELP_TYPE:
-                    numberOfNegativeFeedbacks++
+                    numberOfNegativeFeedbacks = numberOfNegativeFeedbacks + 1
             
             if numberOfNegativeFeedbacks > 6:
                 numberOfNegativeFeedbacks = 6
@@ -114,6 +115,27 @@ class WeightedStudentModelFactory (BasicStudentModelFactory):
         return studentModel
     
     def addTimeSpentWeights(self, studentModel, student):
+        sessionList = student.getSessions(True)
+        
+        for  currentSession in sessionList:
+            #DBTask
+            currentSessionTask = currentSession.getTask(True)
+            
+            #if there is no task associated with the session then ignore it
+            #if we don't know the duration then skip this session.
+            if currentSessionTask is None or currentSession.duration == -1.0:
+                continue
+            
+            if currentSession.duration > 180:
+                x = currentSession.duration - 180
+                kcDelta = -.1 * (1 / (1 + math.exp(1/600*(x-600))))
+            else:
+                kcDelta = 0
+                
+            for kc in currentSessionTask.kcs:
+                if kc in studentModel.kcMastery.keys():
+                    studentModel.kcMastery[kc] = studentModel.kcMastery[kc] + kcDelta
+            
         return studentModel
     
     def buildStudentModel(self, student):

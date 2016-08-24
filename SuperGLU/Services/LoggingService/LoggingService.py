@@ -66,7 +66,7 @@ class DBLoggingService(BaseLoggingService):
                 data.task = 'http://localhost:5533/QueryLogDebug.html?'
                 data.students = ['p1']
                 data.startTime = '2016-02-04T23:27:14.000Z'
-                performance = data.getFeedback(False)
+                #performance = data.getFeedback(False)
                 #print(performance)
         else:
             print("Message size too long for msg #: " + msg.getId())

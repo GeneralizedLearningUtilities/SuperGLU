@@ -7,7 +7,7 @@ from SuperGLU.Core.MessagingDB import KC_SCORE_VERB, SESSION_ID_CONTEXT_KEY, DAT
     HEARTBEAT_VERB, HELP_TYPE_CONTEXT_KEY
 from SuperGLU.Core.FIPA.SpeechActs import INFORM_ACT, REQUEST_ACT
 from SuperGLU.Services.StudentModel.PersistentData import DBStudentAlias, DBStudentModel, DBStudent, DBSession, DBClasssAlias, DBClass
-from SuperGLU.Services.StudentModel.StudentModelFactories import BasicStudentModelFactory
+from SuperGLU.Services.StudentModel.StudentModelFactories import BasicStudentModelFactory, WeightedStudentModelFactory
 from datetime import datetime
 from SuperGLU.Services.QueryService.DBBridge import DBBridge
 
@@ -52,7 +52,7 @@ class StudentModel(DBBridge):
         if len(studentsWithId) == 0:
             logInfo('failed to find student alias {0}'.format(studentId), 1)
             student = self.createStudent(studentId, None)
-            return BasicStudentModelFactory.buildStudentModel(self, student)
+            return WeightedStudentModelFactory().buildStudentModel(self, student)
         
         for studentAlias in studentsWithId:
             student = DBStudent.find_one(studentAlias.trueId)
@@ -60,9 +60,9 @@ class StudentModel(DBBridge):
             if student is None:
                 logInfo('failed to find student with Id: {0} and alias {1}'.format(studentAlias.trueId, studentAlias.alias), 1)
                 student = self.createStudent(studentId, None)
-                return BasicStudentModelFactory.buildStudentModel(self, student)
+                return WeightedStudentModelFactory().buildStudentModel(self, student)
             else:
-                return BasicStudentModelFactory().buildStudentModel(student)
+                return WeightedStudentModelFactory().buildStudentModel(student)
                 
         
     def informKCScoreVerb(self, msg):
