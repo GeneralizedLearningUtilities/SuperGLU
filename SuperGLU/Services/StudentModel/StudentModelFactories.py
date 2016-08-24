@@ -1,5 +1,5 @@
 from SuperGLU.Util.ErrorHandling import logInfo
-from SuperGLU.Services.StudentModel.PersistentData import DBStudentModel
+from SuperGLU.Services.StudentModel.PersistentData import DBStudentModel, DBSession, DBTask
 
 """
     this is an abstract class that creates a DBStudentModel object according to some algorithm to be implemented in a subclass
@@ -14,11 +14,12 @@ class StudentModelFactoryBase(object):
 
 class BasicStudentModelFactory(StudentModelFactoryBase):
     
+    
     def buildStudentModel(self, student):
         #List<DBSession>
-        sessionList = student.getSessions(False)
+        self.sessionList = student.getSessions(False)
         
-        if len(sessionList) == 0:
+        if len(self.sessionList) == 0:
             logInfo('student {0} has not started any sessions.  cannot build student model'.format(student.studentId), 2)
             return None
         
@@ -27,7 +28,7 @@ class BasicStudentModelFactory(StudentModelFactoryBase):
         
         logInfo('building student model for student {0}'.format(student.studentId), 3)
         
-        for session in sessionList:
+        for session in self.sessionList:
             #sanity check to make sure the student took part in the session.
             if student.studentId not in session.performance:
                 logInfo('student {0} was attached to session {1}, but no kc score was ever recorded'.format(student.studentId, session.sessionId), 2)
@@ -58,3 +59,43 @@ class BasicStudentModelFactory(StudentModelFactoryBase):
         
         student.addStudentModel(result)
         return result
+
+class WeightedStudentModelFactory (BasicStudentModelFactory):
+    
+    def addHintWeights(self, studentModel, student):
+        
+        sessionList = student.getSessions(True)
+        
+        for  currentSession in sessionList:
+            #DBTask
+            currentSessionTask = currentSession.getTask(False)
+            
+            #if there is no task associated with the session then ignore it
+            if currentSessionTask is None:
+                continue
+            
+            numberOfHintsInCurrentSession = len(currentSession.hints)
+            
+            #don't count past six hints
+            if numberOfHintsInCurrentSession > 6:
+                numberOfHintsInCurrentSession = 6
+            
+            for kc in currentSessionTask.kcs:
+                if kc in studentModel.kcMastery.keys():
+                    studentModel.kcMastery[kc] = studentModel.kcMastery[kc] - numberOfHintsInCurrentSession * .3
+        
+        return studentModel
+    
+    def addFeedbackWeights(self, studentModel, student):
+        return studentModel
+    
+    def addTimeSpentWeights(self, studentModel, student):
+        return studentModel
+    
+    def buildStudentModel(self, student):
+        studentModel = BasicStudentModelFactory.buildStudentModel(self, student)
+        studentModel = self.addHintWeights(studentModel, student)
+        studentModel = self.addFeedbackWeights(studentModel, student)
+        studentModel = self.addTimeSpentWeights(studentModel, student)
+        return studentModel
+        

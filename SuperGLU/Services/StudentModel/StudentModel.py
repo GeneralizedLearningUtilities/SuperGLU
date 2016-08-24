@@ -120,6 +120,8 @@ class StudentModel(DBBridge):
         self.updateSession(msg, session)
         session.feedback.append(msg.getResult())
         session.save()   
+    
+    
 
 class StudentModelMessaging(BaseService):
     
