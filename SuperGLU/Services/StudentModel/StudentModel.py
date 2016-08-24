@@ -4,7 +4,7 @@ from SuperGLU.Core.MessagingGateway import BaseService
 from SuperGLU.Core.Messaging import Message
 from SuperGLU.Util.ErrorHandling import logInfo
 from SuperGLU.Core.MessagingDB import KC_SCORE_VERB, SESSION_ID_CONTEXT_KEY, DATE_TIME_FORMAT, TASK_ID_CONTEXT_KEY, TASK_HINT_VERB, TASK_FEEDBACK_VERB, MASTERY_VERB, CLASS_ID_CONTEXT_KEY,\
-    HEARTBEAT_VERB
+    HEARTBEAT_VERB, HELP_TYPE_CONTEXT_KEY
 from SuperGLU.Core.FIPA.SpeechActs import INFORM_ACT, REQUEST_ACT
 from SuperGLU.Services.StudentModel.PersistentData import DBStudentAlias, DBStudentModel, DBStudent, DBSession, DBClasssAlias, DBClass
 from SuperGLU.Services.StudentModel.StudentModelFactories import BasicStudentModelFactory
@@ -118,7 +118,7 @@ class StudentModel(DBBridge):
             session = self.createSession(msg)
         
         self.updateSession(msg, session)
-        session.feedback.append(msg.getResult())
+        session.feedback.append((msg.getResult(), msg.getContextValue(HELP_TYPE_CONTEXT_KEY)))
         session.save()   
     
     
