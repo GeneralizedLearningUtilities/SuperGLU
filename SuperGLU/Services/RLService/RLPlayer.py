@@ -9,7 +9,7 @@ import random as rand
 from datetime import datetime
 import csv,os
 from SuperGLU.Core.MessagingGateway import BaseService, BaseMessagingNode
-from SuperGLU.Util.ErrorHandling import logInfo
+from SuperGLU.Util.ErrorHandling import logInfo, tryRaiseError
 #from SuperGLU.Services.LoggingService  import LoggingService  
 from SuperGLU.Services.RLService.Constants import *
 from math import ceil
@@ -152,189 +152,189 @@ class RLPlayer(BaseService):
     def updateStateRLCoach(self,msg):
         #state update on relevant messages
         
-        #update scenario
-        if BEGIN_AAR in msg.getVerb():
-            logInfo('{0} received scenario update message: {1}'.format(RL_SERVICE_NAME, self.messageToString(msg)), 2)
-            
-            #set previous values 
-            tutoring_state[SCENARIO_NUMBER] = 2
-            tutoring_state[SCORE_PREV] = tutoring_state[SCORE]
-            tutoring_state[NUMBER_OF_RESPONSE_PREV] = tutoring_state[NUMBER_OF_RESPONSE]
-            tutoring_state[NUMBER_OF_CORRECT_PREV] = tutoring_state[NUMBER_OF_CORRECT]
-            tutoring_state[NUMBER_OF_MIXED_PREV] = tutoring_state[NUMBER_OF_MIXED]
-            tutoring_state[NUMBER_OF_INCORRECT_PREV] = tutoring_state[NUMBER_OF_INCORRECT]
-            tutoring_state[AVG_RESPONSE_TIME_PREV] = tutoring_state[AVG_RESPONSE_TIME]
-            tutoring_state[AVG_RESPONSE_TIME_CORRECT_PREV] = tutoring_state[AVG_RESPONSE_TIME_CORRECT]
-            tutoring_state[AVG_RESPONSE_TIME_MIXED_PREV] = tutoring_state[AVG_RESPONSE_TIME_MIXED]
-            tutoring_state[AVG_RESPONSE_TIME_INCORRECT_PREV] = tutoring_state[AVG_RESPONSE_TIME_INCORRECT]
-            
-            #reset current values
-            tutoring_state[QUALITY_ANSWER_LAST_LAST] = 0
-            tutoring_state[QUALITY_ANSWER_LAST] = 0
-            tutoring_state[QUALITY_ANSWER] = 0
-            tutoring_state[SCORE] = 0
-            tutoring_state[SEEN_BEFORE] = 0
-            tutoring_state[QUALITY_PREV_IF_SEEN] = 0
-            tutoring_state[NUMBER_OF_RESPONSE] = 0
-            tutoring_state[NUMBER_OF_CORRECT] = 0
-            tutoring_state[NUMBER_OF_INCORRECT] = 0
-            tutoring_state[NUMBER_OF_MIXED] = 0
-            tutoring_state[RESPONSE_TIME] = 0
-            tutoring_state[RESPONSE_TIME_LAST] = 0
-            tutoring_state[RESPONSE_TIME_LAST_LAST] = 0
-            tutoring_state[AVG_RESPONSE_TIME] = 0
-            tutoring_state[AVG_RESPONSE_TIME_CORRECT] = 0
-            tutoring_state[AVG_RESPONSE_TIME_INCORRECT] = 0
-            tutoring_state[AVG_RESPONSE_TIME_MIXED] = 0
-            
-            #recent locals for current
-            self.num_response = None
-            self.num_correct_response = None
-            self.num_incorrect_response = None
-            self.num_mixed_response = None
-            self.start = None
-            self.end = None
-            self.time_taken = None
-            self.time_correct = None
-            self.time_mixed = None
-            self.time_incorrect = None
-        
-        #get Gender
-        elif REGISTER_USER_INFO in msg.getVerb():
-            logInfo('{0} received gender update message: {1}'.format(RL_SERVICE_NAME, self.messageToString(msg)), 2)
-            gend = msg.getObject()
-            if gend ==  FEMALE:
-                tutoring_state[GENDER] = 2
-            elif gend == MALE:
-                tutoring_state[GENDER] = 1
-        
-        #get score
-        elif TRANSCRIPT_UPDATE in msg.getVerb():
-            logInfo('{0} received score update message: {1}'.format(RL_SERVICE_NAME, self.messageToString(msg)), 2)
-            scr = msg.getObject()
-            score = 0 if scr is None else self.interval.get(int(scr),5) 
-            tutoring_state[SCORE] = score
-            
-            #store unique ID of node
-            if tutoring_state[SCENARIO_NUMBER] == 1:
-                logInfo('{0} received question store message: {1}'.format(RL_SERVICE_NAME, self.messageToString(msg)), 2)
-                node_id = msg.getContextValue(NODE_ID_CONTEXT_KEY)
-                node = [node_id, 0] #quality null - will be updated when checked for correctness
-                self.questions.append(node)
-        
-            #check if Chen's Utterances stored before
-            if tutoring_state[SCENARIO_NUMBER] == 2:
-                logInfo('{0} received if seen before message: {1}'.format(RL_SERVICE_NAME, self.messageToString(msg)), 2)
-                node_id = msg.getContextValue(NODE_ID_CONTEXT_KEY)
-                for question in self.questions:
-                    if question[0] == node_id:
-                        tutoring_state[SEEN_BEFORE] = 1
-                        tutoring_state[QUALITY_PREV_IF_SEEN] = question[1]
-                        break
-                    else:
-                        tutoring_state[SEEN_BEFORE] = 0
-                        tutoring_state[QUALITY_PREV_IF_SEEN] = 0
-              
-        #update response time
-        #verb should be GameLog, the object should be PracticeEnvironment and the result should be RandomizedChoices
-        if msg.getVerb() == GAME_LOG and msg.getObject() == PRACTICE_ENVIRONMENT and msg.getResult() == RANDOMIZED_CHOICES:
-            logInfo('{0} received start timestamp update message: {1}'.format(RL_SERVICE_NAME, self.messageToString(msg)), 2)
-            self.start = msg.getTimestamp()
-            print("start = ",self.start)
-        
-        #update quality of answer 
-        if msg.getObject() == CORRECTNESS:
-            logInfo('{0} received correctness based update message: {1}'.format(RL_SERVICE_NAME, self.messageToString(msg)), 2)
-            print(self.start)
-            
-            #update lasts
-            tutoring_state[QUALITY_ANSWER_LAST_LAST] = tutoring_state[QUALITY_ANSWER_LAST]
-            tutoring_state[QUALITY_ANSWER_LAST] = tutoring_state[QUALITY_ANSWER]
-            tutoring_state[RESPONSE_TIME_LAST_LAST] = tutoring_state[RESPONSE_TIME_LAST]
-            tutoring_state[RESPONSE_TIME_LAST] = tutoring_state[RESPONSE_TIME]
-            
-            #get response time
-            self.end = msg.getTimestamp()
-            if self.start is not None:
-                frmt = "%Y-%m-%dT%H:%M:%S.%f"
-                self.time_taken = (datetime.strptime(self.end, frmt) - datetime.strptime(self.start, frmt)).seconds
-            
-            #get counts and averages
-            self.num_response = 1 if self.num_response is None else self.num_response + 1
-            tutoring_state[NUMBER_OF_RESPONSE] = self.interval.get(int(self.num_response),5) 
-            
-            self.sum_time_taken = self.time_taken if self.sum_time_taken is None else self.sum_time_taken + self.time_taken
-            tutoring_state[RESPONSE_TIME] = self.time_interval.get(int(self.time_taken),5)
-            tutoring_state[AVG_RESPONSE_TIME] = self.time_interval.get(ceil(int(self.sum_time_taken/self.num_response)),5)
-            
-            #correctness based responses
-            if msg.getResult() == INCORRECT:
-                tutoring_state[QUALITY_ANSWER] = 1
+        try:
+            #update scenario
+            if BEGIN_AAR in msg.getVerb():
+                logInfo('{0} received scenario update message: {1}'.format(RL_SERVICE_NAME, self.messageToString(msg)), 2)
                 
-                self.num_incorrect_response = 1 if self.num_incorrect_response is None else self.num_incorrect_response + 1
-                tutoring_state[NUMBER_OF_INCORRECT] = self.interval.get(int(self.num_incorrect_response),5) 
+                #set previous values 
+                tutoring_state[SCENARIO_NUMBER] = 2
+                tutoring_state[SCORE_PREV] = tutoring_state[SCORE]
+                tutoring_state[NUMBER_OF_RESPONSE_PREV] = tutoring_state[NUMBER_OF_RESPONSE]
+                tutoring_state[NUMBER_OF_CORRECT_PREV] = tutoring_state[NUMBER_OF_CORRECT]
+                tutoring_state[NUMBER_OF_MIXED_PREV] = tutoring_state[NUMBER_OF_MIXED]
+                tutoring_state[NUMBER_OF_INCORRECT_PREV] = tutoring_state[NUMBER_OF_INCORRECT]
+                tutoring_state[AVG_RESPONSE_TIME_PREV] = tutoring_state[AVG_RESPONSE_TIME]
+                tutoring_state[AVG_RESPONSE_TIME_CORRECT_PREV] = tutoring_state[AVG_RESPONSE_TIME_CORRECT]
+                tutoring_state[AVG_RESPONSE_TIME_MIXED_PREV] = tutoring_state[AVG_RESPONSE_TIME_MIXED]
+                tutoring_state[AVG_RESPONSE_TIME_INCORRECT_PREV] = tutoring_state[AVG_RESPONSE_TIME_INCORRECT]
                 
-                self.sum_time_incorrect = self.time_taken if self.sum_time_incorrect is None else self.sum_time_incorrect + self.time_taken
-                tutoring_state[AVG_RESPONSE_TIME_INCORRECT] = self.time_interval.get(ceil(self.sum_time_incorrect/self.num_incorrect_response),5)
+                #reset current values
+                tutoring_state[QUALITY_ANSWER_LAST_LAST] = 0
+                tutoring_state[QUALITY_ANSWER_LAST] = 0
+                tutoring_state[QUALITY_ANSWER] = 0
+                tutoring_state[SCORE] = 0
+                tutoring_state[SEEN_BEFORE] = 0
+                tutoring_state[QUALITY_PREV_IF_SEEN] = 0
+                tutoring_state[NUMBER_OF_RESPONSE] = 0
+                tutoring_state[NUMBER_OF_CORRECT] = 0
+                tutoring_state[NUMBER_OF_INCORRECT] = 0
+                tutoring_state[NUMBER_OF_MIXED] = 0
+                tutoring_state[RESPONSE_TIME] = 0
+                tutoring_state[RESPONSE_TIME_LAST] = 0
+                tutoring_state[RESPONSE_TIME_LAST_LAST] = 0
+                tutoring_state[AVG_RESPONSE_TIME] = 0
+                tutoring_state[AVG_RESPONSE_TIME_CORRECT] = 0
+                tutoring_state[AVG_RESPONSE_TIME_INCORRECT] = 0
+                tutoring_state[AVG_RESPONSE_TIME_MIXED] = 0
                 
-                self.questions[-1][1] = 1
+                #recent locals for current
+                self.num_response = None
+                self.num_correct_response = None
+                self.num_incorrect_response = None
+                self.num_mixed_response = None
+                self.start = None
+                self.end = None
+                self.time_taken = None
+                self.time_correct = None
+                self.time_mixed = None
+                self.time_incorrect = None
             
-            elif msg.getResult() == MIXED:
-                tutoring_state[QUALITY_ANSWER] = 2
+            #get Gender
+            elif REGISTER_USER_INFO in msg.getVerb():
+                logInfo('{0} received gender update message: {1}'.format(RL_SERVICE_NAME, self.messageToString(msg)), 2)
+                gend = msg.getObject()
+                if gend ==  FEMALE:
+                    tutoring_state[GENDER] = 2
+                elif gend == MALE:
+                    tutoring_state[GENDER] = 1
+            
+            #update response time
+            #verb should be GameLog, the object should be PracticeEnvironment and the result should be RandomizedChoices
+            if msg.getVerb() == GAME_LOG and msg.getObject() == PRACTICE_ENVIRONMENT and msg.getResult() == RANDOMIZED_CHOICES:
+                logInfo('{0} received start timestamp update message: {1}'.format(RL_SERVICE_NAME, self.messageToString(msg)), 2)
+                self.start = msg.getTimestamp()
+                print("start = ",self.start)
+            
+            #once the participant answers
+            elif TRANSCRIPT_UPDATE in msg.getVerb():
+                logInfo('{0} received transcript update message: {1}'.format(RL_SERVICE_NAME, self.messageToString(msg)), 2)
+                scr = msg.getObject()
+                score = 0 if scr is None else self.interval.get(ceil(float(scr)),5) 
+                tutoring_state[SCORE] = score
                 
-                self.num_mixed_response = 1 if self.num_mixed_response is None else self.num_mixed_response + 1
-                tutoring_state[NUMBER_OF_MIXED] = self.interval.get(int(self.num_mixed_response),5)
+                #store unique ID of node
+                if tutoring_state[SCENARIO_NUMBER] == 1:
+                    logInfo('{0} received question store message: {1}'.format(RL_SERVICE_NAME, self.messageToString(msg)), 2)
+                    node_id = msg.getContextValue(NODE_ID_CONTEXT_KEY)
+                    node = [node_id, 0] #quality null - will be updated when checked for correctness
+                    self.questions.append(node)
+            
+                #check if Chen's Utterances stored before
+                if tutoring_state[SCENARIO_NUMBER] == 2:
+                    logInfo('{0} received if seen before message: {1}'.format(RL_SERVICE_NAME, self.messageToString(msg)), 2)
+                    node_id = msg.getContextValue(NODE_ID_CONTEXT_KEY)
+                    for question in self.questions:
+                        if question[0] == node_id:
+                            tutoring_state[SEEN_BEFORE] = 1
+                            tutoring_state[QUALITY_PREV_IF_SEEN] = question[1]
+                            break
+                        else:
+                            tutoring_state[SEEN_BEFORE] = 0
+                            tutoring_state[QUALITY_PREV_IF_SEEN] = 0
+            
+                print(self.start)
                 
-                self.sum_time_mixed = self.time_taken if self.sum_time_mixed is None else self.sum_time_mixed + self.time_taken
-                tutoring_state[AVG_RESPONSE_TIME_MIXED] = self.time_interval.get(ceil(self.sum_time_mixed/self.num_mixed_response),5)
+                #update lasts
+                tutoring_state[QUALITY_ANSWER_LAST_LAST] = tutoring_state[QUALITY_ANSWER_LAST]
+                tutoring_state[QUALITY_ANSWER_LAST] = tutoring_state[QUALITY_ANSWER]
+                tutoring_state[RESPONSE_TIME_LAST_LAST] = tutoring_state[RESPONSE_TIME_LAST]
+                tutoring_state[RESPONSE_TIME_LAST] = tutoring_state[RESPONSE_TIME]
                 
-                self.questions[-1][1] = 2
+                #get response time
+                self.end = msg.getTimestamp()
+                if self.start is not None:
+                    frmt = "%Y-%m-%dT%H:%M:%S.%f"
+                    self.time_taken = (datetime.strptime(self.end, frmt) - datetime.strptime(self.start, frmt)).seconds
                 
-            elif msg.getResult() == CORRECT:
-                tutoring_state[QUALITY_ANSWER] = 3 
+                #get counts and averages
+                self.num_response = 1 if self.num_response is None else self.num_response + 1
+                tutoring_state[NUMBER_OF_RESPONSE] = self.interval.get(int(self.num_response),5) 
                 
-                self.num_correct_response = 1 if self.num_correct_response is None else self.num_correct_response + 1
-                tutoring_state[NUMBER_OF_CORRECT] = self.interval.get(int(self.num_correct_response),5)
+                self.sum_time_taken = self.time_taken if self.sum_time_taken is None else self.sum_time_taken + self.time_taken
+                tutoring_state[RESPONSE_TIME] = self.time_interval.get(int(self.time_taken),5)
+                tutoring_state[AVG_RESPONSE_TIME] = self.time_interval.get(ceil(int(self.sum_time_taken/self.num_response)),5)
                 
-                self.sum_time_correct = self.time_taken if self.sum_time_correct is None else self.sum_time_correct + self.time_taken
-                tutoring_state[AVG_RESPONSE_TIME_CORRECT] = self.time_interval.get(ceil(self.sum_time_correct/self.num_correct_response),5)
+                #correctness based responses
+                if msg.getResult() == INCORRECT:
+                    tutoring_state[QUALITY_ANSWER] = 1
+                    
+                    self.num_incorrect_response = 1 if self.num_incorrect_response is None else self.num_incorrect_response + 1
+                    tutoring_state[NUMBER_OF_INCORRECT] = self.interval.get(int(self.num_incorrect_response),5) 
+                    
+                    self.sum_time_incorrect = self.time_taken if self.sum_time_incorrect is None else self.sum_time_incorrect + self.time_taken
+                    tutoring_state[AVG_RESPONSE_TIME_INCORRECT] = self.time_interval.get(ceil(self.sum_time_incorrect/self.num_incorrect_response),5)
+                    
+                    self.questions[-1][1] = 1
                 
-                self.questions[-1][1] = 3
-            else:
-                print("Incorrect Correctness value")
-                   
+                elif msg.getResult() == MIXED:
+                    tutoring_state[QUALITY_ANSWER] = 2
+                    
+                    self.num_mixed_response = 1 if self.num_mixed_response is None else self.num_mixed_response + 1
+                    tutoring_state[NUMBER_OF_MIXED] = self.interval.get(int(self.num_mixed_response),5)
+                    
+                    self.sum_time_mixed = self.time_taken if self.sum_time_mixed is None else self.sum_time_mixed + self.time_taken
+                    tutoring_state[AVG_RESPONSE_TIME_MIXED] = self.time_interval.get(ceil(self.sum_time_mixed/self.num_mixed_response),5)
+                    
+                    self.questions[-1][1] = 2
+                    
+                elif msg.getResult() == CORRECT:
+                    tutoring_state[QUALITY_ANSWER] = 3 
+                    
+                    self.num_correct_response = 1 if self.num_correct_response is None else self.num_correct_response + 1
+                    tutoring_state[NUMBER_OF_CORRECT] = self.interval.get(int(self.num_correct_response),5)
+                    
+                    self.sum_time_correct = self.time_taken if self.sum_time_correct is None else self.sum_time_correct + self.time_taken
+                    tutoring_state[AVG_RESPONSE_TIME_CORRECT] = self.time_interval.get(ceil(self.sum_time_correct/self.num_correct_response),5)
+                    
+                    self.questions[-1][1] = 3
+                else:
+                    print("Incorrect Correctness value")
+        except:
+            logInfo('{0} received RL Coach update message exception: {1}'.format(RL_SERVICE_NAME, self.messageToString(msg)), 2)
+                       
         print(tutoring_state)
     
     #update AAR item
     def updateStateRLAAR(self,msg):
         
-        #if message is transcript update
-        if TRANSCRIPT_UPDATE in msg.getVerb():
-            logInfo('{0} received AAR item update message: {1}'.format(RL_SERVICE_NAME, self.messageToString(msg)), 2)
-            item = int(msg.getContextValue(ORDER))
-            max_key = int(max(AAR_item.keys(), key=int) if AAR_item else 0)
-            if max_key == -1 or None:
-                max_key = 0
-            
-            if item > max_key+1:
-                diff = item - (max_key+1)
-                for i in range(diff):
-                    missed_item = max_key+1+i
-                    self.rLService_random.updateAARItem(missed_item)
-            print(item)
-            
-            if msg.getResult() == CORRECT:
-                AAR_item[item] = SKIP
-            else:
-                self.rLService_random.updateAARItem(item)
-            print(AAR_item)
-        #if message informs the start of AAR
-        elif BEGIN_AAR in msg.getVerb():
-            logInfo('{0} received AAR item final update message: {1}'.format(RL_SERVICE_NAME, self.messageToString(msg)), 2)
-            AAR_item['-1'] = DONE
-           
-    def informLog(self, msg):
-        pass
+        try:
+            #if message is transcript update
+            if TRANSCRIPT_UPDATE in msg.getVerb():
+                logInfo('{0} received AAR item update message: {1}'.format(RL_SERVICE_NAME, self.messageToString(msg)), 2)
+                item = int(msg.getContextValue(ORDER))
+                max_key = int(max(AAR_item.keys(), key=int) if AAR_item else 0)
+                if max_key == -1 or None:
+                    max_key = 0
+                
+                if item > max_key+1:
+                    diff = item - (max_key+1)
+                    for i in range(diff):
+                        missed_item = max_key+1+i
+                        self.rLService_random.updateAARItem(missed_item)
+                print(item)
+                
+                if msg.getResult() == CORRECT:
+                    AAR_item[item] = SKIP
+                else:
+                    self.rLService_random.updateAARItem(item)
+                print(AAR_item)
+            #if message informs the start of AAR
+            elif BEGIN_AAR in msg.getVerb():
+                logInfo('{0} received AAR item final update message: {1}'.format(RL_SERVICE_NAME, self.messageToString(msg)), 2)
+                AAR_item['-1'] = DONE
+        except:
+            logInfo('{0} received RL AAR update message exception: {1}'.format(RL_SERVICE_NAME, self.messageToString(msg)), 2)
     
     def getState(self):
         return tutoring_state   #can also be accessed directly as a global variable       
@@ -398,8 +398,11 @@ class RLServiceMessaging(BaseService):
             #action = self.rLService_random.getTopAction()
             
             #for trained policy based RL
-            action = self.rLService_feature.getTopAction()
-            
+            try:
+                action = self.rLService_feature.getTopAction()
+            except:
+                action = FAILED
+                
             #send message   
             reply_msg = self._createRequestReply(msg)
             reply_msg.setResult(action)

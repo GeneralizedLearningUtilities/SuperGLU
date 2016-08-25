@@ -50,9 +50,9 @@ AVG_RESPONSE_TIME_INCORRECT = "avg_incorrectresponsetime_sofar_class"   #Average
 #State Updates
 CORRECTNESS = 'Correctness'     #Correctness of the learner's response
 #Quality of previous answer
-MIXED = 'Mixed'                 #Mixed answer       
-CORRECT = 'Correct'             #Correct answer
-INCORRECT = 'Incorrect'         #Incorrect answer
+MIXED = 'MIXED'                 #Mixed answer       
+CORRECT = 'CORRECT'             #Correct answer
+INCORRECT = 'INCORRECT'         #Incorrect answer
 #Gender
 FEMALE = 'Female'
 MALE = 'Male'
@@ -63,6 +63,7 @@ DO_NOTHING = 'do_nothing'                   #No hint or feedback
 GIVE_HINT = 'give_hint'                     #Display hint
 GIVE_FEEDBACK = 'give_feedback'             #Display feedback
 GIVE_HINT_FEEDBACK = 'give_hint_feedback'   #Display feedback and hint
+FAILED = 'failed'                           #if an exception occurs
 #Message verbs 
 COACHING_ACTIONS = 'CoachingActions'                    #prescribe a coaching action to ELITE
 REQUEST_COACHING_ACTIONS = 'RequestCoachingActions'     #ELITE requests a coaching action
