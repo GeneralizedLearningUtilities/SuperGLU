@@ -262,8 +262,8 @@ class RLPlayer(BaseService):
                 tutoring_state[NUMBER_OF_RESPONSE] = self.interval.get(int(self.num_response),5) 
                 
                 self.sum_time_taken = self.time_taken if self.sum_time_taken is None else self.sum_time_taken + self.time_taken
-                tutoring_state[RESPONSE_TIME] = self.time_interval.get(int(self.time_taken),5)
-                tutoring_state[AVG_RESPONSE_TIME] = self.time_interval.get(ceil(int(self.sum_time_taken/self.num_response)),5)
+                tutoring_state[RESPONSE_TIME] = self.time_interval.get(ceil(self.time_taken),5)
+                tutoring_state[AVG_RESPONSE_TIME] = self.time_interval.get(ceil(self.sum_time_taken/self.num_response),5)
                 
                 #correctness based responses
                 if msg.getResult() == INCORRECT:
