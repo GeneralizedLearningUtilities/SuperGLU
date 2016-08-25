@@ -7,7 +7,7 @@ Created on May 19, 2016
 
 import random as rand
 from datetime import datetime
-import csv
+import csv,os
 from SuperGLU.Core.MessagingGateway import BaseService, BaseMessagingNode
 from SuperGLU.Util.ErrorHandling import logInfo
 #from SuperGLU.Services.LoggingService  import LoggingService  
@@ -90,32 +90,37 @@ class RLCoachFeature():
     
     def __init__(self):
         pass
-    
-    #def __init__(self, feature, weight):
-        #self.features = feature
-        #self.weight = weight
-    
+      
     #get top action from the trained policy    
     def getTopAction(self):
-        #csv file under the current directory containing policy - replace with actual policy file ???
-        with open('test_policy.csv', 'r') as f:
+        #weights.csv file in the same directory as Application.py directory containing policy
+        cur = os.getcwd()
+        filepath = os.path.join(cur, 'weights.csv')
+        with open(filepath, 'r') as f:
             reader = csv.reader(f)
             weights = list(reader)
-        weights = [int(i) for i in weights[0]]
-        print("Number of weights in the policy"+len(weights))
-        
-        #dummy features - need logic to calculate these values ???
-        features = list(len(weights))
-        
-        #compute Q value
-        Q = [i*j for i,j in zip(weights, features)]
-        
-        #dummy max Q value - needs translation from max Q to action ???
-        return max(Q)
-    
-    def getActionValue(self,action):
-        pass   
 
+        action = {DO_NOTHING:0, HINT:0, FEEDBACK:0, FEEDBACK_HINT:0}
+        
+        #add weights for the state indicators set in tutoring_state
+        for w in weights:
+            if w[2] == DONOTHING:
+                if tutoring_state[w[0]] == int(w[1]):
+                    action[DO_NOTHING] += float(w[3])
+            if w[2] == HINT:
+                if tutoring_state[w[0]] == int(w[1]):
+                    action[HINT] += float(w[3])
+            if w[2] == FEEDBACK:
+                if tutoring_state[w[0]] == int(w[1]):
+                    action[FEEDBACK] += float(w[3])
+            if w[2] == FEEDBACK_HINT:
+                if tutoring_state[w[0]] == int(w[1]):
+                    action[FEEDBACK_HINT] += float(w[3])
+                    
+        #get best action
+        top_action = max(action, key=action.get)
+        print(top_action)
+        return top_action  
 
 #performs general action in the player like state updates, logging, etc
 class RLPlayer(BaseService):
@@ -209,25 +214,26 @@ class RLPlayer(BaseService):
             scr = msg.getObject()
             score = 0 if scr is None else self.interval.get(int(scr),5) 
             tutoring_state[SCORE] = score
-        
-        #keep track of Chen's Utterances to store them
-        elif VR_EXPRESS in msg.getVerb() and tutoring_state[SCENARIO_NUMBER] == 1:
-            logInfo('{0} received utterance update message: {1}'.format(RL_SERVICE_NAME, self.messageToString(msg)), 2)
-            res = Speech()
-            res = msg.getResult()
-            utterance = [res.utterance, 0]
-            self.questions.append(utterance)
             
-        #check if Chen's Utterances stored before
-        elif VR_EXPRESS in msg.getVerb() and tutoring_state[SCENARIO_NUMBER] == 2:
-            logInfo('{0} received utterance match message: {1}'.format(RL_SERVICE_NAME, self.messageToString(msg)), 2)
-            res = Speech()
-            res = msg.getResult()
-            utterance = res.utterance
-            for question in self.questions:
-                if question[0] == utterance:
-                    tutoring_state[SEEN_BEFORE] = 1
-                    tutoring_state[QUALITY_PREV_IF_SEEN] = question[1]
+            #store unique ID of node
+            if tutoring_state[SCENARIO_NUMBER] == 1:
+                logInfo('{0} received question store message: {1}'.format(RL_SERVICE_NAME, self.messageToString(msg)), 2)
+                node_id = msg.getContextValue(NODE_ID_CONTEXT_KEY)
+                node = [node_id, 0] #quality null - will be updated when checked for correctness
+                self.questions.append(node)
+        
+            #check if Chen's Utterances stored before
+            if tutoring_state[SCENARIO_NUMBER] == 2:
+                logInfo('{0} received if seen before message: {1}'.format(RL_SERVICE_NAME, self.messageToString(msg)), 2)
+                node_id = msg.getContextValue(NODE_ID_CONTEXT_KEY)
+                for question in self.questions:
+                    if question[0] == node_id:
+                        tutoring_state[SEEN_BEFORE] = 1
+                        tutoring_state[QUALITY_PREV_IF_SEEN] = question[1]
+                        break
+                    else:
+                        tutoring_state[SEEN_BEFORE] = 0
+                        tutoring_state[QUALITY_PREV_IF_SEEN] = 0
               
         #update response time
         #verb should be GameLog, the object should be PracticeEnvironment and the result should be RandomizedChoices
@@ -291,7 +297,7 @@ class RLPlayer(BaseService):
                 tutoring_state[NUMBER_OF_CORRECT] = self.interval.get(int(self.num_correct_response),5)
                 
                 self.sum_time_correct = self.time_taken if self.sum_time_correct is None else self.sum_time_correct + self.time_taken
-                tutoring_state[AVG_RESPONSE_TIME_CORRECT] = self.time_interval.get(ceil(self.sum_time_correct/self.num_incorrect_response),5)
+                tutoring_state[AVG_RESPONSE_TIME_CORRECT] = self.time_interval.get(ceil(self.sum_time_correct/self.num_correct_response),5)
                 
                 self.questions[-1][1] = 3
             else:
@@ -346,12 +352,6 @@ class RLServiceMessaging(BaseService):
     def receiveMessage(self, msg):
         super(RLServiceMessaging, self).receiveMessage(msg)
         
-        #Log the message (for debugging)
-        #strMsg = self.serializeMsg.messageToString(msg)
-        #jMsg = json.dumps(strMsg)
-        
-        #self.csvLog.logMessage(msg)
-        
         #Check specific messages for AAR and Coach
         #if message asks for the next agenda item in AAR
         if GET_NEXT_AGENDA_ITEM in msg.getVerb():
@@ -393,7 +393,12 @@ class RLServiceMessaging(BaseService):
         #if Elite asks for coaching action
         elif REQUEST_COACHING_ACTIONS in msg.getVerb():
             logInfo('{0} received request coaching action message: {1}'.format(RL_SERVICE_NAME, self.messageToString(msg)), 2)
-            action = self.rLService_random.getTopAction()
+            
+            #for random RL
+            #action = self.rLService_random.getTopAction()
+            
+            #for trained policy based RL
+            action = self.rLService_feature.getTopAction()
             
             #send message   
             reply_msg = self._createRequestReply(msg)
