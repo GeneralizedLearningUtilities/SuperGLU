@@ -402,7 +402,7 @@ class RLServiceMessaging(BaseService):
             try:
                 action = self.rLService_feature.getTopAction()
             except:
-                action = FAILED
+                action = DO_NOTHING
                 
             #send message   
             reply_msg = self._createRequestReply(msg)
