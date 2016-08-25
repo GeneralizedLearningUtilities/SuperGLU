@@ -219,9 +219,6 @@ class RLPlayer(BaseService):
             #once the participant answers
             elif TRANSCRIPT_UPDATE in msg.getVerb():
                 logInfo('{0} received transcript update message: {1}'.format(RL_SERVICE_NAME, self.messageToString(msg)), 2)
-                scr = msg.getObject()
-                score = 0 if scr is None else self.interval.get(ceil(float(scr)),5) 
-                tutoring_state[SCORE] = score
                 
                 #store unique ID of node
                 if tutoring_state[SCENARIO_NUMBER] == 1:
@@ -300,6 +297,10 @@ class RLPlayer(BaseService):
                     self.questions[-1][1] = 3
                 else:
                     print("Incorrect Correctness value")
+                
+                #get score
+                scr = tutoring_state[NUMBER_OF_CORRECT] + (0.5 * tutoring_state[NUMBER_OF_MIXED]) 
+                tutoring_state[SCORE] = self.interval.get(ceil(float(scr)),5)
         except:
             logInfo('{0} received RL Coach update message exception: {1}'.format(RL_SERVICE_NAME, self.messageToString(msg)), 2)
                        
