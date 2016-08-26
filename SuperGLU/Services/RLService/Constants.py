@@ -74,7 +74,7 @@ PRACTICE_ENVIRONMENT = 'PracticeEnvironment'    #object
 RANDOMIZED_CHOICES = 'RandomizedChoices'        #result
 
 #policy actions 
-DONOTHING = "donothing"
-FEEDBACK = "feedback"
-HINT = "hint"
-FEEDBACK_HINT = "feedback_hint"
+DONOTHING = DO_NOTHING
+FEEDBACK = GIVE_FEEDBACK
+HINT = GIVE_HINT
+FEEDBACK_HINT = GIVE_HINT_FEEDBACK
