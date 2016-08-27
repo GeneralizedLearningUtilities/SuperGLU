@@ -636,6 +636,7 @@ class DBStudent (object):
     
     #non-persistant fields
     sessionCache = []
+    # One per each subclass of student model allowed
     studentModelCache = {}
     
     @Index
@@ -672,10 +673,10 @@ class DBStudent (object):
         if newStudentModel.id is None or newStudentModel.id is '':
             newStudentModel.save()
         
-        self.studentModelCache[type(newStudentModel)] = newStudentModel
-        if self.studentModelIds is None:
+        self.studentModelCache[newStudentModel.id] = newStudentModel
+        if self.studentModelIds is None or isinstance(self.studentModelIds, list):
             self.studentModelIds = {}
-        self.studentModelIds[type(newStudentModel)] = newStudentModel.id
+        self.studentModelIds[newStudentModel.__class__.__name__] = newStudentModel.id
         self.save()
         
         

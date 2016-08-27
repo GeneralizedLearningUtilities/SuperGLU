@@ -171,7 +171,9 @@ class StudentModelMessaging(BaseService):
                 result.setSpeechAct(INFORM_ACT)
                 result.setObject(msg.getObject())
                 if newStudentModel is not None:
-                    result.setResult(newStudentModel.toSerializable())
+                    # This is a hack: need to debug why this is not producing the right serializable.
+                    #result.setResult(newStudentModel.toSerializable())
+                    result.setResult(newStudentModel.kcMastery)
                 else:
                     result.setResult(None)
                 logInfo('{0} finished processing {1},{2}'.format(STUDENT_MODEL_SERVICE_NAME, MASTERY_VERB, REQUEST_ACT), 4)

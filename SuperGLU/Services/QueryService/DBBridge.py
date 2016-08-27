@@ -26,7 +26,7 @@ class DBBridge(object):
     def createStudent(self, studentId, msg):
         logInfo('{0} could not find student with id: {1} in database.  Creating new student'.format(self.serviceName, studentId), 3)
         studentUUID = str(uuid4())
-        student = DBStudent(id=studentUUID, sessionIds=[], oAuthIds={}, studentModelIds=[], kcGoals={})
+        student = DBStudent(id=studentUUID, sessionIds=[], oAuthIds={}, studentModelIds={}, kcGoals={})
         student.save()
         self.studentCache[studentId] = student
         newStudentAlias = DBStudentAlias(trueId=studentUUID, alias=studentId)
