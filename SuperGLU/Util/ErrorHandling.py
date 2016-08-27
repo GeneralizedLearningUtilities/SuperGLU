@@ -45,7 +45,7 @@ def errorHandler(errInfo, mode=None, warning=False):
             ERROR_LOGGER.warning("INFO: %s", errInfo[1])
         else:
             ERROR_LOGGER.error("ERROR: \n%s", errInfo[2])
-    if mode in (RAISE_ERRORS_MODE,):
+    if not warning and mode in (RAISE_ERRORS_MODE,):
         raise
 
 def tryRaiseError(error, mode=None, stack=None):

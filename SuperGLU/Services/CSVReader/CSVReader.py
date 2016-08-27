@@ -147,7 +147,7 @@ class CSVReader (BaseService):
                 collectedTask = LearningTask()
 
                 collectedTask._ids = []
-                collectedTask._ids.append()#What's going on here?
+                #collectedTask._ids.append()#What's going on here?
                 
                 kcSet = set()
                 assignmentSet = set()
@@ -156,13 +156,13 @@ class CSVReader (BaseService):
                 for relatedTask in relatedTaskList:
                     relatedTask._canBeRecommendedIndividually = False
                     # Subtask ids instead of ids field
-                    collectedTask._subtasks.append(relatedTask._ids[0])
+                    collectedTask._subtasks.append(relatedTask._taskId)
                     
-                    if len(collectedTask._ids == 0):
-                        collectedTask._ids.append(relatedTask._ids[0])
+                    if len(collectedTask._ids) == 0:
+                        collectedTask._ids.append(relatedTask._taskId)
                     else:
                         collectedTask._ids[0].append("~")
-                        collectedTask._ids[0].append(relatedTask._ids[0])
+                        collectedTask._ids[0].append(relatedTask._taskId)
                     
                     if not collectedTask._name:
                         collectedTask._name = relatedTask._name

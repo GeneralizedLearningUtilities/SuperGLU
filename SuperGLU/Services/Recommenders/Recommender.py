@@ -141,7 +141,7 @@ class RecommenderMessaging(BaseService):
         if (msg.getSpeechAct() == REQUEST_ACT and
             msg.getVerb() == RECOMMENDED_TASKS_VERB):
             outMsg = Message(None, MASTERY_VERB, msg.getActor(), msg.getObject(), REQUEST_ACT)
-            #TODO: Replace with the ability to store context w/ the request in the base class
+            #TODO: Replace with the ability to store context w/ the request in the base recommender class
             outMsg.setContextValue(self.ORIGINAL_MESSAGE_KEY, msg)
             self._makeRequest(outMsg, self.studentModelCallBack)
         

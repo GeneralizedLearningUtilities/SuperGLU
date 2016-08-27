@@ -160,6 +160,7 @@ class StudentModelMessaging(BaseService):
                 self.studentModel_internal.informTaskFeedBackVerb(msg)
                 logInfo('{0} finished processing {1}, {2}'.format(STUDENT_MODEL_SERVICE_NAME, TASK_FEEDBACK_VERB, INFORM_ACT), 4)
         elif msg.getSpeechAct() == REQUEST_ACT:
+            print("REQUEST")
             #I'm going to assume the that the student id is the object, but that may not be the case
             if msg.getVerb() == MASTERY_VERB:
                 logInfo('{0} is processing a {1}, {2} message'.format(STUDENT_MODEL_SERVICE_NAME, MASTERY_VERB, REQUEST_ACT), 4)
