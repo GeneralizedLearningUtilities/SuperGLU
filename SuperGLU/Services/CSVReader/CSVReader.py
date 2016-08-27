@@ -161,8 +161,7 @@ class CSVReader (BaseService):
                     if len(collectedTask._ids) == 0:
                         collectedTask._ids.append(relatedTask._taskId)
                     else:
-                        collectedTask._ids[0].append("~")
-                        collectedTask._ids[0].append(relatedTask._taskId)
+                        collectedTask._ids[0] += "~" + relatedTask._taskId
                     
                     if not collectedTask._name:
                         collectedTask._name = relatedTask._name

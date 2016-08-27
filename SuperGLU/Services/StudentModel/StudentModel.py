@@ -52,7 +52,7 @@ class StudentModel(DBBridge):
         if len(studentsWithId) == 0:
             logInfo('failed to find student alias {0}'.format(studentId), 1)
             student = self.createStudent(studentId, None)
-            return WeightedStudentModelFactory().buildStudentModel(self, student)
+            return WeightedStudentModelFactory().buildStudentModel(student)
         
         for studentAlias in studentsWithId:
             student = DBStudent.find_one(studentAlias.trueId)
@@ -60,7 +60,7 @@ class StudentModel(DBBridge):
             if student is None:
                 logInfo('failed to find student with Id: {0} and alias {1}'.format(studentAlias.trueId, studentAlias.alias), 1)
                 student = self.createStudent(studentId, None)
-                return WeightedStudentModelFactory().buildStudentModel(self, student)
+                return WeightedStudentModelFactory().buildStudentModel(student)
             else:
                 return WeightedStudentModelFactory().buildStudentModel(student)
                 
