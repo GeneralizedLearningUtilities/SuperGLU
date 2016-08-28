@@ -28,6 +28,7 @@ def initDerivedDataTables():
     DBAssistmentsItem.ensure_table()
     DBClasssAlias.ensure_table()
     DBLoggedMessage.ensure_table()
+    DBCalendarData.ensure_table()
     
 
 @DBObject(table_name="Systems")
