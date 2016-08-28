@@ -876,7 +876,7 @@ class SerializableCalendarData(Serializable):
         if self.accessPermissions is not None:
             token[self.PERMISSIONS_KEY] = tokenizeObject(self.accessPermissions)
         if self.calendarData is not None:
-            token[self.CALENDAR_DATA_KEY] = tokenizeObject(self._kcMastery)
+            token[self.CALENDAR_DATA_KEY] = tokenizeObject(self.calendarData)
         return token
     
     def initializeFromToken(self, token, context=None):
@@ -915,6 +915,14 @@ class DBCalendarData(object):
     #transactional storage (for the future)
     #list stores tuples containing (date, calendarData)
     #calendarHistory = Field(list)
+
+    def setCalendarData(self, ownerId=None, ownerType=None, permissions=None, data=None):
+        if ownerType is None: ownerType = STUDENT_OWNER_TYPE
+        if permissions is None: permissions = PUBLIC_PERMISSION
+        self.ownerId = ownerId
+        self.ownerType = ownerType
+        self.accessPermissions = permissions
+        self.calendarData = data
     
     ####Place Index data here####
     @Index

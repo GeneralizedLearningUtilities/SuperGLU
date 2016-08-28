@@ -179,23 +179,20 @@ class DBBridge(object):
             return None
         
         if useCache:
-            result = self.calendarCache.get(ownerId)
+            result = self.calendarCache.get(ownerId, None)
             if result is not None:
                 return result;
         
         foundCalendars = DBCalendarData.find_by_index("ownerIdIndex", [])
-        
         calendarData = None
-        
         if len(foundCalendars) == 0:
-            logInfo("no calendar found, creating a new calendar for owner:{0}".format(ownerId), 1)
-            calendarData = self.createCalendarData(ownerId)
-            return calendarData
-            
-        if len(foundCalendars) > 1:
+            logInfo("No calendar found, creating a new calendar for owner:{0}".format(ownerId), 1)
+            calendarData = DBCalendarData()
+            calendarData.setCalendarData(ownerId)
+        elif len(foundCalendars) == 1:
+            calendarData = foundCalendars[0]
+        elif len(foundCalendars) > 1:
             logWarning("{0} owns more than a single calendar.  Database may be corrupted.  Defaulting to the first value".format(ownerId))
-        
-        calendarData = foundCalendars[0]
-        
+            calendarData = foundCalendars[0]
         self.calendarCache[ownerId] = calendarData
         return calendarData

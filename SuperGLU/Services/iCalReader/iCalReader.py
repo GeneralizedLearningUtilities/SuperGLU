@@ -28,7 +28,7 @@ START_TIME_KEY = 'dtstart'
 
 class ICalReader(BaseService):
 
-    dbBridge = DBBridge(ICAL_READER_SERVICE_NAME)
+    DB_BRIDGE = DBBridge(ICAL_READER_SERVICE_NAME)
 
     def __init__(self, anId=None):
         """
@@ -38,17 +38,17 @@ class ICalReader(BaseService):
         """
         super(ICalReader, self).__init__()
 
-
-    def createCalendarData(self, ownerId=None):
-        result = DBCalendarData()
-        result.ownerId = ownerId
-        result.ownerType = STUDENT_OWNER_TYPE
-        result.accessPermissions = PUBLIC_PERMISSION
-        result.calendarData = Calendar().to_ical()
+    def createCalendarData(self, ownerId=None, ownerType=None, permissions=None, data=None):
+        if ownerId is None:
+            logWarning("NO OWNER ID WAS GIVEN WHEN ATTEMPTING TO LOOK UP CALENDAR")
+            return None
+        if data is None: data = Calendar().to_ical()
+        result = self.DB_BRIDGE.getCalendarFromOwnerId(ownerId)
+        if result is None:
+            result = DBCalendarData()
+        result.setCalendarData(ownerId, ownerType, permissions, data)
         result.saveToDB()
         return result
-    
-    
     
     def addTaskToCalendar(self, task, calendarData, startTime, endTime=None, duration=None):
         if startTime is None:
@@ -168,9 +168,9 @@ class ICalReader(BaseService):
             eventNames = [self.getEventName(event[COMMENT_KEY]) for event in eventList if self.eventMatches(event, typeOfEvent, actualStartTime, actualEndTime) ]
             
             if typeOfEvent == TOPIC_ID:
-                result = [self.dbBridge.retrieveTopicFromCacheOrDB(topicId, True) for topicId in eventNames]
+                result = [self.DB_BRIDGE.retrieveTopicFromCacheOrDB(topicId, True) for topicId in eventNames]
             elif typeOfEvent == TASK_ID:
-                result = [self.dbBridge.retrieveTaskFromCacheOrDB(taskId, True) for taskId in eventNames]
+                result = [self.DB_BRIDGE.retrieveTaskFromCacheOrDB(taskId, True) for taskId in eventNames]
             
             #remember to return the result in serializable form.    
             result = [x.toSerializable() for x in result]
@@ -192,10 +192,7 @@ class ICalReader(BaseService):
         return result
             
     def receiveMessage(self, msg):
-        
-        
         reply = None
-        
         if msg.getSpeechAct() == INFORM_ACT:
             """
             message format for loading calendars: 
@@ -212,8 +209,14 @@ class ICalReader(BaseService):
                 calendarData.ownerType = msg.getObject()
                 #default to public access if none are given
                 calendarData.accessPermissions = msg.getContextValue(CALENDAR_ACCESS_PERMISSIONS_KEY, PUBLIC_PERMISSION)
-                calendarData.calendarData = msg.getResult().encode('UTF-8')#need to know if the client is sending us bytes or strings
-                reply = Message(actor=STORAGE_SERVICE_NAME, verb=VALUE_VERB, object=ICAL_OBJECT_TYPE, result=calendarData, context=msg.getContext())
+                calendarInput = msg.getResult()
+                #Calendar library needs to have an encoding
+                #calendarData.calendarData = calendarInput.encode('UTF-8')
+                calendarData.calendarData = calendarInput
+                self.createCalendarData(calendarData.ownerId, calendarData.ownerType,
+                                        calendarData.accessPermissions, calendarInput)
+                reply = Message(STORAGE_SERVICE_NAME, VALUE_VERB, calendarData.getId(),
+                                calendarData, INFORM_ACT, context=msg.getContext())
             
         if msg.getSpeechAct() == REQUEST_ACT:
             """
@@ -225,9 +228,10 @@ class ICalReader(BaseService):
             context = startTime (required), endTime(optional), duration(optional)
             """
             if msg.getVerb() == ADD_EVENT_TO_CALENDAR_VERB:
-                logInfo('{0} is processing a {1},{2} message'.format(ICAL_READER_SERVICE_NAME, ADD_EVENT_TO_CALENDAR_VERB, REQUEST_ACT), 4)
+                logInfo('{0} is processing a {1},{2} message'.format(ICAL_READER_SERVICE_NAME,
+                                                                     ADD_EVENT_TO_CALENDAR_VERB, REQUEST_ACT), 4)
                 startTime = msg.getContextValue(CALENDAR_EVENT_START_TIME_KEY, None)
-                calendarData = self.getCalendarFromOwnerId(msg.getObject())
+                calendarData = self.DB_BRIDGE.getCalendarFromOwnerId(msg.getObject())
                 endTime = msg.getContextValue(CALENDAR_EVENT_END_TIME_KEY, None)
                 duration = msg.getContextValue(CALENDAR_EVENT_DURATION_KEY, None)
                 if isinstance(msg.getResult(), LearningTask):
@@ -252,7 +256,7 @@ class ICalReader(BaseService):
                 endTime = msg.getContextValue(CALENDAR_LOOKUP_END_TIME_KEY, None)
                 duration = msg.getContextValue(CALENDAR_LOOKUP_RELATIVE_TIME_KEY, None)
                 eventType = msg.getContextValue(CALENDAR_LOOKUP_EVENT_TYPE_KEY, TASK_ID)
-                calendarData = self.getCalendarFromOwnerId(msg.getObject())
+                calendarData = self.DB_BRIDGE.getCalendarFromOwnerId(msg.getObject())
                 taskOrTopicList = self.lookupEventInformation(calendarData, eventType, startTime, endTime, duration)
                 reply = Message(actor=ICAL_READER_SERVICE_NAME, verb=CALENDAR_LOOKUP_VERB, object=eventType, result=taskOrTopicList, context=msg.getContext())    
             
@@ -264,10 +268,12 @@ class ICalReader(BaseService):
             """
             if msg.getVerb() == REQUEST_CALENDAR_VERB:
                 logInfo('{0} is processing a {1},{2} message'.format(ICAL_READER_SERVICE_NAME, REQUEST_CALENDAR_VERB, REQUEST_ACT), 4)
-                calendarData = self.getCalendarFromOwnerId(msg.getObject())
-                iCalDataAsBytes = calendarData.calendarData
-                iCalDataAsString = iCalDataAsBytes.decode('UTF-8')
-                reply = Message(actor=ICAL_READER_SERVICE_NAME, verb=REQUEST_CALENDAR_VERB, object=msg.getObject(), result=iCalDataAsString, context=msg.getContext())
+                calendarData = self.DB_BRIDGE.getCalendarFromOwnerId(msg.getObject())
+                iCalData = calendarData.calendarData
+                #iCalDataAsBytes = calendarData.calendarData
+                #iCalDataAsString = iCalDataAsBytes.decode('UTF-8')
+                reply = Message(actor=ICAL_READER_SERVICE_NAME, verb=REQUEST_CALENDAR_VERB,
+                                obj=msg.getObject(), result=iCalData, context=msg.getContext())
                 
             """
             message format for requesting the table of contents
@@ -278,7 +284,7 @@ class ICalReader(BaseService):
             """
             if msg.getVerb() == TABLE_OF_CONTENTS_VERB:
                 logInfo('{0} is processing a {1},{2} message'.format(ICAL_READER_SERVICE_NAME, TABLE_OF_CONTENTS_VERB, REQUEST_ACT), 4)
-                calendarData = self.getCalendarFromOwnerId(msg.getObject())
+                calendarData = self.DB_BRIDGE.getCalendarFromOwnerId(msg.getObject())
                 startTime = msg.getContextValue(CALENDAR_LOOKUP_START_TIME_KEY, None)
                 endTime = msg.getContextValue(CALENDAR_LOOKUP_END_TIME_KEY, None)
                 duration = msg.getContextValue(CALENDAR_LOOKUP_RELATIVE_TIME_KEY, None)
