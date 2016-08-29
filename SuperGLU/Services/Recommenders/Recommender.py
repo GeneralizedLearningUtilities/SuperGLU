@@ -115,8 +115,8 @@ class RecommenderMessaging(BaseService):
         if (msg.getVerb() == MASTERY_VERB and
             msg.getSpeechAct() == INFORM_ACT and
             msg.getObject() == recMsg.getActor()):
-            if isinstance(recMsg.getResult(), (int, float)):
-                numberOfRecommendations = int(recMsg.getResult())
+            if isinstance(recMsg.getObject(), (int, float)):
+                numberOfRecommendations = int(recMsg.getObject())
             else:
                 numberOfRecommendations = 3
             recommendedTasks = self.recommender.getRecommendedTasks(msg.getObject(), msg.getResult(), numberOfRecommendations)
