@@ -9,7 +9,7 @@ from SuperGLU.Core.MessagingGateway import BaseService
 from SuperGLU.Core.Messaging import Message
 from SuperGLU.Services.QueryService.DBBridge import DBBridge
 from SuperGLU.Services.StudentModel import StudentModel
-from SuperGLU.Services.StudentModel.PersistentData import DBTask
+from SuperGLU.Services.StudentModel.PersistentData import DBTask, DBAssistmentsItem
 from SuperGLU.Services.StudentModel.StudentModelFactories import BasicStudentModelFactory
 from SuperGLU.Core.MessagingDB import RECOMMENDED_TASKS_VERB, MASTERY_VERB
 from builtins import int
@@ -75,6 +75,15 @@ class Recommender(DBBridge):
         taskMastery = list()
         
         dbtaskList = DBTask.find_all()
+        dbassistmentItemsList = DBAssistmentsItem.find_all()
+        
+        for dbTask in dbtaskList:
+            if dbTask.assistmentsItemId is not None and dbTask.assistmentsItemId is not '':
+                for dbassistmentsItem in dbassistmentItemsList:
+                    if  dbassistmentsItem.id == dbTask.assistmentsItemId:
+                        dbTask.assistmentsItemCache = dbassistmentsItem
+                        break
+        
         taskList = [x.toSerializable() for x in dbtaskList]
         taskList = self.validateTasks(taskList)
         taskList = self.checkNovelty(studentId, taskList)
