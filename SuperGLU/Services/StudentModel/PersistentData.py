@@ -335,7 +335,7 @@ class DBTask(DBSerializable):
     
     def toSerializable(self):
         if self.assistmentsItemCache is None:
-            self.assistmentsItemCache = self.getAssistementsItem()   
+            self.assistmentsItemCache = self.getAssistementsItem(True)   
         result = LearningTask()
         result.initializeFromDBTask(self)
         return result
