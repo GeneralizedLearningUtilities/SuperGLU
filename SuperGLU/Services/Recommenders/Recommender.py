@@ -40,7 +40,7 @@ class Recommender(DBBridge):
             
     # TODO: This isn't weighted properly, instead is excluding repeats
     def checkNovelty(self, studentId, taskList):
-        student = self.retrieveStudentFromCacheOrDB(studentId, None, False)
+        student = self.retrieveStudentFromCacheOrDB(studentId, None, True)
         tasksToRemove = []
         if len(student.sessionIds) > 0:
             sessions = student.getSessions(False)
@@ -96,7 +96,7 @@ class Recommender(DBBridge):
         #logInfo("sortedTaskMastery={0}".format(sortedTaskMastery), 6)
         result = sortedTaskMastery
         print("RESULT: " + str(len(result)))
-        student = self.retrieveStudentFromCacheOrDB(studentId, None, False)
+        student = self.retrieveStudentFromCacheOrDB(studentId, None, True)
         sessions = student.getSessions(False)
         for gain, task in result:
             if task._assistmentsItem is not None:

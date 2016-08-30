@@ -6,8 +6,8 @@ This module is responsible for converting the tasks csv file to tasks objects an
 import csv
 import io
 from SuperGLU.Core.MessagingGateway import BaseService
-from SuperGLU.Services.StudentModel.PersistentData import LearningTask, SerializableAssistmentsItem
-from SuperGLU.Core.FIPA.SpeechActs import INFORM_ACT
+from SuperGLU.Services.StudentModel.PersistentData import LearningTask, SerializableAssistmentsItem, DBAssistmentsItem, DBTask
+from SuperGLU.Core.FIPA.SpeechActs import INFORM_ACT, REQUEST_ACT
 from SuperGLU.Util.ErrorHandling import logInfo
 from SuperGLU.Core.Messaging import Message
 from SuperGLU.Services.StorageService.Storage_Service_Interface import VALUE_VERB, STORAGE_SERVICE_NAME
@@ -54,6 +54,21 @@ class CSVReader (BaseService):
                 taskList = self.processCSVFile(csvString)
                 print("STORAGE SERVICE NAME: %s"%(STORAGE_SERVICE_NAME))
                 reply = Message(STORAGE_SERVICE_NAME, VALUE_VERB, TASKS_OBJECT, taskList)
+        
+        if msg.getSpeechAct() == REQUEST_ACT:
+            if msg.getVerb() == ELECTRONIX_TUTOR_TASK_UPLOAD_VERB:
+                dbtaskList = DBTask.find_all()
+                dbassistmentItemsList = DBAssistmentsItem.find_all()
+                
+                for dbTask in dbtaskList:
+                    if dbTask.assistmentsItemId is not None and dbTask.assistmentsItemId is not '':
+                        for dbassistmentsItem in dbassistmentItemsList:
+                            if  dbassistmentsItem.id == dbTask.assistmentsItemId:
+                                dbTask.assistmentsItemCache = dbassistmentsItem
+                                break
+                
+                taskList = [x.toSerializable() for x in dbtaskList]
+                reply = Message(CSV_READER_SERVICE_NAME, ELECTRONIX_TUTOR_TASK_UPLOAD_VERB, None, taskList, INFORM_ACT, msg.getContext())
         
         if reply is not None:
             logInfo('{0} is broadcasting a {1}, {2} message'.format(CSV_READER_SERVICE_NAME, INFORM_ACT, VALUE_VERB), 4)
