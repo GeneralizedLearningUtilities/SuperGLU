@@ -88,7 +88,7 @@ class Recommender(DBBridge):
         print("RETRIEVED TASKS FROM DATABASE")
         #taskList = self.validateTasks(taskList)
         taskList = self.checkNovelty(studentId, taskList)
-        """        
+               
         for task in taskList:
             taskMastery.append((self.calcMaxMasteryGain(task, studentModel), task))
             
@@ -108,8 +108,8 @@ class Recommender(DBBridge):
                       task._assistmentsItem.getActiveAssignmentURL() is not None]
         result = result[0:numberOfTasksRequested]
         print("RESULT:" + str(result))
-        return result"""
-        return taskList[0:numberOfTasksRequested]
+        return result
+        #return taskList[0:numberOfTasksRequested]
     
     
 
