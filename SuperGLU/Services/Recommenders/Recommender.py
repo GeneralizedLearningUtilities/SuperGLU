@@ -48,7 +48,7 @@ class Recommender(DBBridge):
                 for session in sessions:
                     #add more conditions to allow us to recommend the same task twice
                     sessionTask = session.getTask()
-                    if sessionTask is not None and sessionTask.name == task.name:
+                    if sessionTask is not None and sessionTask.name == task._name:
                         tasksToRemove.append(task)
         for taskToRemove in tasksToRemove:
             taskList.remove(taskToRemove) 
@@ -67,7 +67,7 @@ class Recommender(DBBridge):
     def findAssignmentNumber(self, task, sessions):
         possibleTaskNumber = -1
         for session in sessions:
-            if task.name == session.getTask().name:
+            if task._name == session.getTask().name:
                 possibleTaskNumber = session.assignmentNumber
         return possibleTaskNumber + 1
     
@@ -105,8 +105,8 @@ class Recommender(DBBridge):
                 task._assistmentsItem._assignmentNumber = self.findAssignmentNumber(task, sessions)
            # print("TASK: " + str(task))
            #print(str(task._assistmentsItem))
-        #result = [task for gain, task in result if task._assistmentsItem is not None and
-         #             task._assistmentsItem.getActiveAssignmentURL() is not None]
+        result = [task for gain, task in result if task._assistmentsItem is not None and
+                      task._assistmentsItem.getActiveAssignmentURL() is not None]
         result = result[0:numberOfTasksRequested]
         print("RESULT:" + str(result))
         return result
