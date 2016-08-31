@@ -23,8 +23,8 @@ class Recommender(DBBridge):
             total = 0.0
             for kc in task._kcs:
                 taskMastery = 0.0
-                if kc in studentModel.kcMastery.keys():
-                    taskMastery = studentModel.kcMastery[kc]
+                if kc in studentModel.keys():
+                    taskMastery = studentModel[kc]
                 total += 1.0 - taskMastery
                 
             if len(task._kcs) > 0:
