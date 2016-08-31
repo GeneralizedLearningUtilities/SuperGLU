@@ -67,7 +67,8 @@ class Recommender(DBBridge):
     def findAssignmentNumber(self, task, sessions):
         possibleTaskNumber = -1
         for session in sessions:
-            if task._name == session.getTask().name:
+            sessionTask = session.getTask()
+            if sessionTask is not None and task._name == sessionTask.name:
                 possibleTaskNumber = session.assignmentNumber
         return possibleTaskNumber + 1
     
