@@ -98,7 +98,7 @@ class Recommender(DBBridge):
         
         #logInfo("sortedTaskMastery={0}".format(sortedTaskMastery), 6)
         result = sortedTaskMastery
-        print("RESULT: " + str(len(result)))
+        #print("RESULT: " + str(len(result)))
         student = self.retrieveStudentFromCacheOrDB(studentId, None, True)
         sessions = student.getSessions(False)
         for gain, task in result:
@@ -109,7 +109,7 @@ class Recommender(DBBridge):
         result = [task for gain, task in result if task._assistmentsItem is not None and
                       task._assistmentsItem.getActiveAssignmentURL() is not None]
         result = result[0:numberOfTasksRequested]
-        print("RESULT:" + str(result))
+        #print("RESULT:" + str(result))
         return result
         #return taskList[0:numberOfTasksRequested]
     
