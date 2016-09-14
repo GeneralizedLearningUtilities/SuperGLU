@@ -135,13 +135,17 @@ class RecommenderMessaging(BaseService):
         
         # Make sure that it is the right student's score for the request
         recMsg = oldMsg.getContextValue(self.ORIGINAL_MESSAGE_KEY, Message())
+        print("1")
         if (msg.getVerb() == MASTERY_VERB and
             msg.getSpeechAct() == INFORM_ACT and
             msg.getObject() == recMsg.getActor()):
             if isinstance(recMsg.getObject(), (int, float)):
+                print("2")
                 numberOfRecommendations = int(recMsg.getObject())
+                print("3")
             else:
                 numberOfRecommendations = 3
+            print("4")
             recommendedTasks = self.recommender.getRecommendedTasks(msg.getObject(), msg.getResult(), numberOfRecommendations)
             self.sendRecommendations(recommendedTasks, recMsg)
 
