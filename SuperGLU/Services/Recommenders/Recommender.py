@@ -102,6 +102,7 @@ class Recommender(DBBridge):
         student = self.retrieveStudentFromCacheOrDB(studentId, None, True)
         print("retrieved student")
         sessions = student.getSessions(False)
+        print("retrieved sessions")
         for gain, task in result:
             if task._assistmentsItem is not None:
                 task._assistmentsItem._assignmentNumber = self.findAssignmentNumber(task, sessions)
