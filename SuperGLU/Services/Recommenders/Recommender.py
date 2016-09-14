@@ -122,6 +122,13 @@ class RecommenderMessaging(BaseService):
 
     def studentModelCallBack(self, msg, oldMsg):
         logInfo("Entering Recommender.studentModelCallback", 5)
+        
+        #hack instrumentation
+        student = self.recommender.retrieveStudentFromCacheOrDB(msg.getObject(), None, True)
+        #logInfo("dbStudentRecord = {0}".format(student), 6)
+        serializableStudent = student.toSerializable()
+        logInfo("student record = {0}".format(serializableStudent.saveToSerialized()), 2)
+        
         # Make sure that it is the right student's score for the request
         recMsg = oldMsg.getContextValue(self.ORIGINAL_MESSAGE_KEY, Message())
         if (msg.getVerb() == MASTERY_VERB and

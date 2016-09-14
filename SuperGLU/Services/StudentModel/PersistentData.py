@@ -625,10 +625,71 @@ class DBSession(object):
             uuidsAsBytes = uuidsAsString.encode()
             self.sourceDataHash = str(hashlib.sha256(uuidsAsBytes).hexdigest())
         return self.sourceDataHash
+
+
+
+class SerializableStudent(Serializable):
+    
+    STUDENT_ID_KEY = "studentId"
+    SESSIONS_KEY = "sessions"
+    OAUTH_IDS_KEY = "oAuthIds"
+    STUDENT_MODELS_KEY = "studentModels"
+    KC_GOALS_KEY = "kcGoals"
+     
+    studentId       = None
+    sessions      = []
+    oAuthIds        = {}
+    studentModels = {}
+    kcGoals         = {}
+    
+    
+    def saveToToken(self):
+        token = super(SerializableStudent, self).saveToToken()
+        if self.studentId is not None:
+            token[self.STUDENT_ID_KEY] = tokenizeObject(self.studentId)
+        if self.sessions is not []:
+            token[self.SESSIONS_KEY] = tokenizeObject(self.sessions)
+        if self.oAuthIds is not {}:
+            token[self.OAUTH_IDS_KEY] = tokenizeObject(self.oAuthIds)
+        if self.studentModelIds is not {}:
+            token[self.STUDENT_MODELS_KEY] = tokenizeObject(self.studentModels) 
+        if self.kcGoals is not {}:
+            token[self.KC_GOALS_KEY] = tokenizeObject(self.kcGoals)
+        return token
+    
+    def initializeFromToken(self, token, context=None):
+        super(SerializableStudent, self).initializeFromToken(token, context)
+        self.studentId = untokenizeObject(token.get(self.STUDENT_ID_KEY, None))
+        self.sessions = untokenizeObject(token.get(self.SESSIONS_KEY, []), context)
+        self.oAuthIds = untokenizeObject(token.get(self.OAUTH_IDS_KEY,{}), context)
+        self.studentModels = untokenizeObject(token.get(self.STUDENT_MODELS_KEY, {}), context)
+        self.kcGoals = untokenizeObject(token.get(self.KC_GOALS_KEY, {}))
+    
+    def toDB(self):
+        result = DBStudent()
+        result.studentId = self.studentId
+        result.sessions = self.sessions
+        result.oAuthIds = self.oAuthIds
+        result.studentModelIds = [x.id for x in self.studentModels]
+        result.kcGoals = self.kcGoals
+        return result
+    
+    def initializeFromDBTask(self, dbStudent):
+        self.studentId = dbStudent.studentId
+        self.sessions = [x.toSerializable() for x in dbStudent.getSessions()]
+        self.oAuthIds = dbStudent.oAuthIds
+        self.studentModelIds = dbStudent.getStudentModels()
+        self.kcGoals = dbStudent.kcGoals    
+    
+    
             
 
 @DBObject(table_name="Students")
 class DBStudent (object):
+    
+    BRIDGE_NAME = GLUDB_BRIDGE_NAME
+    SOURCE_CLASS = SerializableStudent
+    
     studentId       = Field('')
     sessionIds      = Field(list)
     oAuthIds        = Field(dict)
@@ -644,7 +705,7 @@ class DBStudent (object):
     def StudentIdIndex(self):
         return self.studentId
     
-    def getSessions(self, useCachedValue):
+    def getSessions(self, useCachedValue = False):
         if not useCachedValue:
             self.sessionCache = [DBSession.find_one(x) for x in self.sessionIds]
         return self.sessionCache
@@ -662,7 +723,7 @@ class DBStudent (object):
         self.sessionIds.append(newSession.sessionId)
         self.save()
             
-    def getStudentModels(self, useCachedValue):
+    def getStudentModels(self, useCachedValue = False):
         if not useCachedValue:
             self.studentModelCache = {x:DBStudentModel.find_one(self.studentModelIds[x]) for x in self.studentModelIds.keys()}
         return self.studentModelCache
@@ -681,6 +742,12 @@ class DBStudent (object):
         self.save()
         
         
+    def toSerializable(self):
+        result = SerializableStudent()
+        result.initializeFromDBTask(self)
+        return result
+        
+        
 @DBObject(table_name="StudentAliases")
 class DBStudentAlias (object):
     trueId = Field('')
@@ -694,6 +761,8 @@ class DBStudentAlias (object):
         student = DBStudent.find_one(self.trueId)
         return student
         
+
+
 
 @DBObject(table_name="Classes")
 class DBClass (object):
