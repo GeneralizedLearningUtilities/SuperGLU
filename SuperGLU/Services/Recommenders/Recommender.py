@@ -41,9 +41,11 @@ class Recommender(DBBridge):
     # TODO: This isn't weighted properly, instead is excluding repeats
     def checkNovelty(self, studentId, taskList):
         student = self.retrieveStudentFromCacheOrDB(studentId, None, True)
+        print("retrievedStudent In check novelty")
         tasksToRemove = []
         if len(student.sessionIds) > 0:
             sessions = student.getSessions(False)
+            print("got sessions In check Novelty")
             for task in taskList:
                 for session in sessions:
                     #add more conditions to allow us to recommend the same task twice
