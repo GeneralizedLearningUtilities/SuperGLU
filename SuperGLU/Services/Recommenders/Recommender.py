@@ -100,6 +100,7 @@ class Recommender(DBBridge):
         result = sortedTaskMastery
         #print("RESULT: " + str(len(result)))
         student = self.retrieveStudentFromCacheOrDB(studentId, None, True)
+        print("retrieved student")
         sessions = student.getSessions(False)
         for gain, task in result:
             if task._assistmentsItem is not None:
