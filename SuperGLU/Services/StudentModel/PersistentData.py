@@ -676,7 +676,7 @@ class SerializableStudent(Serializable):
     
     def initializeFromDBTask(self, dbStudent):
         self.studentId = dbStudent.studentId
-        self.sessions = [x.toSerializable() for x in dbStudent.getSessions()]
+        self.sessions = dbStudent.sessionIds
         self.oAuthIds = dbStudent.oAuthIds
         self.studentModelIds = dbStudent.getStudentModels()
         self.kcGoals = dbStudent.kcGoals    
