@@ -52,7 +52,7 @@ class Recommender(DBBridge):
                     #logInfo("getting Task for session", 1)
                     #sessionTask = session.getTask()
                     #logInfo("gotTask", 1)
-                    if session.task is not None and task.taskId == session.task:
+                    if session.task is not None and task._taskId == session.task:
                         tasksToRemove.append(task)
         for taskToRemove in tasksToRemove:
             taskList.remove(taskToRemove)
