@@ -41,11 +41,11 @@ class Recommender(DBBridge):
     # TODO: This isn't weighted properly, instead is excluding repeats
     def checkNovelty(self, studentId, taskList):
         student = self.retrieveStudentFromCacheOrDB(studentId, None, True)
-        print("retrievedStudent In check novelty")
+        logInfo("retrievedStudent In check novelty", 1)
         tasksToRemove = []
         if len(student.sessionIds) > 0:
             sessions = student.getSessions(False)
-            print("got sessions In check Novelty")
+            logInfo("got sessions In check Novelty", 1)
             for task in taskList:
                 for session in sessions:
                     #add more conditions to allow us to recommend the same task twice
@@ -102,9 +102,9 @@ class Recommender(DBBridge):
         result = sortedTaskMastery
         #print("RESULT: " + str(len(result)))
         student = self.retrieveStudentFromCacheOrDB(studentId, None, True)
-        print("retrieved student")
+        logInfo("retrieved student", 1)
         sessions = student.getSessions(False)
-        print("retrieved sessions")
+        logInfo("retrieved sessions", 1)
         for gain, task in result:
             if task._assistmentsItem is not None:
                 task._assistmentsItem._assignmentNumber = self.findAssignmentNumber(task, sessions)
@@ -135,18 +135,13 @@ class RecommenderMessaging(BaseService):
         
         # Make sure that it is the right student's score for the request
         recMsg = oldMsg.getContextValue(self.ORIGINAL_MESSAGE_KEY, Message())
-        logInfo("1", 1)
         if (msg.getVerb() == MASTERY_VERB and
             msg.getSpeechAct() == INFORM_ACT and
             msg.getObject() == recMsg.getActor()):
-            logInfo("1.5", 1)
             if isinstance(recMsg.getObject(), (int, float)):
-                logInfo("2", 1)
                 numberOfRecommendations = int(recMsg.getObject())
-                logInfo("3", 1)
             else:
                 numberOfRecommendations = 3
-            logInfo("4", 1)
             recommendedTasks = self.recommender.getRecommendedTasks(msg.getObject(), msg.getResult(), numberOfRecommendations)
             self.sendRecommendations(recommendedTasks, recMsg)
 
