@@ -94,7 +94,7 @@ class Recommender(DBBridge):
         taskList = [x.toSerializable() for x in dbtaskList]
         print("RETRIEVED TASKS FROM DATABASE")
         #taskList = self.validateTasks(taskList)
-        taskList = self.checkNovelty(studentId, taskList)
+        #taskList = self.checkNovelty(studentId, taskList)
                
         for task in taskList:
             taskMastery.append((self.calcMaxMasteryGain(task, studentModel), task))
