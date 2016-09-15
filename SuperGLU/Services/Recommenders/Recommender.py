@@ -49,11 +49,14 @@ class Recommender(DBBridge):
             for task in taskList:
                 for session in sessions:
                     #add more conditions to allow us to recommend the same task twice
+                    logInfo("getting Task for session", 1)
                     sessionTask = session.getTask()
+                    logInfo("gotTask", 1)
                     if sessionTask is not None and sessionTask.name == task._name:
                         tasksToRemove.append(task)
         for taskToRemove in tasksToRemove:
-            taskList.remove(taskToRemove) 
+            taskList.remove(taskToRemove)
+        logInfo("checked novelty", 1) 
         return taskList
     
     #remove erroneous entries from task list.
