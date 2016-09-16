@@ -84,6 +84,13 @@ class RLRandom():
         else:
             AAR_item[item] = DOOVER
             
+    def updateNonCorrectAARItem(self, item):
+        r = rand.random()
+        if r  < 0.5:
+            AAR_item[item] = DIAGNOSE
+        else:
+            AAR_item[item] = DOOVER
+            
  
 #Trained policy using function approximation 
 class RLCoachFeature():
@@ -328,7 +335,7 @@ class RLPlayer(BaseService):
                 if msg.getResult() == CORRECT:
                     AAR_item[item] = SKIP
                 else:
-                    self.rLService_random.updateAARItem(item)
+                    self.rLService_random.updateNonCorrectAARItem(item)
                 print(AAR_item)
             #if message informs the start of AAR
             elif BEGIN_AAR in msg.getVerb():
