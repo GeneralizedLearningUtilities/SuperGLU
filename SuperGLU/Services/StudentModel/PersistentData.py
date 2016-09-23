@@ -495,10 +495,141 @@ class DBTopic(DBSerializable):
     
     def __repr__(self):
         return str(self.kcList) + "|" + str(self.resourceList)
+
+
+class SerializableSession(Serializable):
+    
+    SESSION_ID_KEY = "sessionId"
+    STUDENTS_KEY = "students"
+    SYSTEM_KEY = "system"
+    TASK_KEY = "task"
+    ASSIGNMENT_NUMBER_KEY = "assignmentNumber"
+    START_TIME_KEY = "startTime"
+    DURATION_KEY = "duration"
+    END_CONDITION_KEY = "endCondition"
+    PERFORMANCE_KEY ="performance"
+    CLASS_ID_KEY = "classId"
+    HINTS_KEY = "hints"
+    FEEDBACK_KEY = "feedback"
+    MESSAGE_IDS_KEY = "messageIds"
+    SOURCE_DATA_N_KEY = "sourceDataN"
+    SOURCE_DATA_HASH_KEY = "sourceDataHash"
+    
+    def __init__(self, sessionId = None, students=[],  system = None, task = None, assignmentNumber=0, startTime = None, duration = None, endCondition = None,
+                   performance={}, classId=None, hints=[], feedback=[], messageIds = [], sourceDataN = -1, sourceDataHash = -1):
+        super(SerializableTopic, self).__init__(sessionId)
+        self.sessionId = sessionId
+        self.students = students
+        self.system = system
+        self.task = task
+        self.assignmentNumber = assignmentNumber
+        self.startTime = startTime
+        self.duration = duration
+        self.endCondition  = endCondition
+        self.performance = performance
+        self.classId = classId
+        self.hints = hints
+        self.feedback = feedback
+        self.messageIds = messageIds
+        self.sourceDataN = sourceDataN
+        self.sourceDataHash = sourceDataHash
         
+    def saveToToken(self):
+        token = super(SerializableTopic, self).saveToToken()
+        if self.sessionId is not None:
+            token[self.SESSION_ID_KEY] = tokenizeObject(self.sessionId)
+        if self.students is not None:
+            token[self.STUDENTS_KEY] = tokenizeObject(self.students)
+        if self.system is not None:
+            token[self.SYSTEM_KEY] = tokenizeObject(self.system)
+        if self.task is not None:
+            token[self.TASK_KEY] = tokenizeObject(self.task)
+        if self.assignmentNumber is not None:
+            token[self.ASSIGNMENT_NUMBER_KEY] = tokenizeObject(self.assignmentNumber)
+        if self.startTime is not None:
+            token[self.START_TIME_KEY] = tokenizeObject(self.startTime)
+        if self.duration is not None:
+            token[self.DURATION_KEY] = tokenizeObject(self.duration)
+        if self.endCondition is not None:
+            token[self.END_CONDITION_KEY] = tokenizeObject(self.endCondition)
+        if self.performance is not None:
+            token[self.PERFORMANCE_KEY] = tokenizeObject(self.performance)
+        if self.classId is not None:
+            token[self.CLASS_ID_KEY] = tokenizeObject(self.classId)
+        if self.hints is not None:
+            token[self.HINTS_KEY] = tokenizeObject(self.hints)
+        if self.feedback is not None:
+            token[self.FEEDBACK_KEY] = tokenizeObject(self.feedback)
+        if self.messageIds is not None:
+            token[self.MESSAGE_IDS_KEY] = tokenizeObject(self.messageIds)
+        if self.sourceDataN is not None:
+            token[self.SOURCE_DATA_N_KEY] = tokenizeObject(self.sourceDataN)
+        if self.sourceDataHash is not None:
+            token[self.SOURCE_DATA_HASH_KEY] = tokenizeObject(self.sourceDataHash)
+        return token
+    
+    def initializeFromToken(self, token, context=None):
+        super(SerializableTopic, self).initializeFromToken(token, context)
+        self.sessionId = untokenizeObject(token.get(self.SESSION_ID_KEY, None))
+        self.students = untokenizeObject(token.get(self.students, []), context)
+        self.system = untokenizeObject(token.get(self.SYSTEM_KEY, None), context)
+        self.task = untokenizeObject(token.get(self.TASK_KEY, None))
+        self.assignmentNumber = untokenizeObject(token.get(self.ASSIGNMENT_NUMBER_KEY, 0), context)
+        self.startTime = untokenizeObject(token.get(self.START_TIME_KEY, None), context)
+        self.duration = untokenizeObject(token.get(self.DURATION_KEY, 0), context)
+        self.endCondition = untokenizeObject(token.get(self.END_CONDITION_KEY, None), context)
+        self.performance = untokenizeObject(token.get(self.PERFORMANCE_KEY, None), context)
+        self.classId = untokenizeObject(token.get(self.CLASS_ID_KEY, None), context)
+        self.hints = untokenizeObject(token.get(self.HINTS_KEY, []), context)
+        self.feedback = untokenizeObject(token.get(self.FEEDBACK_KEY, []), context)
+        self.messageIds = untokenizeObject(token.get(self.MESSAGE_IDS_KEY, []), context)
+        self.sourceDataN = untokenizeObject(token.get(self.SOURCE_DATA_N_KEY, None), context)
+        self.sourceDataHash = untokenizeObject(token.get(self.SOURCE_DATA_HASH_KEY, None), context)
+    
+    def toDB(self):
+        result = DBSession()
+        result.sessionId = self.sessionId
+        result.students = self.students
+        if self.task is not None:
+            self.task.Save()
+            result.task = self.taskId
+        result.assignmentNumber = self.assignmentNumber
+        result.startTime = self.startTime
+        result.duration = self.duration
+        result.endCondition = self.endCondition
+        result.performance = self.performance
+        result.classId = self.classId
+        result.hints = self.hints
+        result.feedback = self.feedback
+        result.messageIds = self.messageIds
+        result.sourceDataN = self.sourceDataN
+        result.sourceDataHash = self.sourceDataHash
+        return result
+    
+    def initializeFromDBTopic(self, dbSession):
+        self.sessionId = dbSession.sessionId
+        self.students = dbSession.students
+        self.assignmentNumber = dbSession.assignmentNumber
+        
+        dbTaskList = DBTask.find_by_index("taskIdIndex", dbSession.taskId)  
+        if len(dbTaskList) > 0:
+            self.task = dbTaskList[0]
+                
+        self.startTime = dbSession.startTime
+        self.duration = dbSession.duration
+        self.endCondition = dbSession.endCondition
+        self.performance = dbSession.performance
+        self.classId = dbSession.classId
+        self.hints = dbSession.hints
+        self.feedback = dbSession.feedback
+        self.messageIds = dbSession.messageIds
+        self.sourceDataN = dbSession.sourceDataN
+        self.sourceDataHash = dbSession.sourceDataHash
+    
+
 
 @DBObject(table_name="Sessions")
-class DBSession(object):
+class DBSession(DBSerializable):
     sessionId      = Field('')
     students       = Field(list)
     system         = Field('')
@@ -515,9 +646,31 @@ class DBSession(object):
     sourceDataN    = Field(-1)
     sourceDataHash = Field(-1)
     
+    BRIDGE_NAME = GLUDB_BRIDGE_NAME
+    SOURCE_CLASS = SerializableSession
+    
     #Non-persistent Fields
     studentCache = []
     taskCache = None
+    
+    def create(self, serializableSession = None):
+        if serializableSession is not None:
+            self.sessionId = serializableSession.sessionId
+            self.students = serializableSession.students
+            self.system = serializableSession.system
+            self.task = serializableSession.task.taskId
+            self.assignmentNumber = serializableSession.assignmentNumber
+            self.startTime = serializableSession.startTime
+            self.duration = serializableSession.duration
+            self.endCondition = serializableSession.endCondition
+            self.performance = serializableSession.performance
+            self.classId = serializableSession.classId
+            self.hints = serializableSession.hints
+            self.feedback = serializableSession.feedback
+            self.messageIds = serializableSession.messageIds
+            self.sourceDataN = serializableSession.sourceDataN
+            self.sourceDataHash = serializableSession.sourceDataHash
+        return self
     
     #keeping this method here as an example of how to query based on UUID
     @classmethod
@@ -626,7 +779,10 @@ class DBSession(object):
             self.sourceDataHash = str(hashlib.sha256(uuidsAsBytes).hexdigest())
         return self.sourceDataHash
 
-
+    def toSerializable(self):
+        result = SerializableSession()
+        result.initializeFromDBTask(self)
+        return result
 
 class SerializableStudent(Serializable):
     
@@ -668,7 +824,7 @@ class SerializableStudent(Serializable):
     def toDB(self):
         result = DBStudent()
         result.studentId = self.studentId
-        result.sessions = self.sessions
+        result.sessionIds = [x.id for x in self.sessions]
         result.oAuthIds = self.oAuthIds
         result.studentModelIds = [x.id for x in self.studentModels]
         result.kcGoals = self.kcGoals
@@ -676,7 +832,7 @@ class SerializableStudent(Serializable):
     
     def initializeFromDBTask(self, dbStudent):
         self.studentId = dbStudent.studentId
-        self.sessions = dbStudent.sessionIds
+        self.sessions = [x.convert for x in dbStudent.getSessions(False)]
         self.oAuthIds = dbStudent.oAuthIds
         self.studentModelIds = dbStudent.getStudentModels()
         self.kcGoals = dbStudent.kcGoals    

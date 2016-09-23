@@ -4,7 +4,7 @@ from SuperGLU.Core.MessagingGateway import BaseService
 from SuperGLU.Core.Messaging import Message
 from SuperGLU.Util.ErrorHandling import logInfo
 from SuperGLU.Core.MessagingDB import KC_SCORE_VERB, SESSION_ID_CONTEXT_KEY, DATE_TIME_FORMAT, TASK_ID_CONTEXT_KEY, TASK_HINT_VERB, TASK_FEEDBACK_VERB, MASTERY_VERB, CLASS_ID_CONTEXT_KEY,\
-    HEARTBEAT_VERB, HELP_TYPE_CONTEXT_KEY
+    HEARTBEAT_VERB, HELP_TYPE_CONTEXT_KEY, LEARNER_SESSIONS_VERB
 from SuperGLU.Core.FIPA.SpeechActs import INFORM_ACT, REQUEST_ACT
 from SuperGLU.Services.StudentModel.PersistentData import DBStudentAlias, DBStudentModel, DBStudent, DBSession, DBClasssAlias, DBClass
 from SuperGLU.Services.StudentModel.StudentModelFactories import BasicStudentModelFactory, WeightedStudentModelFactory
@@ -122,6 +122,10 @@ class StudentModel(DBBridge):
         session.save()   
     
     
+    def getStudent(self, msg):
+        dbStudent = self.retrieveStudentFromCacheOrDB(msg.getObject(), msg, False)
+        serializableStudent = dbStudent.toSerializable()
+        return serializableStudent
 
 class StudentModelMessaging(BaseService):
     
@@ -161,6 +165,14 @@ class StudentModelMessaging(BaseService):
                 logInfo('{0} finished processing {1}, {2}'.format(STUDENT_MODEL_SERVICE_NAME, TASK_FEEDBACK_VERB, INFORM_ACT), 4)
         elif msg.getSpeechAct() == REQUEST_ACT:
             print("REQUEST")
+            if msg.getVerb() == LEARNER_SESSIONS_VERB:
+                student = self.studentModel_internal.getStudent(msg)
+                result = self._createRequestReply(msg)
+                result.setActor(STUDENT_MODEL_SERVICE_NAME)
+                result.seVerb(LEARNER_SESSIONS_VERB)
+                result.setObject(msg.getObject())
+                result.setResult(student)
+                result.setSpeechAct(INFORM_ACT)
             #I'm going to assume the that the student id is the object, but that may not be the case
             if msg.getVerb() == MASTERY_VERB:
                 logInfo('{0} is processing a {1}, {2} message'.format(STUDENT_MODEL_SERVICE_NAME, MASTERY_VERB, REQUEST_ACT), 4)
