@@ -517,7 +517,7 @@ class SerializableSession(Serializable):
     
     def __init__(self, sessionId = None, students=[],  system = None, task = None, assignmentNumber=0, startTime = None, duration = None, endCondition = None,
                    performance={}, classroomId=None, hints=[], feedback=[], messageIds = [], sourceDataN = -1, sourceDataHash = -1):
-        super(SerializableTopic, self).__init__(sessionId)
+        super(SerializableSession, self).__init__(sessionId)
         self.sessionId = sessionId
         self.students = students
         self.system = system
@@ -535,7 +535,7 @@ class SerializableSession(Serializable):
         self.sourceDataHash = sourceDataHash
         
     def saveToToken(self):
-        token = super(SerializableTopic, self).saveToToken()
+        token = super(SerializableSession, self).saveToToken()
         if self.sessionId is not None:
             token[self.SESSION_ID_KEY] = tokenizeObject(self.sessionId)
         if self.students is not None:
@@ -569,7 +569,7 @@ class SerializableSession(Serializable):
         return token
     
     def initializeFromToken(self, token, context=None):
-        super(SerializableTopic, self).initializeFromToken(token, context)
+        super(SerializableSession, self).initializeFromToken(token, context)
         self.sessionId = untokenizeObject(token.get(self.SESSION_ID_KEY, None))
         self.students = untokenizeObject(token.get(self.students, []), context)
         self.system = untokenizeObject(token.get(self.SYSTEM_KEY, None), context)
