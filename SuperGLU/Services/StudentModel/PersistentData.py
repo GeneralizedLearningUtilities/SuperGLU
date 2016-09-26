@@ -606,7 +606,7 @@ class SerializableSession(Serializable):
         result.sourceDataHash = self.sourceDataHash
         return result
     
-    def initializeFromDBTopic(self, dbSession):
+    def initializeFromDBSession(self, dbSession):
         self.sessionId = dbSession.sessionId
         self.students = dbSession.students
         self.assignmentNumber = dbSession.assignmentNumber
@@ -781,7 +781,7 @@ class DBSession(DBSerializable):
 
     def toSerializable(self):
         result = SerializableSession()
-        result.initializeFromDBTask(self)
+        result.initializeFromDBSession(self)
         return result
 
 class SerializableStudent(Serializable):
