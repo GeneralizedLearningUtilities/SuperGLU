@@ -169,7 +169,7 @@ class StudentModelMessaging(BaseService):
                 student = self.studentModel_internal.getStudent(msg)
                 result = self._createRequestReply(msg)
                 result.setActor(STUDENT_MODEL_SERVICE_NAME)
-                result.seVerb(LEARNER_SESSIONS_VERB)
+                result.setVerb(LEARNER_SESSIONS_VERB)
                 result.setObject(msg.getObject())
                 result.setResult(student)
                 result.setSpeechAct(INFORM_ACT)

@@ -508,7 +508,7 @@ class SerializableSession(Serializable):
     DURATION_KEY = "duration"
     END_CONDITION_KEY = "endCondition"
     PERFORMANCE_KEY ="performance"
-    CLASS_ID_KEY = "classId"
+    CLASSROOM_ID_KEY = "classroomId"
     HINTS_KEY = "hints"
     FEEDBACK_KEY = "feedback"
     MESSAGE_IDS_KEY = "messageIds"
@@ -516,7 +516,7 @@ class SerializableSession(Serializable):
     SOURCE_DATA_HASH_KEY = "sourceDataHash"
     
     def __init__(self, sessionId = None, students=[],  system = None, task = None, assignmentNumber=0, startTime = None, duration = None, endCondition = None,
-                   performance={}, classId=None, hints=[], feedback=[], messageIds = [], sourceDataN = -1, sourceDataHash = -1):
+                   performance={}, classroomId=None, hints=[], feedback=[], messageIds = [], sourceDataN = -1, sourceDataHash = -1):
         super(SerializableTopic, self).__init__(sessionId)
         self.sessionId = sessionId
         self.students = students
@@ -527,7 +527,7 @@ class SerializableSession(Serializable):
         self.duration = duration
         self.endCondition  = endCondition
         self.performance = performance
-        self.classId = classId
+        self.classroomId = classroomId
         self.hints = hints
         self.feedback = feedback
         self.messageIds = messageIds
@@ -555,7 +555,7 @@ class SerializableSession(Serializable):
         if self.performance is not None:
             token[self.PERFORMANCE_KEY] = tokenizeObject(self.performance)
         if self.classId is not None:
-            token[self.CLASS_ID_KEY] = tokenizeObject(self.classId)
+            token[self.CLASSROOM_ID_KEY] = tokenizeObject(self.classroomId)
         if self.hints is not None:
             token[self.HINTS_KEY] = tokenizeObject(self.hints)
         if self.feedback is not None:
@@ -579,7 +579,7 @@ class SerializableSession(Serializable):
         self.duration = untokenizeObject(token.get(self.DURATION_KEY, 0), context)
         self.endCondition = untokenizeObject(token.get(self.END_CONDITION_KEY, None), context)
         self.performance = untokenizeObject(token.get(self.PERFORMANCE_KEY, None), context)
-        self.classId = untokenizeObject(token.get(self.CLASS_ID_KEY, None), context)
+        self.classroomId = untokenizeObject(token.get(self.CLASSROOM_ID_KEY, None), context)
         self.hints = untokenizeObject(token.get(self.HINTS_KEY, []), context)
         self.feedback = untokenizeObject(token.get(self.FEEDBACK_KEY, []), context)
         self.messageIds = untokenizeObject(token.get(self.MESSAGE_IDS_KEY, []), context)
@@ -598,7 +598,7 @@ class SerializableSession(Serializable):
         result.duration = self.duration
         result.endCondition = self.endCondition
         result.performance = self.performance
-        result.classId = self.classId
+        result.classId = self.classroomId
         result.hints = self.hints
         result.feedback = self.feedback
         result.messageIds = self.messageIds
@@ -619,7 +619,7 @@ class SerializableSession(Serializable):
         self.duration = dbSession.duration
         self.endCondition = dbSession.endCondition
         self.performance = dbSession.performance
-        self.classId = dbSession.classId
+        self.classroomId = dbSession.classId
         self.hints = dbSession.hints
         self.feedback = dbSession.feedback
         self.messageIds = dbSession.messageIds
