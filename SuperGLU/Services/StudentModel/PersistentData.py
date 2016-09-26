@@ -330,7 +330,7 @@ class DBTask(DBSerializable):
         return self.name
     
     @Index
-    def taskIdDBTaskIndex(self):
+    def taskIdIndex(self):
         return self.taskId
     
     def toSerializable(self):
@@ -611,7 +611,7 @@ class SerializableSession(Serializable):
         self.students = dbSession.students
         self.assignmentNumber = dbSession.assignmentNumber
         
-        dbTaskList = DBTask.find_by_index("taskIdDBTaskIndex", dbSession.task)  
+        dbTaskList = DBTask.find_by_index("taskIdIndex", dbSession.task)  
         if len(dbTaskList) > 0:
             self.task = dbTaskList[0]
                 
