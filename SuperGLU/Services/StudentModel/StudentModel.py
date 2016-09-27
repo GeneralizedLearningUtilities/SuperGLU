@@ -123,9 +123,14 @@ class StudentModel(DBBridge):
     
     
     def getStudent(self, msg):
-        dbStudent = self.retrieveStudentFromCacheOrDB(msg.getObject(), msg, False)
-        serializableStudent = dbStudent.toSerializable()
-        return serializableStudent
+        if msg.getObject() is not None:
+            dbStudent = self.retrieveStudentFromCacheOrDB(msg.getObject(), msg, False)
+            serializableStudent = dbStudent.toSerializable()
+            return serializableStudent
+        else:
+            dbSessions = DBSession.find_all()
+            serializableSessions = [x.toSerializable() for x in dbSessions]
+            return serializableSessions
 
 class StudentModelMessaging(BaseService):
     
