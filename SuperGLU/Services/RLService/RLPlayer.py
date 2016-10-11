@@ -356,6 +356,12 @@ class RLServiceMessaging(BaseService):
     #csvLog = LoggingService.CSVLoggingService("RLPlayerLog.csv")
     serializeMsg = BaseMessagingNode()
     
+    
+    def __init__(self, experimentCondition="Default"):
+        super().__init__()
+        self.experimentCondition=experimentCondition
+    
+    
     #receive message and take appropriate action by looking at the message attributes like verb         
     def receiveMessage(self, msg):
         super(RLServiceMessaging, self).receiveMessage(msg)
@@ -403,13 +409,15 @@ class RLServiceMessaging(BaseService):
             logInfo('{0} received request coaching action message: {1}'.format(RL_SERVICE_NAME, self.messageToString(msg)), 2)
             
             #for random RL
-            #action = self.rLService_random.getTopAction()
+            if self.experimentCondition=="A":
+                action = self.rLService_random.getTopAction()
             
-            #for trained policy based RL
-            try:
-                action = self.rLService_feature.getTopAction()
-            except:
-                action = DO_NOTHING
+            else:
+                #for trained policy based RL
+                try:
+                    action = self.rLService_feature.getTopAction()
+                except:
+                    action = DO_NOTHING
                 
             #send message   
             reply_msg = self._createRequestReply(msg)
