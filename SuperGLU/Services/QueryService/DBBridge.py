@@ -6,7 +6,7 @@ Created on Apr 11, 2016
 from SuperGLU.Util.ErrorHandling import logInfo, logWarning
 from uuid import uuid4
 from SuperGLU.Services.StudentModel.PersistentData import DBStudent, DBStudentAlias, DBSession, DBClass, DBClasssAlias, DBCalendarData, DBTask, DBTopic
-from SuperGLU.Core.MessagingDB import SESSION_ID_CONTEXT_KEY, DATE_TIME_FORMAT, TASK_ID_CONTEXT_KEY
+from SuperGLU.Core.MessagingDB import SESSION_ID_CONTEXT_KEY, DATE_TIME_FORMAT, TASK_ID_CONTEXT_KEY, USER_ID_CONTEXT_KEY
 from datetime import datetime
 from SuperGLU.Services.StudentModel.StudentModelFactories import BasicStudentModelFactory
 
@@ -35,6 +35,11 @@ class DBBridge(object):
     
     def createSession(self, msg):
         logInfo("Could not find session with id:{0}.  Creating new Session".format(msg.getContextValue(SESSION_ID_CONTEXT_KEY)), 3)
+        userId = msg.getContextValue(USER_ID_CONTEXT_KEY)
+        if userId is not None:
+            student = self.retrieveStudentFromCacheOrDB(userId, msg, True)
+        else:
+            student = None
         session = DBSession(sessionId = msg.getContextValue(SESSION_ID_CONTEXT_KEY))
         session.messageIds = []
         session.hints = []
@@ -46,6 +51,9 @@ class DBBridge(object):
         session.id = msg.getContextValue(SESSION_ID_CONTEXT_KEY)
         session.task = msg.getContextValue(TASK_ID_CONTEXT_KEY)
         session.save()
+        if student is not None:
+            student.sessionIds.append(session.id)
+            student.save()
         self.sessionCache[session.id] = session
         return session
     
