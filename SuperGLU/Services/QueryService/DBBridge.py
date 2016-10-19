@@ -50,10 +50,12 @@ class DBBridge(object):
         session.subtaskNumber = -1
         session.id = msg.getContextValue(SESSION_ID_CONTEXT_KEY)
         session.task = msg.getContextValue(TASK_ID_CONTEXT_KEY)
-        session.save()
+        
         if student is not None:
             student.sessionIds.append(session.id)
+            session.students.append(student.studentId)
             student.save()
+        session.save()
         self.sessionCache[session.id] = session
         return session
     
