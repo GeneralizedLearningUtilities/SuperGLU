@@ -554,7 +554,7 @@ class SerializableSession(Serializable):
             token[self.END_CONDITION_KEY] = tokenizeObject(self.endCondition)
         if self.performance is not None:
             token[self.PERFORMANCE_KEY] = tokenizeObject(self.performance)
-        if self.classId is not None:
+        if self.classroomId is not None:
             token[self.CLASSROOM_ID_KEY] = tokenizeObject(self.classroomId)
         if self.hints is not None:
             token[self.HINTS_KEY] = tokenizeObject(self.hints)
