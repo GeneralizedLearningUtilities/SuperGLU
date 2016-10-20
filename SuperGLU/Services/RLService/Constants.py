@@ -48,6 +48,7 @@ AVG_RESPONSE_TIME_MIXED = "avg_mixedresponsetime_sofar_class"           #Average
 AVG_RESPONSE_TIME_INCORRECT = "avg_incorrectresponsetime_sofar_class"   #Average user response time for incorrect responses in current scenario so far (clustered in 6 classes) (default 0)
 AFTER_USERRESPONSE_STATE = "after_userresponse_state"  #1 after the user has responded (before there’s potential for feedback), and 0 before the new system prompt (before there’s potential for hints)
 RESP_QUALITY_AFTER_RESPONSE = "responsequality_prevquestion_class-after_userresponse_state"
+FINAL_STATE = "final_state"
 
 #State Updates
 CORRECTNESS = 'Correctness'     #Correctness of the learner's response

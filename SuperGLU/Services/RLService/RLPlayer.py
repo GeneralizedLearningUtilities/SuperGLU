@@ -56,7 +56,8 @@ tutoring_state = {  SCENARIO_NUMBER : 1,                        #Scenario number
                     AVG_RESPONSE_TIME_MIXED : 0,                #Average user response time for mixed responses in current scenario so far (clustered in 6 classes) (default 0)
                     AVG_RESPONSE_TIME_INCORRECT : 0,             #Average user response time for incorrect responses in current scenario so far (clustered in 6 classes) (default 0)
                     AFTER_USERRESPONSE_STATE : 0,        ##1 after the user has responded (before there’s potential for feedback), and 0 before the new system prompt (before there’s potential for hints)
-                    RESP_QUALITY_AFTER_RESPONSE : 0
+                    RESP_QUALITY_AFTER_RESPONSE : 0,
+                    FINAL_STATE : 0
                   }
 
 #AAR item list
