@@ -26,6 +26,7 @@ class InvalidErrorHandlingMode(ErrorHandlerException): pass
 
 ERROR_LOGGER = logging.getLogger("Application Log")
 ERROR_LOGGER.addHandler(logging.StreamHandler())
+ERROR_LOGGER.addHandler(logging.FileHandler('superglu.log'))
 
 #def attachLogFile(fileName):
 #    pass
