@@ -70,13 +70,15 @@ class Recommender(DBBridge):
         return validTasks
     
     def findAssignmentNumber(self, task, sessions):
+        return 0
+        """
         possibleTaskNumber = -1
         for session in sessions:
             sessionTask = session.getTask()
             if sessionTask is not None and task._name == sessionTask.name:
                 possibleTaskNumber = session.assignmentNumber
         return possibleTaskNumber + 1
-    
+        """
     def getRecommendedTasks(self, studentId, studentModel, numberOfTasksRequested):
         print("MAKING RECOMMENDATIONS")
         taskMastery = list()
