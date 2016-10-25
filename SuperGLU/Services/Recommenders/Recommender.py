@@ -113,9 +113,12 @@ class Recommender(DBBridge):
                 task._assistmentsItem._assignmentNumber = self.findAssignmentNumber(task, sessions)
            # print("TASK: " + str(task))
            #print(str(task._assistmentsItem))
+        logInfo("bp 1", 1)
         result = [task for gain, task in result if task._assistmentsItem is not None and
                       task._assistmentsItem.getActiveAssignmentURL() is not None]
+        logInfo("bp2", 1)
         result = result[0:numberOfTasksRequested]
+        logInfo("bp3", 1)
         #print("RESULT:" + str(result))
         return result
         #return taskList[0:numberOfTasksRequested]
