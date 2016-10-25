@@ -28,7 +28,7 @@ RL_SERVICE_NAME = "RL Service"
 
 #tutoring state for RL coach
 tutoring_state = {  SCENARIO_NUMBER : 1,                        #Scenario number (1/2) (default 1)
-                    GENDER : 0,                                 #gender of the participant (0(null)/1(male)/2(female)) (default 0)
+                    GENDER : 1,                                 #gender of the participant (1(male)/2(female)) (default 1)
                     NUMBER_OF_RESPONSE_PREV : 0,                #Number of responses in previous scenario (clustered in 6 classes) (default 0)
                     NUMBER_OF_CORRECT_PREV : 0,                 #Number of correct responses in previous scenario (clustered in 6 classes) (default 0)
                     NUMBER_OF_MIXED_PREV : 0,                   #Number of mixed responses in previous scenario (clustered in 6 classes) (default 0)
@@ -54,7 +54,10 @@ tutoring_state = {  SCENARIO_NUMBER : 1,                        #Scenario number
                     AVG_RESPONSE_TIME : 0,                      #Average user response time for all responses in current scenario so far (clustered in 6 classes) (default 0)
                     AVG_RESPONSE_TIME_CORRECT : 0,              #Average user response time for correct responses in current scenario so far (clustered in 6 classes) (default 0)
                     AVG_RESPONSE_TIME_MIXED : 0,                #Average user response time for mixed responses in current scenario so far (clustered in 6 classes) (default 0)
-                    AVG_RESPONSE_TIME_INCORRECT : 0             #Average user response time for incorrect responses in current scenario so far (clustered in 6 classes) (default 0)
+                    AVG_RESPONSE_TIME_INCORRECT : 0,             #Average user response time for incorrect responses in current scenario so far (clustered in 6 classes) (default 0)
+                    AFTER_USERRESPONSE_STATE : 0,        ##1 after the user has responded (before there’s potential for feedback), and 0 before the new system prompt (before there’s potential for hints)
+                    RESP_QUALITY_AFTER_RESPONSE : 0,
+                    FINAL_STATE : 0
                   }
 
 #AAR item list
@@ -135,6 +138,7 @@ class RLPlayer(BaseService):
     #interval
     interval = {None:0, 0:1, 1:1, 2:1, 3:1, 4:1, 5:2, 6:2, 7:2, 8:2, 9:3, 10:3, 11:3, 12:3, 13:4, 14:4, 15:4, 16:4}
     time_interval = {None:0, 0:1, 1:1, 2:1, 3:1, 4:1, 5:1, 6:2, 7:2, 8:2, 9:2, 10:2, 11:3, 12:3, 13:3, 14:3, 15:3, 16:4, 17:4, 18:4, 19:4, 20:4}
+    quality_state = {(0,0):0, (0,1):1, (1,0):2, (1,1):3, (2,0):4, (2,1):5, (3,0):6, (3,1):7} #(quality,state)
     
     num_response = None
     num_correct_response = None
@@ -308,6 +312,9 @@ class RLPlayer(BaseService):
                 #get score
                 scr = tutoring_state[NUMBER_OF_CORRECT] + (0.5 * tutoring_state[NUMBER_OF_MIXED]) 
                 tutoring_state[SCORE] = self.interval.get(ceil(float(scr)),5)
+                
+                #update quality_state
+                tutoring_state[RESP_QUALITY_AFTER_RESPONSE] = quality_state[(tutoring_state[QUALITY_ANSWER], tutoring_state[AFTER_USERRESPONSE_STATE])]
         except:
             logInfo('{0} received RL Coach update message exception: {1}'.format(RL_SERVICE_NAME, self.messageToString(msg)), 2)
                        
