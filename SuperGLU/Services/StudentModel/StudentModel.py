@@ -192,7 +192,7 @@ class StudentModelMessaging(BaseService):
                     #result.setResult(newStudentModel.toSerializable())
                     result.setResult(newStudentModel.kcMastery)
                 else:
-                    result.setResult(None)
+                    result.setResult({})
                 logInfo('{0} finished processing {1},{2}'.format(STUDENT_MODEL_SERVICE_NAME, MASTERY_VERB, REQUEST_ACT), 4)
         
         return result
