@@ -687,7 +687,9 @@ class DBSession(DBSerializable):
             return None
         
         if not useCachedValue:
-            self.taskCache = DBTask.find_by_index("taskIdIndex", self.task)
+            listOfValues = DBTask.find_by_index("taskIdIndex", self.task)
+            if len(listOfValues) > 0:
+                self.taskCache = listOfValues[0]
         return self.taskCache
     
     def getStudents(self, useCachedValue = False):
