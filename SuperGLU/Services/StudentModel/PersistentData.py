@@ -54,7 +54,7 @@ class DBSystem(object):
 
     def getTasks(self, useCachedValue=False):
         if not useCachedValue:
-            self.taskCache = [DBTask.find_one(x) for x in self.tasks]
+            self.taskCache = [DBTask.find_by_index("taskIdIndex", x)  for x in self.tasks]
         return self.taskCache
     
     def addTasks(self, newTask):
@@ -687,7 +687,7 @@ class DBSession(DBSerializable):
             return None
         
         if not useCachedValue:
-            self.taskCache = DBTask.find_one(self.task)
+            self.taskCache = DBTask.find_by_index("taskIdIndex", self.task)
         return self.taskCache
     
     def getStudents(self, useCachedValue = False):

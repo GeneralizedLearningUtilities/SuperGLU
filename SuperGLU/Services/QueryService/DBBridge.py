@@ -75,6 +75,10 @@ class DBBridge(object):
         startTime = datetime.strptime(session.startTime, DATE_TIME_FORMAT)
         msgTimestamp = datetime.strptime(msg.getTimestamp(), DATE_TIME_FORMAT)
         delta = msgTimestamp - startTime
+        if session.task is None or session.task is "":
+            taskId = msg.getContextValue(TASK_ID_CONTEXT_KEY)
+            sessionTask = self.retrieveTaskFromCacheOrDB(taskId, True)
+            session.task = sessionTask.id
         #only update if the duration increases
         if delta.seconds > session.duration:
             session.duration = delta.seconds
