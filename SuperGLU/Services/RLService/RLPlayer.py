@@ -68,11 +68,7 @@ class RLRandom():
     #Random policy for Coach
     def getTopAction(self):
         r = rand.random()
-        if r < 0.25:
-            return GIVE_FEEDBACK
-        elif r  < 0.5:
-            return GIVE_HINT
-        elif r < 0.75:
+        if r < 0.5:
             return GIVE_HINT_FEEDBACK
         else:
             return DO_NOTHING
