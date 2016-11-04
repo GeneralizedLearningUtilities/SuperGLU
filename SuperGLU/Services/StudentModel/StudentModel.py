@@ -4,7 +4,7 @@ from SuperGLU.Core.MessagingGateway import BaseService
 from SuperGLU.Core.Messaging import Message
 from SuperGLU.Util.ErrorHandling import logInfo
 from SuperGLU.Core.MessagingDB import KC_SCORE_VERB, SESSION_ID_CONTEXT_KEY, DATE_TIME_FORMAT, TASK_ID_CONTEXT_KEY, TASK_HINT_VERB, TASK_FEEDBACK_VERB, MASTERY_VERB, CLASS_ID_CONTEXT_KEY,\
-    HEARTBEAT_VERB, HELP_TYPE_CONTEXT_KEY, LEARNER_SESSIONS_VERB
+    HEARTBEAT_VERB, HELP_TYPE_CONTEXT_KEY, LEARNER_SESSIONS_VERB, COMPLETED_VERB
 from SuperGLU.Core.FIPA.SpeechActs import INFORM_ACT, REQUEST_ACT
 from SuperGLU.Services.StudentModel.PersistentData import DBStudentAlias, DBStudentModel, DBStudent, DBSession, DBClasssAlias, DBClass
 from SuperGLU.Services.StudentModel.StudentModelFactories import BasicStudentModelFactory, WeightedStudentModelFactory
@@ -119,8 +119,40 @@ class StudentModel(DBBridge):
         
         self.updateSession(msg, session)
         session.feedback.append((msg.getResult(), msg.getContextValue(HELP_TYPE_CONTEXT_KEY)))
-        session.save()   
-    
+        session.save()
+        
+    def informCompleteVerb(self, msg):
+        session = self.retrieveSessionFromCacheOrDB(msg.getContextValue(SESSION_ID_CONTEXT_KEY))
+        clazz = self.retrieveClassFromCacheOrDB(msg.getContextValue(CLASS_ID_CONTEXT_KEY), msg)
+        
+        if session is None:
+            session = self.createSession(msg)
+        
+        self.updateSession(msg, session)
+        
+        student = self.retrieveStudentFromCacheOrDB(msg.getActor(), msg)
+        
+        self.addAssignmentNumber(session, student)
+
+        student.addSession(session)
+        session.addStudent(student)
+        
+        task = self.retrieveTaskFromCacheOrDB(session.task)
+        
+        for kc in task.kcs:
+            if clazz is not None:
+                if student.studentId not in clazz.students:
+                    clazz.addStudent(student)
+                if msg.getObject() not in clazz.kcs:
+                    clazz.kcs.append(msg.getObject)
+                clazz.save()
+            
+            if student.studentId not in session.performance.keys():
+                session.performance[student.studentId] = {}
+            
+            session.performance[student.studentId][kc] = msg.getResult()
+        
+        session.save()  
     
     def getStudent(self, msg):
         if msg.getObject() is not None:
@@ -168,6 +200,10 @@ class StudentModelMessaging(BaseService):
                 logInfo('{0} is processing a {1},{2} message'.format(STUDENT_MODEL_SERVICE_NAME, TASK_FEEDBACK_VERB, INFORM_ACT), 4)
                 self.studentModel_internal.informTaskFeedBackVerb(msg)
                 logInfo('{0} finished processing {1}, {2}'.format(STUDENT_MODEL_SERVICE_NAME, TASK_FEEDBACK_VERB, INFORM_ACT), 4)
+            elif msg.getVerb() == COMPLETED_VERB:
+                logInfo('{0} is processing a {1},{2} message'.format(STUDENT_MODEL_SERVICE_NAME, COMPLETED_VERB, INFORM_ACT), 4)
+                self.studentModel_internal.informCompleteVerb(msg)
+                logInfo('{0} finished processing {1}, {2}'.format(STUDENT_MODEL_SERVICE_NAME, COMPLETED_VERB, INFORM_ACT), 4)
         elif msg.getSpeechAct() == REQUEST_ACT:
             print("REQUEST")
             if msg.getVerb() == LEARNER_SESSIONS_VERB:
