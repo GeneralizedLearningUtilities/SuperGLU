@@ -5,7 +5,7 @@ Created on Apr 11, 2016
 '''
 from SuperGLU.Util.ErrorHandling import logInfo, logWarning
 from uuid import uuid4
-from SuperGLU.Services.StudentModel.PersistentData import DBStudent, DBStudentAlias, DBSession, DBClass, DBClasssAlias, DBCalendarData, DBTask, DBTopic
+from SuperGLU.Services.StudentModel.PersistentData import DBStudent, DBStudentAlias, DBSession, DBClass, DBClasssAlias, DBCalendarData, DBTask, DBTopic, DBAssistmentsItem
 from SuperGLU.Core.MessagingDB import SESSION_ID_CONTEXT_KEY, DATE_TIME_FORMAT, TASK_ID_CONTEXT_KEY, USER_ID_CONTEXT_KEY
 from datetime import datetime
 from SuperGLU.Services.StudentModel.StudentModelFactories import BasicStudentModelFactory
@@ -22,6 +22,21 @@ class DBBridge(object):
     
     def __init__(self, serviceName):
         self.serviceName = serviceName
+        self.taskASSISTmentsDictionary = None
+        
+    def populateTaskAssistmentsDictionary(self):
+        result = {}
+        tasks = DBTask.find_all()
+        assistmentsItems = DBAssistmentsItem.find_all()
+        
+        for task in tasks:
+            if task.assistmentsItemId is not '':
+                for assistmentsItem in assistmentsItems:
+                    if assistmentsItem.id == task.assistmentsItemId:
+                        result[assistmentsItem.id] = task.taskId
+                        break
+        
+        return result
 
     def createStudent(self, studentId, msg):
         logInfo('{0} could not find student with id: {1} in database.  Creating new student'.format(self.serviceName, studentId), 3)

@@ -170,6 +170,10 @@ class StudentModelMessaging(BaseService):
                 
     def receiveMessage(self, msg):
         super(StudentModelMessaging, self).receiveMessage(msg)
+        
+        if self.studentModel_internal.taskASSISTmentsDictionary is None:
+            self.studentModel_internal.taskASSISTmentsDictionary = self.studentModel_internal.populateTaskAssistmentsDictionary()
+        
         if msg.getVerb() != HEARTBEAT_VERB:
             logInfo('{0} received message: {1}'.format(STUDENT_MODEL_SERVICE_NAME, self.messageToString(msg)), 2)
         

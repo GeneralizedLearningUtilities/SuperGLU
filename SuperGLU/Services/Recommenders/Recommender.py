@@ -167,6 +167,10 @@ class RecommenderMessaging(BaseService):
         super(RecommenderMessaging, self).receiveMessage(msg)
         #depending on the content of the message react differently
         logInfo('Entering Recommender.receiveMessage', 5)
+        
+        if self.recommender.taskASSISTmentsDictionary is None:
+            self.recommender.taskASSISTmentsDictionary = self.recommender.populateTaskAssistmentsDictionary() 
+        
         if (msg.getSpeechAct() == REQUEST_ACT and
             msg.getVerb() == RECOMMENDED_TASKS_VERB):
             outMsg = Message(None, MASTERY_VERB, msg.getActor(), msg.getObject(), REQUEST_ACT)
