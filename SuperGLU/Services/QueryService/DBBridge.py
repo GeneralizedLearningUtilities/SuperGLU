@@ -66,6 +66,9 @@ class DBBridge(object):
         session.id = msg.getContextValue(SESSION_ID_CONTEXT_KEY)
         session.task = msg.getContextValue(TASK_ID_CONTEXT_KEY)
         
+        if session.task in self.taskASSISTmentsDictionary.keys():
+            session.task = self.taskASSISTmentsDictionary[session.task]
+        
         if student is not None:
             student.sessionIds.append(session.id)
             session.students.append(student.studentId)
@@ -113,7 +116,15 @@ class DBBridge(object):
             if len(dbTaskList) > 0:
                 task = dbTaskList[0]
             else:
-                return None
+                logInfo('{0} could not find cached task object with id: {1}.  attempting to find by ASSISTments item Id.'.format(self.serviceName, taskId), 3)
+                if self.taskASSISTmentsDictionary is not None and taskId in self.taskASSISTmentsDictionary.keys():
+                    dbTaskList = DBTask.find_by_index("taskIdIndex", self.taskASSISTmentsDictionary[taskId])
+            
+                    if len(dbTaskList) > 0:
+                        task = dbTaskList[0]
+                    else:
+                        task = None
+                    
                     
             #Cache the result so we don't need to worry about looking it up again.
             self.taskCache[taskId] = task
