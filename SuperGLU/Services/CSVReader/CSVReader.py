@@ -42,7 +42,7 @@ class CSVReader (BaseService):
     
     def receiveMessage(self, msg):
         #depending on the content of the message react differently
-        logInfo('Entering CSVReader.receiveMessage', 5)
+        #logInfo('Entering CSVReader.receiveMessage', 5)
         
         reply = None
         #Only considering 

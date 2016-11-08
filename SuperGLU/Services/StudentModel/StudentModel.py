@@ -186,7 +186,7 @@ class StudentModelMessaging(BaseService):
         
     def routeMessage(self, msg):
         #depending on the content of the message react differently
-        logInfo('Entering StudentModelMessaging.routeMessage', 5)
+        #logInfo('Entering StudentModelMessaging.routeMessage', 5)
         
         result = None
         #Only considering 
