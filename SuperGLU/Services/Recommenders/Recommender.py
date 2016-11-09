@@ -73,11 +73,11 @@ class Recommender(DBBridge):
         possibleTaskNumber = -1
         for session in sessions:
             #sessionTask = session.getTask()
-            logInfo("task id is {0}, and session id is {1}".format(task._taskId, session.task), 1)
+            #logInfo("task id is {0}, and session id is {1}".format(task._taskId, session.task), 1)
         
             if task._taskId == session.task:
                 logInfo("found session with previous task", 1)
-                possibleTaskNumber = session.assignmentNumber
+                possibleTaskNumber = int(session.assignmentNumber);
         return possibleTaskNumber + 1
     
     def getRecommendedTasks(self, studentId, studentModel, numberOfTasksRequested):
