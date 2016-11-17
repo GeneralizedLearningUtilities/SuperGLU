@@ -22,7 +22,7 @@ TABLE_OF_CONTENTS_VERB = 'tableOfContents'
 
 
 RECOMMENDED_TASKS_VERB = "RecommendedTasks"        # Message concerns the results of the recommender.
-LEARNER_SESSIONS_VERB  = "LearnerSessions"                               # Message concerns a student object.  
+LEARNER_SESSIONS_VERB  = "LearnerSessions"         # Message concerns a student object.  
     
 COMPLETED_VERB = 'Completed'                       # Finished task, return result (e.g., score)
 COMPLETED_ALL_STEPS_VERB = 'CompletedAllSteps'     # Completed all steps (true/false/% steps completed)
