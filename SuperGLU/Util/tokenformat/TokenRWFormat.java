@@ -38,8 +38,13 @@ public abstract class TokenRWFormat {
 	private static void populateValidAtomicValueTypes()
 	{
 		VALID_ATOMIC_VALUE_TYPES.add(boolean.class);
+		VALID_ATOMIC_VALUE_TYPES.add(Boolean.class);
 		VALID_ATOMIC_VALUE_TYPES.add(int.class);
+		VALID_ATOMIC_VALUE_TYPES.add(Integer.class);
+		VALID_ATOMIC_VALUE_TYPES.add(Float.class);
+		VALID_ATOMIC_VALUE_TYPES.add(Double.class);
 		VALID_ATOMIC_VALUE_TYPES.add(float.class);
+		VALID_ATOMIC_VALUE_TYPES.add(Number.class);
 		VALID_ATOMIC_VALUE_TYPES.add(String.class);
 		//VALID_ATOMIC_VALUE_TYPES.add(null);//Not sure if this should be here.  I don't think so.
 	}
@@ -64,7 +69,7 @@ public abstract class TokenRWFormat {
 	}
 	
 	
-	public static StorageToken serialize(Object data)
+	public static Object serialize(StorageToken data)
 	{
 		throw new RuntimeException("Method Not Implemented");
 	}
