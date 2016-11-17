@@ -119,15 +119,12 @@ class DBBridge(object):
                 logInfo('{0} could not find cached task object with id: {1}.  attempting to find by ASSISTments item Id.'.format(self.serviceName, taskId), 3)
                 if self.taskASSISTmentsDictionary is not None and taskId in self.taskASSISTmentsDictionary.keys():
                     dbTaskList = DBTask.find_by_index("taskIdIndex", self.taskASSISTmentsDictionary[taskId])
-            
                     if len(dbTaskList) > 0:
                         task = dbTaskList[0]
+                        #Cache the result so we don't need to worry about looking it up again.
+                        self.taskCache[taskId] = task            
                     else:
                         task = None
-                    
-                    
-            #Cache the result so we don't need to worry about looking it up again.
-            self.taskCache[taskId] = task
             return task
     
     
@@ -144,13 +141,12 @@ class DBBridge(object):
             
             if len(dbTopicList) > 0:
                 task = dbTopicList[0]
+                #Cache the result so we don't need to worry about looking it up again.
+                self.taskCache[topicId] = task
+                return task
             else:
                 return None
-                    
-            #Cache the result so we don't need to worry about looking it up again.
-            self.taskCache[topicId] = task
-            return task
-    
+          
         
     def retrieveSessionFromCacheOrDB(self, sessionId, useCache=True):
         if sessionId is None:
