@@ -112,7 +112,7 @@ class DBBridge(object):
         else:
             logInfo('{0} could not find cached task object with id: {1}.  Falling back to database.'.format(self.serviceName, taskId), 3)
             dbTaskList = DBTask.find_by_index("taskIdIndex", taskId)
-            
+            task = None
             if len(dbTaskList) > 0:
                 task = dbTaskList[0]
             else:
@@ -123,8 +123,6 @@ class DBBridge(object):
                         task = dbTaskList[0]
                         #Cache the result so we don't need to worry about looking it up again.
                         self.taskCache[taskId] = task            
-                    else:
-                        task = None
             return task
     
     
