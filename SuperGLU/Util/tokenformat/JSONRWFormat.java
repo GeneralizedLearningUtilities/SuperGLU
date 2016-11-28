@@ -5,6 +5,7 @@
  */
 package Util.tokenformat;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -12,16 +13,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
+import org.json.simple.DeserializationException;
+import org.json.simple.JsonArray;
+import org.json.simple.JsonObject;
+import org.json.simple.Jsoner;
+
 
 import Util.StorageToken;
 
 
 public class JSONRWFormat extends TokenRWFormat {
 	
-	private static JSONParser parser = new JSONParser();
 	
 	private static Map<String, Class<?>> NAME_MAPPING = new HashMap<>();
 	
@@ -40,7 +42,9 @@ public class JSONRWFormat extends TokenRWFormat {
 		TYPE_MAPPING.put(Boolean.class, "bool");
 		TYPE_MAPPING.put(String.class, "unicode");
 		TYPE_MAPPING.put(Float.class, "float");
+		TYPE_MAPPING.put(BigDecimal.class, "float");
 		TYPE_MAPPING.put(Double.class, "float");
+		TYPE_MAPPING.put(Short.class, "int");
 		TYPE_MAPPING.put(Integer.class, "int");
 		TYPE_MAPPING.put(List.class, "list");
 		TYPE_MAPPING.put(Map.class, "map");
@@ -51,9 +55,9 @@ public class JSONRWFormat extends TokenRWFormat {
 	public static StorageToken parse(String input)
 	{
 		try {
-			Object rawParseResults =  parser.parse(input);
+			Object rawParseResults =  Jsoner.deserialize(input);
 			return (StorageToken) makeNative(rawParseResults);
-		} catch (ParseException e) {
+		} catch (DeserializationException e) {
 			e.printStackTrace();
 			throw new RuntimeException(e);
 		}
@@ -65,19 +69,129 @@ public class JSONRWFormat extends TokenRWFormat {
 	{
 		Object processedObject = makeSerializable(data);
 		Map<?,?> processedObjectAsMap = (Map<?, ?>) processedObject;
-		String result = JSONObject.toJSONString(processedObjectAsMap);
+		String result = Jsoner.serialize(processedObjectAsMap);
 		return result;
 				
+	}
+	
+	
+	private static boolean isNullOrPrimitive(Object input)
+	{
+		if(input == null)
+			return true;
+		
+		Class<?> inputClass = input.getClass();
+		
+		if(TokenRWFormat.VALID_ATOMIC_VALUE_TYPES.contains(inputClass))
+			return true;
+		
+		if(!(input instanceof Iterable<?> || input instanceof Map<?, ?>))
+			return true;
+		
+		return false;
 	}
 	
 	//remember to check for null values.  Python code didn't have to explicitly do so.
 	public static Object makeNative(Object input)
 	{
-		if(input == null)
+		if(isNullOrPrimitive(input))
 			return input;
-		if(!(input instanceof Iterable<?>) || input instanceof String)
+		
+		
+		Class<?> inputClass = input.getClass();
+		
+		if(TokenRWFormat.VALID_ATOMIC_VALUE_TYPES.contains(inputClass))
 			return input;
-		//if
+		
+		if(!(input instanceof Iterable<?> || input instanceof Map<?, ?>))
+			return input;
+		
+		
+		if(input instanceof JsonObject)
+		{
+			JsonObject inputAsJsonObject = (JsonObject)input;
+			
+			String datatypeName = inputAsJsonObject.keySet().iterator().next();
+			Class<?> dataType = NAME_MAPPING.getOrDefault(datatypeName, StorageToken.class);
+			
+			if(dataType.equals(StorageToken.class))
+			{//We are deserializing an object
+				
+				Map<String, Object> nativizedData = new HashMap<>();
+				boolean primitivesPresent = false;
+				for(String key : inputAsJsonObject.keySet())
+				{
+					Object value = inputAsJsonObject.get(key);
+					
+					
+					if(isNullOrPrimitive(value))
+					{
+						nativizedData.put(key, value);
+						primitivesPresent = true;
+					}
+					else
+					{
+					
+						JsonObject innerData = (JsonObject) value;
+						
+						for(String innerKey : innerData.keySet())
+						{
+							Object innerValue = innerData.get(innerKey);
+							nativizedData.put(innerKey, makeNative(innerValue));
+						}
+					}
+				}
+				
+				if(primitivesPresent)
+					return nativizedData;
+				
+				StorageToken result = new StorageToken(nativizedData,null,null);
+				return result;
+			}
+			else if (dataType.equals(List.class))
+			{
+				for(String key : inputAsJsonObject.keySet())
+				{
+					Object value = inputAsJsonObject.get(key);
+					return makeNative(value);
+				}
+			}
+			
+			else
+			{//We are deserializing a Map
+				
+				Map<Object, Object> result = new HashMap<>();
+				
+				Map<Object, Object> innerData = inputAsJsonObject.getMap(TYPE_MAPPING.get(Map.class));
+				
+				
+				for(Object key : innerData.keySet())
+				{
+					Object value = innerData.get(key);
+					
+					Object nativizedKey = makeNative(key);
+					Object nativizedValue = makeNative(value);
+					result.put(nativizedKey, nativizedValue);
+				}
+				
+				return result;
+			}
+		}
+		
+		if(input instanceof JsonArray)
+		{
+			List<Object> result = new ArrayList<>();
+			
+			for(Object currentElement : (JsonArray)input)
+			{
+				result.add(makeNative(currentElement));
+			}
+			
+			return result;
+		}
+		
+	
+		//should never reach here
 		return null;
 	}
 	

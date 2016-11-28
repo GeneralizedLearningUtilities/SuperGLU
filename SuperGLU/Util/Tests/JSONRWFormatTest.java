@@ -27,9 +27,53 @@ public class JSONRWFormatTest {
 
 	@Test
 	public void testParse() {
-		fail("Not yet implemented");
+		String input = ("{\"classID\":{\"float1\":3.14,\"nullVal\":null,\"classId\":\"classID\",\"int1\":10,\"str1\":\"value\",\"id\":\"id\",\"bool1\":true}}");
+		
+		StorageToken token = JSONRWFormat.parse(input);
+		
+		String result = token.toString();
+		
+		Assert.assertEquals(input, result);
+	}
+	
+	
+	@Test
+	public void testParseList() {
+		String input = "{\"classID\":{\"classId\":\"classID\",\"stringList\":{\"list\":[\"string1\",\"string2\",\"string3\"]},\"id\":\"id\"}}";
+		
+		StorageToken token = JSONRWFormat.parse(input);
+		
+		String result = token.toString();
+		
+		Assert.assertEquals(input, result);
 	}
 
+	
+	@Test
+	public void testParseMap() {
+		String input = "{\"classID\":{\"classId\":\"classID\",\"stringIntMap\":{\"map\":{\"key1\":13,\"key2\":32,\"key3\":1300}},\"id\":\"id\"}}";
+		
+		StorageToken token = JSONRWFormat.parse(input);
+		
+		String result = token.toString();
+		
+		Assert.assertEquals(input, result);
+	}
+	
+	
+	@Test
+	public void testParseNestedObject()
+	{
+		String input = "{\"TestData\":{\"classId\":\"TestData\",\"innerTokens\":{\"list\":[{\"classID1\":{\"float1\":3.14,\"classId\":\"classID1\",\"int1\":10,\"str1\":\"value\",\"id\":\"id1\",\"bool1\":true}},{\"classID2\":{\"float1\":43212,\"classId\":\"classID2\",\"int1\":1113,\"str1\":\"value2\",\"id\":\"id2\",\"bool1\":true}}]},\"id\":\"outerToken\"}}";
+		
+		StorageToken token = JSONRWFormat.parse(input);
+		
+		String result = token.toString();
+		
+		Assert.assertEquals(input, result);
+	}
+	
+	
 	@Test
 	public void testSerializeStorageToken() {
 		Map<String, Object> data = new HashMap<>();

@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import Util.tokenformat.JSONRWFormat;
 import Util.tokenformat.TokenRWFormat;
 
 public class StorageToken implements Iterable<String> {
@@ -41,7 +42,7 @@ public class StorageToken implements Iterable<String> {
 			this.setId(id);
 		}
 		
-		else if(this.data.get(ID_KEY) == null)
+		else if(!this.data.containsKey(ID_KEY))
 		{
 			this.data.put(ID_KEY, UUID.randomUUID().toString());
 		}
@@ -152,6 +153,12 @@ public class StorageToken implements Iterable<String> {
 	public boolean isValidKey(Object key)
 	{
 		return TokenRWFormat.VALID_KEY_TYPES.contains(key.getClass());
+	}
+	
+	@Override
+	public String toString()
+	{
+		return JSONRWFormat.serialize(this);
 	}
 	
 	
