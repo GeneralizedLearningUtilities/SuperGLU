@@ -13,7 +13,7 @@ import java.util.UUID;
 import Util.tokenformat.JSONRWFormat;
 import Util.tokenformat.TokenRWFormat;
 
-public class StorageToken implements Iterable<String> {
+public class StorageToken extends Serializable implements Iterable<String> {
 
 	
 	public static String ID_KEY = "id";
