@@ -34,6 +34,10 @@ public class Message extends Serializable {
 	public static String TIMESTAMP_KEY = "timestamp";
 	public static String CONTEXT_KEY = "context";
 	
+	//Context keys
+	public static String SESSION_ID_CONTEXT_KEY = "sessionId";
+	
+	
 	private static DateFormat timestampFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
 	
 	private String actor;
@@ -69,12 +73,13 @@ public class Message extends Serializable {
 		this.verb = null;
 		this.obj = null;
 		this.result = null;
-		this.speechAct = SpeechActEnum.INFORM_ACT;
+		this.speechAct = SpeechActEnum.Inform;
 		this.timestamp = new Date();
 		this.context = new HashMap<>();
 	}
 
 
+	//ACCESSORS
 	public String getActor() {
 		return actor;
 	}
@@ -182,7 +187,8 @@ public class Message extends Serializable {
 		this.context.remove(key);
 	}
 	
-	
+
+	//Comparators
 	@Override
 	public boolean equals(Object otherObject)
 	{
@@ -217,7 +223,7 @@ public class Message extends Serializable {
 	
 	@Override
 	public int hashCode()
-	{
+	{//NOTE: the python version does not include the context when computing the hashcode so I didn't either.
 		int result = super.hashCode();
 		int arbitraryPrimeNumber = 23;
 		
@@ -237,7 +243,7 @@ public class Message extends Serializable {
 	}
 	
 	
-	
+//Serialization/Deserialization	
 	@Override
 	public StorageToken saveToToken()
 	{
@@ -264,7 +270,7 @@ public class Message extends Serializable {
 		this.verb = (String)token.getItem(VERB_KEY, true, null);
 		this.obj = (String)token.getItem(OBJECT_KEY, true, null);
 		this.result = SerializationConvenience.untokenizeObject(token.getItem(RESULT_KEY, true, null));
-		this.speechAct = SpeechActEnum.valueOf((String) token.getItem(SPEECH_ACT_KEY, true, SpeechActEnum.INFORM_ACT));
+		this.speechAct = SpeechActEnum.valueOf((String) token.getItem(SPEECH_ACT_KEY, true, SpeechActEnum.Inform));
 		try {
 			this.timestamp = timestampFormat.parse((String)token.getItem(TIMESTAMP_KEY, true, null));
 		} catch (ParseException e) {

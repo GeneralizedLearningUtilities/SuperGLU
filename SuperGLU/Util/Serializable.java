@@ -69,7 +69,7 @@ public abstract class Serializable {
 		
 		Serializable other = (Serializable) otherObject;
 		
-		if(this.id == other.id)
+		if(this.id.equals(other.id))
 			return true;
 		
 		return false;

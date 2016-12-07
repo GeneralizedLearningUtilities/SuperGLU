@@ -1,5 +1,6 @@
 package Util;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -112,6 +113,11 @@ public class SerializationConvenience {
 			}
 			
 			return result;
+		}
+		else if (object instanceof BigDecimal)
+		{
+			BigDecimal bd = (BigDecimal) object;
+			return bd.floatValue();
 		}
 		else
 			return object;

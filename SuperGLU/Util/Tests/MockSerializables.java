@@ -58,7 +58,7 @@ public class MockSerializables
 			if(this.foo != other.foo)
 				return false;
 			
-			if(this.bar != other.bar)
+			if(!this.bar.equals(other.bar))
 				return false;
 			
 			return true;
@@ -84,7 +84,7 @@ public class MockSerializables
 		public void initializeFromToken(StorageToken token)
 		{
 			super.initializeFromToken(token);
-			this.foo = (int)token.getItem(FOO_KEY, true, -1);
+			this.foo = ((Float)SerializationConvenience.untokenizeObject(token.getItem(FOO_KEY, true, -1))).intValue();
 			this.bar = (String)token.getItem(BAR_KEY, true, null);
 		}
 		
