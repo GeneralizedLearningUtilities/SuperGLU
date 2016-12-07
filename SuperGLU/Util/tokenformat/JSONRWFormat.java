@@ -92,7 +92,7 @@ public class JSONRWFormat extends TokenRWFormat {
 	}
 	
 	//remember to check for null values.  Python code didn't have to explicitly do so.
-	public static Object makeNative(Object input)
+	private static Object makeNative(Object input)
 	{
 		if(isNullOrPrimitive(input))
 			return input;

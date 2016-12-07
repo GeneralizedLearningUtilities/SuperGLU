@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 import Util.Serializable;
+import Util.SerializationConvenience;
 import Util.StorageToken;
 
 public class MockSerializables
@@ -268,7 +269,7 @@ public class MockSerializables
 			super.initializeFromToken(token);
 			this.foo = (int)token.getItem(FOO_KEY, true, -1);
 			this.bar = (String)token.getItem(BAR_KEY, true, null);
-			this.baz = (Map<String, Integer>)token.getItem(BAZ_KEY, true, new HashMap<>());
+			this.baz = (Map<String, Integer>)SerializationConvenience.untokenizeObject(token.getItem(BAZ_KEY, true, new HashMap<>()));
 		}
 		
 		
@@ -278,7 +279,7 @@ public class MockSerializables
 			StorageToken token = super.saveToToken();
 			token.setItem(FOO_KEY, this.foo);
 			token.setItem(BAR_KEY, this.bar);
-			token.setItem(BAZ_KEY, this.baz);
+			token.setItem(BAZ_KEY, SerializationConvenience.tokenizeObject(this.baz));
 			return token;
 		}	
 	}
