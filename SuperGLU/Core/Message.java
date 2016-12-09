@@ -33,9 +33,15 @@ public class Message extends Serializable {
 	public static String SPEECH_ACT_KEY = "speechAct";
 	public static String TIMESTAMP_KEY = "timestamp";
 	public static String CONTEXT_KEY = "context";
+   
+
 	
 	//Context keys
 	public static String SESSION_ID_CONTEXT_KEY = "sessionId";
+	public static String CONTEXT_CONVERSATION_ID_KEY = "conversation-id";
+	public static String CONTEXT_IN_REPLY_TO_KEY = "in-reply-to";
+	public static String CONTEXT_REPLY_WITH_KEY = "reply-with";
+	public static String CONTEXT_REPLY_BY_KEY = "reply-by";
 	
 	
 	private static DateFormat timestampFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
@@ -73,7 +79,7 @@ public class Message extends Serializable {
 		this.verb = null;
 		this.obj = null;
 		this.result = null;
-		this.speechAct = SpeechActEnum.Inform;
+		this.speechAct = SpeechActEnum.INFORM_ACT;
 		this.timestamp = new Date();
 		this.context = new HashMap<>();
 	}
@@ -270,7 +276,7 @@ public class Message extends Serializable {
 		this.verb = (String)token.getItem(VERB_KEY, true, null);
 		this.obj = (String)token.getItem(OBJECT_KEY, true, null);
 		this.result = SerializationConvenience.untokenizeObject(token.getItem(RESULT_KEY, true, null));
-		this.speechAct = SpeechActEnum.valueOf((String) token.getItem(SPEECH_ACT_KEY, true, SpeechActEnum.Inform));
+		this.speechAct = SpeechActEnum.getEnum((String) token.getItem(SPEECH_ACT_KEY, true, SpeechActEnum.INFORM_ACT));
 		try {
 			this.timestamp = timestampFormat.parse((String)token.getItem(TIMESTAMP_KEY, true, null));
 		} catch (ParseException e) {

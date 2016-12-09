@@ -83,6 +83,12 @@ public abstract class Serializable {
 	}
 	
 	
+	public String getId()
+	{
+		return this.id;
+	}
+	
+	
 	
 	public void updateId(String id)
 	{

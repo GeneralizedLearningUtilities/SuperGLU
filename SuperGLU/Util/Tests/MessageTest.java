@@ -20,7 +20,7 @@ public class MessageTest {
 		
 		MockSerializables.MockSerializable m = new MockSerializables.MockSerializable(32, "penguins");
 		
-		Message message = new Message("testActor", "TestVerb", "TestObj", m, SpeechActEnum.Inform, new Date(), new HashMap<String, Object>(), "testID");
+		Message message = new Message("testActor", "TestVerb", "TestObj", m, SpeechActEnum.INFORM_ACT, new Date(), new HashMap<String, Object>(), "testID");
 		
 		message.setContextValue(Message.SESSION_ID_CONTEXT_KEY, "mockSessionID");
 		
@@ -35,7 +35,7 @@ public class MessageTest {
 	{
 		MockSerializables.MockSerializable m = new MockSerializables.MockSerializable(32, "penguins");
 		
-		Message message = new Message("testActor", "TestVerb", "TestObj", m, SpeechActEnum.Inform, new Date(), new HashMap<String, Object>(), "testID");
+		Message message = new Message("testActor", "TestVerb", "TestObj", m, SpeechActEnum.INFORM_ACT, new Date(), new HashMap<String, Object>(), "testID");
 		
 		message.setContextValue(Message.SESSION_ID_CONTEXT_KEY, "mockSessionID");
 		
