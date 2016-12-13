@@ -46,12 +46,39 @@ public class Message extends Serializable {
 	
 	private static DateFormat timestampFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
 	
+    /**
+     * The actor performing the verb
+     */
 	private String actor;
+    
+    /**
+     *  A verb, which is an action that is occurring or has occurred
+     */
 	private String verb;
+	
+	/**
+	 *  A target of the verb action, being acted upon or relating the actor and object
+	 */
 	private String obj;
+	
+	/**
+	 * The outcome of this interaction
+	 */
 	private Object result;
+	
+	/**
+	 *  A speech act declaring the intent of this message, from SpeechActEnum
+	 */
 	private SpeechActEnum speechAct;
+	
+	/**
+	 * The timestamp for when this message refers to, ISO 8601 formatted
+	 */
 	private Date timestamp;
+	
+	/**
+	 *  Additional context for the message
+	 */
 	private Map<String, Object> context;
 	
 	
@@ -228,8 +255,13 @@ public class Message extends Serializable {
 	
 	
 	@Override
+	/**
+	 *  
+     *   Generate a hash value for the message.  This does not take the context into account,
+     *   as the context does not have a static set of values.
+	 */
 	public int hashCode()
-	{//NOTE: the python version does not include the context when computing the hashcode so I didn't either.
+	{
 		int result = super.hashCode();
 		int arbitraryPrimeNumber = 23;
 		
@@ -244,6 +276,8 @@ public class Message extends Serializable {
 		result = result * arbitraryPrimeNumber + this.speechAct.hashCode();
 		if(this.timestamp != null)
 			result = result * arbitraryPrimeNumber + this.timestamp.hashCode();
+		if(this.context != null)
+			result = result * arbitraryPrimeNumber + this.context.hashCode();
 		
 		return result;
 	}

@@ -22,6 +22,11 @@ import org.json.simple.Jsoner;
 import Util.StorageToken;
 
 
+/**
+ *  """ JSON Serialization Format Handler ""
+ * @author auerbach
+ *
+ */
 public class JSONRWFormat extends TokenRWFormat {
 	
 	

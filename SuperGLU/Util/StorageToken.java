@@ -13,6 +13,14 @@ import java.util.UUID;
 import Util.tokenformat.JSONRWFormat;
 import Util.tokenformat.TokenRWFormat;
 
+/**
+ *  """
+    An object that stores data in a form that can be serialized
+    """
+ * @author auerbach
+ *
+ */
+
 public class StorageToken extends Serializable implements Iterable<String> {
 
 	

@@ -17,6 +17,13 @@ import Util.tokenformat.TokenRWFormat;
 
 public class SerializationConvenience {
 
+	
+	/**
+	 *  """ Serialize some object(s) Must already be tokenized """
+	 * @param storageToken
+	 * @param sFormat
+	 * @return
+	 */
 	public static String makeSerialized(StorageToken storageToken, SerializationFormatEnum sFormat)
 	{
 		
@@ -31,7 +38,12 @@ public class SerializationConvenience {
 			return JSONRWFormat.serialize(storageToken);
 	}
 	
-	
+	/**
+	 *  """ Unserialize some object(s) into tokens """
+	 * @param input
+	 * @param sFormat
+	 * @return
+	 */
 	public static StorageToken makeNative(String input, SerializationFormatEnum sFormat)
 	{
 		if(sFormat == null || sFormat == SerializationFormatEnum.JSON_FORMAT)
@@ -44,7 +56,11 @@ public class SerializationConvenience {
 			return JSONRWFormat.parse(input);
 	}
 	
-	
+	/**
+	 *  """ Generic function to tokenize an object """
+	 * @param object
+	 * @return
+	 */
 	public static Object tokenizeObject(Object object)
 	{
 		if(object == null)
@@ -79,7 +95,11 @@ public class SerializationConvenience {
 			return  object;
 	}
 	
-	
+	/**
+	 * """ Generic function to create an object from a token """
+	 * @param object
+	 * @return
+	 */
 	public static Object untokenizeObject(Object object)
 	{
 		if(object == null)

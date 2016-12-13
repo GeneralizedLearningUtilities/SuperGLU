@@ -15,9 +15,18 @@ import java.util.UUID;
 
 import org.reflections.Reflections;
 
-
+/**
+ *  """
+    A serializable object, that can be saved to token and opened from token
+    """
+ * @author auerbach
+ *
+ */
 public abstract class Serializable {
 
+	/**
+	 *  A unique ID (GUID) for the message, for later reference.
+	 */
 	protected String id;
 	
 	protected static Map<String, Class<? extends Serializable>> CLASS_IDS = new HashMap<>();
@@ -135,6 +144,16 @@ public abstract class Serializable {
 	}
 	
 	
+	/**
+	 *  """
+     *   Create a serializable instance from an arbitrary storage token
+     *   @param token: Storage token
+     *   @param context: Mutable context for the loading process
+     *   """
+	 * @param token
+	 * @param errorOnMissing
+	 * @return
+	 */
 	public static Serializable createFromToken(StorageToken token, boolean errorOnMissing)
 	{
 		String classId = token.getClassId();

@@ -14,6 +14,12 @@ import java.util.Map;
 
 import Util.StorageToken;
 
+/**
+ * """ Class that writes storage tokens """
+ * @author auerbach
+ *
+ */
+
 public abstract class TokenRWFormat {
 
 	public static ArrayList<Class<?>> VALID_KEY_TYPES = new ArrayList<>();
@@ -64,13 +70,13 @@ public abstract class TokenRWFormat {
 		VALID_MAPPING_TYPES.add(HashMap.class);
 	}
 	
-	
+	// """ Parse a string into Storage Tokens """
 	public static StorageToken parse(String input)
 	{
 		throw new RuntimeException("Method Not Implemented");
 	}
 	
-	
+	//  """ Serialize Storage Token objects into a string form """
 	public static Object serialize(StorageToken data)
 	{
 		throw new RuntimeException("Method Not Implemented");
