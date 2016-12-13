@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -20,13 +21,19 @@ import Util.SerializationFormatEnum;
  */
 public class BaseMessagingNode{
 	
-	private String id;
-	private MessagingGateway gateway;
-	private Map<String,Pair<Message, Consumer<Message>>> requests;
+	protected String id;
+	protected MessagingGateway gateway;
+	protected Map<String,Pair<Message, Consumer<Message>>> requests;
+	protected Predicate<Message> conditions;
 	
 	private static boolean CATCH_BAD_MESSAGES = false;
 	
-	public BaseMessagingNode(String anId, MessagingGateway gateway)
+	protected static String ORIGINATING_SERVICE_ID_KEY = "originatingServiceId";
+	protected static String SESSION_KEY = "sessionId";
+	
+	protected Logger log = Logger.getLogger(this.getClass().toString());
+	
+	public BaseMessagingNode(String anId, MessagingGateway gateway, Predicate<Message> conditions)
 	{
 		this.id = anId;
 		if(gateway != null)
@@ -45,18 +52,18 @@ public class BaseMessagingNode{
 	
 	public void sendMessage(Message msg)
 	{
-		Logger.getGlobal().log(Level.INFO, this.id + " is sending " + msg.toString());
+		log.log(Level.INFO, this.id + " is sending " + msg.toString());
 		if(this.gateway != null)
 		{
 			this.gateway.dispatchMessage(msg, this.id);
-			Logger.getGlobal().log(Level.INFO, "Actually sent it");
+			log.log(Level.INFO, "Actually sent it");
 		}
 	}
 	
 	// """ Function to check if this node is interested in this message type """
-	public boolean getMessageConditions()
-	{//TODO: figure out how this function works.
-		return true;
+	public Predicate<Message> getMessageConditions()
+	{
+		return conditions;
 	}
 	
 	
@@ -127,7 +134,7 @@ public class BaseMessagingNode{
 	// # Pack/Unpack Messages
 	public String messageToString(Message msg)
 	{
-		return msg.toString();
+		return SerializationConvenience.serializeObject(msg, SerializationFormatEnum.JSON_FORMAT);
 	}
 	
 	
@@ -143,8 +150,8 @@ public class BaseMessagingNode{
 			}
 			catch(Exception e)
 			{
-				Logger.getGlobal().log(Level.SEVERE, "ERROR: could not process message data received.  Received: " + msgAsString);
-				Logger.getGlobal().log(Level.SEVERE, "Exception Caught:" + e.toString());
+				log.log(Level.SEVERE, "ERROR: could not process message data received.  Received: " + msgAsString);
+				log.log(Level.SEVERE, "Exception Caught:" + e.toString());
 			}
 		}
 		else
