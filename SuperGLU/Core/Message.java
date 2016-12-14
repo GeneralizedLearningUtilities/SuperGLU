@@ -90,7 +90,11 @@ public class Message extends Serializable {
 		this.obj = obj;
 		this.result = result;
 		this.speechAct = speechAct;
-		this.timestamp = timestamp;
+		
+		if(timestamp == null)
+			this.timestamp = new Date();
+		else
+			this.timestamp = timestamp;
 		
 		if(context == null)
 			this.context = new HashMap<>();

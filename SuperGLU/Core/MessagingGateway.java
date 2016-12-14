@@ -20,6 +20,12 @@ public class MessagingGateway extends BaseMessagingNode {
 	
 	
 	
+	public MessagingGateway()
+	{//Default constructor for ease of access
+		this(null, null, null, null, null);
+	}
+	
+	
 	public MessagingGateway(String anId, MessagingGateway gateway, Map<String, Object> scope, Collection<BaseMessagingNode> nodes, Predicate<Message> conditions) {
 		super(anId, gateway, conditions);
 		if(scope == null)
@@ -86,7 +92,7 @@ public class MessagingGateway extends BaseMessagingNode {
 	{
 		for(BaseMessagingNode node : nodes.values())
 		{
-			if(node.id != senderId && node.getMessageConditions().test(msg))
+			if(node.id != senderId &&( node.getMessageConditions() == null || node.getMessageConditions().test(msg)))
 				node.receiveMessage(msg);
 		}
 	}

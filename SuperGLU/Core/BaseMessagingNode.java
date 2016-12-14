@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.logging.Level;
@@ -35,9 +36,15 @@ public class BaseMessagingNode{
 	
 	public BaseMessagingNode(String anId, MessagingGateway gateway, Predicate<Message> conditions)
 	{
-		this.id = anId;
+		if(anId == null)
+			this.id = UUID.randomUUID().toString();
+		else
+			this.id = anId;
 		if(gateway != null)
 			this.bindToGateway(gateway);
+		
+		if(conditions != null)
+			this.conditions = conditions;
 		
 		this.requests = new HashMap<>();
 		
@@ -169,7 +176,7 @@ public class BaseMessagingNode{
 		
 		for(Message msg : msgs)
 		{
-			result.add(msg.toString());
+			result.add(messageToString(msg));
 		}
 		
 		return result;
