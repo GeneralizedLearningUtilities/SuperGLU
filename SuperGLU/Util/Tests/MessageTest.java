@@ -1,7 +1,5 @@
 package Util.Tests;
 
-import static org.junit.Assert.*;
-
 import java.util.Date;
 import java.util.HashMap;
 

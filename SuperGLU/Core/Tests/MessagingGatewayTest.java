@@ -1,14 +1,10 @@
 package Core.Tests;
 
-import static org.junit.Assert.*;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
-import java.util.logging.ConsoleHandler;
-import java.util.logging.Logger;
 
 import org.junit.After;
 import org.junit.Assert;
