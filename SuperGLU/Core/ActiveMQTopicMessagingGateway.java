@@ -1,6 +1,8 @@
 package Core;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 import java.util.logging.Level;
@@ -15,6 +17,7 @@ import javax.jms.TextMessage;
 import javax.jms.TopicConnection;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
+import org.apache.activemq.command.ActiveMQTopic;
 
 import Util.SerializationConvenience;
 import Util.SerializationFormatEnum;
@@ -32,6 +35,8 @@ public class ActiveMQTopicMessagingGateway extends MessagingGateway implements M
 	protected MessageProducer producer;
 	protected Session session;
 	
+	protected List<String> excludedTopics;
+	
 	protected TopicConnection connection; 
 
 	public ActiveMQTopicMessagingGateway() {
@@ -42,10 +47,11 @@ public class ActiveMQTopicMessagingGateway extends MessagingGateway implements M
 			connection.start();
 			session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 			
-			Destination dest = session.createTopic(defaultConfig.getTopic());
+			Destination dest = session.createTopic(ActiveMQTopicConfiguration.DEFAULT_TOPIC);
 			producer = session.createProducer(dest);
 			consumer = session.createConsumer(dest);
 			consumer.setMessageListener(this);
+			this.excludedTopics = new ArrayList<String>();
 		} catch (JMSException e) {
 			e.printStackTrace();
 			throw new RuntimeException("Failed to connect to ActiveMQ");
@@ -57,12 +63,15 @@ public class ActiveMQTopicMessagingGateway extends MessagingGateway implements M
 		try
 		{
 			connection = new ActiveMQConnectionFactory(activeMQConfiguration.getBrokerHost()).createTopicConnection();
+			connection.start();
 			session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 			
-			Destination dest = session.createTopic(activeMQConfiguration.getTopic());
+			
+			Destination dest = session.createTopic(ActiveMQTopicConfiguration.DEFAULT_TOPIC);
 			this.producer = session.createProducer(dest);
 			this.consumer = session.createConsumer(dest);
 			consumer.setMessageListener(this);
+			this.excludedTopics = activeMQConfiguration.getExcludedTopic();
 		}
 		catch (JMSException e)
 		{
@@ -87,20 +96,36 @@ public class ActiveMQTopicMessagingGateway extends MessagingGateway implements M
 
 
 	@Override
+	/**
+	 * message handler for receiving all activeMQ messages
+	 * Will filter out topics that this gateway doesn't care about.
+	 */
 	public void onMessage(javax.jms.Message jmsMessage) {
-		
-		if(jmsMessage instanceof TextMessage)
-		{
-			try {
-				String body = ((TextMessage) jmsMessage).getText();
-				Message msg = (Message) SerializationConvenience.nativeizeObject(body, SerializationFormatEnum.JSON_FORMAT);
-				super.receiveMessage(msg);
-			} catch (JMSException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				log.log(Level.WARNING, "Failure while receiving JMS message.", e);
+				
+		try {
+			
+			//check if we actually care about a message on this topic.
+			if(jmsMessage instanceof TextMessage)
+			{
+				Destination dest = jmsMessage.getJMSDestination();
+				if(dest instanceof ActiveMQTopic)
+				{
+					ActiveMQTopic messageTopic = (ActiveMQTopic)dest;
+					if(this.excludedTopics.contains(messageTopic.getPhysicalName()))
+						return;
+				}
 			}
+			
+			
+			String body = ((TextMessage) jmsMessage).getText();
+			Message msg = (Message) SerializationConvenience.nativeizeObject(body, SerializationFormatEnum.JSON_FORMAT);
+			super.receiveMessage(msg);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			log.log(Level.WARNING, "Failure while receiving JMS message.", e);
 		}
+		
 		
 	}
 
