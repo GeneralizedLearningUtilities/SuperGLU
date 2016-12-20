@@ -29,8 +29,8 @@ public class BaseMessagingNode{
 	
 	private static boolean CATCH_BAD_MESSAGES = false;
 	
-	protected static String ORIGINATING_SERVICE_ID_KEY = "originatingServiceId";
-	protected static String SESSION_KEY = "sessionId";
+	public static String ORIGINATING_SERVICE_ID_KEY = "originatingServiceId";
+	public static String SESSION_KEY = "sessionId";
 	
 	protected Logger log = Logger.getLogger(this.getClass().toString());
 	
@@ -194,6 +194,12 @@ public class BaseMessagingNode{
 		}
 		
 		return result;
+	}
+	
+	
+	public String getId()
+	{
+		return this.id;
 	}
 	
 	

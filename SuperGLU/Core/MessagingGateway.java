@@ -18,8 +18,6 @@ public class MessagingGateway extends BaseMessagingNode {
 	private Map<String, BaseMessagingNode> nodes;
 	private Map<String, Object> scope;
 	
-	
-	
 	public MessagingGateway()
 	{//Default constructor for ease of access
 		this(null, null, null, null, null);
@@ -32,6 +30,9 @@ public class MessagingGateway extends BaseMessagingNode {
 			this.scope = new HashMap<>();
 		else
 			this.scope = scope;
+		
+		
+		this.scope.put(ORIGINATING_SERVICE_ID_KEY, this.id);
 		
 		this.nodes = new HashMap<>();
 		if(nodes != null)
@@ -143,8 +144,4 @@ public class MessagingGateway extends BaseMessagingNode {
 				msg.setContextValue(key, this.scope.get(key));
 		}
 	}
-	
-	
-	
-	
 }

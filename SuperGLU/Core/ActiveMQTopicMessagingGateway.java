@@ -86,6 +86,7 @@ public class ActiveMQTopicMessagingGateway extends MessagingGateway implements M
 	public void sendMessage(Message msg) {
 		super.sendMessage(msg);
 		try {
+			this.addContextDataToMsg(msg);
 			TextMessage activeMQMessage = session.createTextMessage(SerializationConvenience.serializeObject(msg, SerializationFormatEnum.JSON_FORMAT));
 			producer.send(activeMQMessage);
 		} catch (JMSException e) {
@@ -119,7 +120,10 @@ public class ActiveMQTopicMessagingGateway extends MessagingGateway implements M
 			
 			String body = ((TextMessage) jmsMessage).getText();
 			Message msg = (Message) SerializationConvenience.nativeizeObject(body, SerializationFormatEnum.JSON_FORMAT);
-			super.receiveMessage(msg);
+			
+			//we already distributed this message when we sent it.  no need to re-process it.
+			if(!msg.getContextValue(ORIGINATING_SERVICE_ID_KEY, "").equals(this.id))
+				super.receiveMessage(msg);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
