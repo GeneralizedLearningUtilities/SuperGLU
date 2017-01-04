@@ -61,7 +61,20 @@ public class JSONRWFormat extends TokenRWFormat {
 	{
 		try {
 			Object rawParseResults =  Jsoner.deserialize(input);
-			return (StorageToken) makeNative(rawParseResults);
+			Object nativeObject = makeNative(rawParseResults);
+			
+			StorageToken result;
+			if(nativeObject instanceof StorageToken)
+				result = (StorageToken) nativeObject;
+			else if (nativeObject instanceof Map<?,?>)
+				result = new StorageToken((Map<String, Object>) nativeObject, null, null);
+			else
+			{
+				Map<String, Object> data = new HashMap<>();
+				data.put("data", nativeObject);
+				result = new StorageToken(data, null, null);
+			}
+			return result;
 		} catch (DeserializationException e) {
 			e.printStackTrace();
 			throw new RuntimeException(e);

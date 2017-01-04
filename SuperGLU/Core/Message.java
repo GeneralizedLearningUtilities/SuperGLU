@@ -44,7 +44,7 @@ public class Message extends Serializable {
 	public static String CONTEXT_REPLY_BY_KEY = "reply-by";
 	
 	
-	private static DateFormat timestampFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+	private static DateFormat timestampFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
 	
     /**
      * The actor performing the verb

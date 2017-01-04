@@ -27,9 +27,9 @@ public class ApplicationTest {
 	public static void main(String[] args) {
 		
 		
-		ActiveMQTopicConfiguration config = new ActiveMQTopicConfiguration();
+		ActiveMQTopicConfiguration config = new ActiveMQTopicConfiguration("config", null, "failover://tcp://localhost:61617");
 		List<String> excludedTopics = new ArrayList<>();
-		excludedTopics.add("DEFAULT_SCOPE");
+		//excludedTopics.add("DEFAULT_SCOPE");
 		config.setTopic(excludedTopics);
 		
 		

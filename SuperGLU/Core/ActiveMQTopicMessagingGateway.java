@@ -1,5 +1,7 @@
 package Core;
 
+import java.net.URL;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -38,6 +40,13 @@ public class ActiveMQTopicMessagingGateway extends MessagingGateway implements M
 	protected List<String> excludedTopics;
 	
 	protected TopicConnection connection; 
+	
+	//This property defines to which system the activeMQ message belongs.
+	public static String SYSTEM_NAME = "SYSTEM_NAME";
+	//this is the identifier for SUPERGLU messages
+	public static String SUPERGLU = "SUPERGLU_MSG";
+	public static String VHMSG = "VHMSG_MSG"; //Identifier for virtual human messages
+	public static String GIFT = "GIFT_MSG";
 
 	public ActiveMQTopicMessagingGateway() {
 		super();
@@ -88,6 +97,7 @@ public class ActiveMQTopicMessagingGateway extends MessagingGateway implements M
 		try {
 			this.addContextDataToMsg(msg);
 			TextMessage activeMQMessage = session.createTextMessage(SerializationConvenience.serializeObject(msg, SerializationFormatEnum.JSON_FORMAT));
+			activeMQMessage.setStringProperty(SYSTEM_NAME, SUPERGLU);
 			producer.send(activeMQMessage);
 		} catch (JMSException e) {
 			e.printStackTrace();
@@ -119,6 +129,7 @@ public class ActiveMQTopicMessagingGateway extends MessagingGateway implements M
 			
 			
 			String body = ((TextMessage) jmsMessage).getText();
+			body = URLDecoder.decode(body, "UTF-8");
 			Message msg = (Message) SerializationConvenience.nativeizeObject(body, SerializationFormatEnum.JSON_FORMAT);
 			
 			//we already distributed this message when we sent it.  no need to re-process it.
