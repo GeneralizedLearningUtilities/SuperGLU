@@ -9,6 +9,8 @@ from SuperGLU.Util.ErrorHandling import logError, logWarning
 from SuperGLU.Util.Serialization import (Serializable, serializeObject,
                             nativizeObject)
 import datetime
+import stomp
+import urllib
 
 CATCH_BAD_MESSAGES = False
 SESSION_KEY = 'sessionId'
@@ -163,6 +165,91 @@ class MessagingGateway(BaseMessagingNode):
                     
 
 
+
+
+class ActiveMQTopicMessagingGateway(MessagingGateway):
+    
+    
+    TOPIC_LABEL = "/topic/"
+    
+    #This property defines to which system the activeMQ message belongs.
+    MESSAGE_SYSTEM_NAME = "SYSTEM_NAME";
+    
+    #this is the identifier for SUPERGLU messages
+    SUPERGLU = "SUPERGLU_MSG";
+    VHMSG = "VHMSG_MSG"; #Identifier for virtual human messages
+    GIFT = "GIFT_MSG"; #Identifer for GIFT messages
+
+    
+    
+    def __init__(self, anId=None, nodes=None, gateway=None, authenticator=None, scope=None, server = "localhost", port = "61613", AMQscope = "*"):
+        super(ActiveMQTopicMessagingGateway, self).__init__(anId, nodes, gateway, authenticator, scope)
+        self.m_port   = port
+        self.m_AMQscope  = AMQscope
+        self.m_server = server
+        
+        self.openConnection()
+    
+    
+    #returns boolean
+    def openConnection(self):
+        if self.m_isOpen:
+            return True
+        while not self.m_isOpen:
+            try:
+                if self.m_server is None or self.m_server is '':
+                    self.m_server = "localhost"
+                if self.m_AMQscope is None or self.m_AMQscope is '':
+                    self.m_AMQscope = "*"
+                if self.m_port is None or self.m_port is '':
+                    self.m_port = "61613"
+                    
+                self.m_connection = stomp.Connection10([(self.m_server, int(self.m_port))])
+                self.m_connection.set_listener('stomp_listener', self)
+                self.m_connection.start()
+                self.m_connection.connect()
+                self.m_connection.subscribe(self.TOPIC_LABEL + self.m_scope)
+        
+                self.m_isOpen = True
+                
+                return True
+            except Exception:
+                print("Connection timed Out, waiting for ActiveMQ")
+    
+    
+    def on_message(self, headers, msg):
+        msg = urllib.parse.unquote(msg)
+        msg = msg.replace("+", " ")
+        
+        #Only handle superglu messages like this.  for the moment we will ignore other message types until the ontology broker is ready
+        if self.MESSAGE_SYSTEM_NAME in headers:
+            if headers[self.MESSAGE_SYSTEM_NAME] == self.SUPERGLU:
+            
+                try: 
+                    msg = nativizeObject(msg)
+                    if isinstance(msg, Message):
+                        if self._gateway is not None:
+                            self._gateway.dispatchMessage(msg, self.getId())
+                        self.distributeMessage(msg)
+                except Exception as err:
+                    print("ActiveMQ message was unable to be parsed")
+                    logError(err, stack=traceback.format_exc())
+             
+    
+    def sendMessage(self, msg):
+        MessagingGateway.sendMessage(self, msg)
+        if self.m_connection is None:
+            return False
+        msgAsString = serializeObject(msg)
+        headers = {self.MESSAGE_SYSTEM_NAME : self.SUPERGLU}
+        
+        self.m_connection.send(destination=self.TOPIC_LABEL + self.m_scope, body=msgAsString, headers=headers, content_type="text/plain")
+        return True
+        
+    
+    #receiving messages is handled by the on_message function, so we don't need to override the receiveMessage function 
+        
+    
 
             
             
