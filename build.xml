@@ -1,0 +1,38 @@
+<?xml version="1.0" ?>
+<project name="SuperGLU" default="compile">
+
+    <!-->
+       SuperGLU Dependency jar locations
+    </!-->
+    <property name="activeMQ_jar" value="./lib/activemq/activemq-all-5.5.0.jar" />
+    <property name= "dom4j_jar" value="./lib/google reflections/dom4j-1.6.1.jar" />
+    <property name= "gson_jar" value="./lib/google reflections/gson-1.4.jar" />
+    <property name= "guava_jar" value="./lib/google reflections/guava-11.0.2.jar"/>
+    <property name= "javassist_jar" value="./lib/google reflections/javassist-3.16.1-GA.jar"/>
+    <property name= "jsr_jar" value="./lib/google reflections/jsr305-1.3.9.jar"/>
+    <property name= "reflections_jar" value="./lib/google reflections/reflections-0.9.9-RC1-uberjar.jar"/>
+    <property name="slf4j-api_jar" value="./lib/google reflections/slf4j-api-1.6.1.jar"/>
+    <property name="slf4j-simple_jar" value="./lib/google reflections/slf4j-simple-1.6.1.jar"/>
+    <property name="xml-apis_jar" value="./lib/google reflections/xml-apis-1.0.b2.jar"/>
+    <property name="json-simple_jar" value="./lib/jsonsimple/json-simple-2.1.2.jar"/>
+    
+    <property name="build-location" value = "./object-code"/>
+
+    <target name="compile">
+        <javac destdir="${build-location}" classpath="${third-party_jars}">
+            <src path="./SuperGLU"/>
+            <include name="**/*.java"/>
+            <exclude name="**/*Test.java"/>
+            <classpath>
+                <fileset dir="lib">
+                    <include name="**/*.jar"/>
+                </fileset>
+            </classpath>
+        </javac>
+    </target>
+    
+    <target name="deploy" depends="compile">
+        <jar destfile="./SuperGLU.jar" basedir="${build-location}"/>
+    </target>
+
+</project>
