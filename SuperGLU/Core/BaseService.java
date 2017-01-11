@@ -14,7 +14,7 @@ public class BaseService extends BaseMessagingNode {
 		this(null, null, null);
 	}
 	
-	public BaseService(String anId, MessagingGateway gateway, Predicate<Message> conditions) {
+	public BaseService(String anId, MessagingGateway gateway, Predicate<BaseMessage> conditions) {
 		super(anId, gateway, conditions);
 	}
 

@@ -24,7 +24,7 @@ public class MessagingGateway extends BaseMessagingNode {
 	}
 	
 	
-	public MessagingGateway(String anId, MessagingGateway gateway, Map<String, Object> scope, Collection<BaseMessagingNode> nodes, Predicate<Message> conditions) {
+	public MessagingGateway(String anId, MessagingGateway gateway, Map<String, Object> scope, Collection<BaseMessagingNode> nodes, Predicate<BaseMessage> conditions) {
 		super(anId, gateway, conditions);
 		if(scope == null)
 			this.scope = new HashMap<>();
@@ -49,7 +49,7 @@ public class MessagingGateway extends BaseMessagingNode {
 	 *  """ When gateway receives a message, it distributes it to child nodes """
 	 */
 	@Override
-	public void receiveMessage(Message msg)
+	public void receiveMessage(BaseMessage msg)
 	{
 		super.receiveMessage(msg);
 		this.distributeMessage(msg, null);
@@ -77,7 +77,7 @@ public class MessagingGateway extends BaseMessagingNode {
 	 * @param msg
 	 * @param senderId
 	 */
-	public void distributeMessage(Message msg, String senderId)
+	public void distributeMessage(BaseMessage msg, String senderId)
 	{
 		this.distributeMessage_impl(this.nodes, msg, senderId);
 	}
@@ -89,7 +89,7 @@ public class MessagingGateway extends BaseMessagingNode {
 	 * @param msg
 	 * @param senderId
 	 */
-	protected void distributeMessage_impl(Map<String, BaseMessagingNode> nodes, Message msg, String senderId)
+	protected void distributeMessage_impl(Map<String, BaseMessagingNode> nodes, BaseMessage msg, String senderId)
 	{
 		for(BaseMessagingNode node : nodes.values())
 		{
@@ -136,7 +136,7 @@ public class MessagingGateway extends BaseMessagingNode {
 	 * """ Add extra context to the message, if not present """
 	 * @param msg
 	 */
-	public void addContextDataToMsg(Message msg)
+	public void addContextDataToMsg(BaseMessage msg)
 	{
 		for(String key : this.scope.keySet())
 		{

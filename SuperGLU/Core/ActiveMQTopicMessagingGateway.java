@@ -66,7 +66,7 @@ public class ActiveMQTopicMessagingGateway extends MessagingGateway implements M
 		}
 	}
 
-	public ActiveMQTopicMessagingGateway(String anId, MessagingGateway gateway, Map<String, Object> scope, Collection<BaseMessagingNode> nodes, Predicate<Message> conditions, ActiveMQTopicConfiguration activeMQConfiguration) {
+	public ActiveMQTopicMessagingGateway(String anId, MessagingGateway gateway, Map<String, Object> scope, Collection<BaseMessagingNode> nodes, Predicate<BaseMessage> conditions, ActiveMQTopicConfiguration activeMQConfiguration) {
 		super(anId, gateway, scope, nodes, conditions);
 		try
 		{

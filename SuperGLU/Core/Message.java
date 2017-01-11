@@ -7,7 +7,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import Util.Serializable;
 import Util.SerializationConvenience;
 import Util.StorageToken;
 
