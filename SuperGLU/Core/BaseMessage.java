@@ -102,8 +102,7 @@ public class BaseMessage extends Serializable {
 	@Override
 	/**
 	 *  
-     *   Generate a hash value for the message.  This does not take the context into account,
-     *   as the context does not have a static set of values.
+     *   Generate a hash value for the message.
 	 */
 	public int hashCode()
 	{
