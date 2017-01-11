@@ -60,7 +60,7 @@ public class MessagingGateway extends BaseMessagingNode {
 	 * @param msg Message to be sent
 	 * @param senderId Sender ID
 	 */
-	public void dispatchMessage(Message msg, String senderId)
+	public void dispatchMessage(BaseMessage msg, String senderId)
 	{
 		this.addContextDataToMsg(msg);
 		msg.setContextValue(ORIGINATING_SERVICE_ID_KEY, senderId);

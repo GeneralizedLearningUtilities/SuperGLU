@@ -91,7 +91,7 @@ public class ActiveMQTopicMessagingGateway extends MessagingGateway implements M
 	
 	
 	@Override
-	public void sendMessage(Message msg) {
+	public void sendMessage(BaseMessage msg) {
 		super.sendMessage(msg);
 		try {
 			this.addContextDataToMsg(msg);

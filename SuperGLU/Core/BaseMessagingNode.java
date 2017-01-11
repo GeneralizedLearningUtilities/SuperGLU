@@ -58,7 +58,7 @@ public class BaseMessagingNode{
 	}
 	
 	
-	public void sendMessage(Message msg)
+	public void sendMessage(BaseMessage msg)
 	{
 		log.log(Level.INFO, this.id + " is sending " + msg.toString());
 		if(this.gateway != null)
