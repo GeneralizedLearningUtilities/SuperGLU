@@ -1,15 +1,11 @@
 package Core.Tests;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import Core.ActiveMQTopicConfiguration;
 import Core.ActiveMQTopicMessagingGateway;
-import Core.BaseMessagingNode;
 import Core.Message;
-import Core.MessagingGateway;
 import Core.SpeechActEnum;
 
 public class ApplicationTest {

@@ -1,6 +1,5 @@
 package Core;
 
-import java.net.URL;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -115,7 +114,7 @@ public class ActiveMQTopicMessagingGateway extends MessagingGateway implements M
 				
 		try {
 			
-			//check if we actually care about a message on this topic.
+			//TODO:check the header to make sure this is a superGLU message.
 			if(jmsMessage instanceof TextMessage)
 			{
 				Destination dest = jmsMessage.getJMSDestination();
