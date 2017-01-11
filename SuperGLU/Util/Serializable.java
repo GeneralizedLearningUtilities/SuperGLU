@@ -73,6 +73,9 @@ public abstract class Serializable {
 	@Override
 	public boolean equals(Object otherObject)
 	{
+		if(otherObject == null)
+			return false;
+		
 		if(!this.getClass().equals(otherObject.getClass()))
 				return false;
 		

@@ -130,16 +130,16 @@ public class BaseMessagingNode{
 	}
 	
 	
-	protected Message createRequestReply(Message msg)
+	protected BaseMessage createRequestReply(BaseMessage msg)
 	{
 		String oldId = msg.getId();
-		Message copy = (Message)msg.clone(true);
+		BaseMessage copy = (BaseMessage)msg.clone(true);
 		copy.setContextValue(Message.CONTEXT_CONVERSATION_ID_KEY, oldId);
 		return copy;
 	}
 	
 	// # Pack/Unpack Messages
-	public String messageToString(Message msg)
+	public String messageToString(BaseMessage msg)
 	{
 		return SerializationConvenience.serializeObject(msg, SerializationFormatEnum.JSON_FORMAT);
 	}
@@ -174,7 +174,7 @@ public class BaseMessagingNode{
 	{
 		List<String> result = new ArrayList<>();
 		
-		for(Message msg : msgs)
+		for(BaseMessage msg : msgs)
 		{
 			result.add(messageToString(msg));
 		}

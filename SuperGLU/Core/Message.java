@@ -6,7 +6,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 import Util.Serializable;
 import Util.SerializationConvenience;
@@ -23,7 +22,7 @@ import Util.StorageToken;
  *
  */
 
-public class Message extends Serializable {
+public class Message extends BaseMessage {
 
 	public static String ID_KEY = "id";
 	public static String ACTOR_KEY = "actor";
@@ -32,7 +31,7 @@ public class Message extends Serializable {
 	public static String RESULT_KEY = "result";
 	public static String SPEECH_ACT_KEY = "speechAct";
 	public static String TIMESTAMP_KEY = "timestamp";
-	public static String CONTEXT_KEY = "context";
+	
    
 
 	
@@ -76,15 +75,11 @@ public class Message extends Serializable {
 	 */
 	private Date timestamp;
 	
-	/**
-	 *  Additional context for the message
-	 */
-	private Map<String, Object> context;
 	
 	
 	public Message(String actor, String verb, String obj, Object result, SpeechActEnum speechAct, Date timestamp, Map<String, Object> context, String id)
 	{
-		super(id);
+		super(id, context);
 		this.actor = actor;
 		this.verb = verb;
 		this.obj = obj;
@@ -95,11 +90,6 @@ public class Message extends Serializable {
 			this.timestamp = new Date();
 		else
 			this.timestamp = timestamp;
-		
-		if(context == null)
-			this.context = new HashMap<>();
-		else
-			this.context = context;
 	}
 	
 	
@@ -112,7 +102,6 @@ public class Message extends Serializable {
 		this.result = null;
 		this.speechAct = SpeechActEnum.INFORM_ACT;
 		this.timestamp = new Date();
-		this.context = new HashMap<>();
 	}
 
 
@@ -183,53 +172,11 @@ public class Message extends Serializable {
 	}
 	
 	
-	public boolean hasContextValue(String key)
-	{
-		return this.context.containsKey(key);
-	}
-	
-	
-	public Map<String, Object> getContext()
-	{
-		return this.context;
-	}
-	
-	
-	public Set<String> getContextKeys()
-	{
-		return this.context.keySet();
-	}
-	
-	
-	public Object getContextValue(String key, Object defaultValue)
-	{
-		return this.context.getOrDefault(key, defaultValue);
-	}
-	
-	
-	public Object getContextValue(String key)
-	{
-		return this.getContextValue(key, null);
-	}
-
-	
-	public void setContextValue(String key, Object value)
-	{
-		this.context.put(key, value);
-	}
-	
-	
-	public void delContextValue(String key)
-	{
-		this.context.remove(key);
-	}
-	
-
 	//Comparators
 	@Override
 	public boolean equals(Object otherObject)
 	{
-		if(otherObject == null)
+		if(!super.equals(otherObject))
 			return false;
 		if(!(otherObject instanceof Message))
 			return false;
@@ -280,8 +227,6 @@ public class Message extends Serializable {
 		result = result * arbitraryPrimeNumber + this.speechAct.hashCode();
 		if(this.timestamp != null)
 			result = result * arbitraryPrimeNumber + this.timestamp.hashCode();
-		if(this.context != null)
-			result = result * arbitraryPrimeNumber + this.context.hashCode();
 		
 		return result;
 	}

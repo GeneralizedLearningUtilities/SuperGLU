@@ -6,6 +6,7 @@ import java.util.HashMap;
 import org.junit.Assert;
 import org.junit.Test;
 
+import Core.BaseMessage;
 import Core.Message;
 import Core.SpeechActEnum;
 import Util.SerializationConvenience;
@@ -18,7 +19,7 @@ public class MessageTest {
 		
 		MockSerializables.MockSerializable m = new MockSerializables.MockSerializable(32, "penguins");
 		
-		Message message = new Message("testActor", "TestVerb", "TestObj", m, SpeechActEnum.INFORM_ACT, new Date(), new HashMap<String, Object>(), "testID");
+		BaseMessage message = new Message("testActor", "TestVerb", "TestObj", m, SpeechActEnum.INFORM_ACT, new Date(), new HashMap<String, Object>(), "testID");
 		
 		message.setContextValue(Message.SESSION_ID_CONTEXT_KEY, "mockSessionID");
 		
@@ -33,13 +34,13 @@ public class MessageTest {
 	{
 		MockSerializables.MockSerializable m = new MockSerializables.MockSerializable(32, "penguins");
 		
-		Message message = new Message("testActor", "TestVerb", "TestObj", m, SpeechActEnum.INFORM_ACT, new Date(), new HashMap<String, Object>(), "testID");
+		BaseMessage message = new Message("testActor", "TestVerb", "TestObj", m, SpeechActEnum.INFORM_ACT, new Date(), new HashMap<String, Object>(), "testID");
 		
 		message.setContextValue(Message.SESSION_ID_CONTEXT_KEY, "mockSessionID");
 		
 		String json = SerializationConvenience.serializeObject(message, SerializationFormatEnum.JSON_FORMAT);
 		
-		Message copy = (Message) SerializationConvenience.nativeizeObject(json, SerializationFormatEnum.JSON_FORMAT);
+		BaseMessage copy = (BaseMessage) SerializationConvenience.nativeizeObject(json, SerializationFormatEnum.JSON_FORMAT);
 		
 		Assert.assertEquals(message, copy);
 	}

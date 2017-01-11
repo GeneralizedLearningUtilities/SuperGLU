@@ -11,6 +11,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import Core.BaseMessage;
 import Core.BaseMessagingNode;
 import Core.BaseService;
 import Core.Message;
