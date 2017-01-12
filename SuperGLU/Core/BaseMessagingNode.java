@@ -25,7 +25,7 @@ public class BaseMessagingNode{
 	protected String id;
 	protected MessagingGateway gateway;
 	protected Map<String,Pair<Message, Consumer<Message>>> requests;
-	protected Predicate<Message> conditions;
+	protected Predicate<BaseMessage> conditions;
 	
 	private static boolean CATCH_BAD_MESSAGES = false;
 	
@@ -34,7 +34,7 @@ public class BaseMessagingNode{
 	
 	protected Logger log = Logger.getLogger(this.getClass().toString());
 	
-	public BaseMessagingNode(String anId, MessagingGateway gateway, Predicate<Message> conditions)
+	public BaseMessagingNode(String anId, MessagingGateway gateway, Predicate<BaseMessage> conditions)
 	{
 		if(anId == null)
 			this.id = UUID.randomUUID().toString();
@@ -51,13 +51,14 @@ public class BaseMessagingNode{
 	}
 	
 	
-	public void receiveMessage(Message msg)
+	public void receiveMessage(BaseMessage msg)
 	{
-		this.triggerRequests(msg);
+		if(msg instanceof Message)
+			this.triggerRequests((Message)msg);
 	}
 	
 	
-	public void sendMessage(Message msg)
+	public void sendMessage(BaseMessage msg)
 	{
 		log.log(Level.INFO, this.id + " is sending " + msg.toString());
 		if(this.gateway != null)
@@ -68,7 +69,7 @@ public class BaseMessagingNode{
 	}
 	
 	// """ Function to check if this node is interested in this message type """
-	public Predicate<Message> getMessageConditions()
+	public Predicate<BaseMessage> getMessageConditions()
 	{
 		return conditions;
 	}

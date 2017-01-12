@@ -23,7 +23,7 @@ public class MessagingGatewayTest {
 	class TestService extends BaseService
 	{
 		@Override
-		public void receiveMessage(Message msg)
+		public void receiveMessage(BaseMessage msg)
 		{
 			super.receiveMessage(msg);
 			System.out.println("message received");
@@ -36,18 +36,21 @@ public class MessagingGatewayTest {
 	
 	private List<Message> testMessages;
 	
-	private static boolean messageConditions(Message msg)
+	private static boolean messageConditions(BaseMessage msg)
 	{
-		if(msg.getActor().equals("penguin"))
-			return false;
-		
-		return true;
+		if(msg instanceof Message)
+		{
+			if(((Message)msg).getActor().equals("penguin"))
+				return false;
+			return true;
+		}
+		return false;
 	}
 	
 	
 	@Before
 	public void setUp() throws Exception {
-		Predicate<Message> condition = MessagingGatewayTest::messageConditions;
+		Predicate<BaseMessage> condition = MessagingGatewayTest::messageConditions;
 		List<BaseMessagingNode> nodes = new ArrayList<>();
 		Map<String, Object> scope = new HashMap<>();
 		scope.put("scope1","value1");
