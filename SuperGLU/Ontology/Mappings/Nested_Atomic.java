@@ -1,4 +1,4 @@
-package Ontology;
+package Ontology.Mappings;
 
 public class Nested_Atomic {
 
