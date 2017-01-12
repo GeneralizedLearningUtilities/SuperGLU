@@ -1,15 +1,15 @@
 package Ontology;
 
-public class Field_Data {
+public class FieldData {
 	
 	private String field_data;
 	
-	public Field_Data(String data)
+	public FieldData(String data)
 	{
 		this.field_data=data;
 	}
 	
-	public Field_Data()
+	public FieldData()
 	{
 		this.field_data="";
 	}

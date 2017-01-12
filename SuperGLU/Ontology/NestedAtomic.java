@@ -1,15 +1,15 @@
 package Ontology;
 
-public class Nested_Atomic {
+public class NestedAtomic {
 
 	public String indices;
 	
-	public Nested_Atomic(String index)
+	public NestedAtomic(String index)
 	{
 		this.indices=index;
 	}
 	
-	public Nested_Atomic()
+	public NestedAtomic()
 	{
 		this.indices="";
 	}

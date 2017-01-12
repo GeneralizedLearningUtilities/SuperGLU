@@ -1,22 +1,22 @@
 package Ontology;
 
-public class Message_Type {
+public class MessageType {
 	
 	private String Message_Name;
 	private float min_Version;
 	private float max_Version;
-	public Message_Template messageTypeTemplate = new Message_Template();
+	public MessageTemplate messageTypeTemplate = new MessageTemplate();
 	
 	
 	
-	public Message_Type(String name, float minversion, float maxversion)
+	public MessageType(String name, float minversion, float maxversion)
 	{
 		this.Message_Name=name;
 		this.min_Version=minversion;
 		this.max_Version=maxversion;
 	}
 	
-	public Message_Type()
+	public MessageType()
 	{
 		this.Message_Name="";
 		this.max_Version=0.0f;
