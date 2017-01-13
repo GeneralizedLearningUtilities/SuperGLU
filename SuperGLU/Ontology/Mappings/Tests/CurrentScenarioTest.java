@@ -1,4 +1,4 @@
-package Ontology.Mappings.TestCases;
+package Ontology.Mappings.Tests;
 
 import static org.junit.Assert.*;
 
