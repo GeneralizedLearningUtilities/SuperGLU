@@ -49,7 +49,7 @@ public class CurrentScenarioTest {
 		NestedAtomic VHT_LabelField=new NestedAtomic();
 		VHT_LabelField.setIndices("0");
 		NestedAtomic VHT_BodyField=new NestedAtomic();
-		VHT_LabelField.setIndices("1");
+		VHT_BodyField.setIndices("1");
 		
 		NestedAtomic SuperGLU_ObjectField=new NestedAtomic();
 		SuperGLU_ObjectField.setIndices("object");
