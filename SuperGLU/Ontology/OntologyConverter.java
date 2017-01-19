@@ -1,7 +1,13 @@
-package Ontology.Mappings;
+package Ontology;
 
 import Core.Message;
 import Core.VHMessage;
+import Ontology.Mappings.FieldData;
+import Ontology.Mappings.FieldMap;
+import Ontology.Mappings.MessageTemplate;
+import Ontology.Mappings.MessageTwoWayMap;
+import Ontology.Mappings.MessageType;
+import Ontology.Mappings.NestedAtomic;
 import Util.SerializationConvenience;
 import Util.StorageToken;
 import java.util.*;
