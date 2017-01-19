@@ -3,7 +3,7 @@ Created on Mar 7, 2016
 This Module contains the first cut of the recommender service
 @author: auerbach
 '''
-from SuperGLU.Util.ErrorHandling import logInfo
+from SuperGLU.Util.ErrorHandling import logInfo, logWarning, logError
 from SuperGLU.Core.FIPA.SpeechActs import INFORM_ACT, REQUEST_ACT
 from SuperGLU.Core.MessagingGateway import BaseService
 from SuperGLU.Core.Messaging import Message
@@ -13,6 +13,7 @@ from SuperGLU.Services.StudentModel.PersistentData import DBTask, DBAssistmentsI
 from SuperGLU.Services.StudentModel.StudentModelFactories import BasicStudentModelFactory
 from SuperGLU.Core.MessagingDB import RECOMMENDED_TASKS_VERB, MASTERY_VERB
 from builtins import int
+from SuperGLU.Util.Serialization import serializeObject
 
 RECOMMENDER_SERVICE_NAME = "Recommender"
 
@@ -77,11 +78,19 @@ class Recommender(DBBridge):
         
             if task._taskId == session.task:
                 logInfo("found session with previous task", 1)
-                possibleTaskNumber = int(session.assignmentNumber);
+                if session.assignmentNumber is not None:
+                    logInfo("session.assignmentNumber = {0}".format(session.assignmentNumber), 5)
+                    try:
+                        possibleTaskNumber = int(session.assignmentNumber);
+                    except:
+                        logWarning("Failed to Find session.assignmentNumber for | {0}".format(session.task))
+                        possibleTaskNumber = 0
+                else:
+                    possibleTaskNumber = 0
         return possibleTaskNumber + 1
     
     def getRecommendedTasks(self, studentId, studentModel, numberOfTasksRequested):
-        print("MAKING RECOMMENDATIONS")
+        logInfo("MAKING RECOMMENDATIONS", 1)
         taskMastery = list()
         
         dbtaskList = DBTask.find_all()
@@ -95,7 +104,7 @@ class Recommender(DBBridge):
                         break
         
         taskList = [x.toSerializable() for x in dbtaskList]
-        print("RETRIEVED TASKS FROM DATABASE")
+        logInfo("RETRIEVED TASKS FROM DATABASE", 1)
         #taskList = self.validateTasks(taskList)
         #taskList = self.checkNovelty(studentId, taskList)
                
@@ -116,10 +125,12 @@ class Recommender(DBBridge):
                 task._assistmentsItem._assignmentNumber = self.findAssignmentNumber(task, sessions)
            # print("TASK: " + str(task))
            #print(str(task._assistmentsItem))
+
         result = [task for gain, task in result if task._assistmentsItem is not None and
                       task._assistmentsItem.getActiveAssignmentURL() is not None]
         result = result[0:numberOfTasksRequested]
         #print("RESULT:" + str(result))
+        logInfo("GOT RESULT", 1)
         return result
         #return taskList[0:numberOfTasksRequested]
     
@@ -144,14 +155,17 @@ class RecommenderMessaging(BaseService):
         if (msg.getVerb() == MASTERY_VERB and
             msg.getSpeechAct() == INFORM_ACT and
             msg.getObject() == recMsg.getActor()):
+            
             if isinstance(recMsg.getObject(), (int, float)):
                 numberOfRecommendations = int(recMsg.getObject())
             else:
                 numberOfRecommendations = 3
+            
             recommendedTasks = self.recommender.getRecommendedTasks(msg.getObject(), msg.getResult(), numberOfRecommendations)
             self.sendRecommendations(recommendedTasks, recMsg)
 
     def sendRecommendations(self, recommendedTasks, msgTemplate=None):
+
         if msgTemplate is None: msgTemplate = Message()
         #need to make sure this how we send the reply
         outMsg = self._createRequestReply(msgTemplate)
