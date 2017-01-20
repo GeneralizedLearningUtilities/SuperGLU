@@ -41,11 +41,11 @@ public class ActiveMQTopicMessagingGateway extends MessagingGateway implements M
 	protected TopicConnection connection; 
 	
 	//This property defines to which system the activeMQ message belongs.
-	public static String SYSTEM_NAME = "SYSTEM_NAME";
+	public static final String SYSTEM_NAME = "SYSTEM_NAME";
 	//this is the identifier for SUPERGLU messages
-	public static String SUPERGLU = "SUPERGLU_MSG";
-	public static String VHMSG = "VHMSG_MSG"; //Identifier for virtual human messages
-	public static String GIFT = "GIFT_MSG";
+	public static final String SUPERGLU = "SUPERGLU_MSG";
+	public static final String VHMSG = "VHMSG_MSG"; //Identifier for virtual human messages
+	public static final String GIFT = "GIFT_MSG";
 
 	public ActiveMQTopicMessagingGateway() {
 		super();

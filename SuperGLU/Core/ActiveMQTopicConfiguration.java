@@ -15,14 +15,14 @@ import Util.StorageToken;
  */
 public class ActiveMQTopicConfiguration extends Serializable {
 
-	private static String EXCLUDED_TOPICS_KEY = "topic";
-	private static String BROKER_URL_KEY = "brokerURL";
+	private static final String EXCLUDED_TOPICS_KEY = "topic";
+	private static final String BROKER_URL_KEY = "brokerURL";
 	
 	
 	private List<String> excludedTopics;
 	private String brokerHost;
 	
-	public static String DEFAULT_TOPIC = "*";
+	public static final String DEFAULT_TOPIC = "*";
 	
 	//Constructors
 	public ActiveMQTopicConfiguration(String id, List<String> excludedTopics, String brokerHost) {

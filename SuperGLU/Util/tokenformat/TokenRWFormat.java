@@ -22,12 +22,12 @@ import Util.StorageToken;
 
 public abstract class TokenRWFormat {
 
-	public static ArrayList<Class<?>> VALID_KEY_TYPES = new ArrayList<>();
-	public static ArrayList<Class<?>> VALID_VALUE_TYPES = new ArrayList<>();
+	public static final ArrayList<Class<?>> VALID_KEY_TYPES = new ArrayList<>();
+	public static final ArrayList<Class<?>> VALID_VALUE_TYPES = new ArrayList<>();
 	
-	public static ArrayList<Class<?>> VALID_ATOMIC_VALUE_TYPES = new ArrayList<Class<?>>();
-	public static ArrayList<Class<?>> VALID_SEQUENCE_TYPES = new ArrayList<>();
-	public static ArrayList<Class<?>> VALID_MAPPING_TYPES = new ArrayList<>();
+	public static final ArrayList<Class<?>> VALID_ATOMIC_VALUE_TYPES = new ArrayList<Class<?>>();
+	public static final ArrayList<Class<?>> VALID_SEQUENCE_TYPES = new ArrayList<>();
+	public static final ArrayList<Class<?>> VALID_MAPPING_TYPES = new ArrayList<>();
 	
 	
 	static

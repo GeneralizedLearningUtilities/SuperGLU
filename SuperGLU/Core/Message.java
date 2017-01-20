@@ -23,23 +23,23 @@ import Util.StorageToken;
 
 public class Message extends BaseMessage {
 
-	public static String ID_KEY = "id";
-	public static String ACTOR_KEY = "actor";
-	public static String VERB_KEY = "verb";
-	public static String OBJECT_KEY = "object";
-	public static String RESULT_KEY = "result";
-	public static String SPEECH_ACT_KEY = "speechAct";
-	public static String TIMESTAMP_KEY = "timestamp";
+	public static final String ID_KEY = "id";
+	public static final String ACTOR_KEY = "actor";
+	public static final String VERB_KEY = "verb";
+	public static final String OBJECT_KEY = "object";
+	public static final String RESULT_KEY = "result";
+	public static final String SPEECH_ACT_KEY = "speechAct";
+	public static final String TIMESTAMP_KEY = "timestamp";
 	
    
 
 	
 	//Context keys
-	public static String SESSION_ID_CONTEXT_KEY = "sessionId";
-	public static String CONTEXT_CONVERSATION_ID_KEY = "conversation-id";
-	public static String CONTEXT_IN_REPLY_TO_KEY = "in-reply-to";
-	public static String CONTEXT_REPLY_WITH_KEY = "reply-with";
-	public static String CONTEXT_REPLY_BY_KEY = "reply-by";
+	public static final String SESSION_ID_CONTEXT_KEY = "sessionId";
+	public static final String CONTEXT_CONVERSATION_ID_KEY = "conversation-id";
+	public static final String CONTEXT_IN_REPLY_TO_KEY = "in-reply-to";
+	public static final String CONTEXT_REPLY_WITH_KEY = "reply-with";
+	public static final String CONTEXT_REPLY_BY_KEY = "reply-by";
 	
 	
 	private static DateFormat timestampFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");

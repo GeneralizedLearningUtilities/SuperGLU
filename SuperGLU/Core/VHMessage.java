@@ -12,9 +12,9 @@ import Util.StorageToken;
  */
 public class VHMessage extends BaseMessage {
 	
-	public static String FIRST_WORD_KEY = "firstWord";
-	public static String VERSION_KEY = "version";
-	public static String BODY_KEY = "body";
+	public static final String FIRST_WORD_KEY = "firstWord";
+	public static final String VERSION_KEY = "version";
+	public static final String BODY_KEY = "body";
 	
 	protected String firstWord;
 	protected float version;

@@ -10,7 +10,7 @@ import Core.SpeechActEnum;
 
 public class ApplicationTest {
 
-	public static List<Message> messagesToSend = new ArrayList<>();
+	public static final List<Message> messagesToSend = new ArrayList<>();
 	
 	
 	static

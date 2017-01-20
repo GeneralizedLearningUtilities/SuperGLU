@@ -24,10 +24,10 @@ import Util.tokenformat.TokenRWFormat;
 public class StorageToken extends Serializable implements Iterable<String> {
 
 	
-	public static String ID_KEY = "id";
-	public static String CLASS_ID_KEY = "classId";
+	public static final String ID_KEY = "id";
+	public static final String CLASS_ID_KEY = "classId";
 	
-	public static Set<String> reservedKeys = new HashSet<>();
+	public static final Set<String> reservedKeys = new HashSet<>();
 	
 	private Map<String, Object> data;
 	

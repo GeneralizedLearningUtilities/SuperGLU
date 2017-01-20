@@ -15,7 +15,7 @@ import Util.StorageToken;
  */
 public class BaseMessage extends Serializable {
 
-	public static String CONTEXT_KEY = "context";
+	public static final String CONTEXT_KEY = "context";
 	
 	
 	/**

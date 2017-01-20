@@ -12,8 +12,8 @@ import Util.StorageToken;
  */
 public class GIFTMessage extends BaseMessage {
 
-	public static String HEADER_KEY = "header";
-	public static String PAYLOAD_KEY = "payload";
+	public static final String HEADER_KEY = "header";
+	public static final String PAYLOAD_KEY = "payload";
 	
 	
 	protected String header;

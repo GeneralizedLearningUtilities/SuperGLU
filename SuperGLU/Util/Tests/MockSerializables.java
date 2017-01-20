@@ -84,7 +84,7 @@ public class MockSerializables
 		public void initializeFromToken(StorageToken token)
 		{
 			super.initializeFromToken(token);
-			this.foo = ((Float)SerializationConvenience.untokenizeObject(token.getItem(FOO_KEY, true, -1))).intValue();
+			this.foo = ((Integer)SerializationConvenience.untokenizeObject(token.getItem(FOO_KEY, true, -1)));
 			this.bar = (String)token.getItem(BAR_KEY, true, null);
 		}
 		
