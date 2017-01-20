@@ -137,7 +137,15 @@ public class SerializationConvenience {
 		else if (object instanceof BigDecimal)
 		{
 			BigDecimal bd = (BigDecimal) object;
-			return bd.floatValue();
+			try
+			{
+				return bd.intValueExact();
+			}
+			catch(ArithmeticException e)
+			{
+				return bd.floatValue();
+			}
+			
 		}
 		else
 			return object;
