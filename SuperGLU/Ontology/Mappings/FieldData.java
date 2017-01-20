@@ -1,104 +1,93 @@
 package Ontology.Mappings;
 
 import Util.Serializable;
+import Util.SerializationConvenience;
 import Util.StorageToken;
 
+/**
+ * 
+ * @author auerbach
+ *
+ */
 public class FieldData extends Serializable{
 	
-	private String field_data;
+	public static final String FIELD_DATA_KEY = "fieldData";
+	
+	private String fieldData;
 	
 	
-	@Override
-	public boolean equals(Object otherObject) {
-		// TODO Auto-generated method stub
-		return super.equals(otherObject);
-	}
-
-	@Override
-	public int hashCode() {
-		// TODO Auto-generated method stub
-		return super.hashCode();
-	}
-
-	@Override
-	public String getId() {
-		// TODO Auto-generated method stub
-		return super.getId();
-	}
-
-	@Override
-	public void updateId(String id) {
-		// TODO Auto-generated method stub
-		super.updateId(id);
-	}
-
-	@Override
-	public String getClassId() {
-		// TODO Auto-generated method stub
-		return super.getClassId();
-	}
-
-	@Override
-	public void initializeFromToken(StorageToken token) {
-		// TODO Auto-generated method stub
-		super.initializeFromToken(token);
-	}
-
-	@Override
-	public StorageToken saveToToken() {
-		// TODO Auto-generated method stub
-		return super.saveToToken();
-	}
-
-	@Override
-	public Serializable clone(boolean newId) {
-		// TODO Auto-generated method stub
-		return super.clone(newId);
-	}
-
-	@Override
-	protected Object clone() throws CloneNotSupportedException {
-		// TODO Auto-generated method stub
-		return super.clone();
-	}
-
-	@Override
-	protected void finalize() throws Throwable {
-		// TODO Auto-generated method stub
-		super.finalize();
-	}
-
-	@Override
-	public String toString() {
-		// TODO Auto-generated method stub
-		return super.toString();
-	}
-
-	
-	
-	
-	
-	//my methods
+	//my methods  (DANIEL: Does this comment say anything of value?  If it doesn't replace it with one that does, or get rid of it)
+	//Constructors
 	public FieldData(String data)
 	{
-		this.field_data=data;
+		//DANIEL: make sure to check for null values when setting field data;
+		if(data == null)
+			this.fieldData="";
+		else
+			this.fieldData=data;
 	}
 	
 		
 	public FieldData()
 	{
-		this.field_data="";
+		this.fieldData="";
 	}
 	
 	
+	//Accessors
 	public String getFieldData()
 	{
-		return field_data;
+		return fieldData;
 	}
 	
 	public void setFieldData(String data)
 	{
-		field_data=data;
+		if(data != null)
+		fieldData=data;
+	}
+	
+	//Equality Operations
+	@Override
+	public boolean equals(Object otherObject) {
+		if(!super.equals(otherObject))
+			return false;
+		
+		if(!(otherObject instanceof FieldData))
+			return false;
+		
+		FieldData other = (FieldData)otherObject;
+		
+		if(!fieldIsEqual(this.fieldData, other.fieldData))
+			return false;
+		
+		return true;
+	}
+
+	@Override
+	public int hashCode() {
+		int result = super.hashCode();
+		int arbitraryPrimeNumber = 23;
+		
+		if(this.fieldData != null)
+			result = result * arbitraryPrimeNumber + this.fieldData.hashCode();
+		
+		return result;
+		
+	}
+
+	
+	//Serialization/Deserialization
+	@Override
+	public void initializeFromToken(StorageToken token) {
+		super.initializeFromToken(token);
+		this.fieldData = (String)SerializationConvenience.untokenizeObject(token.getItem(FIELD_DATA_KEY));
+	}
+
+	@Override
+	public StorageToken saveToToken() {
+		StorageToken result = super.saveToToken();
+		result.setItem(FIELD_DATA_KEY, SerializationConvenience.tokenizeObject(this.fieldData));
+		return result;
 	}
 
 }
