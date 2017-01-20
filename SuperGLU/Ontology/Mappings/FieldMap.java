@@ -1,6 +1,5 @@
 package Ontology.Mappings;
 
-import Core.BaseMessage;
 import Util.Serializable;
 import Util.SerializationConvenience;
 import Util.StorageToken;
@@ -21,15 +20,8 @@ public class FieldMap extends Serializable {
 	}
 	public FieldMap(NestedAtomic in, NestedAtomic out)
 	{
-		if(in==null)
-			inFields=null;
-		else
-			inFields=in;
-		
-		if(out==null)
-			outFields=null;
-		else
-			outFields=out;
+		inFields=in;
+		outFields=out;
 	}
 	
 	
@@ -89,18 +81,12 @@ public class FieldMap extends Serializable {
 	//GETTER AND SETTER METHODS
 	public void setInField(NestedAtomic in)
 	{
-		if(in==null)
-			inFields=null;
-		else
-			inFields=in;
+		inFields=in;
 	}
 	
 	public void setOutField(NestedAtomic out)
 	{
-		if(out==null)
-			outFields=null;
-		else
-			outFields=out;
+		outFields=out;
 	}
 	
 	

@@ -12,7 +12,7 @@ public class NestedAtomic extends Serializable {
 	//CONSTRUCTORS
 	public NestedAtomic(String index)
 	{
-		if(index=="")
+		if(index==null)
 			indices="";
 		else
 			this.indices=index;

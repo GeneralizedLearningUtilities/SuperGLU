@@ -141,34 +141,22 @@ public class MessageMap extends Serializable
 	
 	public void setInMsgType(MessageType mtype)
 	{
-		if(mtype==null)
-			inMsgType=null;
-		else
-			inMsgType=mtype;
+		inMsgType=mtype;
 	}
 	
 	public void setOutMsgType(MessageType mtype)
 	{
-		if(mtype==null)
-			outMsgType=null;
-		else
-			outMsgType=mtype;
+		outMsgType=mtype;
 	}
 
 	public void setInDefaultMsgType(MessageTemplate mtemp)
 	{
-		if(mtemp==null)
-			inDefaultMsg=null;
-		else
-			inDefaultMsg=mtemp;
+		inDefaultMsg=mtemp;
 	}
 	
 	public void setOutDefaultMsgType(MessageTemplate mtemp)
 	{
-		if(mtemp==null)
-			outDefaultMsg=null;
-		else
-			outDefaultMsg=mtemp;
+		outDefaultMsg=mtemp;
 	}
 	
 	public void setFieldMappings(ArrayList<FieldMap> arrFieldMap)
@@ -191,6 +179,16 @@ public class MessageMap extends Serializable
 	
 	public BaseMessage convert(BaseMessage msg, Class<? extends BaseMessage> targetMessageType)
 	{//TODO: implement
+		//return null;
+		try
+		{
+			BaseMessage outMsg = targetMessageType.newInstance();
+			
+		}
+		catch(Exception e)
+		{
+			
+		}
 		return null;
 	}
 	
