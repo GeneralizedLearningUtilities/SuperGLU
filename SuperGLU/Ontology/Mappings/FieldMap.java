@@ -1,98 +1,111 @@
 package Ontology.Mappings;
 
 import Util.Serializable;
+import Util.SerializationConvenience;
 import Util.StorageToken;
 
 public class FieldMap extends Serializable {
 	
-
-	public NestedAtomic inFields;
+	public static final String FIELD_MAP_INFIELDS_KEY = "inFields";
+	public static final String FIELD_MAP_OUTFIELDS_KEY = "outFields";
 	
-	public NestedAtomic outFields;
-
+	private NestedAtomic inFields;
+	private NestedAtomic outFields;
 	
-	
-	
-	@Override
-	public boolean equals(Object otherObject) {
-		// TODO Auto-generated method stub
-		return super.equals(otherObject);
+	//CONSTRUCTORS
+	public FieldMap()
+	{
+		inFields=null;
+		outFields=null;
 	}
-
-	@Override
-	public int hashCode() {
-		// TODO Auto-generated method stub
-		return super.hashCode();
+	public FieldMap(NestedAtomic in, NestedAtomic out)
+	{
+		if(in==null)
+			inFields=null;
+		else
+			inFields=in;
+		
+		if(out==null)
+			outFields=null;
+		else
+			outFields=out;
 	}
-
-	@Override
-	public String getId() {
-		// TODO Auto-generated method stub
-		return super.getId();
-	}
-
-	@Override
-	public void updateId(String id) {
-		// TODO Auto-generated method stub
-		super.updateId(id);
-	}
-
-	@Override
-	public String getClassId() {
-		// TODO Auto-generated method stub
-		return super.getClassId();
-	}
-
-	@Override
-	public void initializeFromToken(StorageToken token) {
-		// TODO Auto-generated method stub
-		super.initializeFromToken(token);
-	}
-
-	@Override
-	public StorageToken saveToToken() {
-		// TODO Auto-generated method stub
-		return super.saveToToken();
-	}
-
-	@Override
-	public Serializable clone(boolean newId) {
-		// TODO Auto-generated method stub
-		return super.clone(newId);
-	}
-
-	@Override
-	protected Object clone() throws CloneNotSupportedException {
-		// TODO Auto-generated method stub
-		return super.clone();
-	}
-
-	@Override
-	protected void finalize() throws Throwable {
-		// TODO Auto-generated method stub
-		super.finalize();
-	}
-
-	@Override
-	public String toString() {
-		// TODO Auto-generated method stub
-		return super.toString();
-	}
-
 	
 	
+	//Equality Operations
+		@Override
+		public boolean equals(Object otherObject) {
+			if(!super.equals(otherObject))
+				return false;
+			
+			if(!(otherObject instanceof FieldMap))
+				return false;
+			
+			FieldMap other = (FieldMap)otherObject;
+			
+			if(!fieldIsEqual(this.inFields, other.inFields))
+				return false;
+			
+			if(!fieldIsEqual(this.outFields, other.outFields))
+				return false;
+			
+			return true;
+		}
+
+		@Override
+		public int hashCode() {
+			int result = super.hashCode();
+			int arbitraryPrimeNumber = 23;
+			
+			if(this.inFields != null)
+				result = result * arbitraryPrimeNumber + this.inFields.hashCode();
+			if(this.outFields != null)
+				result = result * arbitraryPrimeNumber + this.outFields.hashCode();
+			
+			return result;
+			
+		}
+
+		
+		//Serialization/Deserialization
+		@Override
+		public void initializeFromToken(StorageToken token) {
+			super.initializeFromToken(token);
+			this.inFields = (NestedAtomic)SerializationConvenience.untokenizeObject(token.getItem(FIELD_MAP_INFIELDS_KEY));
+			this.outFields = (NestedAtomic)SerializationConvenience.untokenizeObject(token.getItem(FIELD_MAP_OUTFIELDS_KEY));
+		}
+
+		@Override
+		public StorageToken saveToToken() {
+			StorageToken result = super.saveToToken();
+			result.setItem(FIELD_MAP_INFIELDS_KEY, SerializationConvenience.tokenizeObject(this.inFields));
+			result.setItem(FIELD_MAP_OUTFIELDS_KEY, SerializationConvenience.tokenizeObject(this.outFields));
+			return result;
+		}
+
 	
-	//my methods
 	
+	//GETTER AND SETTER METHODS
 	public void setInField(NestedAtomic in)
 	{
-		inFields=in;
+		if(in==null)
+			inFields=null;
+		else
+			inFields=in;
 	}
 	
 	public void setOutField(NestedAtomic out)
 	{
-		outFields=out;
+		if(out==null)
+			outFields=null;
+		else
+			outFields=out;
 	}
+	
+	
+	
+		
+		
 	
 	
 }

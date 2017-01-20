@@ -47,8 +47,8 @@ public class OntologyConverter {
 	
 	void setVHMsgTokenIds()
 	{
-		vhmsgToken.setId("FIRST_WORD_KEY");
-		vhmsgToken.setId("BODY_KEY");		
+		vhmsgToken.setId(VHMessage.FIRST_WORD_KEY);
+		vhmsgToken.setId(VHMessage.BODY_KEY);		
 	}
 	
 	void setValuestoVHTokenIds()

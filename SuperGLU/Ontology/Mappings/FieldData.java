@@ -16,11 +16,10 @@ public class FieldData extends Serializable{
 	private String fieldData;
 	
 	
-	//my methods  (DANIEL: Does this comment say anything of value?  If it doesn't replace it with one that does, or get rid of it)
-	//Constructors
+	
 	public FieldData(String data)
 	{
-		//DANIEL: make sure to check for null values when setting field data;
+		
 		if(data == null)
 			this.fieldData="";
 		else
@@ -43,7 +42,7 @@ public class FieldData extends Serializable{
 	public void setFieldData(String data)
 	{
 		if(data != null)
-		fieldData=data;
+			fieldData=data;
 	}
 	
 	//Equality Operations

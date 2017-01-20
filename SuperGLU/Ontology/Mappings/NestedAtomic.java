@@ -1,94 +1,21 @@
 package Ontology.Mappings;
 
 import Util.Serializable;
+import Util.SerializationConvenience;
 import Util.StorageToken;
 
 public class NestedAtomic extends Serializable {
 
-	public String indices;
+	public static final String NESTED_ATOMIC_INDICES_KEY = "nestedAtomicIndices";
+	private String indices;
 	
-	
-	
-	
-	
-	
-	@Override
-	public boolean equals(Object otherObject) {
-		// TODO Auto-generated method stub
-		return super.equals(otherObject);
-	}
-
-	@Override
-	public int hashCode() {
-		// TODO Auto-generated method stub
-		return super.hashCode();
-	}
-
-	@Override
-	public String getId() {
-		// TODO Auto-generated method stub
-		return super.getId();
-	}
-
-	@Override
-	public void updateId(String id) {
-		// TODO Auto-generated method stub
-		super.updateId(id);
-	}
-
-	@Override
-	public String getClassId() {
-		// TODO Auto-generated method stub
-		return super.getClassId();
-	}
-
-	@Override
-	public void initializeFromToken(StorageToken token) {
-		// TODO Auto-generated method stub
-		super.initializeFromToken(token);
-	}
-
-	@Override
-	public StorageToken saveToToken() {
-		// TODO Auto-generated method stub
-		return super.saveToToken();
-	}
-
-	@Override
-	public Serializable clone(boolean newId) {
-		// TODO Auto-generated method stub
-		return super.clone(newId);
-	}
-
-	@Override
-	protected Object clone() throws CloneNotSupportedException {
-		// TODO Auto-generated method stub
-		return super.clone();
-	}
-
-	@Override
-	protected void finalize() throws Throwable {
-		// TODO Auto-generated method stub
-		super.finalize();
-	}
-
-	@Override
-	public String toString() {
-		// TODO Auto-generated method stub
-		return super.toString();
-	}
-
-	
-	
-	
-	
-	
-	
-	//my methods
-	
+	//CONSTRUCTORS
 	public NestedAtomic(String index)
 	{
-		this.indices=index;
+		if(index=="")
+			indices="";
+		else
+			this.indices=index;
 	}
 	
 	public NestedAtomic()
@@ -96,6 +23,64 @@ public class NestedAtomic extends Serializable {
 		this.indices="";
 	}
 	
+	//Equality Operations
+		@Override
+		public boolean equals(Object otherObject) {
+			if(!super.equals(otherObject))
+				return false;
+			
+			if(!(otherObject instanceof NestedAtomic))
+				return false;
+			
+			NestedAtomic other = (NestedAtomic)otherObject;
+			
+			if(!fieldIsEqual(this.indices, other.indices))
+				return false;
+			
+			return true;
+		}
+
+		@Override
+		public int hashCode() {
+			int result = super.hashCode();
+			int arbitraryPrimeNumber = 23;
+			
+			if(this.indices != null)
+				result = result * arbitraryPrimeNumber + this.indices.hashCode();
+			
+			return result;
+			
+		}
+
+		
+		//Serialization/Deserialization
+		@Override
+		public void initializeFromToken(StorageToken token) {
+			super.initializeFromToken(token);
+			this.indices = (String)SerializationConvenience.untokenizeObject(token.getItem(NESTED_ATOMIC_INDICES_KEY));
+		}
+
+		@Override
+		public StorageToken saveToToken() {
+			StorageToken result = super.saveToToken();
+			result.setItem(NESTED_ATOMIC_INDICES_KEY, SerializationConvenience.tokenizeObject(this.indices));
+			return result;
+		}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	//GETTER AND SETTER METHODS
 	public String getIndices()
 	{
 		return indices;

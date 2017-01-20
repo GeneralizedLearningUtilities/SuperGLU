@@ -2,6 +2,7 @@ package Ontology.Mappings;
 import java.util.*;
 
 import Util.Serializable;
+import Util.SerializationConvenience;
 import Util.StorageToken;
 
 public class MessageMap extends Serializable
@@ -17,103 +18,176 @@ public class MessageMap extends Serializable
 	ArrayList<FieldMap> fieldMappings;
 	
 	
+	public static final String MESSAGEMAP_INMSGTYPE_KEY = "inMsg";
+	public static final String MESSAGEMAP_OUTMSGTYPE_KEY = "outMsg";
+	public static final String MESSAGEMAP_INDEFAULT_KEY = "inDefaultMsg";
+	public static final String MESSAGEMAP_OUTDEFAULT_KEY = "outDefaultMsg";
+	public static final String MESSAGEMAP_FIELDMAPPINGS_KEY = "fieldMappings";
 	
-	@Override
-	public boolean equals(Object otherObject) {
-		// TODO Auto-generated method stub
-		return super.equals(otherObject);
-	}
-
-	@Override
-	public int hashCode() {
-		// TODO Auto-generated method stub
-		return super.hashCode();
-	}
-
-	@Override
-	public String getId() {
-		// TODO Auto-generated method stub
-		return super.getId();
-	}
-
-	@Override
-	public void updateId(String id) {
-		// TODO Auto-generated method stub
-		super.updateId(id);
-	}
-
-	@Override
-	public String getClassId() {
-		// TODO Auto-generated method stub
-		return super.getClassId();
-	}
-
-	@Override
-	public void initializeFromToken(StorageToken token) {
-		// TODO Auto-generated method stub
-		super.initializeFromToken(token);
-	}
-
-	@Override
-	public StorageToken saveToToken() {
-		// TODO Auto-generated method stub
-		return super.saveToToken();
-	}
-
-	@Override
-	public Serializable clone(boolean newId) {
-		// TODO Auto-generated method stub
-		return super.clone(newId);
-	}
-
-	@Override
-	protected Object clone() throws CloneNotSupportedException {
-		// TODO Auto-generated method stub
-		return super.clone();
-	}
-
-	@Override
-	protected void finalize() throws Throwable {
-		// TODO Auto-generated method stub
-		super.finalize();
-	}
-
-	@Override
-	public String toString() {
-		// TODO Auto-generated method stub
-		return super.toString();
-	}
-	
-	
-	
-	
-	
-	//my methods
-	
-	public void setInMsgType(MessageType x)
+	//CONSTRUCTORS
+	public MessageMap()
 	{
-		inMsgType=x;
+		inMsgType=null;
+		outDefaultMsg=null;
+		outMsgType=null;
+		inDefaultMsg=null;
+		fieldMappings=null;
 	}
 	
-	public void setOutMsgType(MessageType x)
+	public MessageMap(MessageType in, MessageType out, MessageTemplate m_in, MessageTemplate m_out, ArrayList<FieldMap> arrmap)
 	{
-		outMsgType=x;
+		if(in==null)
+			inMsgType=null;
+		else
+			inMsgType=in;
+		
+		if(out==null)
+			outMsgType=null;
+		else
+			outMsgType=out;
+		
+		if(m_in==null)
+			inDefaultMsg=null;
+		else
+			inDefaultMsg=m_in;
+		
+		if(m_out==null)
+			outDefaultMsg=null;
+		else
+			outDefaultMsg=m_out;
+		
+		if(arrmap==null)
+			fieldMappings=null;
+		else
+		{
+			for(FieldMap x:arrmap)
+				fieldMappings.add(x);
+		}
+		
+	}
+	
+	
+	//Equality Operations
+		@Override
+		public boolean equals(Object otherObject) {
+			if(!super.equals(otherObject))
+				return false;
+			
+			if(!(otherObject instanceof MessageMap))
+				return false;
+			
+			MessageMap other = (MessageMap)otherObject;
+			
+			if(!fieldIsEqual(this.inMsgType, other.inMsgType))
+				return false;
+			if(!fieldIsEqual(this.outMsgType, other.outMsgType))
+				return false;
+			if(!fieldIsEqual(this.inDefaultMsg, other.inDefaultMsg))
+				return false;
+			if(!fieldIsEqual(this.outDefaultMsg, other.outDefaultMsg))
+				return false;
+			if(!fieldIsEqual(this.fieldMappings, other.fieldMappings))
+				return false;
+			
+			return true;
+		}
+
+		@Override
+		public int hashCode() {
+			int result = super.hashCode();
+			int arbitraryPrimeNumber = 23;
+			
+			if(this.inMsgType != null)
+				result = result * arbitraryPrimeNumber + this.inMsgType.hashCode();
+			if(this.outMsgType != null)
+				result = result * arbitraryPrimeNumber + this.outMsgType.hashCode();
+			if(this.inDefaultMsg != null)
+				result = result * arbitraryPrimeNumber + this.inDefaultMsg.hashCode();
+			if(this.outDefaultMsg != null)
+				result = result * arbitraryPrimeNumber + this.outDefaultMsg.hashCode();
+			if(this.fieldMappings != null)
+				result = result * arbitraryPrimeNumber + this.fieldMappings.hashCode();
+			
+			return result;
+			
+		}
+
+		
+		//Serialization/Deserialization
+		@Override
+		public void initializeFromToken(StorageToken token) {
+			super.initializeFromToken(token);
+			this.inMsgType = (MessageType)SerializationConvenience.untokenizeObject(token.getItem(MESSAGEMAP_INMSGTYPE_KEY));
+			this.outMsgType = (MessageType)SerializationConvenience.untokenizeObject(token.getItem(MESSAGEMAP_OUTMSGTYPE_KEY));
+			this.inDefaultMsg = (MessageTemplate)SerializationConvenience.untokenizeObject(token.getItem(MESSAGEMAP_INDEFAULT_KEY));
+			this.outDefaultMsg = (MessageTemplate)SerializationConvenience.untokenizeObject(token.getItem(MESSAGEMAP_OUTDEFAULT_KEY));
+			this.fieldMappings = (ArrayList<FieldMap>)SerializationConvenience.untokenizeObject(token.getItem(MESSAGEMAP_FIELDMAPPINGS_KEY));
+		}
+
+		@Override
+		public StorageToken saveToToken() {
+			StorageToken result = super.saveToToken();
+			result.setItem(MESSAGEMAP_INMSGTYPE_KEY, SerializationConvenience.tokenizeObject(this.inMsgType));
+			result.setItem(MESSAGEMAP_OUTMSGTYPE_KEY, SerializationConvenience.tokenizeObject(this.outMsgType));
+			result.setItem(MESSAGEMAP_INDEFAULT_KEY, SerializationConvenience.tokenizeObject(this.inDefaultMsg));
+			result.setItem(MESSAGEMAP_OUTDEFAULT_KEY, SerializationConvenience.tokenizeObject(this.outDefaultMsg));
+			result.setItem(MESSAGEMAP_FIELDMAPPINGS_KEY, SerializationConvenience.tokenizeObject(this.fieldMappings));
+			return result;
+		}
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	//GETTER AND SETTER METHODS
+	
+	public void setInMsgType(MessageType mtype)
+	{
+		if(mtype==null)
+			inMsgType=null;
+		else
+			inMsgType=mtype;
+	}
+	
+	public void setOutMsgType(MessageType mtype)
+	{
+		if(mtype==null)
+			outMsgType=null;
+		else
+			outMsgType=mtype;
 	}
 
-	public void setInDefaultMsgType(MessageTemplate x)
+	public void setInDefaultMsgType(MessageTemplate mtemp)
 	{
-		inDefaultMsg=x;
+		if(mtemp==null)
+			inDefaultMsg=null;
+		else
+			inDefaultMsg=mtemp;
 	}
 	
-	public void setOutDefaultMsgType(MessageTemplate x)
+	public void setOutDefaultMsgType(MessageTemplate mtemp)
 	{
-		outDefaultMsg=x;
+		if(mtemp==null)
+			outDefaultMsg=null;
+		else
+			outDefaultMsg=mtemp;
 	}
 	
-	public void setFieldMappings(ArrayList<FieldMap> x)
+	public void setFieldMappings(ArrayList<FieldMap> arrFieldMap)
 	{
-		for(FieldMap y:x)
-			fieldMappings.add(y);
+		if(arrFieldMap==null)
+			fieldMappings=null;
+		else
+		{
+			for(FieldMap y:arrFieldMap)
+				fieldMappings.add(y);
+		}
 	}
 	
 	
