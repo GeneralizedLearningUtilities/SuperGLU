@@ -1,6 +1,7 @@
 package Ontology.Mappings;
 import java.util.*;
 
+import Core.BaseMessage;
 import Util.Serializable;
 import Util.SerializationConvenience;
 import Util.StorageToken;
@@ -136,15 +137,6 @@ public class MessageMap extends Serializable
 		}
 
 	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 	//GETTER AND SETTER METHODS
 	
 	public void setInMsgType(MessageType mtype)
@@ -190,6 +182,17 @@ public class MessageMap extends Serializable
 		}
 	}
 	
+	
+	public boolean isValidSourceMsg(BaseMessage msg, float minV, float maxV)
+	{//TODO: implement
+		return false;
+	}
+	
+	
+	public BaseMessage convert(BaseMessage msg, Class<? extends BaseMessage> targetMessageType)
+	{//TODO: implement
+		return null;
+	}
 	
 	
 	
