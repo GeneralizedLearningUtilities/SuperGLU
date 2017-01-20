@@ -1,5 +1,6 @@
 package Ontology.Mappings;
 
+import Core.BaseMessage;
 import Util.Serializable;
 import Util.SerializationConvenience;
 import Util.StorageToken;
@@ -100,6 +101,12 @@ public class FieldMap extends Serializable {
 			outFields=null;
 		else
 			outFields=out;
+	}
+	
+	
+	public void apply(StorageToken in, StorageToken out)
+	{
+		
 	}
 	
 	
