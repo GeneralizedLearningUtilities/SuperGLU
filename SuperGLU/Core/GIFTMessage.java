@@ -76,10 +76,10 @@ public class GIFTMessage extends BaseMessage {
 		
 		GIFTMessage other = (GIFTMessage)otherObject;
 		
-		if(!this.header.equals(other.header))
+		if(!fieldIsEqual(this.header, other.header))
 			return false;
 		
-		if(!this.payload.equals(other.payload))
+		if(!fieldIsEqual(this.payload, other.payload))
 			return false;
 		
 		return true;

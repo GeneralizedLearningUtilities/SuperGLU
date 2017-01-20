@@ -70,6 +70,24 @@ public abstract class Serializable {
 	}
 	
 	
+	protected boolean fieldIsEqual(Object thisField, Object otherField)
+	{
+		if(thisField == null && otherField == null)
+			return true;
+		
+		
+		//We now know that at least one of the fields in not null
+		if(thisField == null)
+			return false;
+		
+		if(otherField == null)
+			return false;
+		
+		//We now know that that both fields are non-null
+		return thisField.equals(otherField);
+	}
+	
+	
 	@Override
 	public boolean equals(Object otherObject)
 	{
@@ -81,7 +99,7 @@ public abstract class Serializable {
 		
 		Serializable other = (Serializable) otherObject;
 		
-		if(this.id.equals(other.id))
+		if(fieldIsEqual(this.id, other.id))
 			return true;
 		
 		return false;

@@ -87,11 +87,8 @@ public class BaseMessage extends Serializable {
 			return false;
 		
 		Message other = (Message) otherObject;
-	
-		if(!this.id.equals(other.id))
-			return false;
 				
-		if(!this.context.equals(other.context))
+		if(!fieldIsEqual(this.context, other.context))
 			return false;
 
 		

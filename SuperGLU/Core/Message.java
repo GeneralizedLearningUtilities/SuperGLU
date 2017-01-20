@@ -181,23 +181,18 @@ public class Message extends BaseMessage {
 			return false;
 		
 		Message other = (Message) otherObject;
-	
-		if(!this.id.equals(other.id))
-			return false;
 		
-		if(!this.actor.equals(other.actor))
+		if(!fieldIsEqual(this.actor, other.actor))
 			return false;
-		if(!this.verb.equals(other.verb))
+		if(!fieldIsEqual(this.verb, other.verb))
 			return false;
-		if(!this.obj.equals(other.obj))
+		if(!fieldIsEqual(this.obj, other.obj))
 			return false;
-		if(!this.result.equals(other.result))
+		if(!fieldIsEqual(this.result, other.result))
 			return false;
-		if(!this.speechAct.equals(other.speechAct))
+		if(!fieldIsEqual(this.speechAct, other.speechAct))
 			return false;
-		if(!this.context.equals(other.context))
-			return false;
-		if(!this.timestamp.equals(other.timestamp))
+		if(!fieldIsEqual(this.timestamp, other.timestamp))
 			return false;
 		
 		return true;
@@ -242,7 +237,6 @@ public class Message extends BaseMessage {
 		result.setItem(RESULT_KEY, SerializationConvenience.tokenizeObject(this.result));
 		result.setItem(SPEECH_ACT_KEY, this.speechAct.toString());
 		result.setItem(TIMESTAMP_KEY, timestampFormat.format(this.timestamp));
-		result.setItem(CONTEXT_KEY, SerializationConvenience.tokenizeObject(this.context));
 		
 		return result;
 	}
@@ -265,8 +259,6 @@ public class Message extends BaseMessage {
 			System.err.println("failed to parse timestamp of message, using current time as timestamp");
 			this.timestamp = new Date();
 		}
-		
-		this.context = (Map<String, Object>)SerializationConvenience.untokenizeObject(token.getItem(CONTEXT_KEY, true, new HashMap<>()));
 	}
 	
 	

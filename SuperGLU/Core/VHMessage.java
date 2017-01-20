@@ -89,13 +89,13 @@ public class VHMessage extends BaseMessage {
 		
 		VHMessage other = (VHMessage) otherObject;
 		
-		if(!this.firstWord.equals(other.firstWord))
+		if(!fieldIsEqual(this.firstWord, other.firstWord))
 			return false;
 		
 		if(this.version != other.version)
 			return false;
 		
-		if(!this.body.equals(other.body))
+		if(!fieldIsEqual(this.body, other.body))
 			return false;
 		
 		return true;
@@ -107,9 +107,14 @@ public class VHMessage extends BaseMessage {
 		int result = super.hashCode();
 		int arbitraryPrimeNumber = 23;
 		
-		result = result * arbitraryPrimeNumber + firstWord.hashCode();
+		if(this.firstWord != null)
+			result = result * arbitraryPrimeNumber + firstWord.hashCode();
+		
 		result = result * arbitraryPrimeNumber + Float.hashCode(version);
-		result = result * arbitraryPrimeNumber + body.hashCode();
+		
+		if(this.body != null)
+			result = result * arbitraryPrimeNumber + body.hashCode();
+		
 		return result;
 	}
 

@@ -146,7 +146,7 @@ public class StorageToken extends Serializable implements Iterable<String> {
 		
 		StorageToken other = (StorageToken) otherObject;
 		
-		return this.data.equals(other.data);
+		return fieldIsEqual(this.data, other.data);
 	}
 	
 	
