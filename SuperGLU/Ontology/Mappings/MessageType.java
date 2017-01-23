@@ -17,11 +17,12 @@ public class MessageType extends Serializable {
 	public MessageTemplate messageTypeTemplate = new MessageTemplate();
 	
 	//CONSTRUCTORS
-	public MessageType(String name, float minversion, float maxversion)
+	public MessageType(String name, float minversion, float maxversion, MessageTemplate mtemp)
 	{
 		this.Message_Name=name;
 		this.min_Version=minversion;
 		this.max_Version=maxversion;
+		messageTypeTemplate=mtemp;
 	}
 	
 	public MessageType()
@@ -29,6 +30,7 @@ public class MessageType extends Serializable {
 		this.Message_Name="";
 		this.max_Version=0.0f;
 		this.min_Version=0.0f;
+		this.messageTypeTemplate=null;
 	}
 	
 	//GETTER AND SETTER METHODS

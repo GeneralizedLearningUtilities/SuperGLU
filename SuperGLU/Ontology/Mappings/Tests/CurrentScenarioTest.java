@@ -31,6 +31,7 @@ public class CurrentScenarioTest {
 		
 		System.out.println(v1.getFirstWord());
 		System.out.println(v1.getBody());
+		/*
 		
 		MessageType VHTMsgV1_8=new MessageType(v1.getFirstWord(), 0.0f, 1.1f);
 		
@@ -83,7 +84,7 @@ public class CurrentScenarioTest {
 		VHT_SuperGLU_CurrentScenario.setFieldMappings(fieldmappings);
 		
 		
-		
+		*/
 		
 	}
 

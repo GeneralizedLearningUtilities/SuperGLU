@@ -4,6 +4,7 @@ import Core.Message;
 import Core.VHMessage;
 import Ontology.Mappings.FieldData;
 import Ontology.Mappings.FieldMap;
+import Ontology.Mappings.MessageMap;
 import Ontology.Mappings.MessageTemplate;
 import Ontology.Mappings.MessageTwoWayMap;
 import Ontology.Mappings.MessageType;
@@ -14,31 +15,19 @@ import java.util.*;
 
 public class OntologyConverter {
 	
-	private VHMessage vhmsg;
-	private StorageToken vhmsgToken;
-	private MessageType vhmsgV1;
-	private MessageTemplate vhmsgTemp;
-	private ArrayList<FieldData> vhmsgArrListDefaultFields;
-	private ArrayList<NestedAtomic> vhmsgArrListIndividualFields;
-	
-	private MessageTwoWayMap VHT_SUPERGLU_Message;
-	private ArrayList<FieldMap> VHT_SUPERGLU_Mappings;
-	
-	private StorageToken superglumsgToken;
-	private Message superglumsg;
-	private MessageType superglumsgS1;
-	private MessageTemplate superglumsgTemp;
-	private ArrayList<FieldData> superglusgArrListDefaultFields;
-	private ArrayList<NestedAtomic> superglumsgArrListIndividualFields;
+	private List<MessageMap> messageMaps;
 	
 	public OntologyConverter()
 	{
-		vhmsg=null;
+		messageMaps=null;
 	}
-	public OntologyConverter(VHMessage x)
+	// Test code makes a mapping for scenarioName; Mapping is variable testMap; x = [testMap,]
+	public OntologyConverter(List<MessageMap> x)
 	{
-		vhmsg=x;
+		messageMaps=x;
 	}
+	
+	/*
 	
 	void createVHmsgToken()
 	{
@@ -268,7 +257,7 @@ public class OntologyConverter {
 		return null;
 	}
 	
-	
+	*/
 	
 	
 	
