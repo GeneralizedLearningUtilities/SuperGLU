@@ -1,5 +1,8 @@
 package Ontology.Mappings;
-
+/**
+ * MessageTemplate  Class
+ * @author tirthmehta
+ */
 import java.util.ArrayList;
 
 import Util.Serializable;

@@ -1,4 +1,8 @@
 package Ontology;
+/**
+ * OntologyConverter  Class
+ * @author tirthmehta
+ */
 
 import Core.BaseMessage;
 import Core.Message;
@@ -14,11 +18,6 @@ import Util.SerializationConvenience;
 import Util.StorageToken;
 import java.util.*;
 
-
-/**
- * OntologyConverter  Class
- * @author tirthmehta
- */
 
 public class OntologyConverter {
 	

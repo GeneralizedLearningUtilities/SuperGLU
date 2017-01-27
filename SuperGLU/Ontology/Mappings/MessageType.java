@@ -1,5 +1,8 @@
 package Ontology.Mappings;
-
+/**
+ * MessageType  Class
+ * @author tirthmehta
+ */
 import Util.Serializable;
 import Util.SerializationConvenience;
 import Util.StorageToken;

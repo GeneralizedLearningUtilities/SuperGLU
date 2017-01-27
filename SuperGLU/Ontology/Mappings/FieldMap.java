@@ -1,4 +1,8 @@
 package Ontology.Mappings;
+/**
+ * FieldMap Class
+ * @author tirthmehta
+ */
 
 import Util.Serializable;
 import Util.SerializationConvenience;
