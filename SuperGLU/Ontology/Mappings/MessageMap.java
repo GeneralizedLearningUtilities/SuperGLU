@@ -1,6 +1,11 @@
 package Ontology.Mappings;
 import java.util.*;
 
+/**
+ * MessageMap  Class
+ * @author tirthmehta
+ */
+
 import Core.BaseMessage;
 import Util.Serializable;
 import Util.SerializationConvenience;
@@ -57,13 +62,8 @@ public class MessageMap extends Serializable
 		else
 			outDefaultMsg=m_out;
 		
-		if(arrmap==null)
-			fieldMappings=null;
-		else
-		{
-			for(FieldMap x:arrmap)
-				fieldMappings.add(x);
-		}
+		if(arrmap!=null)
+			fieldMappings=arrmap;
 		
 	}
 	
@@ -165,16 +165,51 @@ public class MessageMap extends Serializable
 			fieldMappings=null;
 		else
 		{
+			fieldMappings=new ArrayList<FieldMap>();
 			for(FieldMap y:arrFieldMap)
 				fieldMappings.add(y);
 		}
 	}
 	
-	
-	public boolean isValidSourceMsg(BaseMessage msg, float minV, float maxV)
-	{//TODO: implement
-		return false;
+	public MessageType getInMsgType()
+	{
+		if(inMsgType==null)
+			return null;
+		else
+			return inMsgType;
 	}
+	public MessageType getOutMsgType()
+	{
+		if(outMsgType==null)
+			return null;
+		else
+			return outMsgType;
+	}
+	public MessageTemplate getInDefaulttMsgTemp()
+	{
+		if(inDefaultMsg==null)
+			return null;
+		else
+			return inDefaultMsg;
+	}
+	public MessageTemplate getOutDefaulttMsgTemp()
+	{
+		if(outDefaultMsg==null)
+			return null;
+		else
+			return outDefaultMsg;
+	}
+	public ArrayList<FieldMap> getFieldMappings()
+	{
+		if(fieldMappings==null)
+			return null;
+		else
+			return fieldMappings;
+	}
+	
+	
+	
+	
 	
 	
 	public BaseMessage convert(BaseMessage msg, Class<? extends BaseMessage> targetMessageType)

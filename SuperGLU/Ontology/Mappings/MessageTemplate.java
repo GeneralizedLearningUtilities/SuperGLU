@@ -8,7 +8,7 @@ import Util.StorageToken;
 
 public class MessageTemplate extends Serializable {
 	
-	private ArrayList<FieldData> defaultFieldData;
+	private ArrayList<FieldData> defaultFieldData=new ArrayList<>();
 	public static final String MESSAGE_TEMPLATE_DEFAULTFIELDDATA_KEY = "messageTemplate";
 	
 	public MessageTemplate()
@@ -27,6 +27,11 @@ public class MessageTemplate extends Serializable {
 				defaultFieldData.add(x);
 			}
 		}
+	}
+	
+	public ArrayList<FieldData> getDefaultFieldData()
+	{
+		return defaultFieldData;
 	}
 		
 	//Equality Operations

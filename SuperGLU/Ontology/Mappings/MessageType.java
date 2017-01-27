@@ -7,22 +7,25 @@ import Util.StorageToken;
 public class MessageType extends Serializable {
 	
 	public static final String MESSAGE_TYPE_NAME_KEY = "messageTypeName";
+	public static final String MESSAGE_TYPE_CLASS_ID_KEY = "classId";
 	public static final String MESSAGE_TYPE_MINVERSION_KEY = "messageTypeMinversion";
 	public static final String MESSAGE_TYPE_MAXVERSION_KEY = "messageTypeMaxversion";
 	public static final String MESSAGE_TYPE_MESSAGETEMPLATE_KEY = "messageTypeMessagetemplate";
 	
+	private String classId;
 	private String Message_Name;
 	private float min_Version;
 	private float max_Version;
-	public MessageTemplate messageTypeTemplate = new MessageTemplate();
+	public MessageTemplate messageTypeTemplate;
 	
 	//CONSTRUCTORS
-	public MessageType(String name, float minversion, float maxversion, MessageTemplate mtemp)
+	public MessageType(String name, float minversion, float maxversion, MessageTemplate mtemp,String cl)
 	{
 		this.Message_Name=name;
 		this.min_Version=minversion;
 		this.max_Version=maxversion;
 		messageTypeTemplate=mtemp;
+		classId=cl;
 	}
 	
 	public MessageType()
@@ -31,6 +34,7 @@ public class MessageType extends Serializable {
 		this.max_Version=0.0f;
 		this.min_Version=0.0f;
 		this.messageTypeTemplate=null;
+		classId=null;
 	}
 	
 	//GETTER AND SETTER METHODS
@@ -64,6 +68,24 @@ public class MessageType extends Serializable {
 
 		max_Version=maxversion;
 	}
+	public MessageTemplate getMessageTemplate()
+	{
+		if(messageTypeTemplate!=null)
+			return messageTypeTemplate;
+		else
+			return null;
+	}
+	
+	public void setClassId(String cl)
+	{
+		this.classId=cl;
+	}
+	
+	public String getClassId()
+	{
+		return classId;
+	}
+	
 	
 	
 	
@@ -90,6 +112,8 @@ public class MessageType extends Serializable {
 			return false;
 		if(!fieldIsEqual(this.messageTypeTemplate, other.messageTypeTemplate))
 			return false;
+		if(!fieldIsEqual(this.classId, other.classId))
+			return false;
 		
 		return true;
 	}
@@ -111,6 +135,8 @@ public class MessageType extends Serializable {
 			}
 		if(this.messageTypeTemplate != null)
 			result = result * arbitraryPrimeNumber + this.messageTypeTemplate.hashCode();
+		if(this.classId != null)
+			result = result * arbitraryPrimeNumber + this.classId.hashCode();
 		
 		
 		return result;
@@ -126,11 +152,13 @@ public class MessageType extends Serializable {
 		this.min_Version = (float)SerializationConvenience.untokenizeObject(token.getItem(MESSAGE_TYPE_MINVERSION_KEY));
 		this.max_Version = (float)SerializationConvenience.untokenizeObject(token.getItem(MESSAGE_TYPE_MAXVERSION_KEY));
 		this.messageTypeTemplate = (MessageTemplate)SerializationConvenience.untokenizeObject(token.getItem(MESSAGE_TYPE_MESSAGETEMPLATE_KEY));
+		this.classId = (String)SerializationConvenience.untokenizeObject(token.getItem(MESSAGE_TYPE_CLASS_ID_KEY));
 	}
 
 	@Override
 	public StorageToken saveToToken() {
 		StorageToken result = super.saveToToken();
+		result.setItem(MESSAGE_TYPE_CLASS_ID_KEY, SerializationConvenience.tokenizeObject(this.classId));
 		result.setItem(MESSAGE_TYPE_NAME_KEY, SerializationConvenience.tokenizeObject(this.Message_Name));
 		result.setItem(MESSAGE_TYPE_MINVERSION_KEY, SerializationConvenience.tokenizeObject(this.min_Version));
 		result.setItem(MESSAGE_TYPE_MAXVERSION_KEY, SerializationConvenience.tokenizeObject(this.max_Version));
