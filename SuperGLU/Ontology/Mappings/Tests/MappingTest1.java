@@ -9,6 +9,7 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
+import Core.BaseMessage;
 import Core.VHMessage;
 import Ontology.OntologyConverter;
 import Ontology.Mappings.FieldData;
@@ -67,14 +68,14 @@ public class MappingTest1 {
 		MessageTemplate vhMsgTempGeneric=new MessageTemplate(vhMsgArrGeneric);
 		
 		//CREATING THE NESTED ATOMIC FIELDS THAT HAVE MATCHES (VHT)
-		String indexvh1[]={"0"};
-		String indexvh2[]={"1"};
+		String indexvh1="0";
+		String indexvh2="1";
 		NestedAtomic VHT_LabelField=new NestedAtomic(indexvh1);	
 		NestedAtomic VHT_BodyField=new NestedAtomic(indexvh2);
 		
 		//CREATING THE NESTED ATOMIC FIELDS THAT HAVE MATCHES (VHT)
-		String indexs1[]={"object"};
-		String indexs2[]={"verb"};
+		String indexs1="object";
+		String indexs2="verb";
 		NestedAtomic SuperGLU_ObjectField=new NestedAtomic(indexs1);	
 		NestedAtomic SuperGLU_VerbField=new NestedAtomic(indexs2);
 		
@@ -86,14 +87,14 @@ public class MappingTest1 {
 		
 		FieldMap VHT_SuperGLU_TopicObject_FM=new FieldMap();
 		VHT_SuperGLU_TopicObject_FM.setInField(VHT_BodyField);
-		VHT_SuperGLU_TopicObject_FM.setOutField(SuperGLU_ObjectField);
+		VHT_SuperGLU_TopicObject_FM.setOutField(SuperGLU_ObjectField); 
 		
 		ArrayList<FieldMap> fieldmappings=new ArrayList<FieldMap>();
 		fieldmappings.add(VHT_SuperGLU_TopicVerb_FM);
 		fieldmappings.add(VHT_SuperGLU_TopicObject_FM);
 		
 		
-		//CREATING A MESSAGE TEMPLATE THAT WILL GO INTO THE MESSAGE TYPE CLASS (WHICH DOES NOT HAVE MATCHES)
+		//CREATING A MESSAGE TEMPLATE THAT WILL GO INTO THE DEFAULT MESSAGETEMPLATES (WHICH DOES NOT HAVE MATCHES)
 		
 		
 		ArrayList<FieldData> supergluArr=new ArrayList<FieldData>();
@@ -126,6 +127,7 @@ public class MappingTest1 {
 		//STEP 1: CREATING A TOKEN OF A VHMESSAGE THAT WAS SENT ABOVE
 		
 		StorageToken ST_FromInputMsg=v1.saveToToken();
+		
 		System.out.println(ST_FromInputMsg.getClassId());
 		System.out.println(ST_FromInputMsg.getItem(v1.FIRST_WORD_KEY));
 		
@@ -138,13 +140,21 @@ public class MappingTest1 {
 		OntologyConverter ontconvert=new OntologyConverter(createdList);
 		
 		//STEP 3: CALLING THE ISVALIDSOURCEMESSAGE CLASS
-		String firstword=(String) ST_FromInputMsg.getItem(v1.FIRST_WORD_KEY);
+		
+		String firstword=(String) ST_FromInputMsg.getItem(v1.FIRST_WORD_KEY);   
 		
 		boolean result=ontconvert.isValidSourceMsg(v1,ST_FromInputMsg,firstword);
 		if(result==true)
 			System.out.println("Yes there is a match and a valid source message");
 		else
 			System.out.println("No there is no match and its not a valid source message");
+		
+		//STEP 4: CALLING THE CONVERT FUNCTION FOR THE ACTUAL CONVERSIONS
+		BaseMessage convertedMessage=ontconvert.convert(v1, ST_FromInputMsg);
+		if(convertedMessage!=null)
+			System.out.println("Conversion Successful!");
+		else
+			System.out.println("Conversion Failed");
 		
 		
 	}

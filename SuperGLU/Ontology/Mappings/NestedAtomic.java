@@ -10,10 +10,11 @@ import Util.StorageToken;
 public class NestedAtomic extends Serializable {
 
 	public static final String NESTED_ATOMIC_INDICES_KEY = "nestedAtomicIndices";
-	private String[] indices;
+	private String indices;
+	private FieldData fielddata;
 	
 	//CONSTRUCTORS
-	public NestedAtomic(String[] index)
+	public NestedAtomic(String index)
 	{
 		if(index==null)
 			indices=null;
@@ -24,6 +25,18 @@ public class NestedAtomic extends Serializable {
 	public NestedAtomic()
 	{
 		this.indices=null;
+	}
+	
+	//GETTER AND SETTER METHODS
+	
+	public String getIndex()
+	{
+		return indices;
+	}
+	
+	public void setIndex(String ind)
+	{
+		this.indices=ind;
 	}
 	
 	//Equality Operations
@@ -60,7 +73,7 @@ public class NestedAtomic extends Serializable {
 		@Override
 		public void initializeFromToken(StorageToken token) {
 			super.initializeFromToken(token);
-			this.indices = (String[])SerializationConvenience.untokenizeObject(token.getItem(NESTED_ATOMIC_INDICES_KEY));
+			this.indices = (String)SerializationConvenience.untokenizeObject(token.getItem(NESTED_ATOMIC_INDICES_KEY));
 		}
 
 		@Override
@@ -83,15 +96,6 @@ public class NestedAtomic extends Serializable {
 	
 	
 	
-	//GETTER AND SETTER METHODS
-	public String[] getIndices()
-	{
-		return indices;
-	}
 	
-	public void setIndices(String[] index)
-	{
-		indices=index;
-	}
 	
 }

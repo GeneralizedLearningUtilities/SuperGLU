@@ -5,6 +5,7 @@ package Ontology.Mappings;
  */
 import java.util.ArrayList;
 
+import Core.Message;
 import Util.Serializable;
 import Util.SerializationConvenience;
 import Util.StorageToken;
@@ -35,6 +36,17 @@ public class MessageTemplate extends Serializable {
 	public ArrayList<FieldData> getDefaultFieldData()
 	{
 		return defaultFieldData;
+	}
+	
+	public StorageToken createTargetStorageToken(String id)
+	{
+		if(id.equals("Message"))
+			{
+				Message targetMsg=new Message();
+				StorageToken target=targetMsg.saveToToken();
+				return target;
+			}
+		return null;
 	}
 		
 	//Equality Operations

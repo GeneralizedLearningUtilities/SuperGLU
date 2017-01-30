@@ -28,6 +28,27 @@ public class FieldMap extends Serializable {
 		outFields=out;
 	}
 	
+	//GETTER AND SETTER METHODS
+		public void setInField(NestedAtomic in)
+		{
+			inFields=in;
+		}
+		
+		public NestedAtomic getInFields()
+		{
+			return inFields;
+		}
+		
+		public NestedAtomic getOutFields()
+		{
+			return outFields;
+		}
+		
+		public void setOutField(NestedAtomic out)
+		{
+			outFields=out;
+		}
+	
 	
 	//Equality Operations
 		@Override
@@ -82,16 +103,7 @@ public class FieldMap extends Serializable {
 
 	
 	
-	//GETTER AND SETTER METHODS
-	public void setInField(NestedAtomic in)
-	{
-		inFields=in;
-	}
 	
-	public void setOutField(NestedAtomic out)
-	{
-		outFields=out;
-	}
 	
 	
 	public void apply(StorageToken in, StorageToken out)
