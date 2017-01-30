@@ -26,7 +26,7 @@ public class NestedAtomic extends Serializable {
 	{
 		this.indices=null;
 	}
-	
+
 	//GETTER AND SETTER METHODS
 	
 	public String getIndex()

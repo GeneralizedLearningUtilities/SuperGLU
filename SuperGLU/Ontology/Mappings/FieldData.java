@@ -32,7 +32,7 @@ public class FieldData extends Serializable{
 		this.fieldData="";
 	}
 	
-	
+
 	//Accessors
 	public String getFieldData()
 	{

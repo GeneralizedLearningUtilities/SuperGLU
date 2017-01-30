@@ -32,7 +32,7 @@ public class MessageTemplate extends Serializable {
 			}
 		}
 	}
-	
+
 	public ArrayList<FieldData> getDefaultFieldData()
 	{
 		return defaultFieldData;
