@@ -5,7 +5,7 @@ import Util.SerializationConvenience;
 import Util.StorageToken;
 
 /**
- * 
+ * This is the FieldData class that stores the String type data for the default values in the respective individuals
  * @author auerbach
  *
  */
@@ -16,7 +16,7 @@ public class FieldData extends Serializable{
 	private String fieldData;
 	
 	
-	
+	//PARAMETERIZED CONSTRUCTOR
 	public FieldData(String data)
 	{
 		
@@ -26,19 +26,20 @@ public class FieldData extends Serializable{
 			this.fieldData=data;
 	}
 	
-		
+	//DEFAULT CONSTRUCTOR	
 	public FieldData()
 	{
 		this.fieldData="";
 	}
 	
 
-	//Accessors
+	//RETURNS THE FIELD DATA
 	public String getFieldData()
 	{
 		return fieldData;
 	}
 	
+	//SETS THE FIELD DATA
 	public void setFieldData(String data)
 	{
 		if(data != null)

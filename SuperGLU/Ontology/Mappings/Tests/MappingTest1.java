@@ -4,6 +4,8 @@ import static org.junit.Assert.*;
 
 /**
  * MessageMapTest1  Junit Testcase
+ * The testfile containing the data of storing all the mappings and further performing some tests for validity checks 
+ * and also for the conversions
  * @author tirthmehta
  */
 
@@ -138,7 +140,7 @@ public class MappingTest1 {
 		createdList.add(VHT_SuperGLU_CurrentScenario);
 		
 		OntologyConverter ontconvert=new OntologyConverter(createdList);
-		
+		 
 		//STEP 3: CALLING THE ISVALIDSOURCEMESSAGE CLASS
 		
 		String firstword=(String) ST_FromInputMsg.getItem(v1.FIRST_WORD_KEY);   

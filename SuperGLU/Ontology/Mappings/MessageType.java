@@ -1,6 +1,7 @@
 package Ontology.Mappings;
 /**
  * MessageType  Class
+ * The class is used to store the various parameters of the Message like name,min-version and max-version
  * @author tirthmehta
  */
 import Util.Serializable;
@@ -40,7 +41,7 @@ public class MessageType extends Serializable {
 		classId=null;
 	}
 	
-	//GETTER AND SETTER METHODS
+	//GETTER AND SETTER METHODS FOR GETTING AND SETTING THE MULTIPLE VALUES LIKE MESSAGENAME,MIN-VERSION ETC LISTED ABOVE
 	public String getMessageName()
 	{
 		return Message_Name;

@@ -1,6 +1,8 @@
 package Ontology.Mappings;
 /**
  * NestedAtomic  Class
+ * The class is used to store the respective fields of the individuals that are available for matching. 
+ * It also stores a specific datatype for representing its position like boolean,float,int,String etc.
  * @author tirthmehta
  */
 import Util.Serializable;

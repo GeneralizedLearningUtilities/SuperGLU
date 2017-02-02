@@ -1,6 +1,11 @@
 package Ontology;
+
+/*
+
 /**
- * OntologyConverter  Class
+ * OntologyConverter  Class 
+ * This the class that provides the validity check of whether a message is valid or not and then further converts it if its 
+ * mapped to one of the valid mappings
  * @author tirthmehta
  */
 
@@ -18,7 +23,6 @@ import Util.SerializationConvenience;
 import Util.StorageToken;
 import java.util.*;
 
-
 public class OntologyConverter {
 	static MessageMap correctMap;
 	
@@ -34,7 +38,11 @@ public class OntologyConverter {
 		messageMaps=x;
 	}
 	
-
+	
+	
+//THE FUNCTION NECESSARY FOR CHECKING WHETHER THE MESSAGE INOUT TOKEN COMING IN HAS A VALID MATCH WITH THE AVAIALABLE SET 
+//	OF MAPPINGS
+	
 	public boolean isValidSourceMsg(BaseMessage b,StorageToken input,String firstwordkey)
 	{
 		//CURRENTLY SINCE THERE IS ONLY 1 MESSAGEMAP IN THE LIST OF MESSAGEMAPS
@@ -69,6 +77,10 @@ public class OntologyConverter {
 				return false;
 	}
 	
+	
+	//THE CONVERT METHOD IS ACTUALLY USED TO PERFORM THE CONVERSION TO THE TARGET MESSAGE OBJECT, ONCE THE VALID MAPPING
+	// HAS BEEN IDENTIFIED
+
 	public BaseMessage convert(BaseMessage b,StorageToken input)
 	{
 		MessageType out=correctMap.getOutMsgType();
@@ -104,7 +116,7 @@ public class OntologyConverter {
 			return targetObj;
 		else
 			return null;
-		
+	
 	}
 
 }

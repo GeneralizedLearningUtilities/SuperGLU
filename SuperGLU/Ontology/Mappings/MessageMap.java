@@ -3,6 +3,7 @@ import java.util.*;
 
 /**
  * MessageMap  Class
+ * The class is used to store the complete data regarding a valid mapping like inmsgtype,outmsgtype,fieldmappings, etc
  * @author tirthmehta
  */
 
@@ -30,7 +31,7 @@ public class MessageMap extends Serializable
 	public static final String MESSAGEMAP_OUTDEFAULT_KEY = "outDefaultMsg";
 	public static final String MESSAGEMAP_FIELDMAPPINGS_KEY = "fieldMappings";
 	
-	//CONSTRUCTORS
+	
 	public MessageMap()
 	{
 		inMsgType=null;
@@ -40,6 +41,7 @@ public class MessageMap extends Serializable
 		fieldMappings=null;
 	}
 	
+	//PARAMETERIZED CONSTRUCTORS
 	public MessageMap(MessageType in, MessageType out, MessageTemplate m_in, MessageTemplate m_out, ArrayList<FieldMap> arrmap)
 	{
 		if(in==null)
@@ -66,6 +68,77 @@ public class MessageMap extends Serializable
 			fieldMappings=arrmap;
 		
 	}
+	
+	
+	//GETTER AND SETTER METHODS FOR GETTING AND SETTING THE INMSGTYPE,OUTMSGTYPE, AND OTHER DATA MENTIONED ABOVE
+	
+		public void setInMsgType(MessageType mtype)
+		{
+			inMsgType=mtype;
+		}
+		
+		public void setOutMsgType(MessageType mtype)
+		{
+			outMsgType=mtype;
+		}
+
+		public void setInDefaultMsgType(MessageTemplate mtemp)
+		{
+			inDefaultMsg=mtemp;
+		}
+		
+		public void setOutDefaultMsgType(MessageTemplate mtemp)
+		{
+			outDefaultMsg=mtemp;
+		}
+		
+		public void setFieldMappings(ArrayList<FieldMap> arrFieldMap)
+		{
+			if(arrFieldMap==null)
+				fieldMappings=null;
+			else
+			{
+				fieldMappings=new ArrayList<FieldMap>();
+				for(FieldMap y:arrFieldMap)
+					fieldMappings.add(y);
+			}
+		}
+		
+		public MessageType getInMsgType()
+		{
+			if(inMsgType==null)
+				return null;
+			else
+				return inMsgType;
+		}
+		public MessageType getOutMsgType()
+		{
+			if(outMsgType==null)
+				return null;
+			else
+				return outMsgType;
+		}
+		public MessageTemplate getInDefaulttMsgTemp()
+		{
+			if(inDefaultMsg==null)
+				return null;
+			else
+				return inDefaultMsg;
+		}
+		public MessageTemplate getOutDefaulttMsgTemp()
+		{
+			if(outDefaultMsg==null)
+				return null;
+			else
+				return outDefaultMsg;
+		}
+		public ArrayList<FieldMap> getFieldMappings()
+		{
+			if(fieldMappings==null)
+				return null;
+			else
+				return fieldMappings;
+		}
 	
 	
 	//Equality Operations
@@ -137,81 +210,14 @@ public class MessageMap extends Serializable
 		}
 
 	
-	//GETTER AND SETTER METHODS
-	
-	public void setInMsgType(MessageType mtype)
-	{
-		inMsgType=mtype;
-	}
-	
-	public void setOutMsgType(MessageType mtype)
-	{
-		outMsgType=mtype;
-	}
-
-	public void setInDefaultMsgType(MessageTemplate mtemp)
-	{
-		inDefaultMsg=mtemp;
-	}
-	
-	public void setOutDefaultMsgType(MessageTemplate mtemp)
-	{
-		outDefaultMsg=mtemp;
-	}
-	
-	public void setFieldMappings(ArrayList<FieldMap> arrFieldMap)
-	{
-		if(arrFieldMap==null)
-			fieldMappings=null;
-		else
-		{
-			fieldMappings=new ArrayList<FieldMap>();
-			for(FieldMap y:arrFieldMap)
-				fieldMappings.add(y);
-		}
-	}
-	
-	public MessageType getInMsgType()
-	{
-		if(inMsgType==null)
-			return null;
-		else
-			return inMsgType;
-	}
-	public MessageType getOutMsgType()
-	{
-		if(outMsgType==null)
-			return null;
-		else
-			return outMsgType;
-	}
-	public MessageTemplate getInDefaulttMsgTemp()
-	{
-		if(inDefaultMsg==null)
-			return null;
-		else
-			return inDefaultMsg;
-	}
-	public MessageTemplate getOutDefaulttMsgTemp()
-	{
-		if(outDefaultMsg==null)
-			return null;
-		else
-			return outDefaultMsg;
-	}
-	public ArrayList<FieldMap> getFieldMappings()
-	{
-		if(fieldMappings==null)
-			return null;
-		else
-			return fieldMappings;
-	}
 	
 	
 	
 	
 	
 	
+	/*
+	 * CURRENTLY PRESENT IN THE MESSAGE MAP CLASS
 	public BaseMessage convert(BaseMessage msg, Class<? extends BaseMessage> targetMessageType)
 	{//TODO: implement
 		//return null;
@@ -226,6 +232,7 @@ public class MessageMap extends Serializable
 		}
 		return null;
 	}
+	*/
 	
 	
 	

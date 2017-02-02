@@ -1,6 +1,8 @@
 package Ontology.Mappings;
 /**
  * FieldMap Class
+ * This is the class that provides a valid mapping to have their respective in-fields and out-fields which
+ * are involved in the mapping
  * @author tirthmehta
  */
 
@@ -28,7 +30,7 @@ public class FieldMap extends Serializable {
 		outFields=out;
 	}
 	
-	//GETTER AND SETTER METHODS
+	//GETTER AND SETTER METHODS FOR GETTING AND SETTING THE IN-FIELDS AND OUT-FIELDS RESPECTIVELY
 		public void setInField(NestedAtomic in)
 		{
 			inFields=in;
@@ -106,10 +108,7 @@ public class FieldMap extends Serializable {
 	
 	
 	
-	public void apply(StorageToken in, StorageToken out)
-	{
-		
-	}
+	
 	
 	
 	

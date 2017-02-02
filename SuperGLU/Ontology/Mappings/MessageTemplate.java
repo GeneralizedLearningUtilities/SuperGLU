@@ -1,6 +1,7 @@
 package Ontology.Mappings;
 /**
  * MessageTemplate  Class
+ * It is used to store the various field data based individuals in an ArrayList
  * @author tirthmehta
  */
 import java.util.ArrayList;
@@ -15,11 +16,13 @@ public class MessageTemplate extends Serializable {
 	private ArrayList<FieldData> defaultFieldData=new ArrayList<>();
 	public static final String MESSAGE_TEMPLATE_DEFAULTFIELDDATA_KEY = "messageTemplate";
 	
+	//CONSTRUCTOR
 	public MessageTemplate()
 	{
 		defaultFieldData=null;
 	}
 	
+	//PARAMETERIZED CONSTRUCTOR
 	public MessageTemplate(ArrayList<FieldData> arrlist)
 	{
 		if(arrlist==null)
@@ -33,11 +36,29 @@ public class MessageTemplate extends Serializable {
 		}
 	}
 
+	// GETTER METHOD THAT RETURNS THE ARRAYLIST OF FIELDDATA PERTAINING TO AN INDIVIDUAL
 	public ArrayList<FieldData> getDefaultFieldData()
 	{
 		return defaultFieldData;
 	}
 	
+	
+	//SETTER METHOD FOR SETTING THE FIELD-DATA ARRAYLIST
+		public void setData(ArrayList<FieldData> arrFieldData)
+		{
+			if(arrFieldData==null)
+				defaultFieldData=null;
+			else
+			{
+				for(FieldData x:arrFieldData)
+				{
+					defaultFieldData.add(x);
+				}
+			}
+		}
+		
+	
+	//CREATES A STORAGE TOKEN OF THE TARGET CLASS OBJECT ONCE A VALID MAPPING HAS BEEN IDENTIFIED
 	public StorageToken createTargetStorageToken(String id)
 	{
 		if(id.equals("Message"))
@@ -103,24 +124,7 @@ public class MessageTemplate extends Serializable {
 	
 	
 	
-	//setter and getter methods
-	public void setData(ArrayList<FieldData> arrFieldData)
-	{
-		if(arrFieldData==null)
-			defaultFieldData=null;
-		else
-		{
-			for(FieldData x:arrFieldData)
-			{
-				defaultFieldData.add(x);
-			}
-		}
-	}
 	
-	public ArrayList<FieldData> getData()
-	{
-		return defaultFieldData;
-	}
 	
 	
 	
