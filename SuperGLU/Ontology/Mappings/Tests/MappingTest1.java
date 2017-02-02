@@ -12,6 +12,7 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 
 import Core.BaseMessage;
+import Core.Message;
 import Core.VHMessage;
 import Ontology.OntologyConverter;
 import Ontology.Mappings.FieldData;
@@ -35,6 +36,7 @@ public class MappingTest1 {
 		float version=0.0f;
 		HashMap<String,Object> hmap=new HashMap<String, Object>();
 		VHMessage v1=new VHMessage("100", hmap, first, version, body);
+		Message m1=new Message();
 		
 		
 		//THE MESSAGE MAP TO BE PASSED TO THE ONTOLOGY CONVERTER-----LATER ON AN ARRAYLIST OF MESSAGE-MAPS ARE TO BE PASSED
@@ -70,16 +72,20 @@ public class MappingTest1 {
 		MessageTemplate vhMsgTempGeneric=new MessageTemplate(vhMsgArrGeneric);
 		
 		//CREATING THE NESTED ATOMIC FIELDS THAT HAVE MATCHES (VHT)
-		String indexvh1="0";
-		String indexvh2="1";
+		String indexvh1[]=new String[1];
+		String indexvh2[]=new String[1];
+		indexvh1[0]=v1.FIRST_WORD_KEY;
+		indexvh2[0]=v1.BODY_KEY;
 		NestedAtomic VHT_LabelField=new NestedAtomic(indexvh1);	
 		NestedAtomic VHT_BodyField=new NestedAtomic(indexvh2);
 		
 		//CREATING THE NESTED ATOMIC FIELDS THAT HAVE MATCHES (VHT)
-		String indexs1="object";
-		String indexs2="verb";
-		NestedAtomic SuperGLU_ObjectField=new NestedAtomic(indexs1);	
-		NestedAtomic SuperGLU_VerbField=new NestedAtomic(indexs2);
+		String indexsg1[]=new String[1];
+		String indexsg2[]=new String[1];
+		indexsg1[0]=m1.OBJECT_KEY;
+		indexsg2[0]=m1.VERB_KEY;
+		NestedAtomic SuperGLU_ObjectField=new NestedAtomic(indexsg1);	
+		NestedAtomic SuperGLU_VerbField=new NestedAtomic(indexsg2);
 		
 		
 		//CREATED THE MAPPINGS FOR THE VERB AND BODY FIELDS RESPECTIVELY BELOW 
@@ -131,7 +137,7 @@ public class MappingTest1 {
 		StorageToken ST_FromInputMsg=v1.saveToToken();
 		
 		System.out.println(ST_FromInputMsg.getClassId());
-		System.out.println(ST_FromInputMsg.getItem(v1.FIRST_WORD_KEY));
+		//System.out.println(ST_FromInputMsg.getItem(v1.FIRST_WORD_KEY));
 		
 		
 		//STEP 2: CREATING THE ONTOLOGY CONVERTER OBJECT SO THAT WE CAN PASS IN THE MESSAGEMAPS LIST
@@ -156,9 +162,9 @@ public class MappingTest1 {
 		if(convertedMessage!=null)
 			System.out.println("Conversion Successful!");
 		else
-			System.out.println("Conversion Failed");
+			System.out.println("Conversion Failed");   
+		System.out.println("converted message class id "+convertedMessage.getClassId());
 		
-
 	}
 
 }

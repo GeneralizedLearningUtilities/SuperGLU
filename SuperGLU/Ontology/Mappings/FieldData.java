@@ -13,7 +13,7 @@ public class FieldData extends Serializable{
 	
 	public static final String FIELD_DATA_KEY = "fieldData";
 	
-	private String fieldData;
+	protected String fieldData;
 	
 	
 	//PARAMETERIZED CONSTRUCTOR

@@ -1,27 +1,26 @@
 package Ontology.Mappings;
-/**
- * NestedAtomic  Class
- * The class is used to store the respective fields of the individuals that are available for matching. 
- * It also stores a specific datatype for representing its position like boolean,float,int,String etc.
- * @author tirthmehta
- */
-import Util.Serializable;
 import Util.SerializationConvenience;
 import Util.StorageToken;
 
-public class NestedAtomic extends Serializable {
+public class NestedAtomic extends FieldData {
 
 	public static final String NESTED_ATOMIC_INDICES_KEY = "nestedAtomicIndices";
-	private String indices;
-	private FieldData fielddata;
+	private String indices[];
 	
 	//CONSTRUCTORS
-	public NestedAtomic(String index)
+	public NestedAtomic(String index[])
 	{
 		if(index==null)
 			indices=null;
 		else
-			this.indices=index;
+		{
+			indices=new String[index.length];
+			for(int i=0;i<index.length;i++)
+			{		
+				this.indices[i]=index[i];
+			}
+		}
+			
 	}
 	
 	public NestedAtomic()
@@ -31,14 +30,21 @@ public class NestedAtomic extends Serializable {
 
 	//GETTER AND SETTER METHODS
 	
-	public String getIndex()
+	public String[] getIndex()
 	{
 		return indices;
 	}
 	
-	public void setIndex(String ind)
+	public void setIndex(String ind[])
 	{
-		this.indices=ind;
+			if(ind!=null)
+			{
+				indices=new String[ind.length];
+				for(int i=0;i<ind.length;i++)
+				{		
+					this.indices[i]=ind[i];
+				}
+			}
 	}
 	
 	//Equality Operations
@@ -75,7 +81,7 @@ public class NestedAtomic extends Serializable {
 		@Override
 		public void initializeFromToken(StorageToken token) {
 			super.initializeFromToken(token);
-			this.indices = (String)SerializationConvenience.untokenizeObject(token.getItem(NESTED_ATOMIC_INDICES_KEY));
+			this.indices = (String[])SerializationConvenience.untokenizeObject(token.getItem(NESTED_ATOMIC_INDICES_KEY));
 		}
 
 		@Override

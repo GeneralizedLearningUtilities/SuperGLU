@@ -10,13 +10,10 @@ package Ontology;
  */
 
 import Core.BaseMessage;
-import Core.Message;
-import Core.VHMessage;
 import Ontology.Mappings.FieldData;
 import Ontology.Mappings.FieldMap;
 import Ontology.Mappings.MessageMap;
 import Ontology.Mappings.MessageTemplate;
-import Ontology.Mappings.MessageTwoWayMap;
 import Ontology.Mappings.MessageType;
 import Ontology.Mappings.NestedAtomic;
 import Util.SerializationConvenience;
@@ -50,9 +47,9 @@ public class OntologyConverter {
 				{
 					int count=0;
 					MessageType in=x.getInMsgType();
-					MessageType out=x.getOutMsgType();
+					
 					StorageToken ST_inMsgType=in.saveToToken();
-					StorageToken ST_outMsgType=out.saveToToken();
+					
 				
 					
 					if(input.getClassId().equals(ST_inMsgType.getItem(in.MESSAGE_TYPE_CLASS_ID_KEY)))
@@ -92,24 +89,38 @@ public class OntologyConverter {
 		for(FieldMap maps: mappingList)
 		{
 			
-			
 			NestedAtomic inFields=maps.getInFields();
-			String inFieldsIndex=inFields.getIndex();
+			String[] inFieldsIndex=inFields.getIndex();
+			
 			NestedAtomic outFields=maps.getOutFields();
-			String outFieldsIndex=outFields.getIndex();
+			String[] outFieldsIndex=outFields.getIndex();
 			
-			if(outFieldsIndex.equals("verb"))
+			String valueToBeInserted="";
+			HashMap<String, String> hmap=new HashMap<>();
+			for(String value:inFieldsIndex)
 			{
-				target.setItem(Message.VERB_KEY,input.getItem(VHMessage.FIRST_WORD_KEY));
+				if(input.contains(value))
+				{
+					
+					valueToBeInserted=(String) input.getItem(value); 
+					
+					hmap.put(value, valueToBeInserted);
+				}
+							
 			}
-			else if(outFieldsIndex.equals("object"))
+			
+			
+			for(String value:outFieldsIndex)
 			{
-				target.setItem(Message.OBJECT_KEY, input.getItem(VHMessage.BODY_KEY));
+				for(String key: hmap.keySet())
+				{		   
+					target.setItem(value,hmap.get(key));
+				}
+			    		    
 			}
-			
-			
-		
+								
 		}
+		
 		BaseMessage targetObj=(BaseMessage) SerializationConvenience.untokenizeObject(target);
 		
 		if(targetObj!=null)
