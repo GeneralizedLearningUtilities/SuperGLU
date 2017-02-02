@@ -21,7 +21,7 @@ import Util.StorageToken;
 import java.util.*;
 
 public class OntologyConverter {
-	static MessageMap correctMap;
+	static MessageMap correctMap=null;
 	
 	private List<MessageMap> messageMaps;
 	
@@ -80,6 +80,8 @@ public class OntologyConverter {
 
 	public BaseMessage convert(BaseMessage b,StorageToken input)
 	{
+		if(correctMap==null)
+			return null;
 		MessageType out=correctMap.getOutMsgType();
 		MessageTemplate mtemp=out.getMessageTemplate();
 		StorageToken target=mtemp.createTargetStorageToken(out.getClassId());
@@ -115,6 +117,7 @@ public class OntologyConverter {
 				for(String key: hmap.keySet())
 				{		   
 					target.setItem(value,hmap.get(key));
+					System.out.println("check value "+target.getItem(value));
 				}
 			    		    
 			}
