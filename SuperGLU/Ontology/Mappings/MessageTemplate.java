@@ -1,4 +1,5 @@
 package Ontology.Mappings;
+
 /**
  * MessageTemplate  Class
  * It is used to store the various field data based individuals in an ArrayList
@@ -11,123 +12,111 @@ import Util.Serializable;
 import Util.SerializationConvenience;
 import Util.StorageToken;
 
-public class MessageTemplate extends Serializable {
-	
-	private ArrayList<FieldData> defaultFieldData=new ArrayList<>();
-	public static final String MESSAGE_TEMPLATE_DEFAULTFIELDDATA_KEY = "messageTemplate";
-	
-	//CONSTRUCTOR
-	public MessageTemplate()
-	{
-		defaultFieldData=null;
-	}
-	
-	//PARAMETERIZED CONSTRUCTOR
-	public MessageTemplate(ArrayList<FieldData> arrlist)
-	{
-		if(arrlist==null)
-			defaultFieldData=null;
-		else
-		{
-			for(FieldData x:arrlist)
-			{
-				defaultFieldData.add(x);
-			}
-		}
-	}
+public class MessageTemplate extends Serializable
+{
 
-	// GETTER METHOD THAT RETURNS THE ARRAYLIST OF FIELDDATA PERTAINING TO AN INDIVIDUAL
-	public ArrayList<FieldData> getDefaultFieldData()
+    private ArrayList<FieldData> defaultFieldData = new ArrayList<>();
+    public static final String MESSAGE_TEMPLATE_DEFAULTFIELDDATA_KEY = "messageTemplate";
+
+    // CONSTRUCTOR
+    public MessageTemplate()
+    {
+	defaultFieldData = null;
+    }
+
+    // PARAMETERIZED CONSTRUCTOR
+    public MessageTemplate(ArrayList<FieldData> arrlist)
+    {
+	if (arrlist == null)
+	    defaultFieldData = null;
+	else
 	{
-		return defaultFieldData;
+	    for (FieldData x : arrlist)
+	    {
+		defaultFieldData.add(x);
+	    }
 	}
-	
-	
-	//SETTER METHOD FOR SETTING THE FIELD-DATA ARRAYLIST
-	public void setData(ArrayList<FieldData> arrFieldData)
+    }
+
+    // GETTER METHOD THAT RETURNS THE ARRAYLIST OF FIELDDATA PERTAINING TO AN
+    // INDIVIDUAL
+    public ArrayList<FieldData> getDefaultFieldData()
+    {
+	return defaultFieldData;
+    }
+
+    // SETTER METHOD FOR SETTING THE FIELD-DATA ARRAYLIST
+    public void setData(ArrayList<FieldData> arrFieldData)
+    {
+	if (arrFieldData == null)
+	    defaultFieldData = null;
+	else
 	{
-		if(arrFieldData==null)
-			defaultFieldData=null;
-		else
-		{
-			for(FieldData x:arrFieldData)
-			{
-				defaultFieldData.add(x);
-			}
-		}
+	    for (FieldData x : arrFieldData)
+	    {
+		defaultFieldData.add(x);
+	    }
 	}
-		
-	
-	//CREATES A STORAGE TOKEN OF THE TARGET CLASS OBJECT ONCE A VALID MAPPING HAS BEEN IDENTIFIED
-	public StorageToken createTargetStorageToken(String id)
+    }
+
+    // CREATES A STORAGE TOKEN OF THE TARGET CLASS OBJECT ONCE A VALID MAPPING
+    // HAS BEEN IDENTIFIED
+    public StorageToken createTargetStorageToken(String id)
+    {
+	if (id.equals("Message"))
 	{
-		if(id.equals("Message"))
-			{
-				Message targetMsg=new Message();
-				StorageToken target=targetMsg.saveToToken();
-				return target;
-			}
-		return null;
+	    Message targetMsg = new Message();
+	    StorageToken target = targetMsg.saveToToken();
+	    return target;
 	}
-		
-	//Equality Operations
-	@Override
-	public boolean equals(Object otherObject) {
-		if(!super.equals(otherObject))
-			return false;
-		
-		if(!(otherObject instanceof FieldData))
-			return false;
-		
-		MessageTemplate other = (MessageTemplate)otherObject;
-		
-		if(!fieldIsEqual(this.defaultFieldData, other.defaultFieldData))
-			return false;
-		
-		return true;
-	}
+	return null;
+    }
 
-	@Override
-	public int hashCode() {
-		int result = super.hashCode();
-		int arbitraryPrimeNumber = 23;
-		
-		if(this.defaultFieldData != null)
-			result = result * arbitraryPrimeNumber + this.defaultFieldData.hashCode();
-		
-		return result;
-		
-	}
+    // Equality Operations
+    @Override
+    public boolean equals(Object otherObject)
+    {
+	if (!super.equals(otherObject))
+	    return false;
 
-	
-	//Serialization/Deserialization
-	@Override
-	public void initializeFromToken(StorageToken token) {
-		super.initializeFromToken(token);
-		this.defaultFieldData = (ArrayList<FieldData>)SerializationConvenience.untokenizeObject(token.getItem(MESSAGE_TEMPLATE_DEFAULTFIELDDATA_KEY));
-	}
+	if (!(otherObject instanceof FieldData))
+	    return false;
 
-	@Override
-	public StorageToken saveToToken() {
-		StorageToken result = super.saveToToken();
-		result.setItem(MESSAGE_TEMPLATE_DEFAULTFIELDDATA_KEY, SerializationConvenience.tokenizeObject(this.defaultFieldData));
-		return result;
-	}
+	MessageTemplate other = (MessageTemplate) otherObject;
 
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+	if (!fieldIsEqual(this.defaultFieldData, other.defaultFieldData))
+	    return false;
+
+	return true;
+    }
+
+    @Override
+    public int hashCode()
+    {
+	int result = super.hashCode();
+	int arbitraryPrimeNumber = 23;
+
+	if (this.defaultFieldData != null)
+	    result = result * arbitraryPrimeNumber + this.defaultFieldData.hashCode();
+
+	return result;
+
+    }
+
+    // Serialization/Deserialization
+    @Override
+    public void initializeFromToken(StorageToken token)
+    {
+	super.initializeFromToken(token);
+	this.defaultFieldData = (ArrayList<FieldData>) SerializationConvenience.untokenizeObject(token.getItem(MESSAGE_TEMPLATE_DEFAULTFIELDDATA_KEY));
+    }
+
+    @Override
+    public StorageToken saveToToken()
+    {
+	StorageToken result = super.saveToToken();
+	result.setItem(MESSAGE_TEMPLATE_DEFAULTFIELDDATA_KEY, SerializationConvenience.tokenizeObject(this.defaultFieldData));
+	return result;
+    }
 
 }

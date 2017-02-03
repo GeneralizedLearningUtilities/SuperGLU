@@ -1,109 +1,99 @@
 package Ontology.Mappings;
+
 import Util.SerializationConvenience;
 import Util.StorageToken;
 
-public class NestedAtomic extends FieldData {
+public class NestedAtomic extends FieldData
+{
 
-	public static final String NESTED_ATOMIC_INDICES_KEY = "nestedAtomicIndices";
-	private String indices[];
-	
-	//CONSTRUCTORS
-	public NestedAtomic(String index[])
+    public static final String NESTED_ATOMIC_INDICES_KEY = "nestedAtomicIndices";
+    private String indices[];
+
+    // CONSTRUCTORS
+    public NestedAtomic(String index[])
+    {
+	if (index == null)
+	    indices = null;
+	else
 	{
-		if(index==null)
-			indices=null;
-		else
-		{
-			indices=new String[index.length];
-			for(int i=0;i<index.length;i++)
-			{		
-				this.indices[i]=index[i];
-			}
-		}
-			
+	    indices = new String[index.length];
+	    for (int i = 0; i < index.length; i++)
+	    {
+		this.indices[i] = index[i];
+	    }
 	}
-	
-	public NestedAtomic()
+
+    }
+
+    public NestedAtomic()
+    {
+	this.indices = null;
+    }
+
+    // GETTER AND SETTER METHODS
+
+    public String[] getIndex()
+    {
+	return indices;
+    }
+
+    public void setIndex(String ind[])
+    {
+	if (ind != null)
 	{
-		this.indices=null;
+	    indices = new String[ind.length];
+	    for (int i = 0; i < ind.length; i++)
+	    {
+		this.indices[i] = ind[i];
+	    }
 	}
+    }
 
-	//GETTER AND SETTER METHODS
-	
-	public String[] getIndex()
-	{
-		return indices;
-	}
-	
-	public void setIndex(String ind[])
-	{
-			if(ind!=null)
-			{
-				indices=new String[ind.length];
-				for(int i=0;i<ind.length;i++)
-				{		
-					this.indices[i]=ind[i];
-				}
-			}
-	}
-	
-	//Equality Operations
-	@Override
-	public boolean equals(Object otherObject) {
-		if(!super.equals(otherObject))
-			return false;
-		
-		if(!(otherObject instanceof NestedAtomic))
-			return false;
-		
-		NestedAtomic other = (NestedAtomic)otherObject;
-		
-		if(!fieldIsEqual(this.indices, other.indices))
-			return false;
-		
-		return true;
-	}
+    // Equality Operations
+    @Override
+    public boolean equals(Object otherObject)
+    {
+	if (!super.equals(otherObject))
+	    return false;
 
-	@Override
-	public int hashCode() {
-		int result = super.hashCode();
-		int arbitraryPrimeNumber = 23;
-		
-		if(this.indices != null)
-			result = result * arbitraryPrimeNumber + this.indices.hashCode();
-		
-		return result;
-		
-	}
+	if (!(otherObject instanceof NestedAtomic))
+	    return false;
 
-	
-	//Serialization/Deserialization
-	@Override
-	public void initializeFromToken(StorageToken token) {
-		super.initializeFromToken(token);
-		this.indices = (String[])SerializationConvenience.untokenizeObject(token.getItem(NESTED_ATOMIC_INDICES_KEY));
-	}
+	NestedAtomic other = (NestedAtomic) otherObject;
 
-	@Override
-	public StorageToken saveToToken() {
-		StorageToken result = super.saveToToken();
-		result.setItem(NESTED_ATOMIC_INDICES_KEY, SerializationConvenience.tokenizeObject(this.indices));
-		return result;
-	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+	if (!fieldIsEqual(this.indices, other.indices))
+	    return false;
+
+	return true;
+    }
+
+    @Override
+    public int hashCode()
+    {
+	int result = super.hashCode();
+	int arbitraryPrimeNumber = 23;
+
+	if (this.indices != null)
+	    result = result * arbitraryPrimeNumber + this.indices.hashCode();
+
+	return result;
+
+    }
+
+    // Serialization/Deserialization
+    @Override
+    public void initializeFromToken(StorageToken token)
+    {
+	super.initializeFromToken(token);
+	this.indices = (String[]) SerializationConvenience.untokenizeObject(token.getItem(NESTED_ATOMIC_INDICES_KEY));
+    }
+
+    @Override
+    public StorageToken saveToToken()
+    {
+	StorageToken result = super.saveToToken();
+	result.setItem(NESTED_ATOMIC_INDICES_KEY, SerializationConvenience.tokenizeObject(this.indices));
+	return result;
+    }
+
 }

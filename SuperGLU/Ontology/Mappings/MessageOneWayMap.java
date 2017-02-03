@@ -1,8 +1,11 @@
 package Ontology.Mappings;
+
 /**
- * MessageOneWapMap  Class
+ * MessageOneWapMap Class
+ * 
  * @author tirthmehta
  */
-public class MessageOneWayMap extends MessageMap {
+public class MessageOneWayMap extends MessageMap
+{
 
 }

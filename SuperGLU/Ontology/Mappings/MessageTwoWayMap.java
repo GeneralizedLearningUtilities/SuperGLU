@@ -1,8 +1,11 @@
 package Ontology.Mappings;
+
 /**
- * MessageTwoWapMap  Class
+ * MessageTwoWapMap Class
+ * 
  * @author tirthmehta
  */
-public class MessageTwoWayMap extends MessageMap {
+public class MessageTwoWayMap extends MessageMap
+{
 
 }
