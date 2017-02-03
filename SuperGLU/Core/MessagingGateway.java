@@ -7,6 +7,8 @@ import java.util.Map;
 import java.util.function.Predicate;
 import java.util.logging.Level;
 
+import Util.StorageToken;
+
 /**
  * Messaging Node specifically designed to act as a entry/exit point between systems.
  * @author auerbach
@@ -143,5 +145,15 @@ public class MessagingGateway extends BaseMessagingNode {
 			if(!msg.hasContextValue(key))
 				msg.setContextValue(key, this.scope.get(key));
 		}
+	}
+	
+	
+	/**
+	 * This function will process a non-SuperGLU message through the ontology converter
+	 * @param msgAsStorageToken
+	 */
+	protected StorageToken convertMessages(StorageToken incomingMessage)
+	{
+		return null;
 	}
 }

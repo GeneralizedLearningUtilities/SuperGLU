@@ -126,14 +126,17 @@ public class ActiveMQTopicMessagingGateway extends MessagingGateway implements M
 				}
 			}
 			
+			String msgType = jmsMessage.getStringProperty(ActiveMQTopicMessagingGateway.SYSTEM_NAME);
+			if(msgType == ActiveMQTopicMessagingGateway.SUPERGLU)
+			{
+				String body = ((TextMessage) jmsMessage).getText();
+				body = URLDecoder.decode(body, "UTF-8");
+				Message msg = (Message) SerializationConvenience.nativeizeObject(body, SerializationFormatEnum.JSON_FORMAT);
 			
-			String body = ((TextMessage) jmsMessage).getText();
-			body = URLDecoder.decode(body, "UTF-8");
-			Message msg = (Message) SerializationConvenience.nativeizeObject(body, SerializationFormatEnum.JSON_FORMAT);
-			
-			//we already distributed this message when we sent it.  no need to re-process it.
-			if(!msg.getContextValue(ORIGINATING_SERVICE_ID_KEY, "").equals(this.id))
-				super.receiveMessage(msg);
+				//we already distributed this message when we sent it.  no need to re-process it.
+				if(!msg.getContextValue(ORIGINATING_SERVICE_ID_KEY, "").equals(this.id))
+					super.receiveMessage(msg);
+			}
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
