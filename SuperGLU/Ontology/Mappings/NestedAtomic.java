@@ -48,48 +48,48 @@ public class NestedAtomic extends FieldData {
 	}
 	
 	//Equality Operations
-		@Override
-		public boolean equals(Object otherObject) {
-			if(!super.equals(otherObject))
-				return false;
-			
-			if(!(otherObject instanceof NestedAtomic))
-				return false;
-			
-			NestedAtomic other = (NestedAtomic)otherObject;
-			
-			if(!fieldIsEqual(this.indices, other.indices))
-				return false;
-			
-			return true;
-		}
-
-		@Override
-		public int hashCode() {
-			int result = super.hashCode();
-			int arbitraryPrimeNumber = 23;
-			
-			if(this.indices != null)
-				result = result * arbitraryPrimeNumber + this.indices.hashCode();
-			
-			return result;
-			
-		}
-
+	@Override
+	public boolean equals(Object otherObject) {
+		if(!super.equals(otherObject))
+			return false;
 		
-		//Serialization/Deserialization
-		@Override
-		public void initializeFromToken(StorageToken token) {
-			super.initializeFromToken(token);
-			this.indices = (String[])SerializationConvenience.untokenizeObject(token.getItem(NESTED_ATOMIC_INDICES_KEY));
-		}
+		if(!(otherObject instanceof NestedAtomic))
+			return false;
+		
+		NestedAtomic other = (NestedAtomic)otherObject;
+		
+		if(!fieldIsEqual(this.indices, other.indices))
+			return false;
+		
+		return true;
+	}
 
-		@Override
-		public StorageToken saveToToken() {
-			StorageToken result = super.saveToToken();
-			result.setItem(NESTED_ATOMIC_INDICES_KEY, SerializationConvenience.tokenizeObject(this.indices));
-			return result;
-		}
+	@Override
+	public int hashCode() {
+		int result = super.hashCode();
+		int arbitraryPrimeNumber = 23;
+		
+		if(this.indices != null)
+			result = result * arbitraryPrimeNumber + this.indices.hashCode();
+		
+		return result;
+		
+	}
+
+	
+	//Serialization/Deserialization
+	@Override
+	public void initializeFromToken(StorageToken token) {
+		super.initializeFromToken(token);
+		this.indices = (String[])SerializationConvenience.untokenizeObject(token.getItem(NESTED_ATOMIC_INDICES_KEY));
+	}
+
+	@Override
+	public StorageToken saveToToken() {
+		StorageToken result = super.saveToToken();
+		result.setItem(NESTED_ATOMIC_INDICES_KEY, SerializationConvenience.tokenizeObject(this.indices));
+		return result;
+	}
 	
 	
 	
