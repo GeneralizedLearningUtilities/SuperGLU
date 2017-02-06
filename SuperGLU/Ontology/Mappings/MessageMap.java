@@ -4,7 +4,8 @@ import java.util.*;
 
 /**
  * MessageMap  Class
- * The class is used to store the complete data regarding a valid mapping like inmsgtype,outmsgtype,fieldmappings, etc
+ * The class is used to store the complete data regarding a valid mapping like inmsgtype,outmsgtype,fieldmappings, etc.
+ * It basically stores all the necessary data required for identifying a valid mapping amongst a set of mappings.
  * @author tirthmehta
  */
 
