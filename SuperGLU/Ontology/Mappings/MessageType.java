@@ -19,7 +19,7 @@ public class MessageType extends Serializable
     public static final String MESSAGE_TYPE_MESSAGETEMPLATE_KEY = "messageTypeMessagetemplate";
 
     private String classId;
-    private String Message_Name;
+    private String messageName;
     private float min_Version;
     private float max_Version;
     public MessageTemplate messageTypeTemplate;
@@ -27,7 +27,7 @@ public class MessageType extends Serializable
     // CONSTRUCTORS
     public MessageType(String name, float minversion, float maxversion, MessageTemplate mtemp, String cl)
     {
-	this.Message_Name = name;
+	this.messageName = name;
 	this.min_Version = minversion;
 	this.max_Version = maxversion;
 	messageTypeTemplate = mtemp;
@@ -36,7 +36,7 @@ public class MessageType extends Serializable
 
     public MessageType()
     {
-	this.Message_Name = "";
+	this.messageName = "";
 	this.max_Version = 0.0f;
 	this.min_Version = 0.0f;
 	this.messageTypeTemplate = null;
@@ -47,12 +47,12 @@ public class MessageType extends Serializable
     // LIKE MESSAGENAME,MIN-VERSION ETC LISTED ABOVE
     public String getMessageName()
     {
-	return Message_Name;
+	return messageName;
     }
 
     public void setMessageName(String name)
     {
-	Message_Name = name;
+	messageName = name;
     }
 
     public float getMinVersion()
@@ -106,7 +106,7 @@ public class MessageType extends Serializable
 
 	MessageType other = (MessageType) otherObject;
 
-	if (!fieldIsEqual(this.Message_Name, other.Message_Name))
+	if (!fieldIsEqual(this.messageName, other.messageName))
 	    return false;
 	if (!fieldIsEqual(this.min_Version, other.min_Version))
 	    return false;
@@ -126,8 +126,8 @@ public class MessageType extends Serializable
 	int result = super.hashCode();
 	int arbitraryPrimeNumber = 23;
 
-	if (this.Message_Name != null)
-	    result = result * arbitraryPrimeNumber + this.Message_Name.hashCode();
+	if (this.messageName != null)
+	    result = result * arbitraryPrimeNumber + this.messageName.hashCode();
 	if (this.min_Version != 0.0f)
 	{
 	    result = result * arbitraryPrimeNumber + Float.hashCode(min_Version);
@@ -150,7 +150,7 @@ public class MessageType extends Serializable
     public void initializeFromToken(StorageToken token)
     {
 	super.initializeFromToken(token);
-	this.Message_Name = (String) SerializationConvenience.untokenizeObject(token.getItem(MESSAGE_TYPE_NAME_KEY));
+	this.messageName = (String) SerializationConvenience.untokenizeObject(token.getItem(MESSAGE_TYPE_NAME_KEY));
 	this.min_Version = (float) SerializationConvenience.untokenizeObject(token.getItem(MESSAGE_TYPE_MINVERSION_KEY));
 	this.max_Version = (float) SerializationConvenience.untokenizeObject(token.getItem(MESSAGE_TYPE_MAXVERSION_KEY));
 	this.messageTypeTemplate = (MessageTemplate) SerializationConvenience.untokenizeObject(token.getItem(MESSAGE_TYPE_MESSAGETEMPLATE_KEY));
@@ -162,7 +162,7 @@ public class MessageType extends Serializable
     {
 	StorageToken result = super.saveToToken();
 	result.setItem(MESSAGE_TYPE_CLASS_ID_KEY, SerializationConvenience.tokenizeObject(this.classId));
-	result.setItem(MESSAGE_TYPE_NAME_KEY, SerializationConvenience.tokenizeObject(this.Message_Name));
+	result.setItem(MESSAGE_TYPE_NAME_KEY, SerializationConvenience.tokenizeObject(this.messageName));
 	result.setItem(MESSAGE_TYPE_MINVERSION_KEY, SerializationConvenience.tokenizeObject(this.min_Version));
 	result.setItem(MESSAGE_TYPE_MAXVERSION_KEY, SerializationConvenience.tokenizeObject(this.max_Version));
 	result.setItem(MESSAGE_TYPE_MESSAGETEMPLATE_KEY, SerializationConvenience.tokenizeObject(this.messageTypeTemplate));
