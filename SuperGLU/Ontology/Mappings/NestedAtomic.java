@@ -1,5 +1,10 @@
 package Ontology.Mappings;
-
+/**
+ * NestedAtomic  Class
+ * The class is used to store the keys for each of the fields that would potentially map together on both sides of the 
+ * communication. The keys help the values to be set in the target message fields.
+ * @author tirthmehta
+ */
 import Util.SerializationConvenience;
 import Util.StorageToken;
 
