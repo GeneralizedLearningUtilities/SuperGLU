@@ -22,7 +22,7 @@ public class MessageType extends Serializable
     private String messageName;
     private float min_Version;
     private float max_Version;
-    public MessageTemplate messageTypeTemplate;
+    private MessageTemplate messageTypeTemplate;
 
     // CONSTRUCTORS
     public MessageType(String name, float minversion, float maxversion, MessageTemplate mtemp, String cl)
