@@ -1,4 +1,8 @@
 package Ontology.Mappings;
+
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * NestedAtomic  Class
  * The class is used to store the keys for each of the fields that would potentially map together on both sides of the 
@@ -12,19 +16,19 @@ public class NestedAtomic extends FieldData
 {
 
     public static final String NESTED_ATOMIC_INDICES_KEY = "nestedAtomicIndices";
-    private String indices[];
+    private List<String> indices;
 
     // CONSTRUCTORS
-    public NestedAtomic(String index[])
+    public NestedAtomic(List<String> index)
     {
 	if (index == null)
 	    indices = null;
 	else
 	{
-	    indices = new String[index.length];
-	    for (int i = 0; i < index.length; i++)
+	    indices = new ArrayList<>();
+	    for (String in:index)
 	    {
-		this.indices[i] = index[i];
+		indices.add(in);
 	    }
 	}
 
@@ -37,19 +41,19 @@ public class NestedAtomic extends FieldData
 
     // GETTER AND SETTER METHODS
 
-    public String[] getIndex()
+    public List<String> getIndex()
     {
 	return indices;
     }
 
-    public void setIndex(String ind[])
+    public void setIndex(List<String> index)
     {
-	if (ind != null)
+	if (index != null)
 	{
-	    indices = new String[ind.length];
-	    for (int i = 0; i < ind.length; i++)
+	    indices = new ArrayList<>();
+	    for (String in:index)
 	    {
-		this.indices[i] = ind[i];
+		indices.add(in);
 	    }
 	}
     }
@@ -90,7 +94,7 @@ public class NestedAtomic extends FieldData
     public void initializeFromToken(StorageToken token)
     {
 	super.initializeFromToken(token);
-	this.indices = (String[]) SerializationConvenience.untokenizeObject(token.getItem(NESTED_ATOMIC_INDICES_KEY));
+	this.indices = (List<String>) SerializationConvenience.untokenizeObject(token.getItem(NESTED_ATOMIC_INDICES_KEY));
     }
 
     @Override

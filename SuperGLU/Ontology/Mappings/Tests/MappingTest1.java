@@ -24,6 +24,7 @@ import Ontology.Mappings.MessageTwoWayMap;
 import Ontology.Mappings.MessageType;
 import Ontology.Mappings.NestedAtomic;
 import Util.StorageToken;
+import junit.framework.Assert;
 
 public class MappingTest1 {
 
@@ -31,7 +32,7 @@ public class MappingTest1 {
 	public void test() {
 		//fail("Not yet implemented");
 		//CREATED THE INITIAL VHMESSAGE
-		String first="requestCoachingActions";
+		String first="ScenarioName";
 		String body="Being Heard (Interview 1)";
 		float version=0.0f;
 		HashMap<String,Object> hmap=new HashMap<String, Object>();
@@ -46,48 +47,60 @@ public class MappingTest1 {
 		
 		
 		//CREATED THE 2 ARRAYLISTS USED TO STORE THE DEFAULT MESSAGES FOR THE 2 MESSAGE TEMPLATES
-		ArrayList<FieldData> supergluArrGeneric=new ArrayList<FieldData>();
-		ArrayList<FieldData> vhMsgArrGeneric=new ArrayList<FieldData>();
+		ArrayList<NestedAtomic> supergluArr=new ArrayList<NestedAtomic>();
+		ArrayList<NestedAtomic> vhMsgArr=new ArrayList<NestedAtomic>();
 		
 		
 		//CREATED THE DEFAULT FIELDS IN THE SUPERGLUMSG TEMPLATE
-		FieldData SuperGLUDefaultSpeechAct=new FieldData("INFORM_ACT");
-		FieldData SuperGLUDefaultContextField =new FieldData("");
-		FieldData SuperGLUDefaultVerbField=new FieldData("");
-		FieldData SuperGLUDefaultObjectField=new FieldData("");
-		FieldData SuperGLUDefaultResultField=new FieldData("");
+		List<String> indexsd1=new ArrayList<String>();
+		List<String> indexsd2=new ArrayList<String>();
+		List<String> indexsd3=new ArrayList<String>();
+		List<String> indexsd4=new ArrayList<String>();
+		indexsd1.add(Message.SPEECH_ACT_KEY);
+		indexsd2.add(Message.CONTEXT_KEY);
+		indexsd3.add(Message.RESULT_KEY);
+		indexsd4.add(Message.ACTOR_KEY);
 		
-		supergluArrGeneric.add(SuperGLUDefaultSpeechAct);
-		supergluArrGeneric.add(SuperGLUDefaultContextField);
-		supergluArrGeneric.add(SuperGLUDefaultVerbField);
-		supergluArrGeneric.add(SuperGLUDefaultObjectField);
-		supergluArrGeneric.add(SuperGLUDefaultResultField);
+		
+		NestedAtomic SuperGLUDefaultSpeechAct=new NestedAtomic(indexsd1);
+		SuperGLUDefaultSpeechAct.setFieldData("INFORM_ACT");
+		NestedAtomic SuperGLUDefaultContextField =new NestedAtomic(indexsd2);
+		SuperGLUDefaultContextField.setFieldData("");
+		NestedAtomic SuperGLUDefaultResultField=new NestedAtomic(indexsd3);
+		SuperGLUDefaultResultField.setFieldData("");
+		NestedAtomic SuperGLUDefaultActorField=new NestedAtomic(indexsd4);
+		SuperGLUDefaultActorField.setFieldData("");
+		
+		
+		supergluArr.add(SuperGLUDefaultSpeechAct);
+		supergluArr.add(SuperGLUDefaultContextField);	
+		supergluArr.add(SuperGLUDefaultResultField);
+		supergluArr.add(SuperGLUDefaultActorField);
 		
 		//STORED THE DATA IN THE SUPERGLU MESSAGE TEMPLATE
-		MessageTemplate supergluMsgTempGeneric=new MessageTemplate(supergluArrGeneric);
+		MessageTemplate supergluMsgTemp=new MessageTemplate(supergluArr);
 		
 		//CREATED THE DEFAULT FIELDS IN THE VHMSG TEMPLATE
-		FieldData vhMsgDefaultLabelField =new FieldData("ScenarioName");
-		FieldData vhMsgDefaultBodyField =new FieldData(" ");
-		vhMsgArrGeneric.add(vhMsgDefaultLabelField);
-		vhMsgArrGeneric.add(vhMsgDefaultBodyField);
+		
 		
 		//STORED THE DATA IN THE VH MESSAGE TEMPLATE
-		MessageTemplate vhMsgTempGeneric=new MessageTemplate(vhMsgArrGeneric);
+		MessageTemplate vhMsgTemp=new MessageTemplate(vhMsgArr);
 		
 		//CREATING THE NESTED ATOMIC FIELDS THAT HAVE MATCHES (VHT)
-		String indexvh1[]=new String[1];
-		String indexvh2[]=new String[1];
-		indexvh1[0]=VHMessage.FIRST_WORD_KEY;
-		indexvh2[0]=VHMessage.BODY_KEY;
+		List<String> indexvh1=new ArrayList<String>();
+		List<String> indexvh2=new ArrayList<String>();
+		indexvh1.add(VHMessage.FIRST_WORD_KEY);
+		indexvh2.add(VHMessage.BODY_KEY);
 		NestedAtomic VHT_LabelField=new NestedAtomic(indexvh1);	
+		VHT_LabelField.setFieldData("ScenarioName");
 		NestedAtomic VHT_BodyField=new NestedAtomic(indexvh2);
+	
 		
 		//CREATING THE NESTED ATOMIC FIELDS THAT HAVE MATCHES (VHT)
-		String indexsg1[]=new String[1];
-		String indexsg2[]=new String[1];
-		indexsg1[0]=Message.OBJECT_KEY;
-		indexsg2[0]=Message.VERB_KEY;
+		List<String> indexsg1=new ArrayList<String>();
+		List<String> indexsg2=new ArrayList<String>();
+		indexsg1.add(Message.OBJECT_KEY);
+		indexsg2.add(Message.VERB_KEY);
 		NestedAtomic SuperGLU_ObjectField=new NestedAtomic(indexsg1);	
 		NestedAtomic SuperGLU_VerbField=new NestedAtomic(indexsg2);
 		
@@ -109,16 +122,24 @@ public class MappingTest1 {
 		//CREATING A MESSAGE TEMPLATE THAT WILL GO INTO THE DEFAULT MESSAGETEMPLATES (WHICH DOES NOT HAVE MATCHES)
 		
 		
-		ArrayList<FieldData> supergluArr=new ArrayList<FieldData>();
-		ArrayList<FieldData> vhMsgArr=new ArrayList<FieldData>();
-		vhMsgArr=null;
-		MessageTemplate vhMsgTemp=new MessageTemplate(vhMsgArr);
+		ArrayList<NestedAtomic> supergluArrGeneric=new ArrayList<NestedAtomic>();
+		ArrayList<NestedAtomic> vhMsgArrGeneric=new ArrayList<NestedAtomic>();
 		
-		supergluArr.add(SuperGLUDefaultContextField);
-		supergluArr.add(SuperGLUDefaultSpeechAct);
-		supergluArr.add(SuperGLUDefaultResultField);
+		vhMsgArrGeneric.add(VHT_BodyField);
+		vhMsgArrGeneric.add(VHT_LabelField);
 		
-		MessageTemplate supergluMsgTemp=new MessageTemplate(supergluArr);
+		MessageTemplate vhMsgTempGeneric=new MessageTemplate(vhMsgArrGeneric);
+		
+		supergluArrGeneric.add(SuperGLUDefaultContextField);
+		supergluArrGeneric.add(SuperGLUDefaultSpeechAct);
+		supergluArrGeneric.add(SuperGLUDefaultResultField);
+		supergluArrGeneric.add(SuperGLU_ObjectField);
+		supergluArrGeneric.add(SuperGLU_VerbField);
+		supergluArrGeneric.add(SuperGLUDefaultActorField);
+		
+		MessageTemplate supergluMsgTempGeneric=new MessageTemplate(supergluArrGeneric);
+		
+		
 		
 		
 				
@@ -136,8 +157,22 @@ public class MappingTest1 {
 		VHT_SuperGLU_CurrentScenario.setInMsgType(VHTMsgV1_8);
 		VHT_SuperGLU_CurrentScenario.setOutMsgType(SuperGLUMsgV1);
 		
+		
+		
 //----------------------------------- FIRST MAPPING CREATION ENDS HERE------------------------------------------------//				
 
+		
+
+		
+/*		
+		
+		
+		
+		
+		
+		
+		
+		
 		
 		
 //---------------------------------------SECOND MAPPING beginAARToSuperGLU----------------------------------------------//
@@ -456,7 +491,7 @@ public class MappingTest1 {
 		
 		
 		
-		
+*/		
 		
 		
 		
@@ -481,25 +516,31 @@ public class MappingTest1 {
 		
 		List<MessageMap> createdList=new ArrayList<MessageMap>();
 		createdList.add(VHT_SuperGLU_CurrentScenario);
-		createdList.add(VHT_SuperGLU_beginAAR);
-		createdList.add(VHT_SuperGLU_getNextAgendaItem);
-		createdList.add(VHT_SuperGLU_requestCoachingActions);
+		//createdList.add(VHT_SuperGLU_beginAAR);
+		//createdList.add(VHT_SuperGLU_getNextAgendaItem);
+		//createdList.add(VHT_SuperGLU_requestCoachingActions);
 		
-		OntologyConverter ontconvert=new OntologyConverter(createdList);
+		//OntologyConverter ontconvert=new OntologyConverter(createdList);
+		MessageMap test1=new MessageMap();
+		test1.setListofMessageMaps(createdList);
+		
 		 
 		//STEP 3: CALLING THE ISVALIDSOURCEMESSAGE CLASS
 		
 		String firstword=(String) ST_FromInputMsg.getItem(VHMessage.FIRST_WORD_KEY);  
+		System.out.println("check "+firstword);
 		
 		
-		boolean result=ontconvert.isValidSourceMsg(v1,ST_FromInputMsg,firstword);
+		boolean result=test1.isValidSourceMsg(v1,ST_FromInputMsg,firstword);
 		if(result==true)
 			System.out.println("Yes there is a match and a valid source message");
 		else
 			System.out.println("No there is no match and its not a valid source message");
 		
+		
 		//STEP 4: CALLING THE CONVERT FUNCTION FOR THE ACTUAL CONVERSIONS
-		BaseMessage convertedMessage=ontconvert.convert(v1, ST_FromInputMsg);
+		BaseMessage convertedMessage=test1.convert(ST_FromInputMsg);
+		//Assert.assertEquals(expected, actual);
 		if(convertedMessage!=null)
 			System.out.println("Conversion Successful!");
 		else

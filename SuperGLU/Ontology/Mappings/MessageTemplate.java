@@ -15,7 +15,7 @@ import Util.StorageToken;
 public class MessageTemplate extends Serializable
 {
 
-    private ArrayList<FieldData> defaultFieldData = new ArrayList<>();
+    private ArrayList<NestedAtomic> defaultFieldData = new ArrayList<>();
     public static final String MESSAGE_TEMPLATE_DEFAULTFIELDDATA_KEY = "messageTemplate";
 
     // CONSTRUCTOR
@@ -25,36 +25,36 @@ public class MessageTemplate extends Serializable
     }
 
     // PARAMETERIZED CONSTRUCTOR
-    public MessageTemplate(ArrayList<FieldData> arrlist)
+    public MessageTemplate(ArrayList<NestedAtomic> arrlist)
     {
 	if (arrlist == null)
 	    defaultFieldData = null;
 	else
 	{
-	    for (FieldData x : arrlist)
+	    for (NestedAtomic in : arrlist)
 	    {
-		defaultFieldData.add(x);
+		defaultFieldData.add(in);
 	    }
 	}
     }
 
     // GETTER METHOD THAT RETURNS THE ARRAYLIST OF FIELDDATA PERTAINING TO AN
     // INDIVIDUAL
-    public ArrayList<FieldData> getDefaultFieldData()
+    public ArrayList<NestedAtomic> getDefaultFieldData()
     {
 	return defaultFieldData;
     }
 
     // SETTER METHOD FOR SETTING THE FIELD-DATA ARRAYLIST
-    public void setData(ArrayList<FieldData> arrFieldData)
+    public void setData(ArrayList<NestedAtomic> arrFieldData)
     {
 	if (arrFieldData == null)
 	    defaultFieldData = null;
 	else
 	{
-	    for (FieldData x : arrFieldData)
+	    for (NestedAtomic in : arrFieldData)
 	    {
-		defaultFieldData.add(x);
+		defaultFieldData.add(in);
 	    }
 	}
     }
@@ -108,7 +108,7 @@ public class MessageTemplate extends Serializable
     public void initializeFromToken(StorageToken token)
     {
 	super.initializeFromToken(token);
-	this.defaultFieldData = (ArrayList<FieldData>) SerializationConvenience.untokenizeObject(token.getItem(MESSAGE_TEMPLATE_DEFAULTFIELDDATA_KEY));
+	this.defaultFieldData = (ArrayList<NestedAtomic>) SerializationConvenience.untokenizeObject(token.getItem(MESSAGE_TEMPLATE_DEFAULTFIELDDATA_KEY));
     }
 
     @Override

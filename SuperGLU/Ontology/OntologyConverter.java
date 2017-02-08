@@ -50,38 +50,41 @@ public class OntologyConverter
      */
     public boolean isValidSourceMsg(BaseMessage b, StorageToken input, String firstwordkey)
     {
-	// CURRENTLY SINCE THERE IS ONLY 1 MESSAGEMAP IN THE LIST OF MESSAGEMAPS
-	for (MessageMap x : messageMaps)
+	boolean first = false,second = false;
+	
+	for (MessageMap list : messageMaps)
 	{
-	    int count = 0;
-	    MessageType in = x.getInMsgType();// Do not use single character
-					      // variable names!!!!!!!
-					      // --Auerbach
-
+	    
+	    MessageType in = list.getInMsgType();
+					    
 	    StorageToken ST_inMsgType = in.saveToToken();
 
 	    if (input.getClassId().equals(ST_inMsgType.getItem(MessageType.MESSAGE_TYPE_CLASS_ID_KEY)))
 	    {
-		count = 1;
+		first=true;
+		
 	    }
 	    MessageTemplate mTemp = in.getMessageTemplate();
-	    ArrayList<FieldData> arr = mTemp.getDefaultFieldData();
-	    for (FieldData y : arr)
+	    
+	    ArrayList<NestedAtomic> arr = mTemp.getDefaultFieldData();
+	   
+	   
+	    for (NestedAtomic nest : arr)
 	    {
-		if (y.getFieldData().equals(firstwordkey))
+		
+		if (nest.getFieldData().equals(firstwordkey))
 		{
-		    count += 1; // Use of an integer as a boolean makes the code
-				// unclear
-				// better to just use two separate boolean
-				// variables with the && operator.--Auerbach
-		    correctMap = x; // This is a terrible idea, and completely
+		    second=true; 
+				
+		    correctMap = list; // This is a terrible idea, and completely
 				    // unnecessary to boot. What would happen if
 				    // we had more than one converter running in
 				    // a single process? --Auerbach
 		    break;
 		}
 	    }
-	    if (count == 2)
+	    System.out.println("hi first"+first+" second "+second);
+	    if (first && second)
 		return true;
 
 	}
@@ -97,9 +100,8 @@ public class OntologyConverter
      * @param input
      * @return
      */
-    // Why are we passing in both the BaseMessage and the StorageToken? It
-    // should be one or the other --Auerbach
-    public BaseMessage convert(BaseMessage b, StorageToken input)
+    
+    public BaseMessage convert(StorageToken input)
     {
 	if (correctMap == null)
 	    return null;
@@ -112,12 +114,11 @@ public class OntologyConverter
 	{
 
 	    NestedAtomic inFields = maps.getInFields();
-	    String[] inFieldsIndex = inFields.getIndex();// Switch to
-							 // List<String>
-							 // --Auerbach
+	    List<String> inFieldsIndex = inFields.getIndex();
+							
 
 	    NestedAtomic outFields = maps.getOutFields();
-	    String[] outFieldsIndex = outFields.getIndex();
+	    List<String> outFieldsIndex = outFields.getIndex();
 
 	    String valueToBeInserted = "";
 	    HashMap<String, String> hmap = new HashMap<>();
