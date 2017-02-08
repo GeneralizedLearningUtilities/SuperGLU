@@ -54,7 +54,7 @@ public class OntologyConverter
 
 	    StorageToken ST_inMsgType = in.saveToToken();
 
-	    if (input.getClassId().equals(ST_inMsgType.getItem(in.MESSAGE_TYPE_CLASS_ID_KEY)))
+	    if (input.getClassId().equals(ST_inMsgType.getItem(MessageType.MESSAGE_TYPE_CLASS_ID_KEY)))
 	    {
 		count = 1;
 	    }
