@@ -4,6 +4,10 @@ package Ontology;
  * OntologyConverter  Class 
  * This the class that provides the validity check of whether a message is valid or not and then further converts it if its 
  * mapped to one of the valid mappings
+ * 
+ * NOTE: This class will basically be redundant once the Ontology Broker is built.  
+ * The core functionality should be relocated to MessageMapping.java  --Auerbach
+ * 
  * @author tirthmehta
  */
 
@@ -50,7 +54,9 @@ public class OntologyConverter
 	for (MessageMap x : messageMaps)
 	{
 	    int count = 0;
-	    MessageType in = x.getInMsgType();
+	    MessageType in = x.getInMsgType();// Do not use single character
+					      // variable names!!!!!!!
+					      // --Auerbach
 
 	    StorageToken ST_inMsgType = in.saveToToken();
 
@@ -64,8 +70,14 @@ public class OntologyConverter
 	    {
 		if (y.getFieldData().equals(firstwordkey))
 		{
-		    count += 1;
-		    correctMap = x;
+		    count += 1; // Use of an integer as a boolean makes the code
+				// unclear
+				// better to just use two separate boolean
+				// variables with the && operator.--Auerbach
+		    correctMap = x; // This is a terrible idea, and completely
+				    // unnecessary to boot. What would happen if
+				    // we had more than one converter running in
+				    // a single process? --Auerbach
 		    break;
 		}
 	    }
@@ -85,6 +97,8 @@ public class OntologyConverter
      * @param input
      * @return
      */
+    // Why are we passing in both the BaseMessage and the StorageToken? It
+    // should be one or the other --Auerbach
     public BaseMessage convert(BaseMessage b, StorageToken input)
     {
 	if (correctMap == null)
@@ -98,7 +112,9 @@ public class OntologyConverter
 	{
 
 	    NestedAtomic inFields = maps.getInFields();
-	    String[] inFieldsIndex = inFields.getIndex();
+	    String[] inFieldsIndex = inFields.getIndex();// Switch to
+							 // List<String>
+							 // --Auerbach
 
 	    NestedAtomic outFields = maps.getOutFields();
 	    String[] outFieldsIndex = outFields.getIndex();
@@ -122,6 +138,7 @@ public class OntologyConverter
 		for (String key : hmap.keySet())
 		{
 		    target.setItem(value, hmap.get(key));
+		    // Upgrade to a log file instead of console output --Auerbach
 		    System.out.println("check value " + target.getItem(value));
 		}
 
