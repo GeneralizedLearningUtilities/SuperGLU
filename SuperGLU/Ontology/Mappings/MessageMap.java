@@ -16,23 +16,24 @@ import Util.StorageToken;
 
 public class MessageMap extends Serializable
 {
-    MessageType inMsgType = new MessageType();
+    protected MessageType inMsgType = new MessageType();
 
-    MessageType outMsgType = new MessageType();
+    protected MessageType outMsgType = new MessageType();
 
-    MessageTemplate inDefaultMsg = new MessageTemplate();
+    protected MessageTemplate inDefaultMsg = new MessageTemplate();
 
-    MessageTemplate outDefaultMsg = new MessageTemplate();
+    protected MessageTemplate outDefaultMsg = new MessageTemplate();
 
-    ArrayList<FieldMap> fieldMappings;
-    
+
+   
     static MessageMap correctMap = null;
 
     private List<MessageMap> messageMaps;
     
     private splitting splitobj=null;
     
-    
+    protected ArrayList<FieldMap> fieldMappings;
+
 
     public static final String MESSAGEMAP_INMSGTYPE_KEY = "inMsg";
     public static final String MESSAGEMAP_OUTMSGTYPE_KEY = "outMsg";
@@ -40,7 +41,6 @@ public class MessageMap extends Serializable
     public static final String MESSAGEMAP_OUTDEFAULT_KEY = "outDefaultMsg";
     public static final String MESSAGEMAP_FIELDMAPPINGS_KEY = "fieldMappings";
 
-    
     public MessageMap()
     {
 	inMsgType = null;
@@ -77,16 +77,6 @@ public class MessageMap extends Serializable
 	    fieldMappings = arrmap;
 
     }
-    
-    
-    //FUNCTION FOR PASSING THE MESSAGE-MAPS IN
-    //CALL THIS FUNCTION IN THE BEGINNING INORDER TO SET THE MESSAGEMAPS LIST
-    
-    public void setListofMessageMaps(List<MessageMap> x)
-    {
-	messageMaps = x;
-    }
-    
 
     // GETTER AND SETTER METHODS FOR GETTING AND SETTING THE
     // INMSGTYPE,OUTMSGTYPE, AND OTHER DATA MENTIONED ABOVE
@@ -234,58 +224,44 @@ public class MessageMap extends Serializable
 	return result;
     }
 
-    
     /**
      * THE FUNCTION NECESSARY FOR CHECKING WHETHER THE MESSAGE INOUT TOKEN
      * COMING IN HAS A VALID MATCH WITH THE AVAIALABLE SET OF MAPPINGS
      */
-    
-    
-    
-    public boolean isValidSourceMsg(BaseMessage b, StorageToken input, String firstwordkey)
-    {
-	boolean first = false,second = false;
-	
-	for (MessageMap list : messageMaps)
-	{
-	    
-	    MessageType in = list.getInMsgType();
-					    
-	    StorageToken ST_inMsgType = in.saveToToken();
 
-	    if (input.getClassId().equals(ST_inMsgType.getItem(MessageType.MESSAGE_TYPE_CLASS_ID_KEY)))
-	    {
-		first=true;
-		
-	    }
-	    MessageTemplate mTemp = in.getMessageTemplate();
-	    
-	    ArrayList<NestedAtomic> arr = mTemp.getDefaultFieldData();
-	   
-	   
-	    for (NestedAtomic nest : arr)
-	    {
-		
-		if (nest.getFieldData().equals(firstwordkey))
-		{
-		    second=true; 
-				
-		    correctMap = list; // This is a terrible idea, and completely
-				    // unnecessary to boot. What would happen if
-				    // we had more than one converter running in
-				    // a single process? --Auerbach
-		    break;
-		}
-	    }
-	    System.out.println("hi first"+first+" second "+second);
-	    if (first && second)
-		return true;
+    public boolean isValidSourceMsg(StorageToken input, String firstwordkey)
+    {
+	boolean first = false, second = false;
+
+	MessageType in = getInMsgType();
+
+	StorageToken ST_inMsgType = in.saveToToken();
+
+	if (input.getClassId().equals(ST_inMsgType.getItem(MessageType.MESSAGE_TYPE_CLASS_ID_KEY)))
+	{
+	    first = true;
 
 	}
+	MessageTemplate mTemp = in.getMessageTemplate();
+
+	ArrayList<NestedAtomic> arr = mTemp.getDefaultFieldData();
+
+	for (NestedAtomic nest : arr)
+	{
+
+	    if (nest.getFieldData().equals(firstwordkey))
+	    {
+		second = true;
+		break;
+	    }
+	}
+	System.out.println("hi first" + first + " second " + second); //what does this message mean?
+	if (first && second) //use more descriptive variable names for god's sake --Auerbach
+	    return true;
+
 	return false;
     }
-    
-    
+
     /**
      * 
      * THE CONVERT METHOD IS ACTUALLY USED TO PERFORM THE CONVERSION TO THE
@@ -295,22 +271,19 @@ public class MessageMap extends Serializable
      * @param input
      * @return
      */
-    
+
     public BaseMessage convert(StorageToken input)
     {
-	if (correctMap == null)
-	    return null;
-	MessageType out = correctMap.getOutMsgType();
+	MessageType out = getOutMsgType();
 	MessageTemplate mtemp = out.getMessageTemplate();
 	StorageToken target = mtemp.createTargetStorageToken(out.getClassId());
 
-	ArrayList<FieldMap> mappingList = correctMap.getFieldMappings();
+	ArrayList<FieldMap> mappingList = getFieldMappings();
 	for (FieldMap maps : mappingList)
 	{
 
 	    NestedAtomic inFields = maps.getInFields();
 	    List<String> inFieldsIndex = inFields.getIndex();
-							
 
 	    NestedAtomic outFields = maps.getOutFields();
 	    List<String> outFieldsIndex = outFields.getIndex();
@@ -344,7 +317,13 @@ public class MessageMap extends Serializable
 		for (String key : hmap.keySet())
 		{
 		    target.setItem(value, hmap.get(key));
+//<<<<<<< HEAD
 		    // Upgrade to a log file instead of console output --Auerbach
+//=======
+		    // Upgrade to a log file instead of console output
+		    // --Auerbach
+		    System.out.println("check value " + target.getItem(value));
+//>>>>>>> 8784aedb0a98c3d0177b4ef30b5ba4dd78578147
 		}
 
 	    }
@@ -393,6 +372,5 @@ public class MessageMap extends Serializable
 	    return null;
 
     }
-
 
 }

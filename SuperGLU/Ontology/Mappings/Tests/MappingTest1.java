@@ -664,7 +664,6 @@ public class MappingTest1 {
 		
 		OntologyConverter ontconvert=new OntologyConverter(createdList);
 		MessageMap test1=new MessageMap();
-		test1.setListofMessageMaps(createdList);
 		
 		 
 		//STEP 3: CALLING THE ISVALIDSOURCEMESSAGE CLASS
@@ -673,7 +672,7 @@ public class MappingTest1 {
 		System.out.println("check "+firstword);
 		
 		
-		boolean result=test1.isValidSourceMsg(v1,ST_FromInputMsg,firstword);
+		boolean result=test1.isValidSourceMsg(ST_FromInputMsg,firstword);
 		if(result==true)
 			System.out.println("Yes there is a match and a valid source message");
 		else
