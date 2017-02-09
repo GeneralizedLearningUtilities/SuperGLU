@@ -12,12 +12,14 @@ package Ontology;
  */
 
 import Core.BaseMessage;
+import Core.Message;
 import Ontology.Mappings.FieldData;
 import Ontology.Mappings.FieldMap;
 import Ontology.Mappings.MessageMap;
 import Ontology.Mappings.MessageTemplate;
 import Ontology.Mappings.MessageType;
 import Ontology.Mappings.NestedAtomic;
+import Ontology.Mappings.splitting;
 import Util.SerializationConvenience;
 import Util.StorageToken;
 import java.util.*;
@@ -53,19 +55,18 @@ public class OntologyConverter
 	boolean first = false,second = false;
 	
 	for (MessageMap list : messageMaps)
-	{
-	    
+	{    
 	    MessageType in = list.getInMsgType();
 					    
 	    StorageToken ST_inMsgType = in.saveToToken();
 
 	    if (input.getClassId().equals(ST_inMsgType.getItem(MessageType.MESSAGE_TYPE_CLASS_ID_KEY)))
 	    {
-		first=true;
-		
+		first=true;		
 	    }
 	    MessageTemplate mTemp = in.getMessageTemplate();
-	    
+	    if(mTemp==null)
+		System.out.println("haha mtemp is null");
 	    ArrayList<NestedAtomic> arr = mTemp.getDefaultFieldData();
 	   
 	   
@@ -128,8 +129,18 @@ public class OntologyConverter
 		{
 
 		    valueToBeInserted = (String) input.getItem(value);
-
-		    hmap.put(value, valueToBeInserted);
+		    if(maps.getSplitter()==null)
+			hmap.put(value, valueToBeInserted);
+		    else
+		    {
+			
+			splitting current=maps.getSplitter();
+			List<String> obtained=current.action(valueToBeInserted);
+			int index=maps.getIndex();
+			valueToBeInserted=obtained.get(index);
+			hmap.put(value, valueToBeInserted);
+			
+		    }
 		}
 
 	    }
@@ -140,15 +151,47 @@ public class OntologyConverter
 		{
 		    target.setItem(value, hmap.get(key));
 		    // Upgrade to a log file instead of console output --Auerbach
-		    System.out.println("check value " + target.getItem(value));
 		}
 
 	    }
 
 	}
+	
+	//SETTING THE DEFAULT FIELD DATA
+	
+	/*
+	
+	MessageTemplate mtempOut = correctMap.getOutDefaulttMsgTemp();
+	ArrayList<NestedAtomic> outarr=mtempOut.getDefaultFieldData();
+	HashMap<String, String> hmap = new HashMap<>();
+	for(NestedAtomic in:outarr)
+	{
+	    List<String> inside=in.getIndex();
+	    String tobeset=in.getFieldData(); 
+	    for(String key:inside)
+	    {
+		if(target.contains(key))
+		{
+		    hmap.put(key, in.getFieldData());
+		}
+	    }
+	}
+	System.out.println(hmap);
+	
+	for(String key:hmap.keySet())
+	{
+	    target.setItem(key, hmap.get(key));
+	}
+	
+	*/
+	
+	
+	
+	
+	
 
 	BaseMessage targetObj = (BaseMessage) SerializationConvenience.untokenizeObject(target);
-
+	
 	if (targetObj != null)
 	    return targetObj;
 	else

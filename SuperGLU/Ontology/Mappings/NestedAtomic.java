@@ -16,7 +16,9 @@ public class NestedAtomic extends FieldData
 {
 
     public static final String NESTED_ATOMIC_INDICES_KEY = "nestedAtomicIndices";
+    
     private List<String> indices;
+   
 
     // CONSTRUCTORS
     public NestedAtomic(List<String> index)
@@ -33,6 +35,7 @@ public class NestedAtomic extends FieldData
 	}
 
     }
+   
 
     public NestedAtomic()
     {
@@ -40,7 +43,7 @@ public class NestedAtomic extends FieldData
     }
 
     // GETTER AND SETTER METHODS
-
+  
     public List<String> getIndex()
     {
 	return indices;
@@ -72,6 +75,7 @@ public class NestedAtomic extends FieldData
 
 	if (!fieldIsEqual(this.indices, other.indices))
 	    return false;
+	
 
 	return true;
     }
@@ -84,7 +88,7 @@ public class NestedAtomic extends FieldData
 
 	if (this.indices != null)
 	    result = result * arbitraryPrimeNumber + this.indices.hashCode();
-
+	
 	return result;
 
     }
@@ -95,6 +99,7 @@ public class NestedAtomic extends FieldData
     {
 	super.initializeFromToken(token);
 	this.indices = (List<String>) SerializationConvenience.untokenizeObject(token.getItem(NESTED_ATOMIC_INDICES_KEY));
+	
     }
 
     @Override

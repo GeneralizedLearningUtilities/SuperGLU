@@ -6,6 +6,8 @@ package Ontology.Mappings;
  * @author tirthmehta
  */
 
+import java.util.List;
+
 import Util.Serializable;
 import Util.SerializationConvenience;
 import Util.StorageToken;
@@ -15,9 +17,16 @@ public class FieldMap extends Serializable
 
     public static final String FIELD_MAP_INFIELDS_KEY = "inFields";
     public static final String FIELD_MAP_OUTFIELDS_KEY = "outFields";
-
+    public static final String FIELD_MAP_SPLITTING_KEY = "splittingObj";
+    public static final String FIELD_MAP_INDEX_KEY = "index";
+    
     private NestedAtomic inFields;
     private NestedAtomic outFields;
+    private splitting splitobj;
+    private int index;
+    
+   
+    
 
     // CONSTRUCTORS
     public FieldMap()
@@ -34,6 +43,27 @@ public class FieldMap extends Serializable
 
     // GETTER AND SETTER METHODS FOR GETTING AND SETTING THE IN-FIELDS AND
     // OUT-FIELDS RESPECTIVELY
+    
+    public void setSplitter(splitting obj)
+    {
+	splitobj=obj;
+    }
+    
+    public splitting getSplitter()
+    {
+	return splitobj;
+    }
+    
+    public void setIndex(int ind)
+    {
+	index=ind;
+    }
+    
+    public int getIndex()
+    {
+	return index;
+    }
+    
     public void setInField(NestedAtomic in)
     {
 	inFields = in;
@@ -71,6 +101,10 @@ public class FieldMap extends Serializable
 
 	if (!fieldIsEqual(this.outFields, other.outFields))
 	    return false;
+	if (!fieldIsEqual(this.splitobj, other.splitobj))
+	    return false;
+	if (!fieldIsEqual(this.index, other.index))
+	    return false;
 
 	return true;
     }
@@ -85,6 +119,9 @@ public class FieldMap extends Serializable
 	    result = result * arbitraryPrimeNumber + this.inFields.hashCode();
 	if (this.outFields != null)
 	    result = result * arbitraryPrimeNumber + this.outFields.hashCode();
+	if (this.splitobj != null)
+	    result = result * arbitraryPrimeNumber + this.splitobj.hashCode();
+	
 
 	return result;
 
@@ -97,6 +134,8 @@ public class FieldMap extends Serializable
 	super.initializeFromToken(token);
 	this.inFields = (NestedAtomic) SerializationConvenience.untokenizeObject(token.getItem(FIELD_MAP_INFIELDS_KEY));
 	this.outFields = (NestedAtomic) SerializationConvenience.untokenizeObject(token.getItem(FIELD_MAP_OUTFIELDS_KEY));
+	this.splitobj = (splitting) SerializationConvenience.untokenizeObject(token.getItem(FIELD_MAP_SPLITTING_KEY));
+	this.index = (int) SerializationConvenience.untokenizeObject(token.getItem(FIELD_MAP_INDEX_KEY));
     }
 
     @Override
@@ -105,6 +144,9 @@ public class FieldMap extends Serializable
 	StorageToken result = super.saveToToken();
 	result.setItem(FIELD_MAP_INFIELDS_KEY, SerializationConvenience.tokenizeObject(this.inFields));
 	result.setItem(FIELD_MAP_OUTFIELDS_KEY, SerializationConvenience.tokenizeObject(this.outFields));
+	result.setItem(FIELD_MAP_SPLITTING_KEY, SerializationConvenience.tokenizeObject(this.splitobj));
+	result.setItem(FIELD_MAP_INDEX_KEY, SerializationConvenience.tokenizeObject(this.index));
+	
 	return result;
     }
 
