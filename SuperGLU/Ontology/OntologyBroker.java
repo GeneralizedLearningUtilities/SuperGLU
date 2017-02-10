@@ -5,8 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.sun.org.apache.xml.internal.utils.SerializableLocatorImpl;
-
 import Core.BaseMessage;
 import Ontology.Mappings.MessageMap;
 import Ontology.Mappings.MessageTemplate;

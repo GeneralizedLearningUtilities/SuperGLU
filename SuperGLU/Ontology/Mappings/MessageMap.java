@@ -316,13 +316,9 @@ public class MessageMap extends Serializable
 		for (String key : hmap.keySet())
 		{
 		    target.setItem(value, hmap.get(key));
-//<<<<<<< HEAD
-		    // Upgrade to a log file instead of console output --Auerbach
-//=======
 		    // Upgrade to a log file instead of console output
 		    // --Auerbach
 		    System.out.println("check value " + target.getItem(value));
-//>>>>>>> 8784aedb0a98c3d0177b4ef30b5ba4dd78578147
 		}
 
 	    }
