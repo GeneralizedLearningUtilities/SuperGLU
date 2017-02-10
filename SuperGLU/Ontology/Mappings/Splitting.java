@@ -3,10 +3,10 @@ package Ontology.Mappings;
 import java.util.ArrayList;
 import java.util.List;
 
-public class splitting implements ArgumentSeparator 
+public class Splitting implements ArgumentSeparator 
 {
     public String argument;
-    public splitting(String arg)
+    public Splitting(String arg)
     {
 	argument=arg;
     }

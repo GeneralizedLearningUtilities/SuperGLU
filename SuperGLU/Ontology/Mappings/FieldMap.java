@@ -22,7 +22,7 @@ public class FieldMap extends Serializable
     
     private NestedAtomic inFields;
     private NestedAtomic outFields;
-    private splitting splitobj;
+    private Splitting splitobj;
     private int index;
     
    
@@ -44,12 +44,12 @@ public class FieldMap extends Serializable
     // GETTER AND SETTER METHODS FOR GETTING AND SETTING THE IN-FIELDS AND
     // OUT-FIELDS RESPECTIVELY
     
-    public void setSplitter(splitting obj)
+    public void setSplitter(Splitting obj)
     {
 	splitobj=obj;
     }
     
-    public splitting getSplitter()
+    public Splitting getSplitter()
     {
 	return splitobj;
     }
@@ -134,7 +134,7 @@ public class FieldMap extends Serializable
 	super.initializeFromToken(token);
 	this.inFields = (NestedAtomic) SerializationConvenience.untokenizeObject(token.getItem(FIELD_MAP_INFIELDS_KEY));
 	this.outFields = (NestedAtomic) SerializationConvenience.untokenizeObject(token.getItem(FIELD_MAP_OUTFIELDS_KEY));
-	this.splitobj = (splitting) SerializationConvenience.untokenizeObject(token.getItem(FIELD_MAP_SPLITTING_KEY));
+	this.splitobj = (Splitting) SerializationConvenience.untokenizeObject(token.getItem(FIELD_MAP_SPLITTING_KEY));
 	this.index = (int) SerializationConvenience.untokenizeObject(token.getItem(FIELD_MAP_INDEX_KEY));
     }
 

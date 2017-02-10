@@ -19,7 +19,7 @@ import Ontology.Mappings.MessageMap;
 import Ontology.Mappings.MessageTemplate;
 import Ontology.Mappings.MessageType;
 import Ontology.Mappings.NestedAtomic;
-import Ontology.Mappings.splitting;
+import Ontology.Mappings.Splitting;
 import Util.SerializationConvenience;
 import Util.StorageToken;
 import java.util.*;
@@ -134,7 +134,7 @@ public class OntologyConverter
 		    else
 		    {
 			
-			splitting current=maps.getSplitter();
+			Splitting current=maps.getSplitter();
 			List<String> obtained=current.action(valueToBeInserted);
 			int index=maps.getIndex();
 			valueToBeInserted=obtained.get(index);

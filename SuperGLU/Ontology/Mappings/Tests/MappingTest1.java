@@ -23,7 +23,7 @@ import Ontology.Mappings.MessageTemplate;
 import Ontology.Mappings.MessageTwoWayMap;
 import Ontology.Mappings.MessageType;
 import Ontology.Mappings.NestedAtomic;
-import Ontology.Mappings.splitting;
+import Ontology.Mappings.Splitting;
 import Util.StorageToken;
 import junit.framework.Assert;
 
@@ -542,14 +542,14 @@ public class MappingTest1 {
 		VHT_SuperGLU_TopicVerb_FM5.setOutField(SuperGLU_VerbField5);
 		
 		FieldMap VHT_SuperGLU_TopicObject_FM5=new FieldMap();
-		splitting VHT_SuperGLU_TopicObject_FM5splitter=new splitting(" ");
+		Splitting VHT_SuperGLU_TopicObject_FM5splitter=new Splitting(" ");
 		VHT_SuperGLU_TopicObject_FM5.setInField(VHT_BodyField5);
 		VHT_SuperGLU_TopicObject_FM5.setSplitter(VHT_SuperGLU_TopicObject_FM5splitter);
 		VHT_SuperGLU_TopicObject_FM5.setIndex(0);
 		VHT_SuperGLU_TopicObject_FM5.setOutField(SuperGLU_ObjectField5); 
 		
 		FieldMap VHT_SuperGLU_TopicResult_FM5=new FieldMap();
-		splitting VHT_SuperGLU_TopicResult_FM5splitter=new splitting(" ");
+		Splitting VHT_SuperGLU_TopicResult_FM5splitter=new Splitting(" ");
 		VHT_SuperGLU_TopicResult_FM5.setInField(VHT_BodyField5);
 		VHT_SuperGLU_TopicResult_FM5.setSplitter(VHT_SuperGLU_TopicResult_FM5splitter);
 		VHT_SuperGLU_TopicResult_FM5.setIndex(1);

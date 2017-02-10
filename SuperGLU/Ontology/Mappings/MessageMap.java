@@ -29,7 +29,7 @@ public class MessageMap extends Serializable
 
     private List<MessageMap> messageMaps;
     
-    private splitting splitobj=null;
+    private Splitting splitobj=null;
     
     protected ArrayList<FieldMap> fieldMappings;
 
@@ -300,7 +300,7 @@ public class MessageMap extends Serializable
 		    else
 		    {
 			
-			splitting current=maps.getSplitter();
+			Splitting current=maps.getSplitter();
 			List<String> obtained=current.action(valueToBeInserted);
 			int index=maps.getIndex();
 			valueToBeInserted=obtained.get(index);
