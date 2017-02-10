@@ -22,7 +22,7 @@ public class FieldMap extends Serializable
     
     private NestedAtomic inFields;
     private NestedAtomic outFields;
-    private Splitting splitobj;
+    private ArgumentSeparator splitobj;
     private int index;
     
    
@@ -44,12 +44,12 @@ public class FieldMap extends Serializable
     // GETTER AND SETTER METHODS FOR GETTING AND SETTING THE IN-FIELDS AND
     // OUT-FIELDS RESPECTIVELY
     
-    public void setSplitter(Splitting obj)
+    public void setSplitter(ArgumentSeparator obj)
     {
 	splitobj=obj;
     }
     
-    public Splitting getSplitter()
+    public ArgumentSeparator getSplitter()
     {
 	return splitobj;
     }
