@@ -23,7 +23,16 @@ public class MessageMap extends Serializable
 
     protected MessageTemplate outDefaultMsg = new MessageTemplate();
 
+
+   
+    static MessageMap correctMap = null;
+
+    private List<MessageMap> messageMaps;
+    
+    private splitting splitobj=null;
+    
     protected ArrayList<FieldMap> fieldMappings;
+
 
     public static final String MESSAGEMAP_INMSGTYPE_KEY = "inMsg";
     public static final String MESSAGEMAP_OUTMSGTYPE_KEY = "outMsg";
@@ -286,8 +295,18 @@ public class MessageMap extends Serializable
 		{
 
 		    valueToBeInserted = (String) input.getItem(value);
-
-		    hmap.put(value, valueToBeInserted);
+		    if(maps.getSplitter()==null)
+			hmap.put(value, valueToBeInserted);
+		    else
+		    {
+			
+			splitting current=maps.getSplitter();
+			List<String> obtained=current.action(valueToBeInserted);
+			int index=maps.getIndex();
+			valueToBeInserted=obtained.get(index);
+			hmap.put(value, valueToBeInserted);
+			
+		    }
 		}
 
 	    }
@@ -297,16 +316,55 @@ public class MessageMap extends Serializable
 		for (String key : hmap.keySet())
 		{
 		    target.setItem(value, hmap.get(key));
+//<<<<<<< HEAD
+		    // Upgrade to a log file instead of console output --Auerbach
+//=======
 		    // Upgrade to a log file instead of console output
 		    // --Auerbach
 		    System.out.println("check value " + target.getItem(value));
+//>>>>>>> 8784aedb0a98c3d0177b4ef30b5ba4dd78578147
 		}
 
 	    }
 
 	}
+	
+	//SETTING THE DEFAULT FIELD DATA
+	
+	
+	/*
+	MessageTemplate mtempOut = correctMap.getOutDefaulttMsgTemp();
+	ArrayList<NestedAtomic> outarr=mtempOut.getDefaultFieldData();
+	HashMap<String, String> hmap = new HashMap<>();
+	for(NestedAtomic in:outarr)
+	{
+	    List<String> inside=in.getIndex();
+	    String tobeset=in.getFieldData(); 
+	    for(String key:inside)
+	    {
+		if(target.contains(key))
+		{
+		    hmap.put(key, in.getFieldData());
+		}
+	    }
+	}
+	System.out.println(hmap);
+	
+	for(String key:hmap.keySet())
+	{
+	    target.setItem(key, hmap.get(key));
+	}
+	
+	
+	*/
+	
+	
+	
+	
+	
 
 	return target;
+
     }
 
 }

@@ -23,6 +23,7 @@ import Ontology.Mappings.MessageTemplate;
 import Ontology.Mappings.MessageTwoWayMap;
 import Ontology.Mappings.MessageType;
 import Ontology.Mappings.NestedAtomic;
+import Ontology.Mappings.splitting;
 import Util.StorageToken;
 import junit.framework.Assert;
 
@@ -65,11 +66,11 @@ public class MappingTest1 {
 		NestedAtomic SuperGLUDefaultSpeechAct=new NestedAtomic(indexsd1);
 		SuperGLUDefaultSpeechAct.setFieldData("INFORM_ACT");
 		NestedAtomic SuperGLUDefaultContextField =new NestedAtomic(indexsd2);
-		SuperGLUDefaultContextField.setFieldData("");
+		SuperGLUDefaultContextField.setFieldData(" ");
 		NestedAtomic SuperGLUDefaultResultField=new NestedAtomic(indexsd3);
-		SuperGLUDefaultResultField.setFieldData("");
+		SuperGLUDefaultResultField.setFieldData(" ");
 		NestedAtomic SuperGLUDefaultActorField=new NestedAtomic(indexsd4);
-		SuperGLUDefaultActorField.setFieldData("");
+		SuperGLUDefaultActorField.setFieldData(" ");
 		
 		
 		supergluArr.add(SuperGLUDefaultSpeechAct);
@@ -471,7 +472,148 @@ public class MappingTest1 {
 								
 				
 //----------------------------------- FOURTH MAPPING CREATION ENDS HERE------------------------------------------------//				
-
+*/	
+		
+//--------------------------------	FIFTH MAPPING STARTS HERE-------------------------------------------------------//
+		
+		MessageOneWayMap VHT_SuperGLU_commAPI=new MessageOneWayMap();
+		
+		
+		//CREATED THE 2 ARRAYLISTS USED TO STORE THE DEFAULT MESSAGES FOR THE 2 MESSAGE TEMPLATES
+		ArrayList<NestedAtomic> supergluArr5=new ArrayList<NestedAtomic>();
+		ArrayList<NestedAtomic> vhMsgArr5=new ArrayList<NestedAtomic>();
+		
+		
+		//CREATED THE DEFAULT FIELDS IN THE SUPERGLUMSG TEMPLATE
+		List<String> index5sd1=new ArrayList<String>();
+		List<String> index5sd2=new ArrayList<String>();
+		
+	
+		index5sd1.add(Message.CONTEXT_KEY);
+		
+		index5sd2.add(Message.ACTOR_KEY);
+		
+		
+		
+		NestedAtomic SuperGLUDefaultContextField5 =new NestedAtomic(index5sd1);
+		SuperGLUDefaultContextField5.setFieldData("");
+		
+		NestedAtomic SuperGLUDefaultActorField5=new NestedAtomic(index5sd2);
+		SuperGLUDefaultActorField5.setFieldData("");
+		
+	
+		supergluArr5.add(SuperGLUDefaultContextField5);	
+		supergluArr5.add(SuperGLUDefaultActorField5);
+		
+		//STORED THE DATA IN THE SUPERGLU MESSAGE TEMPLATE
+		MessageTemplate supergluMsgTemp5=new MessageTemplate(supergluArr5);
+		
+		//CREATED THE DEFAULT FIELDS IN THE VHMSG TEMPLATE
+		
+		
+		//STORED THE DATA IN THE VH MESSAGE TEMPLATE
+		MessageTemplate vhMsgTemp5=new MessageTemplate(vhMsgArr5);
+		
+		//CREATING THE NESTED ATOMIC FIELDS THAT HAVE MATCHES (VHT)
+		List<String> index5vh1=new ArrayList<String>();
+		List<String> index5vh2=new ArrayList<String>();
+		index5vh1.add(VHMessage.FIRST_WORD_KEY);
+		index5vh2.add(VHMessage.BODY_KEY);
+		NestedAtomic VHT_LabelField5=new NestedAtomic(index5vh1);	
+		VHT_LabelField5.setFieldData("commAPI");
+		NestedAtomic VHT_BodyField5=new NestedAtomic(index5vh2);
+	
+		
+		//CREATING THE NESTED ATOMIC FIELDS THAT HAVE MATCHES (VHT)
+		List<String> index5sg1=new ArrayList<String>();
+		List<String> index5sg2=new ArrayList<String>();
+		List<String> index5sg3=new ArrayList<String>();
+		index5sg1.add(Message.OBJECT_KEY);
+		index5sg2.add(Message.VERB_KEY);
+		index5sg3.add(Message.RESULT_KEY);
+		NestedAtomic SuperGLU_ObjectField5=new NestedAtomic(index5sg1);	
+		NestedAtomic SuperGLU_VerbField5=new NestedAtomic(index5sg2);
+		NestedAtomic SuperGLU_ResultField5=new NestedAtomic(index5sg3);
+		
+		
+		//CREATED THE MAPPINGS FOR THE VERB AND BODY FIELDS RESPECTIVELY BELOW 
+		FieldMap VHT_SuperGLU_TopicVerb_FM5=new FieldMap();
+		VHT_SuperGLU_TopicVerb_FM5.setInField(VHT_LabelField5);
+		VHT_SuperGLU_TopicVerb_FM5.setOutField(SuperGLU_VerbField5);
+		
+		FieldMap VHT_SuperGLU_TopicObject_FM5=new FieldMap();
+		splitting VHT_SuperGLU_TopicObject_FM5splitter=new splitting(" ");
+		VHT_SuperGLU_TopicObject_FM5.setInField(VHT_BodyField5);
+		VHT_SuperGLU_TopicObject_FM5.setSplitter(VHT_SuperGLU_TopicObject_FM5splitter);
+		VHT_SuperGLU_TopicObject_FM5.setIndex(0);
+		VHT_SuperGLU_TopicObject_FM5.setOutField(SuperGLU_ObjectField5); 
+		
+		FieldMap VHT_SuperGLU_TopicResult_FM5=new FieldMap();
+		splitting VHT_SuperGLU_TopicResult_FM5splitter=new splitting(" ");
+		VHT_SuperGLU_TopicResult_FM5.setInField(VHT_BodyField5);
+		VHT_SuperGLU_TopicResult_FM5.setSplitter(VHT_SuperGLU_TopicResult_FM5splitter);
+		VHT_SuperGLU_TopicResult_FM5.setIndex(1);
+		VHT_SuperGLU_TopicResult_FM5.setOutField(SuperGLU_ResultField5); 
+		
+		
+		ArrayList<FieldMap> fieldmappings5=new ArrayList<FieldMap>();
+		fieldmappings5.add(VHT_SuperGLU_TopicVerb_FM5);
+		fieldmappings5.add(VHT_SuperGLU_TopicObject_FM5);
+		fieldmappings5.add(VHT_SuperGLU_TopicResult_FM5);
+		
+		
+		//CREATING A MESSAGE TEMPLATE THAT WILL GO INTO THE DEFAULT MESSAGETEMPLATES (WHICH DOES NOT HAVE MATCHES)
+		
+		
+		ArrayList<NestedAtomic> supergluArrGeneric5=new ArrayList<NestedAtomic>();
+		ArrayList<NestedAtomic> vhMsgArrGeneric5=new ArrayList<NestedAtomic>();
+		
+		vhMsgArrGeneric5.add(VHT_BodyField5);
+		vhMsgArrGeneric5.add(VHT_LabelField5);
+		
+		MessageTemplate vhMsgTempGeneric5=new MessageTemplate(vhMsgArrGeneric5);
+		
+		supergluArrGeneric5.add(SuperGLUDefaultContextField5);		
+		supergluArrGeneric5.add(SuperGLU_ResultField5);
+		supergluArrGeneric5.add(SuperGLU_ObjectField5);
+		supergluArrGeneric5.add(SuperGLU_VerbField5);
+		supergluArrGeneric5.add(SuperGLUDefaultActorField5);
+		
+		MessageTemplate supergluMsgTempGeneric5=new MessageTemplate(supergluArrGeneric5);
+		
+		
+		
+		
+				
+		
+		//CREATING THE MESSAGETYPEBASED VHMESSAGE
+		MessageType VHTMsgV5_8=new MessageType("commAPI", 0.0f, 1.1f,vhMsgTempGeneric5,"VHMessage");
+		
+		MessageType SuperGLUMsgV5=new MessageType("SUPERGLUMSG_5",0.0f,1.1f,supergluMsgTempGeneric5,"Message");
+		
+		
+		//CREATING THE INNER FIELDS OF THE MAPPING 
+		VHT_SuperGLU_commAPI.setFieldMappings(fieldmappings5);
+		VHT_SuperGLU_commAPI.setInDefaultMsgType(vhMsgTemp5);
+		VHT_SuperGLU_commAPI.setOutDefaultMsgType(supergluMsgTemp5);
+		VHT_SuperGLU_commAPI.setInMsgType(VHTMsgV5_8);
+		VHT_SuperGLU_commAPI.setOutMsgType(SuperGLUMsgV5);
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+//-------------------------------------- FIFTH MAPPING ENDS HERE--------------------------------------------------------//
 		
 		
 		
@@ -490,8 +632,7 @@ public class MappingTest1 {
 		
 		
 		
-		
-*/		
+	
 		
 		
 		
@@ -519,8 +660,9 @@ public class MappingTest1 {
 		//createdList.add(VHT_SuperGLU_beginAAR);
 		//createdList.add(VHT_SuperGLU_getNextAgendaItem);
 		//createdList.add(VHT_SuperGLU_requestCoachingActions);
+		createdList.add(VHT_SuperGLU_commAPI);
 		
-		//OntologyConverter ontconvert=new OntologyConverter(createdList);
+		OntologyConverter ontconvert=new OntologyConverter(createdList);
 		MessageMap test1=new MessageMap();
 		
 		 
@@ -544,6 +686,11 @@ public class MappingTest1 {
 			System.out.println("Conversion Successful!");
 		else
 			System.out.println("Conversion Failed");  
+		
+		
+		
+	
+		
 		
 		
 		

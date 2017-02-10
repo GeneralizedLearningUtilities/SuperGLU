@@ -38,6 +38,7 @@ public class MessageTemplate extends Serializable
 	}
     }
 
+    
     // GETTER METHOD THAT RETURNS THE ARRAYLIST OF FIELDDATA PERTAINING TO AN
     // INDIVIDUAL
     public ArrayList<NestedAtomic> getDefaultFieldData()
