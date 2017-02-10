@@ -9,7 +9,6 @@ import java.util.*;
  * @author tirthmehta
  */
 
-import Core.BaseMessage;
 import Util.Serializable;
 import Util.SerializationConvenience;
 import Util.StorageToken;
@@ -263,7 +262,7 @@ public class MessageMap extends Serializable
      * @return
      */
 
-    public BaseMessage convert(StorageToken input)
+    public StorageToken convert(StorageToken input)
     {
 	MessageType out = getOutMsgType();
 	MessageTemplate mtemp = out.getMessageTemplate();
@@ -307,13 +306,7 @@ public class MessageMap extends Serializable
 
 	}
 
-	BaseMessage targetObj = (BaseMessage) SerializationConvenience.untokenizeObject(target);
-
-	if (targetObj != null)
-	    return targetObj;
-	else
-	    return null;
-
+	return target;
     }
 
 }

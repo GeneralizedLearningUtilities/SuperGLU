@@ -538,7 +538,7 @@ public class MappingTest1 {
 		
 		
 		//STEP 4: CALLING THE CONVERT FUNCTION FOR THE ACTUAL CONVERSIONS
-		BaseMessage convertedMessage=test1.convert(ST_FromInputMsg);
+		StorageToken convertedMessage=test1.convert(ST_FromInputMsg);
 		//Assert.assertEquals(expected, actual);
 		if(convertedMessage!=null)
 			System.out.println("Conversion Successful!");
