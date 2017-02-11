@@ -140,6 +140,7 @@ public class OntologyBroker
 	// Otherwise we search through the list of mappings for a
 	for (MessageMap possibleNextMap : this.mappings)
 	{
+	    //Make sure we don't get into a circular chain of mappings.
 	    if (!possibleNextMap.getInMsgType().equals(currentType))
 		continue;
 	    else
