@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import Core.Message;
+import Core.SpeechActEnum;
 import Core.VHMessage;
 
 /**
@@ -51,9 +52,9 @@ public class MessageMapFactory
 	indexsd4.add(Message.ACTOR_KEY);
 
 	NestedAtomic SuperGLUDefaultSpeechAct = new NestedAtomic(indexsd1);
-	SuperGLUDefaultSpeechAct.setFieldData("INFORM_ACT");
+	SuperGLUDefaultSpeechAct.setFieldData(SpeechActEnum.INFORM_ACT.toString());
 	NestedAtomic SuperGLUDefaultContextField = new NestedAtomic(indexsd2);
-	SuperGLUDefaultContextField.setFieldData(" ");
+	SuperGLUDefaultContextField.setFieldData("{}");
 	NestedAtomic SuperGLUDefaultResultField = new NestedAtomic(indexsd3);
 	SuperGLUDefaultResultField.setFieldData(" ");
 	NestedAtomic SuperGLUDefaultActorField = new NestedAtomic(indexsd4);
@@ -152,7 +153,7 @@ public class MessageMapFactory
 	indexsd4.add(Message.ACTOR_KEY);
 
 	NestedAtomic SuperGLUDefaultSpeechAct = new NestedAtomic(indexsd1);
-	SuperGLUDefaultSpeechAct.setFieldData("INFORM_ACT");
+	SuperGLUDefaultSpeechAct.setFieldData(SpeechActEnum.INFORM_ACT.toString());
 	NestedAtomic SuperGLUDefaultContextField = new NestedAtomic(indexsd2);
 	SuperGLUDefaultContextField.setFieldData(" ");
 	NestedAtomic SuperGLUDefaultResultField = new NestedAtomic(indexsd3);
@@ -250,7 +251,7 @@ public class MessageMapFactory
 	indexsd3.add(Message.ACTOR_KEY);
 
 	NestedAtomic SuperGLUDefaultSpeechAct = new NestedAtomic(indexsd1);
-	SuperGLUDefaultSpeechAct.setFieldData("INFORM_ACT");
+	SuperGLUDefaultSpeechAct.setFieldData(SpeechActEnum.INFORM_ACT.toString());
 	NestedAtomic SuperGLUDefaultObjectField = new NestedAtomic(indexsd2);
 	SuperGLUDefaultObjectField.setFieldData(" ");
 	NestedAtomic SuperGLUDefaultActorField = new NestedAtomic(indexsd3);
@@ -341,7 +342,7 @@ public class MessageMapFactory
 	indexsd3.add(Message.ACTOR_KEY);
 
 	NestedAtomic SuperGLUDefaultSpeechAct = new NestedAtomic(indexsd1);
-	SuperGLUDefaultSpeechAct.setFieldData("REQUEST_ACT");
+	SuperGLUDefaultSpeechAct.setFieldData(SpeechActEnum.REQUEST_ACT.toString());
 	NestedAtomic SuperGLUDefaultObjectField = new NestedAtomic(indexsd2);
 	SuperGLUDefaultObjectField.setFieldData(" ");
 	NestedAtomic SuperGLUDefaultActorField = new NestedAtomic(indexsd3);
@@ -680,7 +681,7 @@ public class MessageMapFactory
 	SuperGLUDefaultActorField.setFieldData("DIALOG_MANAGER");
 	
 	NestedAtomic SuperGLUDefaultSpeechActField=new NestedAtomic(indexsd3);
-	SuperGLUDefaultSpeechActField.setFieldData("INFORM_ACT");
+	SuperGLUDefaultSpeechActField.setFieldData(SpeechActEnum.INFORM_ACT.toString());
 	
 
 	supergluArr.add(SuperGLUDefaultContextField);	

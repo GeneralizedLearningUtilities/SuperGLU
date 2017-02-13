@@ -2,6 +2,8 @@ package Ontology.Mappings;
 
 import java.util.ArrayList;
 import java.util.List;
+import Util.SerializationConvenience;
+import Util.StorageToken;
 
 /**
  * NestedAtomic  Class
@@ -9,8 +11,7 @@ import java.util.List;
  * communication. The keys help the values to be set in the target message fields.
  * @author tirthmehta
  */
-import Util.SerializationConvenience;
-import Util.StorageToken;
+
 
 public class NestedAtomic extends FieldData
 {

@@ -3,6 +3,8 @@ package Ontology.Mappings.Tests;
 import java.util.HashMap;
 import java.util.List;
 
+import org.junit.Assert;
+
 /**
  * MessageMapTest1  Junit Testcase
  * The testfile containing the data of storing all the mappings and further performing some tests for validity checks 
@@ -12,10 +14,13 @@ import java.util.List;
 
 import org.junit.Test;
 
+import Core.BaseMessage;
+import Core.Message;
 import Core.VHMessage;
 import Ontology.OntologyConverter;
 import Ontology.Mappings.MessageMap;
 import Ontology.Mappings.MessageMapFactory;
+import Util.SerializationConvenience;
 import Util.StorageToken;
 
 public class MappingTest1
@@ -71,12 +76,17 @@ public class MappingTest1
 
 	// STEP 4: CALLING THE CONVERT FUNCTION FOR THE ACTUAL CONVERSIONS
 	StorageToken convertedMessage = VHT_SuperGLU_CurrentScenario.convert(ST_FromInputMsg);
-	// Assert.assertEquals(expected, actual);
-	if (convertedMessage != null)
-	    System.out.println("Conversion Successful!");
-	else
-	    System.out.println("Conversion Failed");
+	Assert.assertNotNull(convertedMessage);
+	Assert.assertEquals(convertedMessage.getItem("verb"), "ScenarioName");
+	System.out.println("Conversion Successful!");
 
+	convertedMessage.setItem("context", new HashMap<>());
+
+	Message expected = (Message) SerializationConvenience.untokenizeObject(convertedMessage);
+
+	Assert.assertEquals(expected.getObj(), "Being Heard (Interview 1)");
+
+	expected.toString();
     }
 
 }
