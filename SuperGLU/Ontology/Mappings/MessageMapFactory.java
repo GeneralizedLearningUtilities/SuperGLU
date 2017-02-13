@@ -21,12 +21,12 @@ public class MessageMapFactory
     {
 	List<MessageMap> result = new ArrayList<>();
 	result.add(buildVHTSuperGLUCurrentScenarioMapping());
-	//result.add(buildVHTSuperGLUCommAPIMapping());
-	//result.add(buildVHTSuperGLUBeginAARMapping());
-	//result.add(buildVHTSuperGLUGetNextAgendaItemMapping());
-	//result.add(buildVHTSuperGLURequestCoachingActionsMapping());
-	//result.add(buildVHTSuperGLUVRExpressMapping());
-	//result.add(buildVHTSuperGLURegisterUserInfoMapping());
+	result.add(buildVHTSuperGLUCommAPIMapping());
+	result.add(buildVHTSuperGLUBeginAARMapping());
+	result.add(buildVHTSuperGLUGetNextAgendaItemMapping());
+	result.add(buildVHTSuperGLURequestCoachingActionsMapping());
+	result.add(buildVHTSuperGLUVRExpressMapping());
+	result.add(buildVHTSuperGLURegisterUserInfoMapping());
 	
 	
 	
