@@ -59,7 +59,6 @@ public class MessageMapFactory
 	NestedAtomic SuperGLUDefaultActorField = new NestedAtomic(indexsd4);
 	SuperGLUDefaultActorField.setFieldData(" ");
 	
-	
 	supergluArr.add(SuperGLUDefaultSpeechAct);
 	supergluArr.add(SuperGLUDefaultContextField);
 	supergluArr.add(SuperGLUDefaultResultField);
