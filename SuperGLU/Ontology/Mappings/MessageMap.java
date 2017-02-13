@@ -231,6 +231,7 @@ public class MessageMap extends Serializable
 	MessageType in = getInMsgType();
 
 	StorageToken ST_inMsgType = in.saveToToken();
+	
 
 	if (input.getClassId().equals(ST_inMsgType.getItem(MessageType.MESSAGE_TYPE_CLASS_ID_KEY)))
 	{
@@ -250,9 +251,10 @@ public class MessageMap extends Serializable
 		break;
 	    }
 	}
-	System.out.println("hi first" + first + " second " + second); //what does this message mean?
+	
 	if (first && second) //use more descriptive variable names for god's sake --Auerbach
 	    return true;
+	
 
 	return false;
     }
@@ -323,7 +325,9 @@ public class MessageMap extends Serializable
 	
 	//SETTING THE DEFAULT FIELD DATA
 	
-	
+	//THIS IS THE PART WHERE THE CORRECT MAPPING WAS USED TO SET THE DEFAULT FIELD DATA
+	//I HAVE COMMENTED IT OUT FOR THE MOMENT
+	//PLEASE HAVE A LOOK AT IT
 	/*
 	MessageTemplate mtempOut = correctMap.getOutDefaulttMsgTemp();
 	ArrayList<NestedAtomic> outarr=mtempOut.getDefaultFieldData();
