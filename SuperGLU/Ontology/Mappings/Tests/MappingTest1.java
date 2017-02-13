@@ -45,7 +45,7 @@ public class MappingTest1 {
 		
 		
 		//THE MESSAGE MAP TO BE PASSED TO THE ONTOLOGY CONVERTER-----LATER ON AN ARRAYLIST OF MESSAGE-MAPS ARE TO BE PASSED
-		MessageOneWayMap VHT_SuperGLU_CurrentScenario=(MessageOneWayMap) MessageMapFactory.buildVHTSuperGLUCurrentScenarioMapping();
+		MessageMap VHT_SuperGLU_CurrentScenario= MessageMapFactory.buildVHTSuperGLUCurrentScenarioMapping();
 		
 		
 		
@@ -561,7 +561,7 @@ public class MappingTest1 {
 		System.out.println("check "+firstword);
 		
 		
-		boolean result=test1.isValidSourceMsg(ST_FromInputMsg,firstword);
+		boolean result=VHT_SuperGLU_CurrentScenario.isValidSourceMsg(ST_FromInputMsg,firstword);
 		if(result==true)
 			System.out.println("Yes there is a match and a valid source message");
 		else
@@ -569,7 +569,7 @@ public class MappingTest1 {
 		
 		
 		//STEP 4: CALLING THE CONVERT FUNCTION FOR THE ACTUAL CONVERSIONS
-		StorageToken convertedMessage=test1.convert(ST_FromInputMsg);
+		StorageToken convertedMessage=VHT_SuperGLU_CurrentScenario.convert(ST_FromInputMsg);
 		//Assert.assertEquals(expected, actual);
 		if(convertedMessage!=null)
 			System.out.println("Conversion Successful!");
