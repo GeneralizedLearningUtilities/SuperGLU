@@ -42,6 +42,7 @@ public class MappingTest1 {
 		
 		
 
+		
 	MessageOneWayMap VHT_SuperGLU_CurrentScenario=(MessageOneWayMap) MessageMapFactory.buildVHTSuperGLUCurrentScenarioMapping();
 	
 		

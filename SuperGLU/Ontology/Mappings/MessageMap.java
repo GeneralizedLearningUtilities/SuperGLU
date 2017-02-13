@@ -29,7 +29,6 @@ public class MessageMap extends Serializable
 
     protected ArrayList<FieldMap> fieldMappings;
 
-
     public static final String MESSAGEMAP_INMSGTYPE_KEY = "inMsg";
     public static final String MESSAGEMAP_OUTMSGTYPE_KEY = "outMsg";
     public static final String MESSAGEMAP_INDEFAULT_KEY = "inDefaultMsg";

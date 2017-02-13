@@ -14,6 +14,7 @@ public class OntologyConverter
     {
 	messageMaps = null;
     }
+    
 
     /**
      * Test code makes a mapping for scenarioName; Mapping is variable testMap;
