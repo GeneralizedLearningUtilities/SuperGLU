@@ -1,6 +1,5 @@
 package Ontology.Mappings;
 
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -25,10 +24,6 @@ public class MessageMap extends Serializable
     protected MessageTemplate inDefaultMsg = new MessageTemplate();
 
     protected MessageTemplate outDefaultMsg = new MessageTemplate();
-
-
-   
-    static MessageMap correctMap = null;
 
     protected ArrayList<FieldMap> fieldMappings;
 
@@ -233,7 +228,6 @@ public class MessageMap extends Serializable
 	MessageType in = getInMsgType();
 
 	StorageToken ST_inMsgType = in.saveToToken();
-	
 
 	if (input.getClassId().equals(ST_inMsgType.getItem(MessageType.MESSAGE_TYPE_CLASS_ID_KEY)))
 	{
@@ -253,10 +247,10 @@ public class MessageMap extends Serializable
 		break;
 	    }
 	}
-	
-	if (first && second) //use more descriptive variable names for god's sake --Auerbach
+
+	if (first && second) // use more descriptive variable names for god's
+			     // sake --Auerbach
 	    return true;
-	
 
 	return false;
     }
@@ -295,17 +289,17 @@ public class MessageMap extends Serializable
 		{
 
 		    valueToBeInserted = (String) input.getItem(value);
-		    if(maps.getSplitter()==null)
+		    if (maps.getSplitter() == null)
 			hmap.put(value, valueToBeInserted);
 		    else
 		    {
-			
-			ArgumentSeparator current=maps.getSplitter();
-			List<String> obtained=current.action(valueToBeInserted);
-			int index=maps.getIndex();
-			valueToBeInserted=obtained.get(index);
+
+			ArgumentSeparator current = maps.getSplitter();
+			List<String> obtained = current.action(valueToBeInserted);
+			int index = maps.getIndex();
+			valueToBeInserted = obtained.get(index);
 			hmap.put(value, valueToBeInserted);
-			
+
 		    }
 		}
 
@@ -324,42 +318,35 @@ public class MessageMap extends Serializable
 	    }
 
 	}
-	
-	//SETTING THE DEFAULT FIELD DATA
-	
-	//THIS IS THE PART WHERE THE CORRECT MAPPING WAS USED TO SET THE DEFAULT FIELD DATA
-	//I HAVE COMMENTED IT OUT FOR THE MOMENT
-	//PLEASE HAVE A LOOK AT IT
-	/*
-	MessageTemplate mtempOut = correctMap.getOutDefaulttMsgTemp();
-	ArrayList<NestedAtomic> outarr=mtempOut.getDefaultFieldData();
+
+	// SETTING THE DEFAULT FIELD DATA
+
+	// THIS IS THE PART WHERE THE CORRECT MAPPING WAS USED TO SET THE
+	// DEFAULT FIELD DATA
+	// I HAVE COMMENTED IT OUT FOR THE MOMENT
+	// PLEASE HAVE A LOOK AT IT
+
+	MessageTemplate mtempOut = this.getOutDefaulttMsgTemp();
+	ArrayList<NestedAtomic> outarr = mtempOut.getDefaultFieldData();
 	HashMap<String, String> hmap = new HashMap<>();
-	for(NestedAtomic in:outarr)
+	for (NestedAtomic in : outarr)
 	{
-	    List<String> inside=in.getIndex();
-	    String tobeset=in.getFieldData(); 
-	    for(String key:inside)
+	    List<String> inside = in.getIndex();
+	    String tobeset = in.getFieldData();
+	    for (String key : inside)
 	    {
-		if(target.contains(key))
+		if (target.contains(key))
 		{
 		    hmap.put(key, in.getFieldData());
 		}
 	    }
 	}
 	System.out.println(hmap);
-	
-	for(String key:hmap.keySet())
+
+	for (String key : hmap.keySet())
 	{
 	    target.setItem(key, hmap.get(key));
 	}
-	
-	
-	*/
-	
-	
-	
-	
-	
 
 	return target;
 
