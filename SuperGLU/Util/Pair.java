@@ -1,9 +1,5 @@
 package Util;
 
-import java.util.List;
-
-import Ontology.Mappings.NestedAtomic;
-
 /**
  * Simple implementation of a tuple with two values
  * 
