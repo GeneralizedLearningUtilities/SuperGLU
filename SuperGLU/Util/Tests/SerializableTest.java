@@ -8,6 +8,8 @@ import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
 
+import Core.Message;
+import Ontology.Mappings.NestedAtomic;
 import Util.Serializable;
 import Util.StorageToken;
 import Util.Tests.MockSerializables.MockSerializable;
@@ -154,6 +156,19 @@ public class SerializableTest {
 		MockSerializable4 copy = (MockSerializable4) ms4.clone(false);
 		
 		Assert.assertEquals(ms4, copy);
+	}
+	
+	
+	@Test
+	public void testNestedAtomic()
+	{
+	    NestedAtomic nestedAtomic = new NestedAtomic(String.class, Message.ACTOR_KEY);
+	    StorageToken token = nestedAtomic.saveToToken();
+	    System.out.println(token.toString());
+	    
+	    NestedAtomic copy = (NestedAtomic) nestedAtomic.clone(false);
+	    
+	    Assert.assertEquals(nestedAtomic, copy);
 	}
 
 }
