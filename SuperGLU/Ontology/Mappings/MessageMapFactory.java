@@ -1,11 +1,13 @@
 package Ontology.Mappings;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import Core.Message;
 import Core.SpeechActEnum;
 import Core.VHMessage;
+import Util.Pair;
 
 /**
  * This class is intended as a stopgap measure to build the mappings in the Java
@@ -17,78 +19,126 @@ import Core.VHMessage;
  */
 public class MessageMapFactory
 {
-    
+
     public static List<MessageMap> buildMessageMaps()
     {
 	List<MessageMap> result = new ArrayList<>();
 	result.add(buildVHTSuperGLUCurrentScenarioMapping());
-	result.add(buildVHTSuperGLUCommAPIMapping());
+	// result.add(buildVHTSuperGLUCommAPIMapping());
 	result.add(buildVHTSuperGLUBeginAARMapping());
-	result.add(buildVHTSuperGLUGetNextAgendaItemMapping());
-	result.add(buildVHTSuperGLURequestCoachingActionsMapping());
-	result.add(buildVHTSuperGLUVRExpressMapping());
-	result.add(buildVHTSuperGLURegisterUserInfoMapping());
-	
-	
-	
+	// result.add(buildVHTSuperGLUGetNextAgendaItemMapping());
+	// result.add(buildVHTSuperGLURequestCoachingActionsMapping());
+	// result.add(buildVHTSuperGLUVRExpressMapping());
+	// result.add(buildVHTSuperGLURegisterUserInfoMapping());
+
 	return result;
     }
 
-    public static MessageMap buildVHTSuperGLUCurrentScenarioMapping()
+    protected static MessageTemplate buildSuperGLUTemplate(String actor)
     {
-	// CREATED THE 2 ARRAYLISTS USED TO STORE THE DEFAULT MESSAGES FOR THE 2
-	// MESSAGE TEMPLATES
 	ArrayList<NestedAtomic> supergluArr = new ArrayList<NestedAtomic>();
-	ArrayList<NestedAtomic> vhMsgArr = new ArrayList<NestedAtomic>();
-
 	// CREATED THE DEFAULT FIELDS IN THE SUPERGLUMSG TEMPLATE
-	List<String> indexsd1 = new ArrayList<String>();
-	List<String> indexsd2 = new ArrayList<String>();
-	List<String> indexsd3 = new ArrayList<String>();
-	List<String> indexsd4 = new ArrayList<String>();
-	indexsd1.add(Message.SPEECH_ACT_KEY);
-	indexsd2.add(Message.CONTEXT_KEY);
-	indexsd3.add(Message.RESULT_KEY);
-	indexsd4.add(Message.ACTOR_KEY);
-
-	NestedAtomic SuperGLUDefaultSpeechAct = new NestedAtomic(indexsd1);
+	NestedAtomic SuperGLUDefaultSpeechAct = new NestedAtomic(String.class, Message.SPEECH_ACT_KEY);
 	SuperGLUDefaultSpeechAct.setFieldData(SpeechActEnum.INFORM_ACT.toString());
-	NestedAtomic SuperGLUDefaultContextField = new NestedAtomic(indexsd2);
+	NestedAtomic SuperGLUDefaultContextField = new NestedAtomic(HashMap.class, Message.CONTEXT_KEY);
 	SuperGLUDefaultContextField.setFieldData("{}");
-	NestedAtomic SuperGLUDefaultResultField = new NestedAtomic(indexsd3);
+	NestedAtomic SuperGLUDefaultResultField = new NestedAtomic(String.class, Message.RESULT_KEY);
 	SuperGLUDefaultResultField.setFieldData(" ");
-	NestedAtomic SuperGLUDefaultActorField = new NestedAtomic(indexsd4);
-	SuperGLUDefaultActorField.setFieldData(" ");
-	
+	NestedAtomic SuperGLUDefaultActorField = new NestedAtomic(String.class, Message.ACTOR_KEY);
+	SuperGLUDefaultActorField.setFieldData(actor);
+
 	supergluArr.add(SuperGLUDefaultSpeechAct);
 	supergluArr.add(SuperGLUDefaultContextField);
 	supergluArr.add(SuperGLUDefaultResultField);
 	supergluArr.add(SuperGLUDefaultActorField);
 
+	MessageTemplate result = new MessageTemplate(supergluArr);
+
+	return result;
+
+    }
+
+    protected static MessageTemplate buildSuperGLUGenericTemplate(String actor)
+    {
+	// CREATED THE 2 ARRAYLISTS USED TO STORE THE DEFAULT MESSAGES FOR THE 2
+	// MESSAGE TEMPLATES
+
+	// CREATED THE DEFAULT FIELDS IN THE SUPERGLUMSG TEMPLATE
+	NestedAtomic SuperGLUDefaultSpeechAct = new NestedAtomic(String.class, Message.SPEECH_ACT_KEY);
+	SuperGLUDefaultSpeechAct.setFieldData(SpeechActEnum.INFORM_ACT.toString());
+	NestedAtomic SuperGLUDefaultContextField = new NestedAtomic(HashMap.class, Message.CONTEXT_KEY);
+	SuperGLUDefaultContextField.setFieldData("{}");
+	NestedAtomic SuperGLUDefaultResultField = new NestedAtomic(String.class, Message.RESULT_KEY);
+	SuperGLUDefaultResultField.setFieldData(" ");
+	NestedAtomic SuperGLUDefaultActorField = new NestedAtomic(String.class, Message.ACTOR_KEY);
+	SuperGLUDefaultActorField.setFieldData(" ");
+
+	// CREATING THE NESTED ATOMIC FIELDS THAT HAVE MATCHES (VHT)
+	NestedAtomic SuperGLU_ObjectField = new NestedAtomic(String.class, Message.OBJECT_KEY);
+	NestedAtomic SuperGLU_VerbField = new NestedAtomic(String.class, Message.VERB_KEY);
+
+	// CREATING A MESSAGE TEMPLATE THAT WILL GO INTO THE DEFAULT
+	// MESSAGETEMPLATES (WHICH DOES NOT HAVE MATCHES)
+
+	ArrayList<NestedAtomic> supergluArrGeneric = new ArrayList<NestedAtomic>();
+
+	supergluArrGeneric.add(SuperGLUDefaultContextField);
+	supergluArrGeneric.add(SuperGLUDefaultSpeechAct);
+	supergluArrGeneric.add(SuperGLUDefaultResultField);
+	supergluArrGeneric.add(SuperGLU_ObjectField);
+	supergluArrGeneric.add(SuperGLU_VerbField);
+	supergluArrGeneric.add(SuperGLUDefaultActorField);
+
+	MessageTemplate supergluMsgTempGeneric = new MessageTemplate(supergluArrGeneric);
+	return supergluMsgTempGeneric;
+    }
+
+    protected static MessageTemplate buildVHMessageTemplate(String firstWord)
+    {
+	// CREATING THE NESTED ATOMIC FIELDS THAT HAVE MATCHES (VHT)
+	NestedAtomic VHT_LabelField = new NestedAtomic(String.class, VHMessage.FIRST_WORD_KEY);
+	VHT_LabelField.setFieldData(firstWord);
+	NestedAtomic VHT_BodyField = new NestedAtomic(String.class, VHMessage.BODY_KEY);
+
+	ArrayList<NestedAtomic> vhMsgArrGeneric = new ArrayList<NestedAtomic>();
+
+	vhMsgArrGeneric.add(VHT_BodyField);
+	vhMsgArrGeneric.add(VHT_LabelField);
+
+	MessageTemplate result = new MessageTemplate(vhMsgArrGeneric);
+	return result;
+    }
+
+    protected static NestedAtomic findNestedAtomicInTemplateByIndex(MessageTemplate template, String index)
+    {
+	for (NestedAtomic currentAtomic : template.getDefaultFieldData())
+	{
+	    for (Pair<Class<?>, String> currentIndex : currentAtomic.getIndices())
+	    {
+		if (currentIndex.getSecond().equals(index))
+		    return currentAtomic;
+	    }
+	}
+
+	return null;
+    }
+
+    public static MessageMap buildVHTSuperGLUCurrentScenarioMapping()
+    {
 	// STORED THE DATA IN THE SUPERGLU MESSAGE TEMPLATE
-	MessageTemplate supergluMsgTemp = new MessageTemplate(supergluArr);
+	MessageTemplate supergluMsgTemp = MessageMapFactory.buildSuperGLUTemplate(" ");
 
-	// CREATED THE DEFAULT FIELDS IN THE VHMSG TEMPLATE
+	MessageTemplate vhMsgTempGeneric = MessageMapFactory.buildVHMessageTemplate("ScenarioName");
 
-	// STORED THE DATA IN THE VH MESSAGE TEMPLATE
-	MessageTemplate vhMsgTemp = new MessageTemplate(vhMsgArr);
-
-	// CREATING THE NESTED ATOMIC FIELDS THAT HAVE MATCHES (VHT)
-	List<String> indexvh1 = new ArrayList<String>();
-	List<String> indexvh2 = new ArrayList<String>();
-	indexvh1.add(VHMessage.FIRST_WORD_KEY);
-	indexvh2.add(VHMessage.BODY_KEY);
-	NestedAtomic VHT_LabelField = new NestedAtomic(indexvh1);
-	VHT_LabelField.setFieldData("ScenarioName");
-	NestedAtomic VHT_BodyField = new NestedAtomic(indexvh2);
+	MessageTemplate supergluMsgTempGeneric = MessageMapFactory.buildSuperGLUGenericTemplate(" ");
 
 	// CREATING THE NESTED ATOMIC FIELDS THAT HAVE MATCHES (VHT)
-	List<String> indexsg1 = new ArrayList<String>();
-	List<String> indexsg2 = new ArrayList<String>();
-	indexsg1.add(Message.OBJECT_KEY);
-	indexsg2.add(Message.VERB_KEY);
-	NestedAtomic SuperGLU_ObjectField = new NestedAtomic(indexsg1);
-	NestedAtomic SuperGLU_VerbField = new NestedAtomic(indexsg2);
+	NestedAtomic VHT_LabelField = MessageMapFactory.findNestedAtomicInTemplateByIndex(vhMsgTempGeneric, VHMessage.FIRST_WORD_KEY);
+	NestedAtomic VHT_BodyField = MessageMapFactory.findNestedAtomicInTemplateByIndex(vhMsgTempGeneric, VHMessage.BODY_KEY);
+
+	// CREATING THE NESTED ATOMIC FIELDS THAT HAVE MATCHES (VHT)
+	NestedAtomic SuperGLU_ObjectField = new NestedAtomic(String.class, Message.OBJECT_KEY);
+	NestedAtomic SuperGLU_VerbField = new NestedAtomic(String.class, Message.VERB_KEY);
 
 	// CREATED THE MAPPINGS FOR THE VERB AND BODY FIELDS RESPECTIVELY BELOW
 	FieldMap VHT_SuperGLU_TopicVerb_FM = new FieldMap();
@@ -106,88 +156,35 @@ public class MessageMapFactory
 	// CREATING A MESSAGE TEMPLATE THAT WILL GO INTO THE DEFAULT
 	// MESSAGETEMPLATES (WHICH DOES NOT HAVE MATCHES)
 
-	ArrayList<NestedAtomic> supergluArrGeneric = new ArrayList<NestedAtomic>();
 	ArrayList<NestedAtomic> vhMsgArrGeneric = new ArrayList<NestedAtomic>();
 
 	vhMsgArrGeneric.add(VHT_BodyField);
 	vhMsgArrGeneric.add(VHT_LabelField);
-
-	MessageTemplate vhMsgTempGeneric = new MessageTemplate(vhMsgArrGeneric);
-
-	supergluArrGeneric.add(SuperGLUDefaultContextField);
-	supergluArrGeneric.add(SuperGLUDefaultSpeechAct);
-	supergluArrGeneric.add(SuperGLUDefaultResultField);
-	supergluArrGeneric.add(SuperGLU_ObjectField);
-	supergluArrGeneric.add(SuperGLU_VerbField);
-	supergluArrGeneric.add(SuperGLUDefaultActorField);
-
-	MessageTemplate supergluMsgTempGeneric = new MessageTemplate(supergluArrGeneric);
 
 	// CREATING THE MESSAGETYPEBASED VHMESSAGE
 	MessageType VHTMsgV1_8 = new MessageType("ScenarioName", 0.0f, 1.1f, vhMsgTempGeneric, "VHMessage");
 
 	MessageType SuperGLUMsgV1 = new MessageType("SUPERGLUMSG_1", 0.0f, 1.1f, supergluMsgTempGeneric, "Message");
 
-	MessageMap result = new MessageMap(VHTMsgV1_8, SuperGLUMsgV1, vhMsgTemp, supergluMsgTemp, fieldmappings);
-	
+	MessageMap result = new MessageMap(VHTMsgV1_8, SuperGLUMsgV1, new MessageTemplate(), supergluMsgTemp, fieldmappings);
+
 	return result;
 
     }
-    
-    
+
     public static MessageMap buildVHTSuperGLUBeginAARMapping()
     {
-	// CREATED THE 2 ARRAYLISTS USED TO STORE THE DEFAULT MESSAGES FOR THE 2
-	// MESSAGE TEMPLATES
-	ArrayList<NestedAtomic> supergluArr = new ArrayList<NestedAtomic>();
-	ArrayList<NestedAtomic> vhMsgArr = new ArrayList<NestedAtomic>();
-
-	// CREATED THE DEFAULT FIELDS IN THE SUPERGLUMSG TEMPLATE
-	List<String> indexsd1 = new ArrayList<String>();
-	List<String> indexsd2 = new ArrayList<String>();
-	List<String> indexsd3 = new ArrayList<String>();
-	List<String> indexsd4 = new ArrayList<String>();
-	indexsd1.add(Message.SPEECH_ACT_KEY);
-	indexsd2.add(Message.CONTEXT_KEY);
-	indexsd3.add(Message.RESULT_KEY);
-	indexsd4.add(Message.ACTOR_KEY);
-
-	NestedAtomic SuperGLUDefaultSpeechAct = new NestedAtomic(indexsd1);
-	SuperGLUDefaultSpeechAct.setFieldData(SpeechActEnum.INFORM_ACT.toString());
-	NestedAtomic SuperGLUDefaultContextField = new NestedAtomic(indexsd2);
-	SuperGLUDefaultContextField.setFieldData(" ");
-	NestedAtomic SuperGLUDefaultResultField = new NestedAtomic(indexsd3);
-	SuperGLUDefaultResultField.setFieldData(" ");
-	NestedAtomic SuperGLUDefaultActorField = new NestedAtomic(indexsd4);
-	SuperGLUDefaultActorField.setFieldData("DIALOG_MANAGER");
-	
-	
-	
-
 	// STORED THE DATA IN THE SUPERGLU MESSAGE TEMPLATE
-	MessageTemplate supergluMsgTemp = new MessageTemplate(supergluArr);
-
-	// CREATED THE DEFAULT FIELDS IN THE VHMSG TEMPLATE
-
-	// STORED THE DATA IN THE VH MESSAGE TEMPLATE
-	MessageTemplate vhMsgTemp = new MessageTemplate(vhMsgArr);
+	MessageTemplate supergluMsgTemp = MessageMapFactory.buildSuperGLUTemplate("DIALOG_MANAGER");
 
 	// CREATING THE NESTED ATOMIC FIELDS THAT HAVE MATCHES (VHT)
-	List<String> indexvh1 = new ArrayList<String>();
-	List<String> indexvh2 = new ArrayList<String>();
-	indexvh1.add(VHMessage.FIRST_WORD_KEY);
-	indexvh2.add(VHMessage.BODY_KEY);
-	NestedAtomic VHT_LabelField = new NestedAtomic(indexvh1);
+	NestedAtomic VHT_LabelField = new NestedAtomic(String.class, VHMessage.FIRST_WORD_KEY);
 	VHT_LabelField.setFieldData("beginAAR");
-	NestedAtomic VHT_BodyField = new NestedAtomic(indexvh2);
+	NestedAtomic VHT_BodyField = new NestedAtomic(String.class, VHMessage.BODY_KEY);
 
 	// CREATING THE NESTED ATOMIC FIELDS THAT HAVE MATCHES (VHT)
-	List<String> indexsg1 = new ArrayList<String>();
-	List<String> indexsg2 = new ArrayList<String>();
-	indexsg1.add(Message.OBJECT_KEY);
-	indexsg2.add(Message.VERB_KEY);
-	NestedAtomic SuperGLU_ObjectField = new NestedAtomic(indexsg1);
-	NestedAtomic SuperGLU_VerbField = new NestedAtomic(indexsg2);
+	NestedAtomic SuperGLU_ObjectField = new NestedAtomic(String.class, Message.OBJECT_KEY);
+	NestedAtomic SuperGLU_VerbField = new NestedAtomic(String.class, Message.VERB_KEY);
 
 	// CREATED THE MAPPINGS FOR THE VERB AND BODY FIELDS RESPECTIVELY BELOW
 	FieldMap VHT_SuperGLU_TopicVerb_FM = new FieldMap();
@@ -205,7 +202,6 @@ public class MessageMapFactory
 	// CREATING A MESSAGE TEMPLATE THAT WILL GO INTO THE DEFAULT
 	// MESSAGETEMPLATES (WHICH DOES NOT HAVE MATCHES)
 
-	ArrayList<NestedAtomic> supergluArrGeneric = new ArrayList<NestedAtomic>();
 	ArrayList<NestedAtomic> vhMsgArrGeneric = new ArrayList<NestedAtomic>();
 
 	vhMsgArrGeneric.add(VHT_BodyField);
@@ -213,27 +209,19 @@ public class MessageMapFactory
 
 	MessageTemplate vhMsgTempGeneric = new MessageTemplate(vhMsgArrGeneric);
 
-	supergluArrGeneric.add(SuperGLUDefaultContextField);
-	supergluArrGeneric.add(SuperGLUDefaultSpeechAct);
-	supergluArrGeneric.add(SuperGLUDefaultResultField);
-	supergluArrGeneric.add(SuperGLU_ObjectField);
-	supergluArrGeneric.add(SuperGLU_VerbField);
-	supergluArrGeneric.add(SuperGLUDefaultActorField);
-
-	MessageTemplate supergluMsgTempGeneric = new MessageTemplate(supergluArrGeneric);
+	MessageTemplate supergluMsgTempGeneric = MessageMapFactory.buildSuperGLUGenericTemplate("DIALOG_MANAGER");
 
 	// CREATING THE MESSAGETYPEBASED VHMESSAGE
 	MessageType VHTMsgV1_8 = new MessageType("beginAAR", 0.0f, 1.1f, vhMsgTempGeneric, "VHMessage");
 
 	MessageType SuperGLUMsgV1 = new MessageType("SUPERGLUMSG_1", 0.0f, 1.1f, supergluMsgTempGeneric, "Message");
 
-	MessageMap result = new MessageMap(VHTMsgV1_8, SuperGLUMsgV1, vhMsgTemp, supergluMsgTemp, fieldmappings);
-	
+	MessageMap result = new MessageMap(VHTMsgV1_8, SuperGLUMsgV1, new MessageTemplate(), supergluMsgTemp, fieldmappings);
+
 	return result;
 
     }
-    
-    
+
     public static MessageMap buildVHTSuperGLUGetNextAgendaItemMapping()
     {
 	// CREATED THE 2 ARRAYLISTS USED TO STORE THE DEFAULT MESSAGES FOR THE 2
@@ -242,22 +230,13 @@ public class MessageMapFactory
 	ArrayList<NestedAtomic> vhMsgArr = new ArrayList<NestedAtomic>();
 
 	// CREATED THE DEFAULT FIELDS IN THE SUPERGLUMSG TEMPLATE
-	List<String> indexsd1 = new ArrayList<String>();
-	List<String> indexsd2 = new ArrayList<String>();
-	List<String> indexsd3 = new ArrayList<String>();
-	
-	indexsd1.add(Message.SPEECH_ACT_KEY);
-	indexsd2.add(Message.OBJECT_KEY);
-	indexsd3.add(Message.ACTOR_KEY);
-
-	NestedAtomic SuperGLUDefaultSpeechAct = new NestedAtomic(indexsd1);
+	NestedAtomic SuperGLUDefaultSpeechAct = new NestedAtomic(String.class, Message.SPEECH_ACT_KEY);
 	SuperGLUDefaultSpeechAct.setFieldData(SpeechActEnum.INFORM_ACT.toString());
-	NestedAtomic SuperGLUDefaultObjectField = new NestedAtomic(indexsd2);
+	NestedAtomic SuperGLUDefaultObjectField = new NestedAtomic(String.class, Message.OBJECT_KEY);
 	SuperGLUDefaultObjectField.setFieldData(" ");
-	NestedAtomic SuperGLUDefaultActorField = new NestedAtomic(indexsd3);
+	NestedAtomic SuperGLUDefaultActorField = new NestedAtomic(String.class, Message.ACTOR_KEY);
 	SuperGLUDefaultActorField.setFieldData("DIALOG_MANAGER");
-	
-	
+
 	supergluArr.add(SuperGLUDefaultSpeechAct);
 	supergluArr.add(SuperGLUDefaultObjectField);
 	supergluArr.add(SuperGLUDefaultActorField);
@@ -266,25 +245,19 @@ public class MessageMapFactory
 	MessageTemplate supergluMsgTemp = new MessageTemplate(supergluArr);
 
 	// CREATED THE DEFAULT FIELDS IN THE VHMSG TEMPLATE
-	NestedAtomic VHTDefaultBodyField = new NestedAtomic(indexsd1);
+	NestedAtomic VHTDefaultBodyField = new NestedAtomic(String.class, VHMessage.BODY_KEY);
 	VHTDefaultBodyField.setFieldData(" ");
 	vhMsgArr.add(VHTDefaultBodyField);
 	// STORED THE DATA IN THE VH MESSAGE TEMPLATE
 	MessageTemplate vhMsgTemp = new MessageTemplate(vhMsgArr);
 
 	// CREATING THE NESTED ATOMIC FIELDS THAT HAVE MATCHES (VHT)
-	List<String> indexvh1 = new ArrayList<String>();
-	indexvh1.add(VHMessage.FIRST_WORD_KEY);
-	
-	NestedAtomic VHT_LabelField = new NestedAtomic(indexvh1);
+
+	NestedAtomic VHT_LabelField = new NestedAtomic(String.class, VHMessage.FIRST_WORD_KEY);
 	VHT_LabelField.setFieldData("getNextAgendaItem");
 
-
 	// CREATING THE NESTED ATOMIC FIELDS THAT HAVE MATCHES (VHT)
-	List<String> indexsg1 = new ArrayList<String>();
-	
-	indexsg1.add(Message.VERB_KEY);
-	NestedAtomic SuperGLU_VerbField = new NestedAtomic(indexsg1);
+	NestedAtomic SuperGLU_VerbField = new NestedAtomic(String.class, Message.VERB_KEY);
 
 	// CREATED THE MAPPINGS FOR THE VERB AND BODY FIELDS RESPECTIVELY BELOW
 	FieldMap VHT_SuperGLU_TopicVerb_FM = new FieldMap();
@@ -305,7 +278,6 @@ public class MessageMapFactory
 
 	MessageTemplate vhMsgTempGeneric = new MessageTemplate(vhMsgArrGeneric);
 
-	
 	supergluArrGeneric.add(SuperGLUDefaultSpeechAct);
 	supergluArrGeneric.add(SuperGLUDefaultObjectField);
 	supergluArrGeneric.add(SuperGLUDefaultActorField);
@@ -319,12 +291,11 @@ public class MessageMapFactory
 	MessageType SuperGLUMsgV1 = new MessageType("SUPERGLUMSG_1", 0.0f, 1.1f, supergluMsgTempGeneric, "Message");
 
 	MessageMap result = new MessageMap(VHTMsgV1_8, SuperGLUMsgV1, vhMsgTemp, supergluMsgTemp, fieldmappings);
-	
+
 	return result;
 
     }
-    
-    
+
     public static MessageMap buildVHTSuperGLURequestCoachingActionsMapping()
     {
 	// CREATED THE 2 ARRAYLISTS USED TO STORE THE DEFAULT MESSAGES FOR THE 2
@@ -333,22 +304,14 @@ public class MessageMapFactory
 	ArrayList<NestedAtomic> vhMsgArr = new ArrayList<NestedAtomic>();
 
 	// CREATED THE DEFAULT FIELDS IN THE SUPERGLUMSG TEMPLATE
-	List<String> indexsd1 = new ArrayList<String>();
-	List<String> indexsd2 = new ArrayList<String>();
-	List<String> indexsd3 = new ArrayList<String>();
-	
-	indexsd1.add(Message.SPEECH_ACT_KEY);
-	indexsd2.add(Message.OBJECT_KEY);
-	indexsd3.add(Message.ACTOR_KEY);
 
-	NestedAtomic SuperGLUDefaultSpeechAct = new NestedAtomic(indexsd1);
+	NestedAtomic SuperGLUDefaultSpeechAct = new NestedAtomic(String.class, Message.SPEECH_ACT_KEY);
 	SuperGLUDefaultSpeechAct.setFieldData(SpeechActEnum.REQUEST_ACT.toString());
-	NestedAtomic SuperGLUDefaultObjectField = new NestedAtomic(indexsd2);
+	NestedAtomic SuperGLUDefaultObjectField = new NestedAtomic(String.class, Message.OBJECT_KEY);
 	SuperGLUDefaultObjectField.setFieldData(" ");
-	NestedAtomic SuperGLUDefaultActorField = new NestedAtomic(indexsd3);
+	NestedAtomic SuperGLUDefaultActorField = new NestedAtomic(String.class, Message.ACTOR_KEY);
 	SuperGLUDefaultActorField.setFieldData("DIALOG_MANAGER");
-	
-	
+
 	supergluArr.add(SuperGLUDefaultSpeechAct);
 	supergluArr.add(SuperGLUDefaultObjectField);
 	supergluArr.add(SuperGLUDefaultActorField);
@@ -357,24 +320,18 @@ public class MessageMapFactory
 	MessageTemplate supergluMsgTemp = new MessageTemplate(supergluArr);
 
 	// CREATED THE DEFAULT FIELDS IN THE VHMSG TEMPLATE
-	NestedAtomic VHTDefaultBodyField = new NestedAtomic(indexsd1);
+	NestedAtomic VHTDefaultBodyField = new NestedAtomic(String.class, VHMessage.BODY_KEY);
 	VHTDefaultBodyField.setFieldData(" ");
 	vhMsgArr.add(VHTDefaultBodyField);
 	// STORED THE DATA IN THE VH MESSAGE TEMPLATE
 	MessageTemplate vhMsgTemp = new MessageTemplate(vhMsgArr);
 
 	// CREATING THE NESTED ATOMIC FIELDS THAT HAVE MATCHES (VHT)
-	List<String> indexvh1 = new ArrayList<String>();
-	
-	indexvh1.add(VHMessage.FIRST_WORD_KEY);
-	NestedAtomic VHT_LabelField = new NestedAtomic(indexvh1);
+	NestedAtomic VHT_LabelField = new NestedAtomic(String.class, VHMessage.FIRST_WORD_KEY);
 	VHT_LabelField.setFieldData("requestCoachingActions");
 
 	// CREATING THE NESTED ATOMIC FIELDS THAT HAVE MATCHES (VHT)
-	List<String> indexsg1 = new ArrayList<String>();
-	
-	indexsg1.add(Message.VERB_KEY);
-	NestedAtomic SuperGLU_VerbField = new NestedAtomic(indexsg1);
+	NestedAtomic SuperGLU_VerbField = new NestedAtomic(String.class, Message.VERB_KEY);
 
 	// CREATED THE MAPPINGS FOR THE VERB AND BODY FIELDS RESPECTIVELY BELOW
 	FieldMap VHT_SuperGLU_TopicVerb_FM = new FieldMap();
@@ -395,7 +352,6 @@ public class MessageMapFactory
 
 	MessageTemplate vhMsgTempGeneric = new MessageTemplate(vhMsgArrGeneric);
 
-	
 	supergluArrGeneric.add(SuperGLUDefaultSpeechAct);
 	supergluArrGeneric.add(SuperGLUDefaultObjectField);
 	supergluArrGeneric.add(SuperGLUDefaultActorField);
@@ -409,370 +365,275 @@ public class MessageMapFactory
 	MessageType SuperGLUMsgV1 = new MessageType("SUPERGLUMSG_1", 0.0f, 1.1f, supergluMsgTempGeneric, "Message");
 
 	MessageMap result = new MessageMap(VHTMsgV1_8, SuperGLUMsgV1, vhMsgTemp, supergluMsgTemp, fieldmappings);
-	
+
 	return result;
 
     }
-    
-    
-  
+
     public static MessageMap buildVHTSuperGLUVRExpressMapping()
     {
-	ArrayList<NestedAtomic> supergluArr=new ArrayList<NestedAtomic>();
-	ArrayList<NestedAtomic> vhMsgArr=new ArrayList<NestedAtomic>();
-	
-	
-	//CREATED THE DEFAULT FIELDS IN THE SUPERGLUMSG TEMPLATE
-	List<String> indexsd1=new ArrayList<String>();
-	
+	ArrayList<NestedAtomic> supergluArr = new ArrayList<NestedAtomic>();
+	ArrayList<NestedAtomic> vhMsgArr = new ArrayList<NestedAtomic>();
 
-	indexsd1.add(Message.CONTEXT_KEY);
-		
-	NestedAtomic SuperGLUDefaultContextField =new NestedAtomic(indexsd1);
+	// CREATED THE DEFAULT FIELDS IN THE SUPERGLUMSG TEMPLATE
+	NestedAtomic SuperGLUDefaultContextField = new NestedAtomic(HashMap.class, Message.CONTEXT_KEY);
 	SuperGLUDefaultContextField.setFieldData("");
 
-	supergluArr.add(SuperGLUDefaultContextField);	
-	
-	//STORED THE DATA IN THE SUPERGLU MESSAGE TEMPLATE
-	MessageTemplate supergluMsgTemp=new MessageTemplate(supergluArr);
-	
-	//CREATED THE DEFAULT FIELDS IN THE VHMSG TEMPLATE
-	
-	
-	//STORED THE DATA IN THE VH MESSAGE TEMPLATE
-	MessageTemplate vhMsgTemp=new MessageTemplate(vhMsgArr);
-	
-	//CREATING THE NESTED ATOMIC FIELDS THAT HAVE MATCHES (VHT)
-	List<String> indexvh1=new ArrayList<String>();
-	List<String> indexvh2=new ArrayList<String>();
-	indexvh1.add(VHMessage.FIRST_WORD_KEY);
-	indexvh2.add(VHMessage.BODY_KEY);
-	NestedAtomic VHT_LabelField=new NestedAtomic(indexvh1);	
-	VHT_LabelField.setFieldData("vrExpress");
-	NestedAtomic VHT_BodyField=new NestedAtomic(indexvh2);
+	supergluArr.add(SuperGLUDefaultContextField);
 
-	
-	//CREATING THE NESTED ATOMIC FIELDS THAT HAVE MATCHES (VHT)
-	List<String> indexsg1=new ArrayList<String>();
-	List<String> indexsg2=new ArrayList<String>();
-	List<String> indexsg3=new ArrayList<String>();
-	List<String> indexsg4=new ArrayList<String>();
-	indexsg1.add(Message.OBJECT_KEY);
-	indexsg2.add(Message.VERB_KEY);
-	indexsg3.add(Message.RESULT_KEY);
-	indexsg4.add(Message.ACTOR_KEY);
-	NestedAtomic SuperGLU_ObjectField=new NestedAtomic(indexsg1);	
-	NestedAtomic SuperGLU_VerbField=new NestedAtomic(indexsg2);
-	NestedAtomic SuperGLU_ResultField=new NestedAtomic(indexsg3);
-	NestedAtomic SuperGLU_ActorField=new NestedAtomic(indexsg4);
-	
-	
-	//CREATED THE MAPPINGS FOR THE VERB AND BODY FIELDS RESPECTIVELY BELOW 
-	FieldMap VHT_SuperGLU_TopicVerb_FM=new FieldMap();
+	// STORED THE DATA IN THE SUPERGLU MESSAGE TEMPLATE
+	MessageTemplate supergluMsgTemp = new MessageTemplate(supergluArr);
+
+	// CREATED THE DEFAULT FIELDS IN THE VHMSG TEMPLATE
+
+	// STORED THE DATA IN THE VH MESSAGE TEMPLATE
+	MessageTemplate vhMsgTemp = new MessageTemplate(vhMsgArr);
+
+	// CREATING THE NESTED ATOMIC FIELDS THAT HAVE MATCHES (VHT)
+	NestedAtomic VHT_LabelField = new NestedAtomic(String.class, VHMessage.FIRST_WORD_KEY);
+	VHT_LabelField.setFieldData("vrExpress");
+	NestedAtomic VHT_BodyField = new NestedAtomic(String.class, VHMessage.BODY_KEY);
+
+	// CREATING THE NESTED ATOMIC FIELDS THAT HAVE MATCHES (VHT)
+	NestedAtomic SuperGLU_ObjectField = new NestedAtomic(String.class, Message.OBJECT_KEY);
+	NestedAtomic SuperGLU_VerbField = new NestedAtomic(String.class, Message.VERB_KEY);
+	NestedAtomic SuperGLU_ResultField = new NestedAtomic(String.class, Message.RESULT_KEY);
+	NestedAtomic SuperGLU_ActorField = new NestedAtomic(String.class, Message.ACTOR_KEY);
+
+	// CREATED THE MAPPINGS FOR THE VERB AND BODY FIELDS RESPECTIVELY BELOW
+	FieldMap VHT_SuperGLU_TopicVerb_FM = new FieldMap();
 	VHT_SuperGLU_TopicVerb_FM.setInField(VHT_LabelField);
 	VHT_SuperGLU_TopicVerb_FM.setOutField(SuperGLU_VerbField);
-	
-	FieldMap VHT_SuperGLU_TopicObject_FM=new FieldMap();
-	Splitting VHT_SuperGLU_TopicObject_FMsplitter=new Splitting(" ");
+
+	FieldMap VHT_SuperGLU_TopicObject_FM = new FieldMap();
+	Splitting VHT_SuperGLU_TopicObject_FMsplitter = new Splitting(" ");
 	VHT_SuperGLU_TopicObject_FM.setInField(VHT_BodyField);
 	VHT_SuperGLU_TopicObject_FM.setSplitter(VHT_SuperGLU_TopicObject_FMsplitter);
 	VHT_SuperGLU_TopicObject_FM.setIndex(2);
-	VHT_SuperGLU_TopicObject_FM.setOutField(SuperGLU_ObjectField); 
-	
-	FieldMap VHT_SuperGLU_TopicResult_FM=new FieldMap();
-	Splitting VHT_SuperGLU_TopicResult_FMsplitter=new Splitting(" ");
+	VHT_SuperGLU_TopicObject_FM.setOutField(SuperGLU_ObjectField);
+
+	FieldMap VHT_SuperGLU_TopicResult_FM = new FieldMap();
+	Splitting VHT_SuperGLU_TopicResult_FMsplitter = new Splitting(" ");
 	VHT_SuperGLU_TopicResult_FM.setInField(VHT_BodyField);
 	VHT_SuperGLU_TopicResult_FM.setSplitter(VHT_SuperGLU_TopicResult_FMsplitter);
 	VHT_SuperGLU_TopicResult_FM.setIndex(3);
-	VHT_SuperGLU_TopicResult_FM.setOutField(SuperGLU_ResultField); 
-	
-	FieldMap VHT_SuperGLU_TopicActor_FM=new FieldMap();
-	Splitting VHT_SuperGLU_TopicActor_FMsplitter=new Splitting(" ");
+	VHT_SuperGLU_TopicResult_FM.setOutField(SuperGLU_ResultField);
+
+	FieldMap VHT_SuperGLU_TopicActor_FM = new FieldMap();
+	Splitting VHT_SuperGLU_TopicActor_FMsplitter = new Splitting(" ");
 	VHT_SuperGLU_TopicActor_FM.setInField(VHT_BodyField);
 	VHT_SuperGLU_TopicActor_FM.setSplitter(VHT_SuperGLU_TopicActor_FMsplitter);
 	VHT_SuperGLU_TopicActor_FM.setIndex(0);
-	VHT_SuperGLU_TopicActor_FM.setOutField(SuperGLU_ActorField); 
-	
-	
-	ArrayList<FieldMap> fieldmappings=new ArrayList<FieldMap>();
+	VHT_SuperGLU_TopicActor_FM.setOutField(SuperGLU_ActorField);
+
+	ArrayList<FieldMap> fieldmappings = new ArrayList<FieldMap>();
 	fieldmappings.add(VHT_SuperGLU_TopicVerb_FM);
 	fieldmappings.add(VHT_SuperGLU_TopicObject_FM);
 	fieldmappings.add(VHT_SuperGLU_TopicResult_FM);
 	fieldmappings.add(VHT_SuperGLU_TopicActor_FM);
-	
-	
-	//CREATING A MESSAGE TEMPLATE THAT WILL GO INTO THE DEFAULT MESSAGETEMPLATES (WHICH DOES NOT HAVE MATCHES)
-	
-	
-	ArrayList<NestedAtomic> supergluArrGeneric=new ArrayList<NestedAtomic>();
-	ArrayList<NestedAtomic> vhMsgArrGeneric=new ArrayList<NestedAtomic>();
-	
+
+	// CREATING A MESSAGE TEMPLATE THAT WILL GO INTO THE DEFAULT
+	// MESSAGETEMPLATES (WHICH DOES NOT HAVE MATCHES)
+
+	ArrayList<NestedAtomic> supergluArrGeneric = new ArrayList<NestedAtomic>();
+	ArrayList<NestedAtomic> vhMsgArrGeneric = new ArrayList<NestedAtomic>();
+
 	vhMsgArrGeneric.add(VHT_BodyField);
 	vhMsgArrGeneric.add(VHT_LabelField);
-	
-	MessageTemplate vhMsgTempGeneric5=new MessageTemplate(vhMsgArrGeneric);
-	
-	supergluArrGeneric.add(SuperGLUDefaultContextField);		
+
+	MessageTemplate vhMsgTempGeneric5 = new MessageTemplate(vhMsgArrGeneric);
+
+	supergluArrGeneric.add(SuperGLUDefaultContextField);
 	supergluArrGeneric.add(SuperGLU_ResultField);
 	supergluArrGeneric.add(SuperGLU_ObjectField);
 	supergluArrGeneric.add(SuperGLU_VerbField);
 	supergluArrGeneric.add(SuperGLU_ActorField);
-	
-	MessageTemplate supergluMsgTempGeneric=new MessageTemplate(supergluArrGeneric);
-	
-	
-	
-	
-			
-	
-	//CREATING THE MESSAGETYPEBASED VHMESSAGE
-	MessageType VHTMsgV1_8=new MessageType("vrExpress", 0.0f, 1.1f,vhMsgTempGeneric5,"VHMessage");
-	
-	MessageType SuperGLUMsgV1=new MessageType("SUPERGLUMSG_5",0.0f,1.1f,supergluMsgTempGeneric,"Message");
-	
+
+	MessageTemplate supergluMsgTempGeneric = new MessageTemplate(supergluArrGeneric);
+
+	// CREATING THE MESSAGETYPEBASED VHMESSAGE
+	MessageType VHTMsgV1_8 = new MessageType("vrExpress", 0.0f, 1.1f, vhMsgTempGeneric5, "VHMessage");
+
+	MessageType SuperGLUMsgV1 = new MessageType("SUPERGLUMSG_5", 0.0f, 1.1f, supergluMsgTempGeneric, "Message");
+
 	MessageMap result = new MessageMap(VHTMsgV1_8, SuperGLUMsgV1, vhMsgTemp, supergluMsgTemp, fieldmappings);
-	
+
 	return result;
     }
-    
-    
-    
+
     public static MessageMap buildVHTSuperGLUCommAPIMapping()
     {
-	ArrayList<NestedAtomic> supergluArr=new ArrayList<NestedAtomic>();
-	ArrayList<NestedAtomic> vhMsgArr=new ArrayList<NestedAtomic>();
-	
-	
-	//CREATED THE DEFAULT FIELDS IN THE SUPERGLUMSG TEMPLATE
-	List<String> indexsd1=new ArrayList<String>();
-	List<String> indexsd2=new ArrayList<String>();
-	
+	ArrayList<NestedAtomic> supergluArr = new ArrayList<NestedAtomic>();
+	ArrayList<NestedAtomic> vhMsgArr = new ArrayList<NestedAtomic>();
 
-	indexsd1.add(Message.CONTEXT_KEY);
-	
-	indexsd2.add(Message.ACTOR_KEY);
-	
-	
-	
-	NestedAtomic SuperGLUDefaultContextField =new NestedAtomic(indexsd1);
+	// CREATED THE DEFAULT FIELDS IN THE SUPERGLUMSG TEMPLATE
+	NestedAtomic SuperGLUDefaultContextField = new NestedAtomic(HashMap.class, Message.CONTEXT_KEY);
 	SuperGLUDefaultContextField.setFieldData("");
-	
-	NestedAtomic SuperGLUDefaultActorField=new NestedAtomic(indexsd2);
+
+	NestedAtomic SuperGLUDefaultActorField = new NestedAtomic(String.class, Message.ACTOR_KEY);
 	SuperGLUDefaultActorField.setFieldData("Tutor");
-	
 
-	supergluArr.add(SuperGLUDefaultContextField);	
+	supergluArr.add(SuperGLUDefaultContextField);
 	supergluArr.add(SuperGLUDefaultActorField);
-	
-	//STORED THE DATA IN THE SUPERGLU MESSAGE TEMPLATE
-	MessageTemplate supergluMsgTemp=new MessageTemplate(supergluArr);
-	
-	//CREATED THE DEFAULT FIELDS IN THE VHMSG TEMPLATE
-	
-	
-	//STORED THE DATA IN THE VH MESSAGE TEMPLATE
-	MessageTemplate vhMsgTemp=new MessageTemplate(vhMsgArr);
-	
-	//CREATING THE NESTED ATOMIC FIELDS THAT HAVE MATCHES (VHT)
-	List<String> indexvh1=new ArrayList<String>();
-	List<String> indexvh2=new ArrayList<String>();
-	indexvh1.add(VHMessage.FIRST_WORD_KEY);
-	indexvh2.add(VHMessage.BODY_KEY);
-	NestedAtomic VHT_LabelField=new NestedAtomic(indexvh1);	
-	VHT_LabelField.setFieldData("commAPI");
-	NestedAtomic VHT_BodyField=new NestedAtomic(indexvh2);
 
-	
-	//CREATING THE NESTED ATOMIC FIELDS THAT HAVE MATCHES (VHT)
-	List<String> indexsg1=new ArrayList<String>();
-	List<String> indexsg2=new ArrayList<String>();
-	List<String> indexsg3=new ArrayList<String>();
+	// STORED THE DATA IN THE SUPERGLU MESSAGE TEMPLATE
+	MessageTemplate supergluMsgTemp = new MessageTemplate(supergluArr);
+
+	// CREATED THE DEFAULT FIELDS IN THE VHMSG TEMPLATE
+
+	// STORED THE DATA IN THE VH MESSAGE TEMPLATE
+	MessageTemplate vhMsgTemp = new MessageTemplate(vhMsgArr);
+
+	// CREATING THE NESTED ATOMIC FIELDS THAT HAVE MATCHES (VHT)
+	NestedAtomic VHT_LabelField = new NestedAtomic(String.class, VHMessage.FIRST_WORD_KEY);
+	VHT_LabelField.setFieldData("commAPI");
+	NestedAtomic VHT_BodyField = new NestedAtomic(String.class, VHMessage.BODY_KEY);
+
+	// CREATING THE NESTED ATOMIC FIELDS THAT HAVE MATCHES (VHT)
+	List<String> indexsg1 = new ArrayList<String>();
+	List<String> indexsg2 = new ArrayList<String>();
+	List<String> indexsg3 = new ArrayList<String>();
 	indexsg1.add(Message.OBJECT_KEY);
 	indexsg2.add(Message.VERB_KEY);
 	indexsg3.add(Message.RESULT_KEY);
-	NestedAtomic SuperGLU_ObjectField=new NestedAtomic(indexsg1);	
-	NestedAtomic SuperGLU_VerbField=new NestedAtomic(indexsg2);
-	NestedAtomic SuperGLU_ResultField=new NestedAtomic(indexsg3);
-	
-	
-	//CREATED THE MAPPINGS FOR THE VERB AND BODY FIELDS RESPECTIVELY BELOW 
-	FieldMap VHT_SuperGLU_TopicVerb_FM=new FieldMap();
+	NestedAtomic SuperGLU_ObjectField = new NestedAtomic(String.class, Message.OBJECT_KEY);
+	NestedAtomic SuperGLU_VerbField = new NestedAtomic(String.class, Message.VERB_KEY);
+	NestedAtomic SuperGLU_ResultField = new NestedAtomic(String.class, Message.RESULT_KEY);
+
+	// CREATED THE MAPPINGS FOR THE VERB AND BODY FIELDS RESPECTIVELY BELOW
+	FieldMap VHT_SuperGLU_TopicVerb_FM = new FieldMap();
 	VHT_SuperGLU_TopicVerb_FM.setInField(VHT_LabelField);
 	VHT_SuperGLU_TopicVerb_FM.setOutField(SuperGLU_VerbField);
-	
-	FieldMap VHT_SuperGLU_TopicObject_FM=new FieldMap();
-	Splitting VHT_SuperGLU_TopicObject_FMsplitter=new Splitting(" ");
+
+	FieldMap VHT_SuperGLU_TopicObject_FM = new FieldMap();
+	Splitting VHT_SuperGLU_TopicObject_FMsplitter = new Splitting(" ");
 	VHT_SuperGLU_TopicObject_FM.setInField(VHT_BodyField);
 	VHT_SuperGLU_TopicObject_FM.setSplitter(VHT_SuperGLU_TopicObject_FMsplitter);
 	VHT_SuperGLU_TopicObject_FM.setIndex(0);
-	VHT_SuperGLU_TopicObject_FM.setOutField(SuperGLU_ObjectField); 
-	
-	FieldMap VHT_SuperGLU_TopicResult_FM=new FieldMap();
-	Splitting VHT_SuperGLU_TopicResult_FMsplitter=new Splitting(" ");
+	VHT_SuperGLU_TopicObject_FM.setOutField(SuperGLU_ObjectField);
+
+	FieldMap VHT_SuperGLU_TopicResult_FM = new FieldMap();
+	Splitting VHT_SuperGLU_TopicResult_FMsplitter = new Splitting(" ");
 	VHT_SuperGLU_TopicResult_FM.setInField(VHT_BodyField);
 	VHT_SuperGLU_TopicResult_FM.setSplitter(VHT_SuperGLU_TopicResult_FMsplitter);
 	VHT_SuperGLU_TopicResult_FM.setIndex(1);
-	VHT_SuperGLU_TopicResult_FM.setOutField(SuperGLU_ResultField); 
-	
-	
-	ArrayList<FieldMap> fieldmappings=new ArrayList<FieldMap>();
+	VHT_SuperGLU_TopicResult_FM.setOutField(SuperGLU_ResultField);
+
+	ArrayList<FieldMap> fieldmappings = new ArrayList<FieldMap>();
 	fieldmappings.add(VHT_SuperGLU_TopicVerb_FM);
 	fieldmappings.add(VHT_SuperGLU_TopicObject_FM);
 	fieldmappings.add(VHT_SuperGLU_TopicResult_FM);
-	
-	
-	//CREATING A MESSAGE TEMPLATE THAT WILL GO INTO THE DEFAULT MESSAGETEMPLATES (WHICH DOES NOT HAVE MATCHES)
-	
-	
-	ArrayList<NestedAtomic> supergluArrGeneric=new ArrayList<NestedAtomic>();
-	ArrayList<NestedAtomic> vhMsgArrGeneric=new ArrayList<NestedAtomic>();
-	
+
+	// CREATING A MESSAGE TEMPLATE THAT WILL GO INTO THE DEFAULT
+	// MESSAGETEMPLATES (WHICH DOES NOT HAVE MATCHES)
+
+	ArrayList<NestedAtomic> supergluArrGeneric = new ArrayList<NestedAtomic>();
+	ArrayList<NestedAtomic> vhMsgArrGeneric = new ArrayList<NestedAtomic>();
+
 	vhMsgArrGeneric.add(VHT_BodyField);
 	vhMsgArrGeneric.add(VHT_LabelField);
-	
-	MessageTemplate vhMsgTempGeneric5=new MessageTemplate(vhMsgArrGeneric);
-	
-	supergluArrGeneric.add(SuperGLUDefaultContextField);		
+
+	MessageTemplate vhMsgTempGeneric5 = new MessageTemplate(vhMsgArrGeneric);
+
+	supergluArrGeneric.add(SuperGLUDefaultContextField);
 	supergluArrGeneric.add(SuperGLU_ResultField);
 	supergluArrGeneric.add(SuperGLU_ObjectField);
 	supergluArrGeneric.add(SuperGLU_VerbField);
 	supergluArrGeneric.add(SuperGLUDefaultActorField);
-	
-	MessageTemplate supergluMsgTempGeneric=new MessageTemplate(supergluArrGeneric);
-	
-	
-	
-	
-			
-	
-	//CREATING THE MESSAGETYPEBASED VHMESSAGE
-	MessageType VHTMsgV1_8=new MessageType("commAPI", 0.0f, 1.1f,vhMsgTempGeneric5,"VHMessage");
-	
-	MessageType SuperGLUMsgV1=new MessageType("SUPERGLUMSG_5",0.0f,1.1f,supergluMsgTempGeneric,"Message");
-	
+
+	MessageTemplate supergluMsgTempGeneric = new MessageTemplate(supergluArrGeneric);
+
+	// CREATING THE MESSAGETYPEBASED VHMESSAGE
+	MessageType VHTMsgV1_8 = new MessageType("commAPI", 0.0f, 1.1f, vhMsgTempGeneric5, "VHMessage");
+
+	MessageType SuperGLUMsgV1 = new MessageType("SUPERGLUMSG_5", 0.0f, 1.1f, supergluMsgTempGeneric, "Message");
+
 	MessageMap result = new MessageMap(VHTMsgV1_8, SuperGLUMsgV1, vhMsgTemp, supergluMsgTemp, fieldmappings);
-	
+
 	return result;
     }
-    
-    
+
     public static MessageMap buildVHTSuperGLURegisterUserInfoMapping()
     {
-	ArrayList<NestedAtomic> supergluArr=new ArrayList<NestedAtomic>();
-	ArrayList<NestedAtomic> vhMsgArr=new ArrayList<NestedAtomic>();
-	
-	
-	//CREATED THE DEFAULT FIELDS IN THE SUPERGLUMSG TEMPLATE
-	List<String> indexsd1=new ArrayList<String>();
-	List<String> indexsd2=new ArrayList<String>();
-	List<String> indexsd3=new ArrayList<String>();
-	
+	ArrayList<NestedAtomic> supergluArr = new ArrayList<NestedAtomic>();
+	ArrayList<NestedAtomic> vhMsgArr = new ArrayList<NestedAtomic>();
 
-	indexsd1.add(Message.CONTEXT_KEY);	
-	indexsd2.add(Message.ACTOR_KEY);
-	indexsd3.add(Message.SPEECH_ACT_KEY);
-	
-	
-	
-	NestedAtomic SuperGLUDefaultContextField =new NestedAtomic(indexsd1);
+	// CREATED THE DEFAULT FIELDS IN THE SUPERGLUMSG TEMPLATE
+	NestedAtomic SuperGLUDefaultContextField = new NestedAtomic(HashMap.class, Message.CONTEXT_KEY);
 	SuperGLUDefaultContextField.setFieldData("");
-	
-	NestedAtomic SuperGLUDefaultActorField=new NestedAtomic(indexsd2);
-	SuperGLUDefaultActorField.setFieldData("DIALOG_MANAGER");
-	
-	NestedAtomic SuperGLUDefaultSpeechActField=new NestedAtomic(indexsd3);
-	SuperGLUDefaultSpeechActField.setFieldData(SpeechActEnum.INFORM_ACT.toString());
-	
 
-	supergluArr.add(SuperGLUDefaultContextField);	
+	NestedAtomic SuperGLUDefaultActorField = new NestedAtomic(String.class, Message.ACTOR_KEY);
+	SuperGLUDefaultActorField.setFieldData("DIALOG_MANAGER");
+
+	// Do we need to specify the exact type here or will a general string
+	// do? -- Auerbach
+	NestedAtomic SuperGLUDefaultSpeechActField = new NestedAtomic(String.class, Message.SPEECH_ACT_KEY);
+	SuperGLUDefaultSpeechActField.setFieldData(SpeechActEnum.INFORM_ACT.toString());
+
+	supergluArr.add(SuperGLUDefaultContextField);
 	supergluArr.add(SuperGLUDefaultActorField);
 	supergluArr.add(SuperGLUDefaultSpeechActField);
-	
-	//STORED THE DATA IN THE SUPERGLU MESSAGE TEMPLATE
-	MessageTemplate supergluMsgTemp=new MessageTemplate(supergluArr);
-	
-	//CREATED THE DEFAULT FIELDS IN THE VHMSG TEMPLATE
-	
-	
-	//STORED THE DATA IN THE VH MESSAGE TEMPLATE
-	MessageTemplate vhMsgTemp=new MessageTemplate(vhMsgArr);
-	
-	//CREATING THE NESTED ATOMIC FIELDS THAT HAVE MATCHES (VHT)
-	List<String> indexvh1=new ArrayList<String>();
-	List<String> indexvh2=new ArrayList<String>();
-	indexvh1.add(VHMessage.FIRST_WORD_KEY);
-	indexvh2.add(VHMessage.BODY_KEY);
-	NestedAtomic VHT_LabelField=new NestedAtomic(indexvh1);	
-	VHT_LabelField.setFieldData("registerUserInfo");
-	NestedAtomic VHT_BodyField=new NestedAtomic(indexvh2);
 
-	
-	//CREATING THE NESTED ATOMIC FIELDS THAT HAVE MATCHES (VHT)
-	List<String> indexsg1=new ArrayList<String>();
-	List<String> indexsg2=new ArrayList<String>();
-	
-	indexsg1.add(Message.OBJECT_KEY);
-	indexsg2.add(Message.VERB_KEY);
-	
-	NestedAtomic SuperGLU_ObjectField=new NestedAtomic(indexsg1);	
-	NestedAtomic SuperGLU_VerbField=new NestedAtomic(indexsg2);
-	
-	
-	//CREATED THE MAPPINGS FOR THE VERB AND BODY FIELDS RESPECTIVELY BELOW 
-	FieldMap VHT_SuperGLU_TopicVerb_FM=new FieldMap();
+	// STORED THE DATA IN THE SUPERGLU MESSAGE TEMPLATE
+	MessageTemplate supergluMsgTemp = new MessageTemplate(supergluArr);
+
+	// CREATED THE DEFAULT FIELDS IN THE VHMSG TEMPLATE
+
+	// STORED THE DATA IN THE VH MESSAGE TEMPLATE
+	MessageTemplate vhMsgTemp = new MessageTemplate(vhMsgArr);
+
+	// CREATING THE NESTED ATOMIC FIELDS THAT HAVE MATCHES (VHT)
+	NestedAtomic VHT_LabelField = new NestedAtomic(String.class, VHMessage.FIRST_WORD_KEY);
+	VHT_LabelField.setFieldData("registerUserInfo");
+	NestedAtomic VHT_BodyField = new NestedAtomic(String.class, VHMessage.BODY_KEY);
+
+	// CREATING THE NESTED ATOMIC FIELDS THAT HAVE MATCHES (VHT)
+	NestedAtomic SuperGLU_ObjectField = new NestedAtomic(String.class, Message.OBJECT_KEY);
+	NestedAtomic SuperGLU_VerbField = new NestedAtomic(String.class, Message.VERB_KEY);
+
+	// CREATED THE MAPPINGS FOR THE VERB AND BODY FIELDS RESPECTIVELY BELOW
+	FieldMap VHT_SuperGLU_TopicVerb_FM = new FieldMap();
 	VHT_SuperGLU_TopicVerb_FM.setInField(VHT_LabelField);
 	VHT_SuperGLU_TopicVerb_FM.setOutField(SuperGLU_VerbField);
-	
-	FieldMap VHT_SuperGLU_TopicObject_FM=new FieldMap();
-	Splitting VHT_SuperGLU_TopicObject_FMsplitter=new Splitting(" ");
+
+	FieldMap VHT_SuperGLU_TopicObject_FM = new FieldMap();
+	Splitting VHT_SuperGLU_TopicObject_FMsplitter = new Splitting(" ");
 	VHT_SuperGLU_TopicObject_FM.setInField(VHT_BodyField);
 	VHT_SuperGLU_TopicObject_FM.setSplitter(VHT_SuperGLU_TopicObject_FMsplitter);
 	VHT_SuperGLU_TopicObject_FM.setIndex(2);
-	VHT_SuperGLU_TopicObject_FM.setOutField(SuperGLU_ObjectField); 
-	
-	
-	
-	ArrayList<FieldMap> fieldmappings=new ArrayList<FieldMap>();
+	VHT_SuperGLU_TopicObject_FM.setOutField(SuperGLU_ObjectField);
+
+	ArrayList<FieldMap> fieldmappings = new ArrayList<FieldMap>();
 	fieldmappings.add(VHT_SuperGLU_TopicVerb_FM);
 	fieldmappings.add(VHT_SuperGLU_TopicObject_FM);
-	
-	
-	
-	//CREATING A MESSAGE TEMPLATE THAT WILL GO INTO THE DEFAULT MESSAGETEMPLATES (WHICH DOES NOT HAVE MATCHES)
-	
-	
-	ArrayList<NestedAtomic> supergluArrGeneric=new ArrayList<NestedAtomic>();
-	ArrayList<NestedAtomic> vhMsgArrGeneric=new ArrayList<NestedAtomic>();
-	
+
+	// CREATING A MESSAGE TEMPLATE THAT WILL GO INTO THE DEFAULT
+	// MESSAGETEMPLATES (WHICH DOES NOT HAVE MATCHES)
+
+	ArrayList<NestedAtomic> supergluArrGeneric = new ArrayList<NestedAtomic>();
+	ArrayList<NestedAtomic> vhMsgArrGeneric = new ArrayList<NestedAtomic>();
+
 	vhMsgArrGeneric.add(VHT_BodyField);
 	vhMsgArrGeneric.add(VHT_LabelField);
-	
-	MessageTemplate vhMsgTempGeneric=new MessageTemplate(vhMsgArrGeneric);
-	
-	supergluArrGeneric.add(SuperGLUDefaultContextField);	
+
+	MessageTemplate vhMsgTempGeneric = new MessageTemplate(vhMsgArrGeneric);
+
+	supergluArrGeneric.add(SuperGLUDefaultContextField);
 	supergluArrGeneric.add(SuperGLUDefaultActorField);
 	supergluArrGeneric.add(SuperGLUDefaultSpeechActField);
 	supergluArrGeneric.add(SuperGLU_ObjectField);
 	supergluArrGeneric.add(SuperGLU_VerbField);
-	
-	
-	MessageTemplate supergluMsgTempGeneric=new MessageTemplate(supergluArrGeneric);
-	
-	
-	
-	
-			
-	
-	//CREATING THE MESSAGETYPEBASED VHMESSAGE
-	MessageType VHTMsgV1_8=new MessageType("registerUserInfo", 0.0f, 1.1f,vhMsgTempGeneric,"VHMessage");
-	
-	MessageType SuperGLUMsgV1=new MessageType("SUPERGLUMSG_5",0.0f,1.1f,supergluMsgTempGeneric,"Message");
-	
+
+	MessageTemplate supergluMsgTempGeneric = new MessageTemplate(supergluArrGeneric);
+
+	// CREATING THE MESSAGETYPEBASED VHMESSAGE
+	MessageType VHTMsgV1_8 = new MessageType("registerUserInfo", 0.0f, 1.1f, vhMsgTempGeneric, "VHMessage");
+
+	MessageType SuperGLUMsgV1 = new MessageType("SUPERGLUMSG_5", 0.0f, 1.1f, supergluMsgTempGeneric, "Message");
+
 	MessageMap result = new MessageMap(VHTMsgV1_8, SuperGLUMsgV1, vhMsgTemp, supergluMsgTemp, fieldmappings);
-	
+
 	return result;
     }
 
-   
-    
 }

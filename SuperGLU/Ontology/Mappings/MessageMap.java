@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import Util.Pair;
+
 /**
  * MessageMap  Class
  * The class is used to store the complete data regarding a valid mapping like inmsgtype,outmsgtype,fieldmappings, etc.
@@ -276,21 +278,21 @@ public class MessageMap extends Serializable
 	{
 
 	    NestedAtomic inFields = maps.getInFields();
-	    List<String> inFieldsIndex = inFields.getIndex();
+	    List<Pair<Class<?>,String>> inFieldsIndex = inFields.getIndices();
 
 	    NestedAtomic outFields = maps.getOutFields();
-	    List<String> outFieldsIndex = outFields.getIndex();
+	    List<Pair<Class<?>,String>> outFieldsIndex = outFields.getIndices();
 
 	    String valueToBeInserted = "";
 	    HashMap<String, String> hmap = new HashMap<>();
-	    for (String value : inFieldsIndex)
+	    for (Pair<Class<?>, String> value : inFieldsIndex)
 	    {
-		if (input.contains(value))
+		if (input.contains(value.getSecond()))
 		{
 
-		    valueToBeInserted = (String) input.getItem(value);
+		    valueToBeInserted = (String) input.getItem(value.getSecond());
 		    if (maps.getSplitter() == null)
-			hmap.put(value, valueToBeInserted);
+			hmap.put(value.getSecond(), valueToBeInserted);
 		    else
 		    {
 
@@ -298,21 +300,21 @@ public class MessageMap extends Serializable
 			List<String> obtained = current.action(valueToBeInserted);
 			int index = maps.getIndex();
 			valueToBeInserted = obtained.get(index);
-			hmap.put(value, valueToBeInserted);
+			hmap.put(value.getSecond(), valueToBeInserted);
 
 		    }
 		}
 
 	    }
 
-	    for (String value : outFieldsIndex)
+	    for (Pair<Class<?>, String>  value : outFieldsIndex)
 	    {
 		for (String key : hmap.keySet())
 		{
-		    target.setItem(value, hmap.get(key));
+		    target.setItem(value.getSecond(), hmap.get(key));
 		    // Upgrade to a log file instead of console output
 		    // --Auerbach
-		    System.out.println("check value " + target.getItem(value));
+		    System.out.println("check value " + target.getItem(value.getSecond()));
 		}
 
 	    }
@@ -331,13 +333,13 @@ public class MessageMap extends Serializable
 	HashMap<String, String> hmap = new HashMap<>();
 	for (NestedAtomic in : outarr)
 	{
-	    List<String> inside = in.getIndex();
+	    List<Pair<Class<?>, String>> inside = in.getIndices();
 	    String tobeset = in.getFieldData();
-	    for (String key : inside)
+	    for (Pair<Class<?>, String> key : inside)
 	    {
-		if (target.contains(key))
+		if (target.contains(key.getSecond()))
 		{
-		    hmap.put(key, in.getFieldData());
+		    hmap.put(key.getSecond(), in.getFieldData());
 		}
 	    }
 	}

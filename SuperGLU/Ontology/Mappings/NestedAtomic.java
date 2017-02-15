@@ -2,6 +2,8 @@ package Ontology.Mappings;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import Util.Pair;
 import Util.SerializationConvenience;
 import Util.StorageToken;
 
@@ -18,23 +20,20 @@ public class NestedAtomic extends FieldData
 
     public static final String NESTED_ATOMIC_INDICES_KEY = "nestedAtomicIndices";
     
-    private List<String> indices;
+    private List<Pair<Class<?>,String>> indices;
    
 
     // CONSTRUCTORS
-    public NestedAtomic(List<String> index)
+    public NestedAtomic(List<Pair<Class<?>,String>> indices)
     {
-	if (index == null)
-	    indices = null;
-	else
-	{
-	    indices = new ArrayList<>();
-	    for (String in:index)
-	    {
-		indices.add(in);
-	    }
-	}
-
+	this.indices = indices;
+    }
+    
+    
+    public NestedAtomic(Class<?> clazz, String index)
+    {
+	this.indices = new ArrayList<>();
+	this.addIndex(clazz, index);
     }
    
 
@@ -45,21 +44,23 @@ public class NestedAtomic extends FieldData
 
     // GETTER AND SETTER METHODS
   
-    public List<String> getIndex()
+    public List<Pair<Class<?>,String>> getIndices()
     {
 	return indices;
     }
 
-    public void setIndex(List<String> index)
+    public void setIndices(List<Pair<Class<?>, String>> indices)
     {
-	if (index != null)
-	{
-	    indices = new ArrayList<>();
-	    for (String in:index)
-	    {
-		indices.add(in);
-	    }
-	}
+	this.indices = indices;
+    }
+    
+    public void addIndex(Class<?> clazz, String index)
+    {
+	if(this.indices == null)
+	    this.indices = new ArrayList<>();
+	
+	
+	this.indices.add(new Pair<Class<?>, String>(clazz, index));
     }
 
     // Equality Operations
@@ -99,7 +100,7 @@ public class NestedAtomic extends FieldData
     public void initializeFromToken(StorageToken token)
     {
 	super.initializeFromToken(token);
-	this.indices = (List<String>) SerializationConvenience.untokenizeObject(token.getItem(NESTED_ATOMIC_INDICES_KEY));
+	this.indices = (List<Pair<Class<?>,String>>) SerializationConvenience.untokenizeObject(token.getItem(NESTED_ATOMIC_INDICES_KEY));
 	
     }
 

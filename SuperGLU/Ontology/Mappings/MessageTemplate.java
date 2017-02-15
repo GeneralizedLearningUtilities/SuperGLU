@@ -15,27 +15,22 @@ import Util.StorageToken;
 public class MessageTemplate extends Serializable
 {
 
-    private ArrayList<NestedAtomic> defaultFieldData = new ArrayList<>();
+    private ArrayList<NestedAtomic> defaultFieldData;
     public static final String MESSAGE_TEMPLATE_DEFAULTFIELDDATA_KEY = "messageTemplate";
 
     // CONSTRUCTOR
     public MessageTemplate()
     {
-	defaultFieldData = null;
+	defaultFieldData = new ArrayList<>();
     }
 
     // PARAMETERIZED CONSTRUCTOR
     public MessageTemplate(ArrayList<NestedAtomic> arrlist)
     {
-	if (arrlist == null)
-	    defaultFieldData = null;
+	if(arrlist==null)
+	    this.defaultFieldData = new ArrayList<>();
 	else
-	{
-	    for (NestedAtomic in : arrlist)
-	    {
-		defaultFieldData.add(in);
-	    }
-	}
+	    this.defaultFieldData = arrlist;
     }
 
     
@@ -49,15 +44,10 @@ public class MessageTemplate extends Serializable
     // SETTER METHOD FOR SETTING THE FIELD-DATA ARRAYLIST
     public void setData(ArrayList<NestedAtomic> arrFieldData)
     {
-	if (arrFieldData == null)
-	    defaultFieldData = null;
+	if(arrFieldData==null)
+	    this.defaultFieldData = new ArrayList<>();
 	else
-	{
-	    for (NestedAtomic in : arrFieldData)
-	    {
-		defaultFieldData.add(in);
-	    }
-	}
+	    this.defaultFieldData = arrFieldData;
     }
 
     // CREATES A STORAGE TOKEN OF THE TARGET CLASS OBJECT ONCE A VALID MAPPING
