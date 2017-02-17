@@ -23,6 +23,7 @@ import org.apache.activemq.command.ActiveMQTopic;
 
 import Util.SerializationConvenience;
 import Util.SerializationFormatEnum;
+import Util.StorageToken;
 
 /**
  * this class will connect to an ActiveMQ Broker and subscribe to a single
@@ -153,7 +154,8 @@ public class ActiveMQTopicMessagingGateway extends MessagingGateway implements M
 	    {
 		// need to figure out how to get all of the header properties
 		// (and if we actually need them).
-		msg = new GIFTMessage(null, new HashMap<>(), "", body);
+		StorageToken bodyAsStorageToken = SerializationConvenience.makeNative(body, SerializationFormatEnum.JSON_FORMAT);
+		msg = new GIFTMessage(null, new HashMap<>(), "", bodyAsStorageToken);
 	    } else
 	    {
 		msg = (Message) SerializationConvenience.nativeizeObject(body, SerializationFormatEnum.JSON_FORMAT);

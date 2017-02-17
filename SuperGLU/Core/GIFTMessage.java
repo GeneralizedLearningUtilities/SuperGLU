@@ -18,10 +18,10 @@ public class GIFTMessage extends BaseMessage {
 	
 	protected String header;
 	
-	protected String payload;
+	protected StorageToken payload;
 	
 	
-	public GIFTMessage(String id, Map<String, Object> context, String header, String payload)
+	public GIFTMessage(String id, Map<String, Object> context, String header, StorageToken payload)
 	{
 		super(id, context);
 		
@@ -31,7 +31,7 @@ public class GIFTMessage extends BaseMessage {
 			this.header = header;
 		
 		if(payload == null)
-			this.payload = "";
+			this.payload = new StorageToken();
 		else
 			this.payload = payload;
 	}
@@ -41,7 +41,7 @@ public class GIFTMessage extends BaseMessage {
 	{
 		super();
 		this.header = "";
-		this.payload = "";
+		this.payload = new StorageToken();
 	}
 	
 	
@@ -55,12 +55,12 @@ public class GIFTMessage extends BaseMessage {
 	}
 
 
-	public String getPayload() {
+	public StorageToken getPayload() {
 		return payload;
 	}
 
 
-	public void setPayload(String payload) {
+	public void setPayload(StorageToken payload) {
 		this.payload = payload;
 	}
 
@@ -111,7 +111,7 @@ public class GIFTMessage extends BaseMessage {
 	{
 		StorageToken result = super.saveToToken();
 		result.setItem(HEADER_KEY, SerializationConvenience.tokenizeObject(this.header));
-		result.setItem(PAYLOAD_KEY, SerializationConvenience.tokenizeObject(this.payload));
+		result.setItem(PAYLOAD_KEY, this.payload);
 		
 		return result;
 	}
@@ -122,6 +122,6 @@ public class GIFTMessage extends BaseMessage {
 	{
 		super.initializeFromToken(token);
 		this.header = (String)SerializationConvenience.untokenizeObject(token.getItem(HEADER_KEY, true, ""));
-		this.payload = (String)SerializationConvenience.untokenizeObject(token.getItem(PAYLOAD_KEY, true, ""));
+		this.payload = (StorageToken) token.getItem(PAYLOAD_KEY, true, new StorageToken());
 	}
 }

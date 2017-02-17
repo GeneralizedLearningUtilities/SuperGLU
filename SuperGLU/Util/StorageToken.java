@@ -38,6 +38,13 @@ public class StorageToken extends Serializable implements Iterable<String> {
 	}
 	
 	
+	public StorageToken()
+	{
+	    super();
+	    this.data = new HashMap<>();
+	}
+	
+	
 	public StorageToken(Map<String, Object> data, String id, String classId)
 	{
 		this.data = data;
