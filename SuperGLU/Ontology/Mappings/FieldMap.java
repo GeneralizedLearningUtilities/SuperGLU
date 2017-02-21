@@ -6,8 +6,6 @@ package Ontology.Mappings;
  * @author tirthmehta
  */
 
-import java.util.List;
-
 import Util.Serializable;
 import Util.SerializationConvenience;
 import Util.StorageToken;
@@ -19,11 +17,13 @@ public class FieldMap extends Serializable
     public static final String FIELD_MAP_OUTFIELDS_KEY = "outFields";
     public static final String FIELD_MAP_SPLITTING_KEY = "splittingObj";
     public static final String FIELD_MAP_INDEX_KEY = "index";
+    public static final String FIELD_MAP_JOINING_KEY = "joiningObj";
     
-    private NestedAtomic inFields;
-    private NestedAtomic outFields;
-    private ArgumentSeparator splitobj;
-    private int index;
+    protected NestedAtomic inFields;
+    protected NestedAtomic outFields;
+    protected ArgumentSeparator splitobj;
+    protected ArgumentSeparator joinObj;
+    protected int index;
     
    
     
@@ -40,6 +40,15 @@ public class FieldMap extends Serializable
 	inFields = in;
 	outFields = out;
     }
+    
+    
+    public FieldMap(NestedAtomic in, NestedAtomic out, ArgumentSeparator splitObj, ArgumentSeparator joinObj)
+    {
+	this.inFields = in;
+	this.outFields = out;
+	this.splitobj = splitObj;
+	this.joinObj = joinObj;
+    }
 
     // GETTER AND SETTER METHODS FOR GETTING AND SETTING THE IN-FIELDS AND
     // OUT-FIELDS RESPECTIVELY
@@ -52,6 +61,11 @@ public class FieldMap extends Serializable
     public ArgumentSeparator getSplitter()
     {
 	return splitobj;
+    }
+    
+    public ArgumentSeparator getJoiner()
+    {
+	return this.joinObj;
     }
     
     public void setIndex(int ind)
@@ -103,6 +117,8 @@ public class FieldMap extends Serializable
 	    return false;
 	if (!fieldIsEqual(this.splitobj, other.splitobj))
 	    return false;
+	if (!fieldIsEqual(this.joinObj, other.joinObj))
+	    return false;
 	if (!fieldIsEqual(this.index, other.index))
 	    return false;
 
@@ -121,7 +137,8 @@ public class FieldMap extends Serializable
 	    result = result * arbitraryPrimeNumber + this.outFields.hashCode();
 	if (this.splitobj != null)
 	    result = result * arbitraryPrimeNumber + this.splitobj.hashCode();
-	
+	if(this.joinObj != null)
+	    result = result * arbitraryPrimeNumber + this.joinObj.hashCode();
 
 	return result;
 
@@ -134,7 +151,8 @@ public class FieldMap extends Serializable
 	super.initializeFromToken(token);
 	this.inFields = (NestedAtomic) SerializationConvenience.untokenizeObject(token.getItem(FIELD_MAP_INFIELDS_KEY));
 	this.outFields = (NestedAtomic) SerializationConvenience.untokenizeObject(token.getItem(FIELD_MAP_OUTFIELDS_KEY));
-	this.splitobj = (Splitting) SerializationConvenience.untokenizeObject(token.getItem(FIELD_MAP_SPLITTING_KEY));
+	this.splitobj = (ArgumentSeparator) SerializationConvenience.untokenizeObject(token.getItem(FIELD_MAP_SPLITTING_KEY));
+	this.joinObj = (ArgumentSeparator) SerializationConvenience.untokenizeObject(token.getItem(FIELD_MAP_JOINING_KEY));
 	this.index = (int) SerializationConvenience.untokenizeObject(token.getItem(FIELD_MAP_INDEX_KEY));
     }
 
@@ -146,7 +164,7 @@ public class FieldMap extends Serializable
 	result.setItem(FIELD_MAP_OUTFIELDS_KEY, SerializationConvenience.tokenizeObject(this.outFields));
 	result.setItem(FIELD_MAP_SPLITTING_KEY, SerializationConvenience.tokenizeObject(this.splitobj));
 	result.setItem(FIELD_MAP_INDEX_KEY, SerializationConvenience.tokenizeObject(this.index));
-	
+	result.setItem(FIELD_MAP_JOINING_KEY, SerializationConvenience.tokenizeObject(this.joinObj));
 	return result;
     }
 

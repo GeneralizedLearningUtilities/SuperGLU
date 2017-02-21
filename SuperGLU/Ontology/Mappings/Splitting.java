@@ -11,7 +11,7 @@ public class Splitting implements ArgumentSeparator
 	argument=arg;
     }
     
-    public List<String> action(String input)
+    public List<String> split(String input)
     {
 	List<String> ans=new ArrayList<>();
 	String[] tobesent=input.split(argument);
@@ -19,5 +19,23 @@ public class Splitting implements ArgumentSeparator
 	    ans.add(in);
 	return ans;
     }
+
+    @Override
+    public String join(List<String> input)
+    {
+	String result = "";
+	for(String currentInput : input)
+	{
+	    if(result.equals(""))
+		result += currentInput;
+	    else
+		result = result + argument + currentInput;
+	}
+	
+	return result;
+    }
+    
+    
+    
 }
 

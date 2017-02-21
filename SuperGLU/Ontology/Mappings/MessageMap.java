@@ -297,7 +297,7 @@ public class MessageMap extends Serializable
 		    {
 
 			ArgumentSeparator current = maps.getSplitter();
-			List<String> obtained = current.action(valueToBeInserted);
+			List<String> obtained = current.split(valueToBeInserted);
 			int index = maps.getIndex();
 			valueToBeInserted = obtained.get(index);
 			hmap.put(value.getSecond(), valueToBeInserted);
