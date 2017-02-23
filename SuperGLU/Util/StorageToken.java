@@ -71,6 +71,12 @@ public class StorageToken extends Serializable implements Iterable<String> {
 		
 	}
 	
+	//Serialization	
+	public StorageToken saveToToken()
+	{//Don't add an additional hashmap if it's already a storage token.
+		return this;
+	}
+	
 	//Accessors
 	public String getId()
 	{
