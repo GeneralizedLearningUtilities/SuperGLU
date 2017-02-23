@@ -217,7 +217,7 @@ public class NestedAtomic extends Serializable implements FieldData
 	Object tokenizedData = SerializationConvenience.tokenizeObject(data);
 
 	// We only want to drill down to the second to last item in the list.
-	for (Pair<Class<?>, String> intermediateContainerData : this.indices.subList(0, this.indices.size() - 2))
+	for (Pair<Class<?>, String> intermediateContainerData : this.indices.subList(0, this.indices.size() - 1))
 	{
 	    Object nextContainer;
 	    // Object does not exist. We'll have to create it.
@@ -287,7 +287,13 @@ public class NestedAtomic extends Serializable implements FieldData
 	    if (currentContainer instanceof StorageToken)
 		((StorageToken) currentContainer).setItem(fieldName, tokenizedData);
 	    else if (currentContainer instanceof List<?>)
-		((List) currentContainer).add(Integer.parseInt(fieldName), tokenizedData);
+	    {
+		int index = Integer.parseInt(fieldName);
+		if(((List) currentContainer).size() < index)
+		    ((List) currentContainer).add(index, tokenizedData);
+		else
+		    ((List) currentContainer).set(index, tokenizedData);
+	    }
 	    else if (currentContainer instanceof Map<?, ?>)
 		((Map) currentContainer).put(fieldName, tokenizedData);
 	}
