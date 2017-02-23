@@ -70,7 +70,7 @@ public class MessageTemplate extends Serializable
 	if (!super.equals(otherObject))
 	    return false;
 
-	if (!(otherObject instanceof FieldData))
+	if (!(otherObject instanceof SimpleFieldData))
 	    return false;
 
 	MessageTemplate other = (MessageTemplate) otherObject;

@@ -2,8 +2,13 @@ package Ontology.Mappings;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import Util.Pair;
+import Util.Serializable;
 import Util.SerializationConvenience;
 import Util.StorageToken;
 
@@ -15,10 +20,12 @@ import Util.StorageToken;
  * @author tirthmehta
  */
 
-public class NestedAtomic extends FieldData
+public class NestedAtomic extends Serializable implements FieldData
 {
 
     public static final String NESTED_ATOMIC_INDICES_KEY = "nestedAtomicIndices";
+    
+    private static final Logger log = LoggerFactory.getLogger(NestedAtomic.class);
 
     private List<Pair<Class<?>, String>> indices;
 
@@ -135,6 +142,53 @@ public class NestedAtomic extends FieldData
 
 	result.setItem(NESTED_ATOMIC_INDICES_KEY, SerializationConvenience.tokenizeObject(classesAsStrings));
 	return result;
+    }
+    
+
+    @Override
+    public Object retrieveFieldData(StorageToken msg)
+    {
+	Object currentContainer = msg;
+	
+	for(Pair<Class<?>, String> intermediateField : this.indices)
+	{
+	    //Object does not exist, return null
+	    if(currentContainer == null)
+		return null;
+	    
+	    if(currentContainer instanceof StorageToken)
+	    {
+		StorageToken containerAsStorageToken = (StorageToken) currentContainer;
+		currentContainer = containerAsStorageToken.getItem(intermediateField.getSecond());
+	    }
+	    else if(currentContainer instanceof List<?>)
+	    {
+		List<?> containerAsList = (List<?>) currentContainer;
+		int listIndex = Integer.parseInt(intermediateField.getSecond());
+		currentContainer = containerAsList.get(listIndex);
+	    }
+	    else if(currentContainer instanceof Map<?, ?>)
+	    {//This code will currently assume that the Map has a key of Strings for the moment. 
+		Map<String, Object> containerAsMap = (Map<String, Object>) currentContainer;
+		currentContainer = containerAsMap.get(intermediateField.getSecond());
+	    }
+	    else
+	    {
+		//TODO: return null or throw exception?
+		String warning = "index:" + intermediateField.getSecond() + " does not exist in StorageContainer: " + currentContainer.toString();
+		NestedAtomic.log.warn(warning);
+		throw new RuntimeException(warning);
+	    }
+	}
+	
+	Object result = SerializationConvenience.untokenizeObject(currentContainer);
+	return result;
+    }
+
+    @Override
+    public void storeData(StorageToken msg, Object data)
+    {
+	
     }
 
 }

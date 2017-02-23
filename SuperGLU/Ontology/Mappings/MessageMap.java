@@ -27,7 +27,7 @@ public class MessageMap extends Serializable
 
     protected MessageTemplate outDefaultMsg = new MessageTemplate();
 
-    protected ArrayList<FieldMap> fieldMappings;
+    protected List<FieldMap> fieldMappings;
 
     public static final String MESSAGEMAP_INMSGTYPE_KEY = "inMsg";
     public static final String MESSAGEMAP_OUTMSGTYPE_KEY = "outMsg";
@@ -139,7 +139,7 @@ public class MessageMap extends Serializable
 	    return outDefaultMsg;
     }
 
-    public ArrayList<FieldMap> getFieldMappings()
+    public List<FieldMap> getFieldMappings()
     {
 	if (fieldMappings == null)
 	    return null;
@@ -203,7 +203,7 @@ public class MessageMap extends Serializable
 	this.outMsgType = (MessageType) SerializationConvenience.untokenizeObject(token.getItem(MESSAGEMAP_OUTMSGTYPE_KEY));
 	this.inDefaultMsg = (MessageTemplate) SerializationConvenience.untokenizeObject(token.getItem(MESSAGEMAP_INDEFAULT_KEY));
 	this.outDefaultMsg = (MessageTemplate) SerializationConvenience.untokenizeObject(token.getItem(MESSAGEMAP_OUTDEFAULT_KEY));
-	this.fieldMappings = (ArrayList<FieldMap>) SerializationConvenience.untokenizeObject(token.getItem(MESSAGEMAP_FIELDMAPPINGS_KEY));
+	this.fieldMappings = (List<FieldMap>) SerializationConvenience.untokenizeObject(token.getItem(MESSAGEMAP_FIELDMAPPINGS_KEY));
     }
 
     @Override
@@ -222,7 +222,7 @@ public class MessageMap extends Serializable
      * THE FUNCTION NECESSARY FOR CHECKING WHETHER THE MESSAGE INOUT TOKEN
      * COMING IN HAS A VALID MATCH WITH THE AVAIALABLE SET OF MAPPINGS
      */
-
+/*
     public boolean isValidSourceMsg(StorageToken input, String firstwordkey)
     {
 	boolean first = false, second = false;
@@ -266,14 +266,14 @@ public class MessageMap extends Serializable
      * @param input
      * @return
      */
-
+/*
     public StorageToken convert(StorageToken input)
     {
 	MessageType out = getOutMsgType();
 	MessageTemplate mtemp = out.getMessageTemplate();
 	StorageToken target = mtemp.createTargetStorageToken(out.getClassId());
 
-	ArrayList<FieldMap> mappingList = getFieldMappings();
+	List<FieldMap> mappingList = getFieldMappings();
 	for (FieldMap maps : mappingList)
 	{
 
@@ -298,7 +298,7 @@ public class MessageMap extends Serializable
 
 			ArgumentSeparator current = maps.getSplitter();
 			List<String> obtained = current.split(valueToBeInserted);
-			int index = maps.getIndex();
+			int index = maps.getInIndex();
 			valueToBeInserted = obtained.get(index);
 			hmap.put(value.getSecond(), valueToBeInserted);
 
@@ -334,7 +334,6 @@ public class MessageMap extends Serializable
 	for (NestedAtomic in : outarr)
 	{
 	    List<Pair<Class<?>, String>> inside = in.getIndices();
-	    String tobeset = in.getFieldData();
 	    for (Pair<Class<?>, String> key : inside)
 	    {
 		if (target.contains(key.getSecond()))
@@ -353,5 +352,5 @@ public class MessageMap extends Serializable
 	return target;
 
     }
-
+*/
 }

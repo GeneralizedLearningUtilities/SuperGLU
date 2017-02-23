@@ -25,7 +25,7 @@ import Util.StorageToken;
 
 public class MappingTest1
 {
-
+/*
     @Test
     public void test()
     {
@@ -88,5 +88,5 @@ public class MappingTest1
 
 	expected.toString();
     }
-
+*/
 }

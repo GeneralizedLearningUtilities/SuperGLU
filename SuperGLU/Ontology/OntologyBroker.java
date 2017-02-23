@@ -184,9 +184,9 @@ public class OntologyBroker
 	
 	for(MessageMap currentMap : path)
 	{
-	    if(currentMap.isValidSourceMsg(currentForm, null))
+	  //  if(currentMap.isValidSourceMsg(currentForm, null))
 	    {
-		currentForm = currentMap.convert(currentForm);
+		//currentForm = currentMap.convert(currentForm);
 		
 		if(currentForm == null)
 		    return null;//something has gone wrong if this code is triggered.

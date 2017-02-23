@@ -10,7 +10,7 @@ import java.util.Map;
 import org.junit.Test;
 
 import Core.VHMessage;
-import Ontology.Mappings.FieldData;
+import Ontology.Mappings.SimpleFieldData;
 import Ontology.Mappings.FieldMap;
 import Ontology.Mappings.MessageTemplate;
 import Ontology.Mappings.MessageTwoWayMap;

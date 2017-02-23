@@ -19,7 +19,7 @@ import Util.Pair;
  */
 public class MessageMapFactory
 {
-
+/*
     public static List<MessageMap> buildMessageMaps()
     {
 	List<MessageMap> result = new ArrayList<>();
@@ -409,21 +409,21 @@ public class MessageMapFactory
 	Splitting VHT_SuperGLU_TopicObject_FMsplitter = new Splitting(" ");
 	VHT_SuperGLU_TopicObject_FM.setInField(VHT_BodyField);
 	VHT_SuperGLU_TopicObject_FM.setSplitter(VHT_SuperGLU_TopicObject_FMsplitter);
-	VHT_SuperGLU_TopicObject_FM.setIndex(2);
+	VHT_SuperGLU_TopicObject_FM.setInIndex(2);
 	VHT_SuperGLU_TopicObject_FM.setOutField(SuperGLU_ObjectField);
 
 	FieldMap VHT_SuperGLU_TopicResult_FM = new FieldMap();
 	Splitting VHT_SuperGLU_TopicResult_FMsplitter = new Splitting(" ");
 	VHT_SuperGLU_TopicResult_FM.setInField(VHT_BodyField);
 	VHT_SuperGLU_TopicResult_FM.setSplitter(VHT_SuperGLU_TopicResult_FMsplitter);
-	VHT_SuperGLU_TopicResult_FM.setIndex(3);
+	VHT_SuperGLU_TopicResult_FM.setInIndex(3);
 	VHT_SuperGLU_TopicResult_FM.setOutField(SuperGLU_ResultField);
 
 	FieldMap VHT_SuperGLU_TopicActor_FM = new FieldMap();
 	Splitting VHT_SuperGLU_TopicActor_FMsplitter = new Splitting(" ");
 	VHT_SuperGLU_TopicActor_FM.setInField(VHT_BodyField);
 	VHT_SuperGLU_TopicActor_FM.setSplitter(VHT_SuperGLU_TopicActor_FMsplitter);
-	VHT_SuperGLU_TopicActor_FM.setIndex(0);
+	VHT_SuperGLU_TopicActor_FM.setInIndex(0);
 	VHT_SuperGLU_TopicActor_FM.setOutField(SuperGLU_ActorField);
 
 	ArrayList<FieldMap> fieldmappings = new ArrayList<FieldMap>();
@@ -509,14 +509,14 @@ public class MessageMapFactory
 	Splitting VHT_SuperGLU_TopicObject_FMsplitter = new Splitting(" ");
 	VHT_SuperGLU_TopicObject_FM.setInField(VHT_BodyField);
 	VHT_SuperGLU_TopicObject_FM.setSplitter(VHT_SuperGLU_TopicObject_FMsplitter);
-	VHT_SuperGLU_TopicObject_FM.setIndex(0);
+	VHT_SuperGLU_TopicObject_FM.setInIndex(0);
 	VHT_SuperGLU_TopicObject_FM.setOutField(SuperGLU_ObjectField);
 
 	FieldMap VHT_SuperGLU_TopicResult_FM = new FieldMap();
 	Splitting VHT_SuperGLU_TopicResult_FMsplitter = new Splitting(" ");
 	VHT_SuperGLU_TopicResult_FM.setInField(VHT_BodyField);
 	VHT_SuperGLU_TopicResult_FM.setSplitter(VHT_SuperGLU_TopicResult_FMsplitter);
-	VHT_SuperGLU_TopicResult_FM.setIndex(1);
+	VHT_SuperGLU_TopicResult_FM.setInIndex(1);
 	VHT_SuperGLU_TopicResult_FM.setOutField(SuperGLU_ResultField);
 
 	ArrayList<FieldMap> fieldmappings = new ArrayList<FieldMap>();
@@ -600,7 +600,7 @@ public class MessageMapFactory
 	Splitting VHT_SuperGLU_TopicObject_FMsplitter = new Splitting(" ");
 	VHT_SuperGLU_TopicObject_FM.setInField(VHT_BodyField);
 	VHT_SuperGLU_TopicObject_FM.setSplitter(VHT_SuperGLU_TopicObject_FMsplitter);
-	VHT_SuperGLU_TopicObject_FM.setIndex(2);
+	VHT_SuperGLU_TopicObject_FM.setInIndex(2);
 	VHT_SuperGLU_TopicObject_FM.setOutField(SuperGLU_ObjectField);
 
 	ArrayList<FieldMap> fieldmappings = new ArrayList<FieldMap>();
@@ -635,5 +635,5 @@ public class MessageMapFactory
 
 	return result;
     }
-
+*/
 }
