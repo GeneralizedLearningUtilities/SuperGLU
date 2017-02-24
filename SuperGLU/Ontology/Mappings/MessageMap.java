@@ -27,7 +27,7 @@ public class MessageMap extends Serializable
 
     protected MessageTemplate outDefaultMsg = new MessageTemplate();
 
-    protected List<FieldMap> fieldMappings;
+    protected List<FieldMapOneToOne> fieldMappings;
 
     public static final String MESSAGEMAP_INMSGTYPE_KEY = "inMsg";
     public static final String MESSAGEMAP_OUTMSGTYPE_KEY = "outMsg";
@@ -45,7 +45,7 @@ public class MessageMap extends Serializable
     }
 
     // PARAMETERIZED CONSTRUCTORS
-    public MessageMap(MessageType in, MessageType out, MessageTemplate m_in, MessageTemplate m_out, ArrayList<FieldMap> arrmap)
+    public MessageMap(MessageType in, MessageType out, MessageTemplate m_in, MessageTemplate m_out, ArrayList<FieldMapOneToOne> arrmap)
     {
 	if (in == null)
 	    inMsgType = null;
@@ -95,14 +95,14 @@ public class MessageMap extends Serializable
 	outDefaultMsg = mtemp;
     }
 
-    public void setFieldMappings(ArrayList<FieldMap> arrFieldMap)
+    public void setFieldMappings(ArrayList<FieldMapOneToOne> arrFieldMap)
     {
 	if (arrFieldMap == null)
 	    fieldMappings = null;
 	else
 	{
-	    fieldMappings = new ArrayList<FieldMap>();
-	    for (FieldMap y : arrFieldMap)
+	    fieldMappings = new ArrayList<FieldMapOneToOne>();
+	    for (FieldMapOneToOne y : arrFieldMap)
 		fieldMappings.add(y);
 	}
     }
@@ -139,7 +139,7 @@ public class MessageMap extends Serializable
 	    return outDefaultMsg;
     }
 
-    public List<FieldMap> getFieldMappings()
+    public List<FieldMapOneToOne> getFieldMappings()
     {
 	if (fieldMappings == null)
 	    return null;
@@ -203,7 +203,7 @@ public class MessageMap extends Serializable
 	this.outMsgType = (MessageType) SerializationConvenience.untokenizeObject(token.getItem(MESSAGEMAP_OUTMSGTYPE_KEY));
 	this.inDefaultMsg = (MessageTemplate) SerializationConvenience.untokenizeObject(token.getItem(MESSAGEMAP_INDEFAULT_KEY));
 	this.outDefaultMsg = (MessageTemplate) SerializationConvenience.untokenizeObject(token.getItem(MESSAGEMAP_OUTDEFAULT_KEY));
-	this.fieldMappings = (List<FieldMap>) SerializationConvenience.untokenizeObject(token.getItem(MESSAGEMAP_FIELDMAPPINGS_KEY));
+	this.fieldMappings = (List<FieldMapOneToOne>) SerializationConvenience.untokenizeObject(token.getItem(MESSAGEMAP_FIELDMAPPINGS_KEY));
     }
 
     @Override
