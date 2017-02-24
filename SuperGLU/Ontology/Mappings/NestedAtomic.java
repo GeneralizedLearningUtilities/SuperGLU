@@ -116,6 +116,7 @@ public class NestedAtomic extends Serializable implements FieldData
 		{
 		    Class<?> clazz = Class.forName(indexWithClassAsString.getFirst());
 		    Pair<Class<?>, String> index = new Pair<Class<?>, String>(clazz, indexWithClassAsString.getSecond());
+		    index.updateId(indexWithClassAsString.getId());
 		    this.indices.add(index);
 		} catch (ClassNotFoundException e)
 		{
@@ -139,6 +140,7 @@ public class NestedAtomic extends Serializable implements FieldData
 	{
 	    String classAsString = index.getFirst().getName();
 	    Pair<String, String> indexWithClassAsString = new Pair<>(classAsString, index.getSecond());
+	    index.updateId(indexWithClassAsString.getId());
 	    classesAsStrings.add(indexWithClassAsString);
 	}
 
