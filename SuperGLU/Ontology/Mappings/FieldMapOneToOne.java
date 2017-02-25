@@ -14,8 +14,8 @@ import Util.StorageToken;
 
 public class FieldMapOneToOne extends Serializable implements FieldMap
 {
-    public static final String FIELD_MAP_INFIELDS_KEY = "inFields";
-    public static final String FIELD_MAP_OUTFIELDS_KEY = "outFields";
+    public static final String FIELD_MAP_INFIELD_KEY = "inField";
+    public static final String FIELD_MAP_OUTFIELD_KEY = "outField";
 
     protected FieldData inField;
     protected FieldData outField;
@@ -28,7 +28,7 @@ public class FieldMapOneToOne extends Serializable implements FieldMap
 	outField = null;
     }
 
-    public FieldMapOneToOne(NestedAtomic in, NestedAtomic out)
+    public FieldMapOneToOne(FieldData in, FieldData out)
     {
 	super();
 	inField = in;
@@ -38,7 +38,7 @@ public class FieldMapOneToOne extends Serializable implements FieldMap
     // GETTER AND SETTER METHODS FOR GETTING AND SETTING THE IN-FIELDS AND
     // OUT-FIELDS RESPECTIVELY
 
-    public void setInField(NestedAtomic in)
+    public void setInField(FieldData in)
     {
 	inField = in;
     }
@@ -53,7 +53,7 @@ public class FieldMapOneToOne extends Serializable implements FieldMap
 	return outField;
     }
 
-    public void setOutField(NestedAtomic out)
+    public void setOutField(FieldData out)
     {
 	outField = out;
     }
@@ -98,16 +98,16 @@ public class FieldMapOneToOne extends Serializable implements FieldMap
     public void initializeFromToken(StorageToken token)
     {
 	super.initializeFromToken(token);
-	this.inField = (NestedAtomic) SerializationConvenience.untokenizeObject(token.getItem(FIELD_MAP_INFIELDS_KEY));
-	this.outField = (NestedAtomic) SerializationConvenience.untokenizeObject(token.getItem(FIELD_MAP_OUTFIELDS_KEY));
+	this.inField = (NestedAtomic) SerializationConvenience.untokenizeObject(token.getItem(FIELD_MAP_INFIELD_KEY));
+	this.outField = (NestedAtomic) SerializationConvenience.untokenizeObject(token.getItem(FIELD_MAP_OUTFIELD_KEY));
     }
 
     @Override
     public StorageToken saveToToken()
     {
 	StorageToken result = super.saveToToken();
-	result.setItem(FIELD_MAP_INFIELDS_KEY, SerializationConvenience.tokenizeObject(this.inField));
-	result.setItem(FIELD_MAP_OUTFIELDS_KEY, SerializationConvenience.tokenizeObject(this.outField));
+	result.setItem(FIELD_MAP_INFIELD_KEY, SerializationConvenience.tokenizeObject(this.inField));
+	result.setItem(FIELD_MAP_OUTFIELD_KEY, SerializationConvenience.tokenizeObject(this.outField));
 	return result;
     }
 
