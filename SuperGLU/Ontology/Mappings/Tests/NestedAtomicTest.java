@@ -1,7 +1,5 @@
 package Ontology.Mappings.Tests;
 
-import static org.junit.Assert.*;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -14,8 +12,6 @@ import org.junit.Test;
 
 import Ontology.Mappings.NestedAtomic;
 import Util.Pair;
-import Util.SerializationConvenience;
-import Util.SerializationFormatEnum;
 import Util.StorageToken;
 
 public class NestedAtomicTest

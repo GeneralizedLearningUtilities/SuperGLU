@@ -37,9 +37,8 @@ public class FieldMapManyToOne extends Serializable implements FieldMap
 	outField = out;
 	this.converter = converter;
     }
-
-    // GETTER AND SETTER METHODS FOR GETTING AND SETTING THE IN-FIELDS AND
-    // OUT-FIELDS RESPECTIVELY
+    
+    //Accessors
 
     public void setInFields(List<FieldData> inFields)
     {
@@ -125,8 +124,18 @@ public class FieldMapManyToOne extends Serializable implements FieldMap
     @Override
     public StorageToken applyMapping(StorageToken sourceMessage, StorageToken destinationMessage)
     {
-	// TODO Auto-generated method stub
-	return null;
+	List<Object> inDataList = new ArrayList<>();
+	
+	for(FieldData inField : this.inFields)
+	{
+	    Object inData = inField.retrieveFieldData(sourceMessage);
+	    inDataList.add(inData);
+	}
+	
+	Object outData = this.converter.join(inDataList);
+	this.outField.storeData(destinationMessage, outData);
+	
+	return destinationMessage;
     }
 
 }

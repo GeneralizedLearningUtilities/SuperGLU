@@ -148,6 +148,7 @@ public class NestedAtomic extends Serializable implements FieldData
 	return result;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public Object retrieveFieldData(StorageToken msg)
     {
@@ -178,7 +179,7 @@ public class NestedAtomic extends Serializable implements FieldData
 		// TODO: return null or throw exception?
 		String warning = "index:" + intermediateField.getSecond() + " does not exist in StorageContainer: " + currentContainer.toString();
 		NestedAtomic.log.warn(warning);
-		throw new RuntimeException(warning);
+		return null;
 	    }
 	}
 
@@ -204,6 +205,7 @@ public class NestedAtomic extends Serializable implements FieldData
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public void storeData(StorageToken msg, Object data)
     {
 	Object currentContainer = msg;
@@ -237,6 +239,7 @@ public class NestedAtomic extends Serializable implements FieldData
 
 	    } else if (currentContainer instanceof List<?>)
 	    {
+		
 		List<Object> containerAsList = (List<Object>) currentContainer;
 		int listIndex = Integer.parseInt(intermediateContainerData.getSecond());
 		nextContainer = containerAsList.get(listIndex);
