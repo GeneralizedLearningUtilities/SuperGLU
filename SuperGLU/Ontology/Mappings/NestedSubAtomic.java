@@ -139,7 +139,7 @@ public class NestedSubAtomic extends NestedAtomic
 	else
 	    tokenizedObjectList = converter.split(currentFieldData);
 	
-	while(tokenizedObjectList.size() < index)
+	while(tokenizedObjectList.size() < index + 1)
 	    tokenizedObjectList.add(null);
 	
 	tokenizedObjectList.set(index, data);

@@ -22,7 +22,12 @@ public class SpaceSeparation extends Serializable implements DataConverter
 	for(Object inField : inFields)
 	{
 	    if(result == null)
-		result = inField.toString();
+	    {
+		if(inField == null)
+		    result = "";
+		else
+		    result = inField.toString();
+	    }
 	    else if (inField == null)
 		result += " ";
 	    else
