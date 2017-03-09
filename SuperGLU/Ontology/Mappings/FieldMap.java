@@ -22,4 +22,8 @@ public interface FieldMap
     public StorageToken applyMapping(StorageToken sourceMessage, StorageToken destinationMessage);
     
     
+    /**
+     * determine if mapping can apply to the current sourceMessage
+     */
+    public boolean doesMappingApply(StorageToken sourceMessage);
 }

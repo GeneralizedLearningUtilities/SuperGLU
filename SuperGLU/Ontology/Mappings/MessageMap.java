@@ -223,39 +223,15 @@ public class MessageMap extends Serializable
      * THE FUNCTION NECESSARY FOR CHECKING WHETHER THE MESSAGE INOUT TOKEN
      * COMING IN HAS A VALID MATCH WITH THE AVAIALABLE SET OF MAPPINGS
      */
-/*
-    public boolean isValidSourceMsg(StorageToken input, String firstwordkey)
+    public boolean isValidSourceMsg(StorageToken input)
     {
-	boolean first = false, second = false;
-
-	MessageType in = getInMsgType();
-
-	StorageToken ST_inMsgType = in.saveToToken();
-
-	if (input.getClassId().equals(ST_inMsgType.getItem(MessageType.MESSAGE_TYPE_CLASS_ID_KEY)))
+	for(FieldMap currentFieldMap : this.fieldMappings)
 	{
-	    first = true;
-
+	    if(!currentFieldMap.doesMappingApply(input))
+		return false;
 	}
-	MessageTemplate mTemp = in.getMessageTemplate();
-
-	ArrayList<NestedAtomic> arr = mTemp.getDefaultFieldData();
-
-	for (NestedAtomic nest : arr)
-	{
-
-	    if (nest.getFieldData().equals(firstwordkey))
-	    {
-		second = true;
-		break;
-	    }
-	}
-
-	if (first && second) // use more descriptive variable names for god's
-			     // sake --Auerbach
-	    return true;
-
-	return false;
+	
+	return true;
     }
 
     /**
@@ -263,7 +239,6 @@ public class MessageMap extends Serializable
      * THE CONVERT METHOD IS ACTUALLY USED TO PERFORM THE CONVERSION TO THE
      * TARGET MESSAGE OBJECT, ONCE THE VALID MAPPING HAS BEEN IDENTIFIED
      * 
-     * @param b
      * @param input
      * @return
      */

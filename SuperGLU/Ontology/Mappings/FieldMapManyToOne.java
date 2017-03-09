@@ -138,4 +138,18 @@ public class FieldMapManyToOne extends Serializable implements FieldMap
 	return destinationMessage;
     }
 
+    @Override
+    public boolean doesMappingApply(StorageToken sourceMessage)
+    {
+	for(FieldData inField : this.inFields)
+	{
+	    Object inData = inField.retrieveFieldData(sourceMessage);
+	    
+	    if(inData == null)
+		return false;
+	}
+	
+	return true;
+    }
+
 }
