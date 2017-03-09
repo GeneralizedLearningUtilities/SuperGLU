@@ -29,43 +29,43 @@ public class NestedAtomic extends Serializable implements FieldData
 
     private static final Logger log = LoggerFactory.getLogger(NestedAtomic.class);
 
-    private List<Pair<Class<?>, String>> indices;
+    private List<Pair<Class<?>, String>> path;
 
     // CONSTRUCTORS
-    public NestedAtomic(List<Pair<Class<?>, String>> indices)
+    public NestedAtomic(List<Pair<Class<?>, String>> path)
     {
-	this.indices = indices;
+	this.path = path;
     }
 
     public NestedAtomic(Class<?> clazz, String index)
     {
-	this.indices = new ArrayList<>();
-	this.addIndex(clazz, index);
+	this.path = new ArrayList<>();
+	this.addToPath(clazz, index);
     }
 
     public NestedAtomic()
     {
-	this.indices = null;
+	this.path = null;
     }
 
     // GETTER AND SETTER METHODS
 
-    public List<Pair<Class<?>, String>> getIndices()
+    public List<Pair<Class<?>, String>> getPath()
     {
-	return indices;
+	return path;
     }
 
-    public void setIndices(List<Pair<Class<?>, String>> indices)
+    public void setPath(List<Pair<Class<?>, String>> indices)
     {
-	this.indices = indices;
+	this.path = indices;
     }
 
-    public void addIndex(Class<?> clazz, String index)
+    public void addToPath(Class<?> clazz, String index)
     {
-	if (this.indices == null)
-	    this.indices = new ArrayList<>();
+	if (this.path == null)
+	    this.path = new ArrayList<>();
 
-	this.indices.add(new Pair<Class<?>, String>(clazz, index));
+	this.path.add(new Pair<Class<?>, String>(clazz, index));
     }
 
     // Equality Operations
@@ -80,7 +80,7 @@ public class NestedAtomic extends Serializable implements FieldData
 
 	NestedAtomic other = (NestedAtomic) otherObject;
 
-	if (!fieldIsEqual(this.indices, other.indices))
+	if (!fieldIsEqual(this.path, other.path))
 	    return false;
 
 	return true;
@@ -92,8 +92,8 @@ public class NestedAtomic extends Serializable implements FieldData
 	int result = super.hashCode();
 	int arbitraryPrimeNumber = 23;
 
-	if (this.indices != null)
-	    result = result * arbitraryPrimeNumber + this.indices.hashCode();
+	if (this.path != null)
+	    result = result * arbitraryPrimeNumber + this.path.hashCode();
 
 	return result;
 
@@ -106,7 +106,7 @@ public class NestedAtomic extends Serializable implements FieldData
 	super.initializeFromToken(token);
 
 	List<Pair<String, String>> indicesWithClassesAsStrings = (List<Pair<String, String>>) SerializationConvenience.untokenizeObject(token.getItem(NESTED_ATOMIC_INDICES_KEY));
-	this.indices = new ArrayList<>();
+	this.path = new ArrayList<>();
 
 	for (Pair<String, String> indexWithClassAsString : indicesWithClassesAsStrings)
 	{
@@ -117,7 +117,7 @@ public class NestedAtomic extends Serializable implements FieldData
 		    Class<?> clazz = Class.forName(indexWithClassAsString.getFirst());
 		    Pair<Class<?>, String> index = new Pair<Class<?>, String>(clazz, indexWithClassAsString.getSecond());
 		    index.updateId(indexWithClassAsString.getId());
-		    this.indices.add(index);
+		    this.path.add(index);
 		} catch (ClassNotFoundException e)
 		{
 		    // If we can't parse the class then skip this index.
@@ -136,7 +136,7 @@ public class NestedAtomic extends Serializable implements FieldData
 
 	List<Pair<String, String>> classesAsStrings = new ArrayList<>();
 
-	for (Pair<Class<?>, String> index : this.indices)
+	for (Pair<Class<?>, String> index : this.path)
 	{
 	    String classAsString = index.getFirst().getName();
 	    Pair<String, String> indexWithClassAsString = new Pair<>(classAsString, index.getSecond());
@@ -154,7 +154,7 @@ public class NestedAtomic extends Serializable implements FieldData
     {
 	Object currentContainer = msg;
 
-	for (Pair<Class<?>, String> intermediateField : this.indices)
+	for (Pair<Class<?>, String> intermediateField : this.path)
 	{
 	    // Object does not exist, return null
 	    if (currentContainer == null)
@@ -221,7 +221,7 @@ public class NestedAtomic extends Serializable implements FieldData
 	Object tokenizedData = SerializationConvenience.tokenizeObject(data);
 
 	// We only want to drill down to the second to last item in the list.
-	for (Pair<Class<?>, String> intermediateContainerData : this.indices.subList(0, this.indices.size() - 1))
+	for (Pair<Class<?>, String> intermediateContainerData : this.path.subList(0, this.path.size() - 1))
 	{
 	    Object nextContainer;
 	    // Object does not exist. We'll have to create it.
@@ -285,7 +285,7 @@ public class NestedAtomic extends Serializable implements FieldData
 	    currentContainer = nextContainer;
 	}
 
-	String fieldName = this.indices.get(this.indices.size() - 1).getSecond();
+	String fieldName = this.path.get(this.path.size() - 1).getSecond();
 
 	if (fieldName != null)
 	{

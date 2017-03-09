@@ -1,21 +1,22 @@
 package Ontology.Mappings;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 
-import Util.Pair;
+import Util.Serializable;
+import Util.SerializationConvenience;
+import Util.StorageToken;
 
 /**
  * MessageMap  Class
  * The class is used to store the complete data regarding a valid mapping like inmsgtype,outmsgtype,fieldmappings, etc.
  * It basically stores all the necessary data required for identifying a valid mapping amongst a set of mappings.
+ * 
+ * @author auerbach
  * @author tirthmehta
  */
 
-import Util.Serializable;
-import Util.SerializationConvenience;
-import Util.StorageToken;
 
 public class MessageMap extends Serializable
 {
@@ -27,7 +28,7 @@ public class MessageMap extends Serializable
 
     protected MessageTemplate outDefaultMsg = new MessageTemplate();
 
-    protected List<FieldMapOneToOne> fieldMappings;
+    protected List<FieldMap> fieldMappings;
 
     public static final String MESSAGEMAP_INMSGTYPE_KEY = "inMsg";
     public static final String MESSAGEMAP_OUTMSGTYPE_KEY = "outMsg";
@@ -45,7 +46,7 @@ public class MessageMap extends Serializable
     }
 
     // PARAMETERIZED CONSTRUCTORS
-    public MessageMap(MessageType in, MessageType out, MessageTemplate m_in, MessageTemplate m_out, ArrayList<FieldMapOneToOne> arrmap)
+    public MessageMap(MessageType in, MessageType out, MessageTemplate m_in, MessageTemplate m_out, List<FieldMap> arrmap)
     {
 	if (in == null)
 	    inMsgType = null;
@@ -95,14 +96,14 @@ public class MessageMap extends Serializable
 	outDefaultMsg = mtemp;
     }
 
-    public void setFieldMappings(ArrayList<FieldMapOneToOne> arrFieldMap)
+    public void setFieldMappings(ArrayList<FieldMap> arrFieldMap)
     {
 	if (arrFieldMap == null)
 	    fieldMappings = null;
 	else
 	{
-	    fieldMappings = new ArrayList<FieldMapOneToOne>();
-	    for (FieldMapOneToOne y : arrFieldMap)
+	    fieldMappings = new ArrayList<FieldMap>();
+	    for (FieldMap y : arrFieldMap)
 		fieldMappings.add(y);
 	}
     }
@@ -139,7 +140,7 @@ public class MessageMap extends Serializable
 	    return outDefaultMsg;
     }
 
-    public List<FieldMapOneToOne> getFieldMappings()
+    public List<FieldMap> getFieldMappings()
     {
 	if (fieldMappings == null)
 	    return null;
@@ -203,7 +204,7 @@ public class MessageMap extends Serializable
 	this.outMsgType = (MessageType) SerializationConvenience.untokenizeObject(token.getItem(MESSAGEMAP_OUTMSGTYPE_KEY));
 	this.inDefaultMsg = (MessageTemplate) SerializationConvenience.untokenizeObject(token.getItem(MESSAGEMAP_INDEFAULT_KEY));
 	this.outDefaultMsg = (MessageTemplate) SerializationConvenience.untokenizeObject(token.getItem(MESSAGEMAP_OUTDEFAULT_KEY));
-	this.fieldMappings = (List<FieldMapOneToOne>) SerializationConvenience.untokenizeObject(token.getItem(MESSAGEMAP_FIELDMAPPINGS_KEY));
+	this.fieldMappings = (List<FieldMap>) SerializationConvenience.untokenizeObject(token.getItem(MESSAGEMAP_FIELDMAPPINGS_KEY));
     }
 
     @Override
@@ -266,91 +267,16 @@ public class MessageMap extends Serializable
      * @param input
      * @return
      */
-/*
     public StorageToken convert(StorageToken input)
     {
-	MessageType out = getOutMsgType();
-	MessageTemplate mtemp = out.getMessageTemplate();
-	StorageToken target = mtemp.createTargetStorageToken(out.getClassId());
-
-	List<FieldMap> mappingList = getFieldMappings();
-	for (FieldMap maps : mappingList)
+	StorageToken output = outDefaultMsg.createTargetStorageToken(UUID.randomUUID().toString());
+	
+	for(FieldMap currentMap : this.fieldMappings)
 	{
-
-	    NestedAtomic inFields = maps.getInFields();
-	    List<Pair<Class<?>,String>> inFieldsIndex = inFields.getIndices();
-
-	    NestedAtomic outFields = maps.getOutFields();
-	    List<Pair<Class<?>,String>> outFieldsIndex = outFields.getIndices();
-
-	    String valueToBeInserted = "";
-	    HashMap<String, String> hmap = new HashMap<>();
-	    for (Pair<Class<?>, String> value : inFieldsIndex)
-	    {
-		if (input.contains(value.getSecond()))
-		{
-
-		    valueToBeInserted = (String) input.getItem(value.getSecond());
-		    if (maps.getSplitter() == null)
-			hmap.put(value.getSecond(), valueToBeInserted);
-		    else
-		    {
-
-			ArgumentSeparator current = maps.getSplitter();
-			List<String> obtained = current.split(valueToBeInserted);
-			int index = maps.getInIndex();
-			valueToBeInserted = obtained.get(index);
-			hmap.put(value.getSecond(), valueToBeInserted);
-
-		    }
-		}
-
-	    }
-
-	    for (Pair<Class<?>, String>  value : outFieldsIndex)
-	    {
-		for (String key : hmap.keySet())
-		{
-		    target.setItem(value.getSecond(), hmap.get(key));
-		    // Upgrade to a log file instead of console output
-		    // --Auerbach
-		    System.out.println("check value " + target.getItem(value.getSecond()));
-		}
-
-	    }
-
+	    currentMap.applyMapping(input, output);
 	}
-
-	// SETTING THE DEFAULT FIELD DATA
-
-	// THIS IS THE PART WHERE THE CORRECT MAPPING WAS USED TO SET THE
-	// DEFAULT FIELD DATA
-	// I HAVE COMMENTED IT OUT FOR THE MOMENT
-	// PLEASE HAVE A LOOK AT IT
-
-	MessageTemplate mtempOut = this.getOutDefaulttMsgTemp();
-	ArrayList<NestedAtomic> outarr = mtempOut.getDefaultFieldData();
-	HashMap<String, String> hmap = new HashMap<>();
-	for (NestedAtomic in : outarr)
-	{
-	    List<Pair<Class<?>, String>> inside = in.getIndices();
-	    for (Pair<Class<?>, String> key : inside)
-	    {
-		if (target.contains(key.getSecond()))
-		{
-		    hmap.put(key.getSecond(), in.getFieldData());
-		}
-	    }
-	}
-	System.out.println(hmap);
-
-	for (String key : hmap.keySet())
-	{
-	    target.setItem(key, hmap.get(key));
-	}
-
-	return target;
+		
+	return output;
 
     }
-*/
 }
