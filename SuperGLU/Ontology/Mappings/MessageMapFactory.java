@@ -5,6 +5,10 @@ import java.util.List;
 
 import Core.GIFTMessage;
 import Core.Message;
+import Core.VHMessage;
+import Ontology.Converters.DataConverter;
+import Ontology.Converters.SpaceSeparation;
+import Ontology.Converters.XMLWrapped;
 import Util.Pair;
 import Util.Serializable;
 import Util.StorageToken;
@@ -78,7 +82,11 @@ public class MessageMapFactory
 	payloadPath.add(new Pair<Class<?>, String>(String.class, "text"));
 	
 	NestedAtomic payload = new NestedAtomic(payloadPath);
-	SimpleFieldData result =new SimpleFieldData(Message.RESULT_KEY);
+	
+	List<Pair<Class<?>,String>> indices = new ArrayList<>();
+	indices.add(new Pair<Class<?>, String>(String.class, Message.RESULT_KEY));
+	DataConverter converter = new XMLWrapped("speech");
+	NestedSubAtomic result = new NestedSubAtomic(indices, converter, 0);
 	
 	FieldMapOneToOne map = new FieldMapOneToOne(payload, result);
 	
@@ -95,6 +103,59 @@ public class MessageMapFactory
 	MessageMap map = new MessageMap(inMsgType, outMsgType, buildFieldMapsForDisplayFeedbackTutorRequestToGiveFeedback());
 	
 	return map;
+    }
+    
+    
+    protected static MessageTemplate buildVRExpressTemplate()
+    {
+	List<Pair<Class<?>,String>> indices = new ArrayList<>();
+	indices.add(new Pair<Class<?>, String>(String.class, VHMessage.BODY_KEY));
+	DataConverter converter = new SpaceSeparation();
+	
+	NestedSubAtomic speaker = new NestedSubAtomic(indices, converter, 0);
+	NestedSubAtomic audience = new NestedSubAtomic(indices, converter, 1);
+	NestedSubAtomic number = new NestedSubAtomic(indices, converter, 2);
+	NestedSubAtomic utterance = new NestedSubAtomic(indices, converter, 3);
+	
+	List<Pair<FieldData, Object>> templateData = new ArrayList<>();
+	templateData.add(new Pair<FieldData, Object>(speaker, "Brad"));
+	templateData.add(new Pair<FieldData, Object>(audience, "all"));
+	templateData.add(new Pair<FieldData, Object>(number, "0"));
+	templateData.add(new Pair<FieldData, Object>(utterance, "<speech></speech>"));
+	
+	MessageTemplate template = new MessageTemplate(templateData);
+	
+	return template;
+    }
+    
+    
+    protected static FieldMap buildFieldMapForGiveFeedBackToVrExpress()
+    {
+	SimpleFieldData result = new SimpleFieldData(Message.RESULT_KEY);
+	
+	List<Pair<Class<?>,String>> indices = new ArrayList<>();
+	indices.add(new Pair<Class<?>, String>(String.class, VHMessage.BODY_KEY));
+	DataConverter converter = new SpaceSeparation();
+	NestedSubAtomic utterance = new NestedSubAtomic(indices, converter, 3);
+	
+	FieldMap returnVal = new FieldMapOneToOne(result, utterance);
+	
+	return returnVal;
+	
+    }
+    
+    
+    protected static MessageMap buildGiveFeedBackToVHuman()
+    {
+	List<FieldMap> mappings = new ArrayList<>();
+	mappings.add(buildFieldMapForGiveFeedBackToVrExpress());
+	
+	MessageType inMsg = new MessageType("GiveFeedback", 1.0f, 1.0f, buildSuperGLUGiveFeedbackMessageTemplate(), Message.class.getSimpleName());
+	MessageType outMsg = new MessageType("vrExpress", 1.0f, 1.0f, buildVRExpressTemplate(), VHMessage.class.getSimpleName());
+	
+	MessageMap result = new MessageMap(inMsg, outMsg, mappings);
+	
+	return result;
     }
     
     

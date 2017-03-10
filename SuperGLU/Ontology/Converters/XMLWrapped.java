@@ -54,11 +54,9 @@ public class XMLWrapped extends Serializable implements DataConverter
     @Override
     public Object join(List<Object> inFields)
     {
-	Document doc = DocumentFactory.getInstance().createDocument();
 	Element element = DocumentFactory.getInstance().createElement(elementName);
 	element.addText((String)inFields.get(0));
-	doc.add(element);
-	return doc.asXML();
+	return element.asXML();
     }
 
     @Override

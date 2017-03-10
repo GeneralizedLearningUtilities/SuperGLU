@@ -26,13 +26,13 @@ public class XMLWrappedTest
 	
 	result.toString();
 	
-	Assert.assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Speech>testString</Speech>", result.toString());
+	Assert.assertEquals("<Speech>testString</Speech>", result.toString());
     }
 
     @Test
     public void testSplit()
     {
-	String xmlString = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Speech>testString</Speech>";
+	String xmlString = "<Speech>testString</Speech>";
 	
 	DataConverter converter = new XMLWrapped("Speech");
 	List<Object> result = converter.split(xmlString);
