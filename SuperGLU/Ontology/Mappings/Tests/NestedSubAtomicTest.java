@@ -9,9 +9,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import Ontology.Mappings.DataConverter;
+import Ontology.Converters.DataConverter;
+import Ontology.Converters.SpaceSeparation;
 import Ontology.Mappings.NestedSubAtomic;
-import Ontology.Mappings.SpaceSeparation;
 import Util.Pair;
 import Util.SerializationConvenience;
 import Util.SerializationFormatEnum;

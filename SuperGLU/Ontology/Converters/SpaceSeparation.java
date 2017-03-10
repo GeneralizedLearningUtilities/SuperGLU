@@ -1,4 +1,4 @@
-package Ontology.Mappings;
+package Ontology.Converters;
 
 import java.util.ArrayList;
 import java.util.List;

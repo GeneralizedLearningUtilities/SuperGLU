@@ -2,6 +2,8 @@ package Ontology.Mappings;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import Ontology.Converters.DataConverter;
 import Util.Pair;
 import Util.SerializationConvenience;
 import Util.StorageToken;
