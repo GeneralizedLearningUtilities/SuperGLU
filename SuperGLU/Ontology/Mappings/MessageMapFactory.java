@@ -164,6 +164,7 @@ public class MessageMapFactory
     {
 	List<MessageMap> result = new ArrayList<>();
 	result.add(buildDisplayFeedbackTutorRequestToSuperGLU());
+	result.add(buildGiveFeedBackToVHuman());
 
 	return result;
     }
