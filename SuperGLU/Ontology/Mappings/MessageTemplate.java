@@ -27,7 +27,7 @@ public class MessageTemplate extends Serializable
     }
 
     // PARAMETERIZED CONSTRUCTOR
-    public MessageTemplate(ArrayList<Pair<FieldData, Object>> arrlist)
+    public MessageTemplate(List<Pair<FieldData, Object>> arrlist)
     {
 	if(arrlist==null)
 	    this.defaultFieldData = new ArrayList<>();

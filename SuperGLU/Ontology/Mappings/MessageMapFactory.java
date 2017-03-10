@@ -1,13 +1,13 @@
 package Ontology.Mappings;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
+import Core.GIFTMessage;
 import Core.Message;
-import Core.SpeechActEnum;
-import Core.VHMessage;
 import Util.Pair;
+import Util.Serializable;
+import Util.StorageToken;
 
 /**
  * This class is intended as a stopgap measure to build the mappings in the Java
@@ -19,21 +19,94 @@ import Util.Pair;
  */
 public class MessageMapFactory
 {
-/*
+    
+    private static String NO_TEXT =  "no text available";
+    
+    protected static MessageTemplate buildGIFTDisplayFeedbackTutorRequestTemplate()
+    {
+	NestedAtomic header = new NestedAtomic(String.class, GIFTMessage.HEADER_KEY);
+	List<Pair<FieldData, Object>> templateDataList = new ArrayList<>();
+	templateDataList.add(new Pair<FieldData, Object>(header, "Display Feedback Tutor Request"));
+	
+	List<Pair<Class<?>, String>> payloadPath = new ArrayList<>();
+	
+	payloadPath.add(new Pair<Class<?>, String>(StorageToken.class, GIFTMessage.PAYLOAD_KEY));
+	payloadPath.add(new Pair<Class<?>, String>(StorageToken.class, "DisplayTextAction"));
+	payloadPath.add(new Pair<Class<?>, String>(String.class, "text"));
+	
+	NestedAtomic payload = new NestedAtomic(payloadPath);
+	
+	templateDataList.add(new Pair<FieldData, Object>(payload, NO_TEXT));
+	
+	MessageTemplate result = new MessageTemplate(templateDataList);
+	
+	return result;
+    }
+    
+    
+    protected static MessageTemplate buildSuperGLUGiveFeedbackMessageTemplate()
+    {
+	List<Pair<FieldData, Object>> templateDataList = new ArrayList<>(); 
+	
+	SimpleFieldData actor = new SimpleFieldData(Message.ACTOR_KEY);
+	SimpleFieldData verb = new SimpleFieldData(Message.VERB_KEY);
+	SimpleFieldData object =new SimpleFieldData(Message.OBJECT_KEY);
+	SimpleFieldData result =new SimpleFieldData(Message.RESULT_KEY);
+	
+	
+	templateDataList.add(new Pair<FieldData, Object>(actor, "GIFT"));
+	templateDataList.add(new Pair<FieldData, Object>(verb, "GiveFeedback"));
+	templateDataList.add(new Pair<FieldData, Object>(object, "VHuman"));
+	templateDataList.add(new Pair<FieldData, Object>(result, NO_TEXT));
+	
+
+	MessageTemplate returnVal = new MessageTemplate(templateDataList);
+	
+	return returnVal;
+	
+    }
+    
+    
+    protected static List<FieldMap> buildFieldMapsForDisplayFeedbackTutorRequestToGiveFeedback()
+    {
+	List<FieldMap> mappings = new ArrayList<>();
+	
+	List<Pair<Class<?>, String>> payloadPath = new ArrayList<>();
+	
+	payloadPath.add(new Pair<Class<?>, String>(StorageToken.class, GIFTMessage.PAYLOAD_KEY));
+	payloadPath.add(new Pair<Class<?>, String>(StorageToken.class, "DisplayTextAction"));
+	payloadPath.add(new Pair<Class<?>, String>(String.class, "text"));
+	
+	NestedAtomic payload = new NestedAtomic(payloadPath);
+	SimpleFieldData result =new SimpleFieldData(Message.RESULT_KEY);
+	
+	FieldMapOneToOne map = new FieldMapOneToOne(payload, result);
+	
+	mappings.add(map);
+	
+	return mappings;
+    }
+    
+    
+    protected static MessageMap buildDisplayFeedbackTutorRequestToSuperGLU()
+    {
+	MessageType inMsgType = new MessageType("Display Feedback Tutor Request", 1.0f, 1.0f, buildGIFTDisplayFeedbackTutorRequestTemplate(), GIFTMessage.class.getSimpleName());
+	MessageType outMsgType = new MessageType("GiveFeedback", 1.0f, 1.0f, buildSuperGLUGiveFeedbackMessageTemplate(), Message.class.getSimpleName());
+	MessageMap map = new MessageMap(inMsgType, outMsgType, buildFieldMapsForDisplayFeedbackTutorRequestToGiveFeedback());
+	
+	return map;
+    }
+    
+    
+    
     public static List<MessageMap> buildMessageMaps()
     {
 	List<MessageMap> result = new ArrayList<>();
-	result.add(buildVHTSuperGLUCurrentScenarioMapping());
-	result.add(buildVHTSuperGLUCommAPIMapping());
-	result.add(buildVHTSuperGLUBeginAARMapping());
-	result.add(buildVHTSuperGLUGetNextAgendaItemMapping());
-	result.add(buildVHTSuperGLURequestCoachingActionsMapping());
-	result.add(buildVHTSuperGLUVRExpressMapping());
-	result.add(buildVHTSuperGLURegisterUserInfoMapping());
+	result.add(buildDisplayFeedbackTutorRequestToSuperGLU());
 
 	return result;
     }
-
+/*
     protected static MessageTemplate buildSuperGLUTemplate(String actor)
     {
 	ArrayList<NestedAtomic> supergluArr = new ArrayList<NestedAtomic>();

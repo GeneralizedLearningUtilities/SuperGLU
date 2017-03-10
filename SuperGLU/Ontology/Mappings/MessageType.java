@@ -25,13 +25,13 @@ public class MessageType extends Serializable
     private MessageTemplate messageTypeTemplate;
 
     // CONSTRUCTORS
-    public MessageType(String name, float minversion, float maxversion, MessageTemplate mtemp, String cl)
+    public MessageType(String name, float minversion, float maxversion, MessageTemplate mtemp, String classID)
     {
 	this.messageName = name;
 	this.min_Version = minversion;
 	this.max_Version = maxversion;
 	messageTypeTemplate = mtemp;
-	classId = cl;
+	classId = classID;
     }
 
     public MessageType()

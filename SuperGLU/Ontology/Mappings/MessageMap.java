@@ -24,29 +24,21 @@ public class MessageMap extends Serializable
 
     protected MessageType outMsgType = new MessageType();
 
-    protected MessageTemplate inDefaultMsg = new MessageTemplate();
-
-    protected MessageTemplate outDefaultMsg = new MessageTemplate();
-
     protected List<FieldMap> fieldMappings;
 
-    public static final String MESSAGEMAP_INMSGTYPE_KEY = "inMsg";
-    public static final String MESSAGEMAP_OUTMSGTYPE_KEY = "outMsg";
-    public static final String MESSAGEMAP_INDEFAULT_KEY = "inDefaultMsg";
-    public static final String MESSAGEMAP_OUTDEFAULT_KEY = "outDefaultMsg";
+    public static final String MESSAGEMAP_INMSGTYPE_KEY = "inMsgType";
+    public static final String MESSAGEMAP_OUTMSGTYPE_KEY = "outMsgType";
     public static final String MESSAGEMAP_FIELDMAPPINGS_KEY = "fieldMappings";
 
     public MessageMap()
     {
 	inMsgType = null;
-	outDefaultMsg = null;
 	outMsgType = null;
-	inDefaultMsg = null;
 	fieldMappings = null;
     }
 
     // PARAMETERIZED CONSTRUCTORS
-    public MessageMap(MessageType in, MessageType out, MessageTemplate m_in, MessageTemplate m_out, List<FieldMap> arrmap)
+    public MessageMap(MessageType in, MessageType out, List<FieldMap> arrmap)
     {
 	if (in == null)
 	    inMsgType = null;
@@ -57,16 +49,6 @@ public class MessageMap extends Serializable
 	    outMsgType = null;
 	else
 	    outMsgType = out;
-
-	if (m_in == null)
-	    inDefaultMsg = null;
-	else
-	    inDefaultMsg = m_in;
-
-	if (m_out == null)
-	    outDefaultMsg = null;
-	else
-	    outDefaultMsg = m_out;
 
 	if (arrmap != null)
 	    fieldMappings = arrmap;
@@ -85,16 +67,7 @@ public class MessageMap extends Serializable
     {
 	outMsgType = mtype;
     }
-
-    public void setInDefaultMsgType(MessageTemplate mtemp)
-    {
-	inDefaultMsg = mtemp;
-    }
-
-    public void setOutDefaultMsgType(MessageTemplate mtemp)
-    {
-	outDefaultMsg = mtemp;
-    }
+    
 
     public void setFieldMappings(ArrayList<FieldMap> arrFieldMap)
     {
@@ -124,22 +97,7 @@ public class MessageMap extends Serializable
 	    return outMsgType;
     }
 
-    public MessageTemplate getInDefaulttMsgTemp()
-    {
-	if (inDefaultMsg == null)
-	    return null;
-	else
-	    return inDefaultMsg;
-    }
-
-    public MessageTemplate getOutDefaulttMsgTemp()
-    {
-	if (outDefaultMsg == null)
-	    return null;
-	else
-	    return outDefaultMsg;
-    }
-
+    
     public List<FieldMap> getFieldMappings()
     {
 	if (fieldMappings == null)
@@ -164,10 +122,6 @@ public class MessageMap extends Serializable
 	    return false;
 	if (!fieldIsEqual(this.outMsgType, other.outMsgType))
 	    return false;
-	if (!fieldIsEqual(this.inDefaultMsg, other.inDefaultMsg))
-	    return false;
-	if (!fieldIsEqual(this.outDefaultMsg, other.outDefaultMsg))
-	    return false;
 	if (!fieldIsEqual(this.fieldMappings, other.fieldMappings))
 	    return false;
 
@@ -184,10 +138,6 @@ public class MessageMap extends Serializable
 	    result = result * arbitraryPrimeNumber + this.inMsgType.hashCode();
 	if (this.outMsgType != null)
 	    result = result * arbitraryPrimeNumber + this.outMsgType.hashCode();
-	if (this.inDefaultMsg != null)
-	    result = result * arbitraryPrimeNumber + this.inDefaultMsg.hashCode();
-	if (this.outDefaultMsg != null)
-	    result = result * arbitraryPrimeNumber + this.outDefaultMsg.hashCode();
 	if (this.fieldMappings != null)
 	    result = result * arbitraryPrimeNumber + this.fieldMappings.hashCode();
 
@@ -202,8 +152,6 @@ public class MessageMap extends Serializable
 	super.initializeFromToken(token);
 	this.inMsgType = (MessageType) SerializationConvenience.untokenizeObject(token.getItem(MESSAGEMAP_INMSGTYPE_KEY));
 	this.outMsgType = (MessageType) SerializationConvenience.untokenizeObject(token.getItem(MESSAGEMAP_OUTMSGTYPE_KEY));
-	this.inDefaultMsg = (MessageTemplate) SerializationConvenience.untokenizeObject(token.getItem(MESSAGEMAP_INDEFAULT_KEY));
-	this.outDefaultMsg = (MessageTemplate) SerializationConvenience.untokenizeObject(token.getItem(MESSAGEMAP_OUTDEFAULT_KEY));
 	this.fieldMappings = (List<FieldMap>) SerializationConvenience.untokenizeObject(token.getItem(MESSAGEMAP_FIELDMAPPINGS_KEY));
     }
 
@@ -213,8 +161,6 @@ public class MessageMap extends Serializable
 	StorageToken result = super.saveToToken();
 	result.setItem(MESSAGEMAP_INMSGTYPE_KEY, SerializationConvenience.tokenizeObject(this.inMsgType));
 	result.setItem(MESSAGEMAP_OUTMSGTYPE_KEY, SerializationConvenience.tokenizeObject(this.outMsgType));
-	result.setItem(MESSAGEMAP_INDEFAULT_KEY, SerializationConvenience.tokenizeObject(this.inDefaultMsg));
-	result.setItem(MESSAGEMAP_OUTDEFAULT_KEY, SerializationConvenience.tokenizeObject(this.outDefaultMsg));
 	result.setItem(MESSAGEMAP_FIELDMAPPINGS_KEY, SerializationConvenience.tokenizeObject(this.fieldMappings));
 	return result;
     }
@@ -244,7 +190,7 @@ public class MessageMap extends Serializable
      */
     public StorageToken convert(StorageToken input)
     {
-	StorageToken output = outDefaultMsg.createTargetStorageToken(UUID.randomUUID().toString());
+	StorageToken output = outMsgType.getMessageTemplate().createTargetStorageToken(UUID.randomUUID().toString());
 	
 	for(FieldMap currentMap : this.fieldMappings)
 	{
