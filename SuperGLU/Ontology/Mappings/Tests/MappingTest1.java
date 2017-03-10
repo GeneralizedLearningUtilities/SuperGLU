@@ -17,7 +17,6 @@ import org.junit.Test;
 import Core.BaseMessage;
 import Core.Message;
 import Core.VHMessage;
-import Ontology.OntologyConverter;
 import Ontology.Mappings.MessageMap;
 import Ontology.Mappings.MessageMapFactory;
 import Util.SerializationConvenience;
