@@ -1,7 +1,9 @@
 package Ontology.Mappings;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import Core.GIFTMessage;
 import Core.Message;
@@ -123,6 +125,8 @@ public class MessageMapFactory
 	templateData.add(new Pair<FieldData, Object>(number, "0"));
 	templateData.add(new Pair<FieldData, Object>(utterance, "<speech></speech>"));
 	
+	templateData.add(new Pair<FieldData, Object>(new SimpleFieldData(VHMessage.FIRST_WORD_KEY), "vrExpress"));
+	
 	MessageTemplate template = new MessageTemplate(templateData);
 	
 	return template;
@@ -154,6 +158,30 @@ public class MessageMapFactory
 	MessageType outMsg = new MessageType("vrExpress", 1.0f, 1.0f, buildVRExpressTemplate(), VHMessage.class.getSimpleName());
 	
 	MessageMap result = new MessageMap(inMsg, outMsg, mappings);
+	
+	return result;
+    }
+    
+    
+    
+    public static Map<String, MessageTemplate> buildDefaultMessageTemplates()
+    {
+	Map<String, MessageTemplate> result = new HashMap<>();
+	
+	List<Pair<FieldData, Object>> vHumanTemplateData = new ArrayList<>();
+	vHumanTemplateData.add(new Pair<FieldData, Object>(new SimpleFieldData(VHMessage.FIRST_WORD_KEY), ""));
+	vHumanTemplateData.add(new Pair<FieldData, Object>(new SimpleFieldData(VHMessage.BODY_KEY), ""));
+	MessageTemplate vhumanTemplate = new MessageTemplate(vHumanTemplateData);
+	
+	result.put(VHMessage.class.getSimpleName(), vhumanTemplate);
+	
+	
+	List<Pair<FieldData, Object>> giftTemplateData = new ArrayList<>();
+	giftTemplateData.add(new Pair<FieldData, Object>(new SimpleFieldData(GIFTMessage.HEADER_KEY), ""));
+	giftTemplateData.add(new Pair<FieldData, Object>(new SimpleFieldData(GIFTMessage.PAYLOAD_KEY), ""));
+	MessageTemplate giftTemplate = new MessageTemplate(giftTemplateData);
+	
+	result.put(GIFTMessage.class.getSimpleName(), giftTemplate);
 	
 	return result;
     }

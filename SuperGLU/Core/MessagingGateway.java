@@ -7,6 +7,9 @@ import java.util.Map;
 import java.util.function.Predicate;
 import java.util.logging.Level;
 
+import Ontology.OntologyBroker;
+import Ontology.Mappings.MessageMapFactory;
+import Ontology.Mappings.MessageType;
 import Util.StorageToken;
 
 /**
@@ -20,9 +23,12 @@ public class MessagingGateway extends BaseMessagingNode {
 	private Map<String, BaseMessagingNode> nodes;
 	private Map<String, Object> scope;
 	
+	private OntologyBroker ontologyBroker;
+	
 	public MessagingGateway()
 	{//Default constructor for ease of access
 		this(null, null, null, null, null);
+		ontologyBroker = new OntologyBroker(MessageMapFactory.buildMessageMaps(), MessageMapFactory.buildDefaultMessageTemplates());
 	}
 	
 	
@@ -44,6 +50,8 @@ public class MessagingGateway extends BaseMessagingNode {
 				this.nodes.put(node.id, node);
 			}
 		}
+		
+		ontologyBroker = new OntologyBroker(MessageMapFactory.buildMessageMaps(), MessageMapFactory.buildDefaultMessageTemplates());
 	}
 	
 	
@@ -152,8 +160,15 @@ public class MessagingGateway extends BaseMessagingNode {
 	 * This function will process a non-SuperGLU message through the ontology converter
 	 * @param msgAsStorageToken
 	 */
-	protected StorageToken convertMessages(StorageToken incomingMessage)
+	protected BaseMessage convertMessages(BaseMessage incomingMessage, Class<?> destinationMessageType)
 	{
-		return null;
+	    String incomingMessageTypeAsString = incomingMessage.getClassId();
+	    
+	    MessageType inMsgType = ontologyBroker.buildMessageType(incomingMessageTypeAsString, 1.0f, 1.0f);
+	    MessageType outMsgType = ontologyBroker.buildMessageType(destinationMessageType.getSimpleName(), 1.0f, 1.0f);
+	    
+	    BaseMessage result = ontologyBroker.findPathAndConvertMessage(incomingMessage, inMsgType, outMsgType, true);
+	    
+	    return result;
 	}
 }

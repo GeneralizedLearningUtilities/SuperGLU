@@ -64,7 +64,7 @@ public class OntologyBroker
      * This function will construct a default template given a message type and
      * name
      */
-    public MessageType buildMessageType(String inMsgName, String inMsgType, float minVersion, float maxVersion)
+    public MessageType buildMessageType(String inMsgType, float minVersion, float maxVersion)
     {
 	MessageTemplate template;
 	if (this.defaultTemplates.containsKey(inMsgType))
@@ -72,7 +72,7 @@ public class OntologyBroker
 	else
 	    template = null;
 
-	MessageType result = new MessageType(inMsgName, minVersion, maxVersion, template, inMsgType);
+	MessageType result = new MessageType("", minVersion, maxVersion, template, inMsgType);
 	return result;
     }
 
@@ -132,7 +132,7 @@ public class OntologyBroker
     protected boolean findMessageMappingPath(List<MessageMap> currentPath, MessageType currentType, MessageType targetType)
     {
 	// If the two message types match, then we've found a path
-	if (currentType.equals(targetType))
+	if (currentType.getClassId().equals(targetType.getClassId()))
 	    return true;
 
 	
@@ -141,7 +141,7 @@ public class OntologyBroker
 	for (MessageMap possibleNextMap : this.mappings)
 	{
 	    //Make sure we don't get into a circular chain of mappings.
-	    if (!possibleNextMap.getInMsgType().equals(currentType))
+	    if (!possibleNextMap.getInMsgType().getClassId().equals(currentType.getClassId()))
 		continue;
 	    else
 	    {
@@ -150,7 +150,7 @@ public class OntologyBroker
 		boolean alreadyVisited = false;
 		for (MessageMap pathIndex : currentPath)
 		{
-		    if (currentPath.equals(pathIndex.getOutMsgType()) || (currentType.equals(pathIndex.getInMsgType())))
+		    if (currentPath.equals(pathIndex.getOutMsgType().getClassId()) || (currentType.equals(pathIndex.getInMsgType().getClassId())))
 		    {
 			alreadyVisited = true;
 			break;
