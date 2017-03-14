@@ -164,8 +164,18 @@ public class MessagingGateway extends BaseMessagingNode {
 	{
 	    String incomingMessageTypeAsString = incomingMessage.getClassId();
 	    
-	    MessageType inMsgType = ontologyBroker.buildMessageType(incomingMessageTypeAsString, 1.0f, 1.0f);
-	    MessageType outMsgType = ontologyBroker.buildMessageType(destinationMessageType.getSimpleName(), 1.0f, 1.0f);
+	    String messageName = "";
+	    
+	    if(incomingMessage instanceof Message)
+		messageName = ((Message) incomingMessage).getVerb();
+	    else if (incomingMessage instanceof VHMessage)
+		messageName = ((VHMessage) incomingMessage).getFirstWord();
+	    else if(incomingMessage instanceof GIFTMessage)
+		messageName = ((GIFTMessage) incomingMessage).getHeader();
+	    
+	    
+	    MessageType inMsgType = ontologyBroker.buildMessageType(incomingMessageTypeAsString, messageName, 1.0f, 1.0f);
+	    MessageType outMsgType = ontologyBroker.buildMessageType(destinationMessageType.getSimpleName(), "", 1.0f, 1.0f);
 	    
 	    BaseMessage result = ontologyBroker.findPathAndConvertMessage(incomingMessage, inMsgType, outMsgType, true);
 	    

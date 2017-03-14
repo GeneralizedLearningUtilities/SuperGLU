@@ -15,7 +15,7 @@ public class ApplicationTest {
 	
 	static
 	{
-		Message m1 = new Message("mockActor", "MockVerb", "MockObj", "MockResult", SpeechActEnum.INFORM_ACT, null, null, "mockID");
+		Message m1 = new Message("mockActor", "GiveFeedback", "MockObj", "MockResult", SpeechActEnum.INFORM_ACT, null, null, "mockID");
 		messagesToSend.add(m1);
 	}
 	

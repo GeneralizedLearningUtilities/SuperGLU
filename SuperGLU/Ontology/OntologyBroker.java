@@ -64,7 +64,7 @@ public class OntologyBroker
      * This function will construct a default template given a message type and
      * name
      */
-    public MessageType buildMessageType(String inMsgType, float minVersion, float maxVersion)
+    public MessageType buildMessageType(String inMsgType, String inMsgName, float minVersion, float maxVersion)
     {
 	MessageTemplate template;
 	if (this.defaultTemplates.containsKey(inMsgType))
@@ -72,7 +72,7 @@ public class OntologyBroker
 	else
 	    template = null;
 
-	MessageType result = new MessageType("", minVersion, maxVersion, template, inMsgType);
+	MessageType result = new MessageType(inMsgName, minVersion, maxVersion, template, inMsgType);
 	return result;
     }
 
@@ -88,7 +88,8 @@ public class OntologyBroker
      * @param targetMsgType
      *            target message type
      * @param strict
-     *            ??? speak to Ben about this.  I know it's about whether some loss can be allowed, but not sure how to implement that
+     *            ??? speak to Ben about this. I know it's about whether some
+     *            loss can be allowed, but not sure how to implement that
      * @return
      */
     public BaseMessage findPathAndConvertMessage(BaseMessage inMsg, MessageType inMsgType, MessageType targetMsgType, boolean strict)
@@ -135,39 +136,36 @@ public class OntologyBroker
 	if (currentType.getClassId().equals(targetType.getClassId()))
 	    return true;
 
-	
-	
-	// Otherwise we search through the list of mappings for a
+	// Otherwise we search through the list of mappings for a possible map
 	for (MessageMap possibleNextMap : this.mappings)
 	{
-	    //Make sure we don't get into a circular chain of mappings.
-	    if (!possibleNextMap.getInMsgType().getClassId().equals(currentType.getClassId()))
-		continue;
-	    else
-	    {
+	    if (possibleNextMap.getInMsgType().getClassId().equals(currentType.getClassId()) && possibleNextMap.getInMsgType().getMessageName().equals(currentType.getMessageName()))
+	    {// We have a map with matching input
+
 		// Check to make sure we haven't passed through this type
 		// already
 		boolean alreadyVisited = false;
 		for (MessageMap pathIndex : currentPath)
 		{
-		    if (currentPath.equals(pathIndex.getOutMsgType().getClassId()) || (currentType.equals(pathIndex.getInMsgType().getClassId())))
+		    if ((currentType.equals(pathIndex.getInMsgType().getClassId())))
 		    {
 			alreadyVisited = true;
 			break;
 		    }
 		}
-		
-		if(alreadyVisited)
+
+		//If we've already passed through this system. Then skip this mapping.
+		if (alreadyVisited)
 		    continue;
-		
-		//add the mapping the chain
+
+		// add the mapping the chain
 		currentPath.add(possibleNextMap);
-		
-		//Recursive call
-		if(findMessageMappingPath(currentPath, possibleNextMap.getOutMsgType(), targetType))
-		    return true; //We've found a path
-		
-		//remember to remove the dead end
+
+		// Recursive call
+		if (findMessageMappingPath(currentPath, possibleNextMap.getOutMsgType(), targetType))
+		    return true; // We've found a path
+
+		// remember to remove the dead end
 		currentPath.remove(currentPath.size() - 1);
 	    }
 	}
@@ -181,18 +179,17 @@ public class OntologyBroker
 	    return null;
 
 	StorageToken currentForm = (StorageToken) SerializationConvenience.tokenizeObject(msg);
-	
-	for(MessageMap currentMap : path)
+
+	for (MessageMap currentMap : path)
 	{
-	    if(currentMap.isValidSourceMsg(currentForm))
+	    if (currentMap.isValidSourceMsg(currentForm))
 	    {
 		currentForm = currentMap.convert(currentForm);
 	    }
 	}
-	
-	
+
 	BaseMessage result = (BaseMessage) SerializationConvenience.untokenizeObject(currentForm);
-	
+
 	return result;
     }
 }
