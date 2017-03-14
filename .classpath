@@ -15,5 +15,6 @@
 	<classpathentry kind="lib" path="lib/google reflections/slf4j-simple-1.6.1.jar"/>
 	<classpathentry kind="lib" path="lib/google reflections/xml-apis-1.0.b2.jar"/>
 	<classpathentry kind="lib" path="lib/activemq/activemq-all-5.5.0.jar"/>
+	<classpathentry kind="lib" path="lib/vhmsg/vhmsg-java.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
