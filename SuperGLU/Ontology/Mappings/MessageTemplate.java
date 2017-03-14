@@ -6,6 +6,7 @@ package Ontology.Mappings;
  * @author tirthmehta
  */
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import Core.Message;
@@ -29,24 +30,23 @@ public class MessageTemplate extends Serializable
     // PARAMETERIZED CONSTRUCTOR
     public MessageTemplate(List<Pair<FieldData, Object>> arrlist)
     {
-	if(arrlist==null)
+	if (arrlist == null)
 	    this.defaultFieldData = new ArrayList<>();
 	else
 	    this.defaultFieldData = arrlist;
     }
 
-    
     // GETTER METHOD THAT RETURNS THE ARRAYLIST OF FIELDDATA PERTAINING TO AN
     // INDIVIDUAL
-    public List<Pair<FieldData,Object>> getDefaultFieldData()
+    public List<Pair<FieldData, Object>> getDefaultFieldData()
     {
 	return defaultFieldData;
     }
 
     // SETTER METHOD FOR SETTING THE FIELD-DATA ARRAYLIST
-    public void setData(List<Pair<FieldData,Object>> arrFieldData)
+    public void setData(List<Pair<FieldData, Object>> arrFieldData)
     {
-	if(arrFieldData==null)
+	if (arrFieldData == null)
 	    this.defaultFieldData = new ArrayList<>();
 	else
 	    this.defaultFieldData = arrFieldData;
@@ -54,23 +54,18 @@ public class MessageTemplate extends Serializable
 
     // CREATES A STORAGE TOKEN OF THE TARGET CLASS OBJECT ONCE A VALID MAPPING
     // HAS BEEN IDENTIFIED
-    public StorageToken createTargetStorageToken(String id)
+    public StorageToken createTargetStorageToken(String id, String classId)
     {
-	if (id.equals("Message"))
+	StorageToken result = new StorageToken(new HashMap<String, Object>(), id, classId);
+
+	for (Pair<FieldData, Object> currentFieldDataPair : this.defaultFieldData)
 	{
-	    Message targetMsg = new Message();
-	    StorageToken result = targetMsg.saveToToken();
-	    
-	    for(Pair<FieldData, Object> currentFieldDataPair : this.defaultFieldData)
-	    {
-		FieldData currentFieldData = currentFieldDataPair.getFirst();
-		currentFieldData.storeData(result, currentFieldDataPair.getSecond());
-	    }
-	    
-	    return result;
-	    
+	    FieldData currentFieldData = currentFieldDataPair.getFirst();
+	    currentFieldData.storeData(result, currentFieldDataPair.getSecond());
 	}
-	return null;
+
+	return result;
+
     }
 
     // Equality Operations
@@ -109,7 +104,7 @@ public class MessageTemplate extends Serializable
     public void initializeFromToken(StorageToken token)
     {
 	super.initializeFromToken(token);
-	this.defaultFieldData = (List<Pair<FieldData,Object>>) SerializationConvenience.untokenizeObject(token.getItem(MESSAGE_TEMPLATE_DEFAULTFIELDDATA_KEY));
+	this.defaultFieldData = (List<Pair<FieldData, Object>>) SerializationConvenience.untokenizeObject(token.getItem(MESSAGE_TEMPLATE_DEFAULTFIELDDATA_KEY));
     }
 
     @Override

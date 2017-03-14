@@ -190,7 +190,7 @@ public class MessageMap extends Serializable
      */
     public StorageToken convert(StorageToken input)
     {
-	StorageToken output = outMsgType.getMessageTemplate().createTargetStorageToken(UUID.randomUUID().toString());
+	StorageToken output = outMsgType.getMessageTemplate().createTargetStorageToken(UUID.randomUUID().toString(), outMsgType.getClassId());
 	
 	for(FieldMap currentMap : this.fieldMappings)
 	{

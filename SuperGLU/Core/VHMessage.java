@@ -135,7 +135,7 @@ public class VHMessage extends BaseMessage {
 		
 		this.firstWord = (String)SerializationConvenience.untokenizeObject(token.getItem(FIRST_WORD_KEY, true, ""));
 		this.version = (Float)SerializationConvenience.untokenizeObject(token.getItem(VERSION_KEY, true, -1.0f));
-		this.body = (String)SerializationConvenience.untokenizeObject(token.getItem(body, true, ""));
+		this.body = (String)SerializationConvenience.untokenizeObject(token.getItem(BODY_KEY, true, ""));
 	}
 	
 	
