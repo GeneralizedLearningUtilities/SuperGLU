@@ -10,7 +10,7 @@ import Core.Message;
 import Core.VHMessage;
 import Ontology.Converters.DataConverter;
 import Ontology.Converters.SpaceSeparation;
-import Ontology.Converters.XMLWrapped;
+import Ontology.Converters.XMLActWrapped;
 import Util.Pair;
 import Util.Serializable;
 import Util.StorageToken;
@@ -87,7 +87,7 @@ public class MessageMapFactory
 	
 	List<Pair<Class<?>,String>> indices = new ArrayList<>();
 	indices.add(new Pair<Class<?>, String>(String.class, Message.RESULT_KEY));
-	DataConverter converter = new XMLWrapped("speech");
+	DataConverter converter = new XMLActWrapped("speech");
 	NestedSubAtomic result = new NestedSubAtomic(indices, converter, 0);
 	
 	FieldMapOneToOne map = new FieldMapOneToOne(payload, result);

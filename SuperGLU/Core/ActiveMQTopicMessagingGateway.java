@@ -155,7 +155,7 @@ public class ActiveMQTopicMessagingGateway extends MessagingGateway implements M
 		// need to figure out how to get all of the header properties
 		// (and if we actually need them).
 		StorageToken bodyAsStorageToken = SerializationConvenience.makeNative(body, SerializationFormatEnum.JSON_FORMAT);
-		msg = new GIFTMessage(null, new HashMap<>(), "", bodyAsStorageToken);
+		msg = new GIFTMessage(null, new HashMap<>(), (String)bodyAsStorageToken.getItem(GIFTMessage.MESSAGE_TYPE_KEY), bodyAsStorageToken);
 	    } else
 	    {
 		msg = (Message) SerializationConvenience.nativeizeObject(body, SerializationFormatEnum.JSON_FORMAT);

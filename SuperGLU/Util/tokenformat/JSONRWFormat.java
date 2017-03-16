@@ -66,7 +66,7 @@ public class JSONRWFormat extends TokenRWFormat {
 			StorageToken result;
 			if(nativeObject instanceof StorageToken)
 				result = (StorageToken) nativeObject;
-			else if (nativeObject instanceof Map<?,?>)
+			else if (nativeObject instanceof Map<?,?>) //TODO: what should the classID be?
 				result = new StorageToken((Map<String, Object>) nativeObject, null, null);
 			else
 			{

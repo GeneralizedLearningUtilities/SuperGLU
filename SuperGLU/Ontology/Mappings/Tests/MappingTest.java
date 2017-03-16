@@ -22,7 +22,7 @@ import Ontology.Mappings.MessageMapFactory;
 import Util.SerializationConvenience;
 import Util.StorageToken;
 
-public class MappingTest1
+public class MappingTest
 {
 /*
     @Test

@@ -15,6 +15,8 @@ public class GIFTMessage extends BaseMessage {
 	public static final String HEADER_KEY = "header";
 	public static final String PAYLOAD_KEY = "payload";
 	
+	public static final String MESSAGE_TYPE_KEY = "Message_Type";
+	
 	
 	protected String header;
 	
