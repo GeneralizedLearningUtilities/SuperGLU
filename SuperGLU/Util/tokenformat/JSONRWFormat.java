@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.json.simple.DeserializationException;
+import org.json.simple.JSONArray;
 import org.json.simple.JsonArray;
 import org.json.simple.JsonObject;
 import org.json.simple.Jsoner;
@@ -129,6 +130,11 @@ public class JSONRWFormat extends TokenRWFormat {
 		{
 			JsonObject inputAsJsonObject = (JsonObject)input;
 			
+			//corner case if object is empty
+			if(inputAsJsonObject.isEmpty())
+			    return new HashMap<String, Object>();
+			
+			
 			String datatypeName = inputAsJsonObject.keySet().iterator().next();
 			Class<?> dataType = NAME_MAPPING.getOrDefault(datatypeName, StorageToken.class);
 			
@@ -150,6 +156,8 @@ public class JSONRWFormat extends TokenRWFormat {
 					else
 					{
 					
+					    if(value instanceof JsonObject)
+					    {
 						JsonObject innerData = (JsonObject) value;
 						
 						for(String innerKey : innerData.keySet())
@@ -157,6 +165,18 @@ public class JSONRWFormat extends TokenRWFormat {
 							Object innerValue = innerData.get(innerKey);
 							nativizedData.put(innerKey, makeNative(innerValue));
 						}
+					    }
+					    else if(value instanceof JsonArray)
+					    {
+						JsonArray innerData = (JsonArray) value;
+						
+						int index = 0;
+						for(Object currentInnerItem :  innerData)
+						{
+						    nativizedData.put(Integer.toString(index), makeNative(currentInnerItem));
+						    ++index;
+						}
+					    }
 					}
 				}
 				

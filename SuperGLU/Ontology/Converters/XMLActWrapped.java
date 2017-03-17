@@ -54,6 +54,8 @@ public class XMLActWrapped extends Serializable implements DataConverter
     @Override
     public Object join(List<Object> inFields)
     {
+	
+	List<Object> test = this.split(inFields.get(0));
 	/*
 	<act>
 		<participant id="Rachel" role="actor" />
@@ -130,8 +132,7 @@ public class XMLActWrapped extends Serializable implements DataConverter
 	
 	} catch (DocumentException e)
 	{
-	    // TODO Auto-generated catch block
-	    e.printStackTrace();
+	   result.add(inField);
 	}
 	
 	return result;
