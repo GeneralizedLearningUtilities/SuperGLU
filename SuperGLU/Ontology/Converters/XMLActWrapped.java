@@ -1,12 +1,7 @@
 package Ontology.Converters;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.dom4j.Document;
-import org.dom4j.DocumentException;
 import org.dom4j.DocumentFactory;
-import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 
 import Util.Serializable;
@@ -52,10 +47,8 @@ public class XMLActWrapped extends Serializable implements DataConverter
 
 
     @Override
-    public Object join(List<Object> inFields)
+    public Object convert(Object input, Object context)
     {
-	
-	List<Object> test = this.split(inFields.get(0));
 	/*
 	<act>
 		<participant id="Rachel" role="actor" />
@@ -108,7 +101,7 @@ public class XMLActWrapped extends Serializable implements DataConverter
 	speechElement.addAttribute("id", "sp1");
 	speechElement.addAttribute("ref", "DummyID");
 	speechElement.addAttribute("type", "application/ssml+xml");
-	speechElement.addText((String)inFields.get(0));
+	speechElement.addText((String)input);
 	bmlElement.add(speechElement);
 	
 	actElement.add(bmlElement);
@@ -116,26 +109,6 @@ public class XMLActWrapped extends Serializable implements DataConverter
 	result.add(actElement);
 	
 	return result.asXML();
-    }
-
-    @Override
-    public List<Object> split(Object inField)
-    {
-	List<Object> result = new ArrayList<>();
-	try
-	{
-	    Document doc = DocumentHelper.parseText((String) inField);
-	    Element element = doc.getRootElement();
-	    String text = element.getText();
-	    
-	    result.add(text);
-	
-	} catch (DocumentException e)
-	{
-	   result.add(inField);
-	}
-	
-	return result;
     }
 
     @Override
@@ -151,6 +124,13 @@ public class XMLActWrapped extends Serializable implements DataConverter
     {
 	return super.saveToToken();
 	
+    }
+
+
+    @Override
+    public boolean isApplicable(Object input)
+    {
+	return input instanceof String;
     }
     
     

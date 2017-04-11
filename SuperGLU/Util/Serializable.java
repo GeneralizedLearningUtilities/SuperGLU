@@ -14,6 +14,8 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.reflections.Reflections;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * """ A serializable object, that can be saved to token and opened from token
@@ -24,6 +26,8 @@ import org.reflections.Reflections;
  */
 public abstract class Serializable
 {
+    
+    protected Logger logger = LoggerFactory.getLogger(this.getClass());
 
     /**
      * A unique ID (GUID) for the message, for later reference.

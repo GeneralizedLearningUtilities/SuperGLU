@@ -9,8 +9,12 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import Ontology.Converters.AddElementToStringList;
+import Ontology.Converters.CompoundConverter;
 import Ontology.Converters.DataConverter;
-import Ontology.Converters.SpaceSeparation;
+import Ontology.Converters.GetElementFromStringList;
+import Ontology.Converters.ListToString;
+import Ontology.Converters.StringToList;
 import Ontology.Mappings.NestedSubAtomic;
 import Util.Pair;
 import Util.SerializationConvenience;
@@ -28,8 +32,20 @@ public class NestedSubAtomicTest
     {
 	List<Pair<Class<?>, String>> indices = new ArrayList<>();
 	indices.add(new Pair<Class<?>, String>(String.class, "foo"));
-	DataConverter converter = new SpaceSeparation();
-	nestedSubAtomic = new NestedSubAtomic(indices, converter, 1);
+	
+	List<DataConverter> storageConverterList = new ArrayList<>();
+	storageConverterList.add(new StringToList(" "));
+	storageConverterList.add(new AddElementToStringList(1));
+	storageConverterList.add(new ListToString(" "));
+	DataConverter storageConverter = new CompoundConverter(storageConverterList);
+	
+	List<DataConverter> retrievalConverterList = new ArrayList<>();
+	retrievalConverterList.add(new StringToList(" "));
+	retrievalConverterList.add(new GetElementFromStringList(1));
+	DataConverter retrievalConverter = new CompoundConverter(retrievalConverterList);
+	
+	
+	nestedSubAtomic = new NestedSubAtomic(indices, storageConverter, retrievalConverter);
 	
 	String foo = "test pass";
 	sampleData = new StorageToken();
@@ -79,8 +95,20 @@ public class NestedSubAtomicTest
     {
 	List<Pair<Class<?>, String>> indices = new ArrayList<>();
 	indices.add(new Pair<Class<?>, String>(String.class, "foo"));
-	DataConverter converter = new SpaceSeparation();
-	NestedSubAtomic otherNestedSubAtomic = new NestedSubAtomic(indices, converter, 0);
+
+	List<DataConverter> storageConverterList = new ArrayList<>();
+	storageConverterList.add(new StringToList(" "));
+	storageConverterList.add(new AddElementToStringList(0));
+	storageConverterList.add(new ListToString(" "));
+	DataConverter storageConverter = new CompoundConverter(storageConverterList);
+	
+	List<DataConverter> retrievalConverterList = new ArrayList<>();
+	retrievalConverterList.add(new StringToList(" "));
+	retrievalConverterList.add(new GetElementFromStringList(0));
+	DataConverter retrievalConverter = new CompoundConverter(retrievalConverterList);
+
+	
+	NestedSubAtomic otherNestedSubAtomic = new NestedSubAtomic(indices, storageConverter, retrievalConverter);
 	
 	StorageToken token = new StorageToken(new HashMap<>(), "testToken", "none");
 	

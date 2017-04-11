@@ -1,6 +1,5 @@
 package Ontology.Mappings;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import Ontology.Converters.DataConverter;
@@ -16,50 +15,51 @@ import Util.StorageToken;
 public class NestedSubAtomic extends NestedAtomic
 {
 
-    public static String CONVERTER_KEY = "converter";
-    public static String INDEX_KEY = "index";
+    public static String STORAGE_CONVERTER_KEY = "storageConverter";
+    public static String RETRIEVAL_CONVERTER_KEY = "retrievalConverter";
     
     
-    private DataConverter converter;
-    private int index;
+    private DataConverter storageConverter;
+    private DataConverter retrievalConverter;
+    //private int index;
     
     
-    public NestedSubAtomic(List<Pair<Class<?>, String>> indices, DataConverter converter, int index)
+    public NestedSubAtomic(List<Pair<Class<?>, String>> indices, DataConverter storageConverter, DataConverter retrievalConverter)
     {
 	super(indices);
-	this.converter = converter;
-	this.index = index;
+	this.storageConverter = storageConverter;
+	this.retrievalConverter = retrievalConverter;
     }
 
     public NestedSubAtomic()
     {
 	super();
-	this.converter = null;
-	this.index = 0;
+	this.storageConverter = null;
+	this.retrievalConverter = null;
     }
 
     
     //Accessors
     public DataConverter getConverter()
     {
-        return converter;
+        return storageConverter;
     }
 
     public void setConverter(DataConverter converter)
     {
-        this.converter = converter;
-    }
-
-    public int getIndex()
-    {
-        return index;
-    }
-
-    public void setIndex(int index)
-    {
-        this.index = index;
+        this.storageConverter = converter;
     }
     
+    public DataConverter getRetrievalConverter()
+    {
+        return retrievalConverter;
+    }
+
+    public void setRetrievalConverter(DataConverter retrievalConverter)
+    {
+        this.retrievalConverter = retrievalConverter;
+    }
+
     
     //Equality operators
     @Override
@@ -73,7 +73,10 @@ public class NestedSubAtomic extends NestedAtomic
 
 	NestedSubAtomic other = (NestedSubAtomic) otherObject;
 
-	if (!fieldIsEqual(this.converter, other.converter))
+	if (!fieldIsEqual(this.storageConverter, other.storageConverter))
+	    return false;
+	
+	if (!fieldIsEqual(this.retrievalConverter, other.retrievalConverter))
 	    return false;
 
 	return true;
@@ -85,11 +88,12 @@ public class NestedSubAtomic extends NestedAtomic
 	int result = super.hashCode();
 	int arbitraryPrimeNumber = 23;
 
-	if (this.converter != null)
-	    result = result * arbitraryPrimeNumber + this.converter.hashCode();
+	if (this.storageConverter != null)
+	    result = result * arbitraryPrimeNumber + this.storageConverter.hashCode();
 	
-	result = result * arbitraryPrimeNumber + index;
-
+	if (this.retrievalConverter != null)
+	    result = result * arbitraryPrimeNumber + this.retrievalConverter.hashCode();
+	
 	return result;
 
     }
@@ -101,8 +105,8 @@ public class NestedSubAtomic extends NestedAtomic
     {
 	super.initializeFromToken(token);
 
-	this.converter = (DataConverter) SerializationConvenience.untokenizeObject(token.getItem(CONVERTER_KEY));
-	this.index = (int) SerializationConvenience.untokenizeObject(token.getItem(INDEX_KEY));
+	this.storageConverter = (DataConverter) SerializationConvenience.untokenizeObject(token.getItem(STORAGE_CONVERTER_KEY));
+	this.retrievalConverter = (DataConverter) SerializationConvenience.untokenizeObject(token.getItem(RETRIEVAL_CONVERTER_KEY));
 
     }
 
@@ -111,8 +115,8 @@ public class NestedSubAtomic extends NestedAtomic
     {
 	StorageToken result = super.saveToToken();
 
-	result.setItem(CONVERTER_KEY, SerializationConvenience.tokenizeObject(converter));
-	result.setItem(INDEX_KEY, SerializationConvenience.tokenizeObject(this.index));
+	result.setItem(STORAGE_CONVERTER_KEY, SerializationConvenience.tokenizeObject(storageConverter));
+	result.setItem(RETRIEVAL_CONVERTER_KEY, SerializationConvenience.tokenizeObject(retrievalConverter));
 	return result;
     }
     
@@ -123,8 +127,7 @@ public class NestedSubAtomic extends NestedAtomic
     public Object retrieveFieldData(StorageToken msg)
     {
 	Object fieldData = super.retrieveFieldData(msg);
-	List<Object> splitField = converter.split(fieldData);
-	Object result = splitField.get(this.index);
+	Object result = retrievalConverter.convert(fieldData, msg);
 	return result;
     }
     
@@ -134,20 +137,26 @@ public class NestedSubAtomic extends NestedAtomic
     {
 	Object currentFieldData = super.retrieveFieldData(msg);
 	
+	if(currentFieldData == null)
+	    currentFieldData = "";
+	
+	Object newFieldData = storageConverter.convert(currentFieldData, data);
+	
+	/*
 	List<Object> tokenizedObjectList;
 	
 	if(currentFieldData == null)
 	    tokenizedObjectList = new ArrayList<>(index);
 	else
-	    tokenizedObjectList = converter.split(currentFieldData);
+	    tokenizedObjectList = storageConverter.split(currentFieldData);
 	
 	while(tokenizedObjectList.size() < index + 1)
 	    tokenizedObjectList.add(null);
 	
 	tokenizedObjectList.set(index, data);
 	
-	Object newFieldData = converter.join(tokenizedObjectList);
-	
+	Object newFieldData = storageConverter.join(tokenizedObjectList);
+	*/
 	super.storeData(msg, newFieldData);
     }
     

@@ -1,10 +1,8 @@
 package Ontology.Converters;
 
-import java.util.List;
-
 /**
  * This interface is responsible defining the conversion data from multiple fields into a single field.  The conversion
- * must be bi-directional 
+ * is not bi-directional.
  * @author auerbach
  *
  */
@@ -12,18 +10,18 @@ public interface DataConverter
 {
 
     /**
-     * this is the many to one mapping
-     * @param inFields
-     * @return
+     * Check if the object can be converted
+     * @param input object to be converted
+     * @return true if the input can be converted by this converter
      */
-    public Object join(List<Object> inFields);
+    public boolean isApplicable(Object input);
     
     
     /**
-     * this is the one to many mapping
-     * @param inField
-     * @return
+     * Convert the object
+     * @param input
+     * @param context additional information that some converters may need (e.g. inserting text into a list)
+     * @return the converted object
      */
-    public List<Object> split(Object inField);
-    
+    public Object convert(Object input, Object context);
 }
