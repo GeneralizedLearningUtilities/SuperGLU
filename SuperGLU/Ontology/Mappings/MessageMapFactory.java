@@ -142,7 +142,14 @@ public class MessageMapFactory
 	NestedSubAtomic speaker = new NestedSubAtomic(indices, buildVRExpressStorageDataConverter(0), buildVRExpressRetrievalDataConverter(0));
 	NestedSubAtomic audience = new NestedSubAtomic(indices, buildVRExpressStorageDataConverter(1), buildVRExpressRetrievalDataConverter(1));
 	NestedSubAtomic number = new NestedSubAtomic(indices, buildVRExpressStorageDataConverter(2), buildVRExpressRetrievalDataConverter(2));
-	NestedSubAtomic utterance = new NestedSubAtomic(indices, buildVRExpressStorageDataConverter(3), buildVRExpressRetrievalDataConverter(3));
+	
+	List<DataConverter> storageConverterList = new ArrayList<>();
+	storageConverterList.add(new XMLActWrapped("speech"));
+	storageConverterList.add(buildVRExpressStorageDataConverter(3));
+	
+	DataConverter storageConverter = new CompoundConverter(storageConverterList);
+	
+	NestedSubAtomic utterance = new NestedSubAtomic(indices, storageConverter, buildVRExpressRetrievalDataConverter(3));
 	
 	List<Pair<FieldData, Object>> templateData = new ArrayList<>();
 	templateData.add(new Pair<FieldData, Object>(speaker, "Rachel"));

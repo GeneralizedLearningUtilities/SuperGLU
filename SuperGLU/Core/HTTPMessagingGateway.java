@@ -2,6 +2,7 @@ package Core;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -9,6 +10,7 @@ import java.util.function.Predicate;
 import java.util.logging.Level;
 
 import com.corundumstudio.socketio.AckRequest;
+import com.corundumstudio.socketio.BroadcastOperations;
 import com.corundumstudio.socketio.Configuration;
 import com.corundumstudio.socketio.SocketIOClient;
 import com.corundumstudio.socketio.SocketIOServer;
@@ -42,6 +44,7 @@ public class HTTPMessagingGateway extends MessagingGateway implements DataListen
     public static final String MESSAGES_KEY = "message";
     public static final String DATA_KEY = "data";
     public static final String MESSAGES_NAMESPACE = "/messaging";
+    public static final String SID_KEY = "sid";
     
     
     public HTTPMessagingGateway()
@@ -58,7 +61,9 @@ public class HTTPMessagingGateway extends MessagingGateway implements DataListen
 	this.socketIO = socketIO;
 	this.clients = new ConcurrentHashMap<>();
 	
-	this.socketIO.addEventListener(MESSAGES_NAMESPACE, Map.class, (DataListener)this);
+	this.socketIO.start();
+	
+	this.socketIO.addEventListener(MESSAGES_KEY, Map.class, (DataListener)this);
     }
     
 
@@ -76,13 +81,32 @@ public class HTTPMessagingGateway extends MessagingGateway implements DataListen
     @Override
     public void sendMessage(BaseMessage msg)
     {
-	// TODO Auto-generated method stub
 	super.sendMessage(msg);
+	this.sendAJAXMesage(msg);
     }
     
     
     public void sendAJAXMesage(BaseMessage msg)
     {
+	String msgAsString = SerializationConvenience.serializeObject(msg, SerializationFormatEnum.JSON_FORMAT);
+	
+	Map<String, String> data = new HashMap<>();
+	
+	String sessionId = (String) msg.getContextValue(SESSION_KEY, null);
+	
+	if(sessionId != null)
+	{
+	    data.put(DATA_KEY, msgAsString);
+	    data.put(SESSION_KEY, sessionId);
+	    
+	    BroadcastOperations broadcastOperations = this.socketIO.getRoomOperations(sessionId);
+	    broadcastOperations.sendEvent(MESSAGES_KEY, data);
+	}
+	else
+	{
+	    log.log(Level.WARNING, "Message does not contain session id.  Cannot send: " + msgAsString);
+	}
+	
 	
     }
     
@@ -109,6 +133,8 @@ public class HTTPMessagingGateway extends MessagingGateway implements DataListen
 		
 		String msgAsString = data.get(DATA_KEY);
 		BaseMessage msg = (BaseMessage) SerializationConvenience.nativeizeObject(msgAsString, SerializationFormatEnum.JSON_FORMAT);
+		
+		msg.setContextValue(SID_KEY, sid);
 		
 		if(this.gateway != null)
 		    this.gateway.dispatchMessage(msg, this.getId());
