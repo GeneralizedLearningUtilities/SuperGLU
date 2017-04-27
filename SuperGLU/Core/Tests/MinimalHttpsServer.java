@@ -44,6 +44,8 @@ public class MinimalHttpsServer extends BaseMessagingNode
 	
 	//For now we'll just log the messages as they come in.
 	log.log(Level.INFO, msgAsString);
+	
+	sendMessage(msg);
     }
 
 

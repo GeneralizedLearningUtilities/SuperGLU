@@ -16,5 +16,10 @@
 	<classpathentry kind="lib" path="lib/google reflections/xml-apis-1.0.b2.jar"/>
 	<classpathentry kind="lib" path="lib/activemq/activemq-all-5.5.0.jar"/>
 	<classpathentry kind="lib" path="lib/vhmsg/vhmsg-java.jar"/>
+	<classpathentry kind="lib" path="lib/nettySocketIO/netty-socketio-1.7.12.jar" sourcepath="C:/ExternalSourceFiles/netty-socketio-netty-socketio-1.7.12/src"/>
+	<classpathentry kind="lib" path="lib/netty/netty-4.1.9.Final/jar/all-in-one/netty-all-4.1.9.Final.jar" sourcepath="lib/netty/netty-4.1.9.Final/jar/all-in-one/netty-all-4.1.9.Final-sources.jar"/>
+	<classpathentry kind="lib" path="lib/jackson-core-2.2.3.jar"/>
+	<classpathentry kind="lib" path="lib/jackson-databind-2.2.3.jar"/>
+	<classpathentry kind="lib" path="lib/jackson-annotations-2.2.3.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

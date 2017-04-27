@@ -63,7 +63,9 @@ public class HTTPMessagingGateway extends MessagingGateway implements DataListen
 	
 	this.socketIO.start();
 	
-	this.socketIO.addEventListener(MESSAGES_KEY, Map.class, (DataListener)this);
+	this.socketIO.addNamespace(MESSAGES_NAMESPACE);
+	
+	this.socketIO.getNamespace(MESSAGES_NAMESPACE).addEventListener(MESSAGES_KEY, Map.class, (DataListener)this);
     }
     
 
@@ -115,8 +117,10 @@ public class HTTPMessagingGateway extends MessagingGateway implements DataListen
     @Override
     public void onData(SocketIOClient client, Map<String, String> data, AckRequest ackSender) throws Exception
     {
+	log.log(Level.FINE, "data received from socket: " + data.toString());
+	
 	String sid = client.getSessionId().toString();
-            
+	
 	if(data.containsKey(DATA_KEY))
 	{
 	    String sessionId = data.getOrDefault(SESSION_KEY, null);
@@ -146,7 +150,6 @@ public class HTTPMessagingGateway extends MessagingGateway implements DataListen
 	{
 	    log.log(Level.WARNING, "GATEWAY DID NOT UNDERSTAND: " + data.toString());
 	}
-	
     }
 
 }
