@@ -74,9 +74,9 @@ public class ActiveMQTopicMessagingGateway extends MessagingGateway implements M
 	}
     }
 
-    public ActiveMQTopicMessagingGateway(String anId, MessagingGateway gateway, Map<String, Object> scope, Collection<BaseMessagingNode> nodes, Predicate<BaseMessage> conditions, ActiveMQTopicConfiguration activeMQConfiguration)
+    public ActiveMQTopicMessagingGateway(String anId, Map<String, Object> scope, Collection<BaseMessagingNode> nodes, Predicate<BaseMessage> conditions, ActiveMQTopicConfiguration activeMQConfiguration)
     {
-	super(anId, gateway, scope, nodes, conditions);
+	super(anId, scope, nodes, conditions);
 	try
 	{
 	    connection = new ActiveMQConnectionFactory(activeMQConfiguration.getBrokerHost()).createTopicConnection();
@@ -91,7 +91,7 @@ public class ActiveMQTopicMessagingGateway extends MessagingGateway implements M
 	} catch (JMSException e)
 	{
 	    e.printStackTrace();
-	    log.log(Level.SEVERE, "Failed To connect to ActiveMQ", e);
+	    log.error("Failed To connect to ActiveMQ", e);
 	    throw new RuntimeException("Failed to connect to ActiveMQ");
 	}
     }
@@ -109,7 +109,7 @@ public class ActiveMQTopicMessagingGateway extends MessagingGateway implements M
 	} catch (JMSException e)
 	{
 	    e.printStackTrace();
-	    log.log(Level.WARNING, "Failed to Send Message to ActiveMQ:" + SerializationConvenience.serializeObject(msg, SerializationFormatEnum.JSON_FORMAT));
+	    log.warn("Failed to Send Message to ActiveMQ:" + SerializationConvenience.serializeObject(msg, SerializationFormatEnum.JSON_FORMAT));
 	}
     }
 
@@ -170,7 +170,7 @@ public class ActiveMQTopicMessagingGateway extends MessagingGateway implements M
 	{
 	    // Don't crash if the message fails to be processed
 	    e.printStackTrace();
-	    log.log(Level.WARNING, "Failure while receiving JMS message:" + jmsMessage.toString(), e);
+	    log.warn("Failure while receiving JMS message:" + jmsMessage.toString(), e);
 	}
 
     }

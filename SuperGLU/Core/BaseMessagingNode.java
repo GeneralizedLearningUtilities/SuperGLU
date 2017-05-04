@@ -8,201 +8,273 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.apache.log4j.Level;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
+import org.slf4j.impl.Log4jLoggerFactory;
 
 import Util.Pair;
 import Util.SerializationConvenience;
 import Util.SerializationFormatEnum;
 
 /**
- *  """ Base class for messaging """
+ * """ Base class for messaging """
+ * 
  * @author auerbach
  *
  */
-public class BaseMessagingNode{
-	
-	protected String id;
-	protected MessagingGateway gateway;
-	protected Map<String,Pair<Message, Consumer<Message>>> requests;
-	protected Predicate<BaseMessage> conditions;
-	
-	private static boolean CATCH_BAD_MESSAGES = false;
-	
-	public static final String ORIGINATING_SERVICE_ID_KEY = "originatingServiceId";
-	public static final String SESSION_KEY = "sessionId";
-	
-	protected Logger log = Logger.getLogger(this.getClass().toString());
-	
-	public BaseMessagingNode(String anId, MessagingGateway gateway, Predicate<BaseMessage> conditions)
-	{
-		if(anId == null)
-			this.id = UUID.randomUUID().toString();
-		else
-			this.id = anId;
-		if(gateway != null)
-			this.bindToGateway(gateway);
-		
-		if(conditions != null)
-			this.conditions = conditions;
-		
-		this.requests = new HashMap<>();
-		
-	}
-	
-	
-	public void receiveMessage(BaseMessage msg)
-	{
-		if(msg instanceof Message)
-			this.triggerRequests((Message)msg);
-	}
-	
-	
-	public void sendMessage(BaseMessage msg)
-	{
-		log.log(Level.INFO, this.id + " is sending " + msg.toString());
-		if(this.gateway != null)
-		{
-			this.gateway.dispatchMessage(msg, this.id);
-			log.log(Level.INFO, "Actually sent it");
-		}
-	}
-	
-	// """ Function to check if this node is interested in this message type """
-	public Predicate<BaseMessage> getMessageConditions()
-	{
-		return conditions;
-	}
-	
-	
-	public void bindToGateway(MessagingGateway gateway)
-	{
-		this.unbindToGateway();
-		this.gateway = gateway;
-		this.gateway.register(this);
-	}
-	
-	
-	public void unbindToGateway()
-	{
-		if(this.gateway != null)
-			this.gateway.unregister(this);
-	}
-	
+public class BaseMessagingNode
+{
 
-	protected Collection<Pair<Message, Consumer<Message>>> getRequests()
+    protected Logger log = LogManager.getLogger(this.getClass());
+    
+    protected String id;
+    protected Map<String, Pair<Message, Consumer<Message>>> requests;
+    protected Predicate<BaseMessage> conditions;
+    protected Map<String, BaseMessagingNode> nodes;
+
+    private static boolean CATCH_BAD_MESSAGES = false;
+
+    public static final String ORIGINATING_SERVICE_ID_KEY = "originatingServiceId";
+    public static final String SESSION_KEY = "sessionId";
+
+
+    public BaseMessagingNode(String anId, Predicate<BaseMessage> conditions, Collection<BaseMessagingNode> nodes)
+    {	
+	this.nodes = new HashMap<>();
+
+	if (anId == null)
+	    this.id = UUID.randomUUID().toString();
+	else
+	    this.id = anId;
+
+	this.requests = new HashMap<>();
+
+	if (conditions != null)
+	    this.conditions = conditions;
+
+	this.requests = new HashMap<>();
+
+	this.addNodes(nodes);
+
+    }
+
+    public void receiveMessage(BaseMessage msg)
+    {
+	log.info(this.id + " received MSG:" + this.messageToString(msg));
+	if (msg instanceof Message)
+	    this.triggerRequests((Message) msg);
+    }
+
+    public void sendMessage(BaseMessage msg)
+    {
+	log.debug(this.id + " is sending " + this.messageToString(msg));
+	this.distributeMessage(msg, this.getId());
+    }
+
+    /**
+     * Handle an arriving message from some source. Services other than gateways
+     * should generally not need to change this.
+     * 
+     * @param msg:
+     *            The message arriving
+     * @param senderId:
+     *            The id string for the sender of this message.
+     **/
+    public void handleMessage(BaseMessage msg, String senderId)
+    {
+	this.receiveMessage(msg);
+    }
+
+    /**
+     * """ Pass a message down all interested children (except sender) """
+     * 
+     * @param msg
+     * @param senderId
+     */
+    public void distributeMessage(BaseMessage msg, String senderId)
+    {
+	this.distributeMessage_impl(this.nodes, msg, senderId);
+    }
+
+    /**
+     * Internal implementation of DistributeMessage ""
+     * " Implement passing a message down all interested children (except sender) "
+     * ""
+     * 
+     * @param nodes
+     * @param msg
+     * @param senderId
+     */
+    protected void distributeMessage_impl(Map<String, BaseMessagingNode> nodes, BaseMessage msg, String senderId)
+    {
+	for (BaseMessagingNode node : nodes.values())
 	{
-		return this.requests.values();
+	    if (node.id != senderId && (node.getMessageConditions() == null || node.getMessageConditions().test(msg)))
+		node.receiveMessage(msg);
 	}
-	
-	
-	protected void addRequest(Message msg, Consumer<Message> callback)
+    }
+
+    /** Transmit the message to another node **/
+    protected void transmitMessage(BaseMessagingNode node, BaseMessage msg, String senderId)
+    {
+	node.handleMessage(msg, senderId);
+    }
+
+    // """ Function to check if this node is interested in this message type """
+    public Predicate<BaseMessage> getMessageConditions()
+    {
+	return conditions;
+    }
+
+    /* Node Management */
+
+    /** Connect nodes to this node **/
+    public void addNodes(Collection<BaseMessagingNode> newNodes)
+    {
+	if (newNodes != null)
 	{
-		if(callback != null)
-		{
-			Message clone = (Message)msg.clone(false);
-			Pair<Message, Consumer<Message>> messageAndCallback = new Pair<Message, Consumer<Message>>(clone, callback);
-			
-			this.requests.put(msg.getId(), messageAndCallback);
-		}
+	    for (BaseMessagingNode node : newNodes)
+	    {
+		addNode(node);
+	    }
 	}
-	
-	
-	protected void makeRequest(Message msg, Consumer<Message> callback)
+    }
+
+    public void addNode(BaseMessagingNode node)
+    {
+	node.onBindToNode(this);
+	this.onBindToNode(node);
+    }
+
+    public Collection<BaseMessagingNode> getNodes()
+    {
+	return this.nodes.values();
+    }
+
+    /**
+     * Register the node and signatures of messages that the node is interested
+     * in
+     **/
+    public void onBindToNode(BaseMessagingNode node)
+    {
+	if (!this.nodes.containsKey(node.getId()))
 	{
-		this.addRequest(msg, callback);
-		this.sendMessage(msg);
+	    this.nodes.put(node.getId(), node);
 	}
-	
-	
-	protected void triggerRequests(Message msg)
+    }
+
+    /** This removes this node from a connected node (if any) **/
+    public void onUnbindToNode(BaseMessagingNode node)
+    {
+	if (this.nodes.containsKey(node.getId()))
 	{
-		String convoId = (String)msg.getContextValue(Message.CONTEXT_CONVERSATION_ID_KEY, null);
-		if(convoId != null && this.requests.containsKey(convoId))
-		{
-			String key = convoId;
-			Pair<Message, Consumer<Message>> value = this.requests.get(key);
-			Message oldMsg = value.getFirst();
-			Consumer<Message> callback = value.getSecond();
-			callback.accept(msg);
-			if(!oldMsg.getSpeechAct().equals(SpeechActEnum.REQUEST_WHENEVER_ACT))
-				this.requests.remove(key);
-		}
+	    this.nodes.remove(node.getId());
 	}
-	
-	
-	protected BaseMessage createRequestReply(BaseMessage msg)
+    }
+
+    protected Collection<Pair<Message, Consumer<Message>>> getRequests()
+    {
+	return this.requests.values();
+    }
+
+    protected void addRequest(Message msg, Consumer<Message> callback)
+    {
+	if (callback != null)
 	{
-		String oldId = msg.getId();
-		BaseMessage copy = (BaseMessage)msg.clone(true);
-		copy.setContextValue(Message.CONTEXT_CONVERSATION_ID_KEY, oldId);
-		return copy;
+	    Message clone = (Message) msg.clone(false);
+	    Pair<Message, Consumer<Message>> messageAndCallback = new Pair<Message, Consumer<Message>>(clone, callback);
+
+	    this.requests.put(msg.getId(), messageAndCallback);
 	}
-	
-	// # Pack/Unpack Messages
-	public String messageToString(BaseMessage msg)
+    }
+
+    protected void makeRequest(Message msg, Consumer<Message> callback)
+    {
+	this.addRequest(msg, callback);
+	this.sendMessage(msg);
+    }
+
+    protected void triggerRequests(Message msg)
+    {
+	String convoId = (String) msg.getContextValue(Message.CONTEXT_CONVERSATION_ID_KEY, null);
+	if (convoId != null && this.requests.containsKey(convoId))
 	{
-		return SerializationConvenience.serializeObject(msg, SerializationFormatEnum.JSON_FORMAT);
+	    String key = convoId;
+	    Pair<Message, Consumer<Message>> value = this.requests.get(key);
+	    Message oldMsg = value.getFirst();
+	    Consumer<Message> callback = value.getSecond();
+	    callback.accept(msg);
+	    if (!oldMsg.getSpeechAct().equals(SpeechActEnum.REQUEST_WHENEVER_ACT))
+		this.requests.remove(key);
 	}
-	
-	
-	public Message stringToMessage(String msgAsString)
+    }
+
+    protected BaseMessage createRequestReply(BaseMessage msg)
+    {
+	String oldId = msg.getId();
+	BaseMessage copy = (BaseMessage) msg.clone(true);
+	copy.setContextValue(Message.CONTEXT_CONVERSATION_ID_KEY, oldId);
+	return copy;
+    }
+
+    // # Pack/Unpack Messages
+    public String messageToString(BaseMessage msg)
+    {
+	return SerializationConvenience.serializeObject(msg, SerializationFormatEnum.JSON_FORMAT);
+    }
+
+    public Message stringToMessage(String msgAsString)
+    {
+	Message result = null;
+	if (CATCH_BAD_MESSAGES)
 	{
-		Message result = null;
-		if(CATCH_BAD_MESSAGES)
-		{
-			
-			try
-			{
-				result = (Message)SerializationConvenience.nativeizeObject(msgAsString, SerializationFormatEnum.JSON_FORMAT);
-			}
-			catch(Exception e)
-			{
-				log.log(Level.SEVERE, "ERROR: could not process message data received.  Received: " + msgAsString);
-				log.log(Level.SEVERE, "Exception Caught:" + e.toString());
-			}
-		}
-		else
-		{
-			result = (Message)SerializationConvenience.nativeizeObject(msgAsString, SerializationFormatEnum.JSON_FORMAT);
-		}
-		
-		return result;
-	}
-	
-	
-	public List<String> messagesToStringList(List<Message> msgs)
+
+	    try
+	    {
+		result = (Message) SerializationConvenience.nativeizeObject(msgAsString, SerializationFormatEnum.JSON_FORMAT);
+	    } catch (Exception e)
+	    {
+		log.error("ERROR: could not process message data received.  Received: " + msgAsString);
+		log.error("Exception Caught:" + e.toString());
+	    }
+	} else
 	{
-		List<String> result = new ArrayList<>();
-		
-		for(BaseMessage msg : msgs)
-		{
-			result.add(messageToString(msg));
-		}
-		
-		return result;
+	    result = (Message) SerializationConvenience.nativeizeObject(msgAsString, SerializationFormatEnum.JSON_FORMAT);
 	}
-	
-	
-	public List<Message> stringListToMessages(List<String> strMsgs)
+
+	return result;
+    }
+
+    public List<String> messagesToStringList(List<Message> msgs)
+    {
+	List<String> result = new ArrayList<>();
+
+	for (BaseMessage msg : msgs)
 	{
-		List<Message> result = new ArrayList<>();
-		
-		for(String strMsg : strMsgs)
-		{
-			Message msg = this.stringToMessage(strMsg);
-			result.add(msg);
-		}
-		
-		return result;
+	    result.add(messageToString(msg));
 	}
-	
-	
-	public String getId()
+
+	return result;
+    }
+
+    public List<Message> stringListToMessages(List<String> strMsgs)
+    {
+	List<Message> result = new ArrayList<>();
+
+	for (String strMsg : strMsgs)
 	{
-		return this.id;
+	    Message msg = this.stringToMessage(strMsg);
+	    result.add(msg);
 	}
-	
-	
-	
+
+	return result;
+    }
+
+    public String getId()
+    {
+	return this.id;
+    }
+
 }

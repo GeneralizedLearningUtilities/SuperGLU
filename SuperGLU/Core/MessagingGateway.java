@@ -2,7 +2,6 @@ package Core;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 import java.util.logging.Level;
@@ -10,7 +9,6 @@ import java.util.logging.Level;
 import Ontology.OntologyBroker;
 import Ontology.Mappings.MessageMapFactory;
 import Ontology.Mappings.MessageType;
-import Util.StorageToken;
 
 /**
  * Messaging Node specifically designed to act as a entry/exit point between systems.
@@ -20,20 +18,19 @@ import Util.StorageToken;
 
 public class MessagingGateway extends BaseMessagingNode {
 
-	private Map<String, BaseMessagingNode> nodes;
 	private Map<String, Object> scope;
 	
 	private OntologyBroker ontologyBroker;
 	
 	public MessagingGateway()
 	{//Default constructor for ease of access
-		this(null, null, null, null, null);
+		this(null, null, null, null);
 		ontologyBroker = new OntologyBroker(MessageMapFactory.buildMessageMaps(), MessageMapFactory.buildDefaultMessageTemplates());
 	}
 	
 	
-	public MessagingGateway(String anId, MessagingGateway gateway, Map<String, Object> scope, Collection<BaseMessagingNode> nodes, Predicate<BaseMessage> conditions) {
-		super(anId, gateway, conditions);
+	public MessagingGateway(String anId, Map<String, Object> scope, Collection<BaseMessagingNode> nodes, Predicate<BaseMessage> conditions) {
+		super(anId, conditions, nodes);
 		if(scope == null)
 			this.scope = new HashMap<>();
 		else
@@ -41,15 +38,6 @@ public class MessagingGateway extends BaseMessagingNode {
 		
 		
 		this.scope.put(ORIGINATING_SERVICE_ID_KEY, this.id);
-		
-		this.nodes = new HashMap<>();
-		if(nodes != null)
-		{
-			for(BaseMessagingNode node : nodes)
-			{
-				this.nodes.put(node.id, node);
-			}
-		}
 		
 		ontologyBroker = new OntologyBroker(MessageMapFactory.buildMessageMaps(), MessageMapFactory.buildDefaultMessageTemplates());
 	}
@@ -59,70 +47,26 @@ public class MessagingGateway extends BaseMessagingNode {
 	 *  """ When gateway receives a message, it distributes it to child nodes """
 	 */
 	@Override
-	public void receiveMessage(BaseMessage msg)
+	public void handleMessage(BaseMessage msg, String senderId)
 	{
 		super.receiveMessage(msg);
-		this.distributeMessage(msg, null);
+		this.distributeMessage(msg, senderId);
 	}
+	
+	
 	
 	/**
 	 *  """ Send a message from a child node to parent and sibling nodes """
 	 * @param msg Message to be sent
 	 * @param senderId Sender ID
 	 */
-	public void dispatchMessage(BaseMessage msg, String senderId)
-	{
-		this.addContextDataToMsg(msg);
-		msg.setContextValue(ORIGINATING_SERVICE_ID_KEY, senderId);
-		log.log(Level.INFO, "Message DISPATCH");
-		log.log(Level.INFO, this.messageToString(msg));
-		this.sendMessage(msg);
-		log.log(Level.INFO, "Message DISPATCH SENT: " + this.messageToString(msg));
-		this.distributeMessage_impl(this.nodes, msg, senderId);
-		log.log(Level.INFO, "Message DISTRIBUTED: " + this.messageToString(msg));
-	}
-	
-	/**
-	 * """ Pass a message down all interested children (except sender) """
-	 * @param msg
-	 * @param senderId
-	 */
+	@Override
 	public void distributeMessage(BaseMessage msg, String senderId)
 	{
-		this.distributeMessage_impl(this.nodes, msg, senderId);
+		this.addContextDataToMsg(msg);
+		super.distributeMessage(msg, senderId);
 	}
 	
-	/**
-	 * Internal implementation of DistributeMessage
-	 *  """ Implement passing a message down all interested children (except sender) """
-	 * @param nodes
-	 * @param msg
-	 * @param senderId
-	 */
-	protected void distributeMessage_impl(Map<String, BaseMessagingNode> nodes, BaseMessage msg, String senderId)
-	{
-		for(BaseMessagingNode node : nodes.values())
-		{
-			if(node.id != senderId &&( node.getMessageConditions() == null || node.getMessageConditions().test(msg)))
-				node.receiveMessage(msg);
-		}
-	}
-	
-	
-	//Manage Child Nodes
-	public void addNodes(List<BaseMessagingNode> newNodes)
-	{
-		for(BaseMessagingNode node : newNodes)
-			node.bindToGateway(this);
-	}
-	
-	
-	public Collection<BaseMessagingNode> getNodes()
-	{
-		return this.nodes.values();
-	}
-	
-
 	/**
 	 * """ Register the signatures of messages that the node is interested in """
 	 * @param node

@@ -1,8 +1,9 @@
 package Core.Tests;
 
+import java.io.Console;
 import java.util.function.Predicate;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.slf4j.LoggerFactory;
 
 import com.corundumstudio.socketio.Configuration;
 import com.corundumstudio.socketio.SocketIOServer;
@@ -21,15 +22,13 @@ import Util.SerializationFormatEnum;
  */
 
 public class MinimalHttpsServer extends BaseMessagingNode
-{
-
-    private Logger log = Logger.getLogger(this.getClass().getName());
-    
-    
+{ 
     public MinimalHttpsServer(String anId, MessagingGateway gateway, Predicate<BaseMessage> conditions)
     {
-	super(anId, gateway, conditions);
-	// TODO Auto-generated constructor stub
+	super(anId, conditions, null);
+	
+	
+	
     }
     
     
@@ -43,7 +42,7 @@ public class MinimalHttpsServer extends BaseMessagingNode
 	String msgAsString = SerializationConvenience.serializeObject(msg, SerializationFormatEnum.JSON_FORMAT);
 	
 	//For now we'll just log the messages as they come in.
-	log.log(Level.INFO, msgAsString);
+	log.info(msgAsString);
 	
 	sendMessage(msg);
     }
@@ -53,15 +52,18 @@ public class MinimalHttpsServer extends BaseMessagingNode
 
     public static void main(String[] args)
     {
+	
 	Configuration config = new Configuration();
 	
 	config.setPort(5333);
 	
 	SocketIOServer socketIO = new SocketIOServer(config);
 	
-	MessagingGateway gateway = new HTTPMessagingGateway("httpGatweay", null, null, null, null, socketIO);
+	MessagingGateway gateway = new HTTPMessagingGateway("httpGatweay", null, null, null, socketIO);
 	
 	MinimalHttpsServer server = new MinimalHttpsServer("server", gateway, null);
+	
+	gateway.addNode(server);
 
     }
 

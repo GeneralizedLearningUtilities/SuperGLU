@@ -11,11 +11,11 @@ public class BaseService extends BaseMessagingNode {
 
 	public BaseService()
 	{
-		this(null, null, null);
+		this(null, null);
 	}
 	
-	public BaseService(String anId, MessagingGateway gateway, Predicate<BaseMessage> conditions) {
-		super(anId, gateway, conditions);
+	public BaseService(String anId, Predicate<BaseMessage> conditions) {
+		super(anId, conditions, null);
 	}
 
 }

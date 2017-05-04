@@ -19,7 +19,7 @@ public class GIFTVHumanBridge extends MessagingGateway
     
     public GIFTVHumanBridge()
     {
-	super("GIFT_VHUMAN_BRIDGE", null, null, null, null);
+	super("GIFT_VHUMAN_BRIDGE", null, null, null);
 	this.vhmsg = new VHMsg("localhost", "61616", "DEFAULT_SCOPE");
 	this.vhmsg.openConnection();
     }
@@ -45,9 +45,9 @@ public class GIFTVHumanBridge extends MessagingGateway
     public static void main(String[] args) {
 	
 	ActiveMQTopicConfiguration config = new ActiveMQTopicConfiguration("config", null, "failover://tcp://localhost:61616");
-	ActiveMQTopicMessagingGateway receiver = new ActiveMQTopicMessagingGateway("receiver", null, null, null, null, config);
+	ActiveMQTopicMessagingGateway receiver = new ActiveMQTopicMessagingGateway("receiver", null, null, null, config);
 	GIFTVHumanBridge bridge = new GIFTVHumanBridge();
-	bridge.bindToGateway(receiver);
+	bridge.onBindToNode(receiver);
     }
     
     

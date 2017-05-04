@@ -55,9 +55,9 @@ public class HTTPMessagingGateway extends MessagingGateway implements DataListen
     }
     
     
-    public HTTPMessagingGateway(String anId, MessagingGateway gateway, Map<String, Object> scope, Collection<BaseMessagingNode> nodes, Predicate<BaseMessage> conditions, SocketIOServer socketIO)
+    public HTTPMessagingGateway(String anId, Map<String, Object> scope, Collection<BaseMessagingNode> nodes, Predicate<BaseMessage> conditions, SocketIOServer socketIO)
     {
-	super(anId, gateway, scope, nodes, conditions);
+	super(anId, scope, nodes, conditions);
 	this.socketIO = socketIO;
 	this.clients = new ConcurrentHashMap<>();
 	
@@ -68,13 +68,13 @@ public class HTTPMessagingGateway extends MessagingGateway implements DataListen
 	this.socketIO.getNamespace(MESSAGES_NAMESPACE).addEventListener(MESSAGES_KEY, Map.class, (DataListener)this);
     }
     
-
+/*
     @Override
     public void receiveMessage(BaseMessage msg)
     {
 	super.receiveMessage(msg);
 	log.log(Level.INFO, "message received");
-	this.sendAJAXMesage(msg);
+	this.sendWebsocketMesage(msg);
 	log.log(Level.INFO, "Distributing message: " + SerializationConvenience.serializeObject(msg, SerializationFormatEnum.JSON_FORMAT));
 	this.distributeMessage(msg, this.getId());
 	log.log(Level.INFO, "message distributed");
@@ -84,11 +84,21 @@ public class HTTPMessagingGateway extends MessagingGateway implements DataListen
     public void sendMessage(BaseMessage msg)
     {
 	super.sendMessage(msg);
-	this.sendAJAXMesage(msg);
+	this.sendWebsocketMesage(msg);
     }
     
+  */
     
-    public void sendAJAXMesage(BaseMessage msg)
+    
+    @Override
+    public void distributeMessage(BaseMessage msg, String senderId)
+    {
+	this.addContextDataToMsg(msg);
+	this.sendWebsocketMesage(msg);
+	super.distributeMessage(msg, senderId);
+    }
+    
+    public void sendWebsocketMesage(BaseMessage msg)
     {
 	String msgAsString = SerializationConvenience.serializeObject(msg, SerializationFormatEnum.JSON_FORMAT);
 	
@@ -106,7 +116,7 @@ public class HTTPMessagingGateway extends MessagingGateway implements DataListen
 	}
 	else
 	{
-	    log.log(Level.WARNING, "Message does not contain session id.  Cannot send: " + msgAsString);
+	    log.warn("Message does not contain session id.  Cannot send: " + msgAsString);
 	}
 	
 	
@@ -117,7 +127,7 @@ public class HTTPMessagingGateway extends MessagingGateway implements DataListen
     @Override
     public void onData(SocketIOClient client, Map<String, String> data, AckRequest ackSender) throws Exception
     {
-	log.log(Level.FINE, "data received from socket: " + data.toString());
+	log.debug("data received from socket: " + data.toString());
 	
 	String sid = client.getSessionId().toString();
 	
@@ -140,15 +150,12 @@ public class HTTPMessagingGateway extends MessagingGateway implements DataListen
 		
 		msg.setContextValue(SID_KEY, sid);
 		
-		if(this.gateway != null)
-		    this.gateway.dispatchMessage(msg, this.getId());
-		
 		this.distributeMessage(msg, this.getId());
 	    }
 	}
 	else
 	{
-	    log.log(Level.WARNING, "GATEWAY DID NOT UNDERSTAND: " + data.toString());
+	    log.warn("GATEWAY DID NOT UNDERSTAND: " + data.toString());
 	}
     }
 

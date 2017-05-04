@@ -58,10 +58,10 @@ public class MessagingGatewayTest {
 		TestService mockService = new TestService();
 		nodes.add(mockService);
 		
-		receiver = new MessagingGateway("Receiver", null, new HashMap<>(), new ArrayList<>(), null);
-		gateway = new MessagingGateway("Sender", receiver, scope, nodes, condition);
+		receiver = new MessagingGateway("Receiver", null, new ArrayList<>(), null);
+		gateway = new MessagingGateway("Sender", scope, nodes, condition);
 		
-		mockService.bindToGateway(gateway);
+		mockService.addNode(gateway);
 		
 		this.testMessages = buildMessages();
 	}
@@ -102,7 +102,7 @@ public class MessagingGatewayTest {
 		Message msg1 = testMessages.get(0);
 		gateway.addContextDataToMsg(msg1);
 		
-		Assert.assertEquals("{key2=penguins, scope1=value1}", msg1.getContext().toString());
+		Assert.assertEquals(msg1.getContextValue("key2"), "penguins");
 		
 		System.out.println(msg1.toString());
 	}

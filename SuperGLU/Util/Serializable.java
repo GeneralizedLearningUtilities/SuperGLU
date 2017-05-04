@@ -13,9 +13,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.reflections.Reflections;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * """ A serializable object, that can be saved to token and opened from token
@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 public abstract class Serializable
 {
     
-    protected Logger logger = LoggerFactory.getLogger(this.getClass());
+    protected Logger logger = LogManager.getLogger(this.getClass());
 
     /**
      * A unique ID (GUID) for the message, for later reference.
