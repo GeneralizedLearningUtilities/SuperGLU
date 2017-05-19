@@ -1,5 +1,6 @@
 package Core;
 
+import java.util.List;
 import java.util.function.Predicate;
 
 /**
@@ -15,7 +16,12 @@ public class BaseService extends BaseMessagingNode {
 	}
 	
 	public BaseService(String anId, Predicate<BaseMessage> conditions) {
-		super(anId, conditions, null);
+		super(anId, conditions, null, null);
+	}
+	
+	public BaseService(String anId, Predicate<BaseMessage> conditions, List<ExternalMessagingHandler> handlers)
+	{
+	    super(anId, conditions, null, handlers);
 	}
 
 }

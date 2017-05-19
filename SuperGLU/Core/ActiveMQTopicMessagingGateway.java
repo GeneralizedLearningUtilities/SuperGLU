@@ -74,9 +74,9 @@ public class ActiveMQTopicMessagingGateway extends MessagingGateway implements M
 	}
     }
 
-    public ActiveMQTopicMessagingGateway(String anId, Map<String, Object> scope, Collection<BaseMessagingNode> nodes, Predicate<BaseMessage> conditions, ActiveMQTopicConfiguration activeMQConfiguration)
+    public ActiveMQTopicMessagingGateway(String anId, Map<String, Object> scope, Collection<BaseMessagingNode> nodes, Predicate<BaseMessage> conditions, List<ExternalMessagingHandler> handlers, ActiveMQTopicConfiguration activeMQConfiguration)
     {
-	super(anId, scope, nodes, conditions);
+	super(anId, scope, nodes, conditions, handlers);
 	try
 	{
 	    connection = new ActiveMQConnectionFactory(activeMQConfiguration.getBrokerHost()).createTopicConnection();

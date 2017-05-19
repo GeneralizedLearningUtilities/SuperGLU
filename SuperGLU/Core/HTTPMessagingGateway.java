@@ -55,9 +55,9 @@ public class HTTPMessagingGateway extends MessagingGateway implements DataListen
     }
     
     
-    public HTTPMessagingGateway(String anId, Map<String, Object> scope, Collection<BaseMessagingNode> nodes, Predicate<BaseMessage> conditions, SocketIOServer socketIO)
+    public HTTPMessagingGateway(String anId, Map<String, Object> scope, Collection<BaseMessagingNode> nodes, Predicate<BaseMessage> conditions, List<ExternalMessagingHandler> handlers, SocketIOServer socketIO)
     {
-	super(anId, scope, nodes, conditions);
+	super(anId, scope, nodes, conditions, handlers);
 	this.socketIO = socketIO;
 	this.clients = new ConcurrentHashMap<>();
 	

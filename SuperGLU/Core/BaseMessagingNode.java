@@ -9,11 +9,8 @@ import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-import org.apache.log4j.Level;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
-import org.slf4j.impl.Log4jLoggerFactory;
-
 import Util.Pair;
 import Util.SerializationConvenience;
 import Util.SerializationFormatEnum;
@@ -33,6 +30,7 @@ public class BaseMessagingNode
     protected Map<String, Pair<Message, Consumer<Message>>> requests;
     protected Predicate<BaseMessage> conditions;
     protected Map<String, BaseMessagingNode> nodes;
+    protected List<ExternalMessagingHandler> handlers;
 
     private static boolean CATCH_BAD_MESSAGES = false;
 
@@ -40,7 +38,7 @@ public class BaseMessagingNode
     public static final String SESSION_KEY = "sessionId";
 
 
-    public BaseMessagingNode(String anId, Predicate<BaseMessage> conditions, Collection<BaseMessagingNode> nodes)
+    public BaseMessagingNode(String anId, Predicate<BaseMessage> conditions, Collection<BaseMessagingNode> nodes, List<ExternalMessagingHandler> handlers)
     {	
 	this.nodes = new HashMap<>();
 
@@ -57,6 +55,11 @@ public class BaseMessagingNode
 	this.requests = new HashMap<>();
 
 	this.addNodes(nodes);
+	
+	if(handlers != null)
+	    this.handlers = handlers;
+	else
+	    this.handlers = new ArrayList<>();
 
     }
 
@@ -65,6 +68,9 @@ public class BaseMessagingNode
 	log.info(this.id + " received MSG:" + this.messageToString(msg));
 	if (msg instanceof Message)
 	    this.triggerRequests((Message) msg);
+	
+	for(ExternalMessagingHandler handler : this.handlers)
+	    handler.handleMessage(msg);
     }
 
     public void sendMessage(BaseMessage msg)

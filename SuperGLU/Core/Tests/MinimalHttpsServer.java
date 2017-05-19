@@ -1,9 +1,6 @@
 package Core.Tests;
 
-import java.io.Console;
 import java.util.function.Predicate;
-
-import org.slf4j.LoggerFactory;
 
 import com.corundumstudio.socketio.Configuration;
 import com.corundumstudio.socketio.SocketIOServer;
@@ -25,10 +22,7 @@ public class MinimalHttpsServer extends BaseMessagingNode
 { 
     public MinimalHttpsServer(String anId, MessagingGateway gateway, Predicate<BaseMessage> conditions)
     {
-	super(anId, conditions, null);
-	
-	
-	
+	super(anId, conditions, null, null);
     }
     
     
@@ -59,7 +53,7 @@ public class MinimalHttpsServer extends BaseMessagingNode
 	
 	SocketIOServer socketIO = new SocketIOServer(config);
 	
-	MessagingGateway gateway = new HTTPMessagingGateway("httpGatweay", null, null, null, socketIO);
+	MessagingGateway gateway = new HTTPMessagingGateway("httpGatweay", null, null, null, null, socketIO);
 	
 	MinimalHttpsServer server = new MinimalHttpsServer("server", gateway, null);
 	
