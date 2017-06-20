@@ -105,7 +105,7 @@ public class MessagingGateway extends BaseMessagingNode {
 	 * This function will process a non-SuperGLU message through the ontology converter
 	 * @param msgAsStorageToken
 	 */
-	protected BaseMessage convertMessages(BaseMessage incomingMessage, Class<?> destinationMessageType)
+	public BaseMessage convertMessages(BaseMessage incomingMessage, Class<?> destinationMessageType)
 	{
 	    String incomingMessageTypeAsString = incomingMessage.getClassId();
 	    

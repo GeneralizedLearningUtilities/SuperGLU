@@ -133,6 +133,14 @@ public class BaseMessagingNode
     {
 	return conditions;
     }
+    
+    /*handler management */
+    
+    public void addHandler(ExternalMessagingHandler handler)
+    {
+	this.handlers.add(handler);
+    }
+    
 
     /* Node Management */
 

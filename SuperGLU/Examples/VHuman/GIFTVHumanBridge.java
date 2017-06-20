@@ -3,6 +3,7 @@ package Examples.VHuman;
 import Core.ActiveMQTopicConfiguration;
 import Core.ActiveMQTopicMessagingGateway;
 import Core.BaseMessage;
+import Core.ExternalMessagingHandler;
 import Core.MessagingGateway;
 import Core.VHMessage;
 import edu.usc.ict.vhmsg.VHMsg;
@@ -17,11 +18,27 @@ public class GIFTVHumanBridge extends MessagingGateway
 {
     protected VHMsg vhmsg;
     
-    public GIFTVHumanBridge()
+    public GIFTVHumanBridge(String brokerURL)
     {
 	super("GIFT_VHUMAN_BRIDGE", null, null, null, null);
 	this.vhmsg = new VHMsg("localhost", "61616", "DEFAULT_SCOPE");
 	this.vhmsg.openConnection();
+	
+	ActiveMQTopicConfiguration config = new ActiveMQTopicConfiguration("config", null, brokerURL);
+	ActiveMQTopicMessagingGateway receiver = new ActiveMQTopicMessagingGateway("receiver", null, null, null, null, config);
+	
+	this.onBindToNode(receiver);
+	
+	receiver.addHandler(new ExternalMessagingHandler()
+	{
+	    
+	    @Override
+	    public void handleMessage(BaseMessage msg)
+	    {
+		receiveMessage(msg);
+		
+	    }
+	});
     }
 
     @Override
@@ -44,10 +61,8 @@ public class GIFTVHumanBridge extends MessagingGateway
     
     public static void main(String[] args) {
 	
-	ActiveMQTopicConfiguration config = new ActiveMQTopicConfiguration("config", null, "failover://tcp://localhost:61616");
-	ActiveMQTopicMessagingGateway receiver = new ActiveMQTopicMessagingGateway("receiver", null, null, null, null, config);
-	GIFTVHumanBridge bridge = new GIFTVHumanBridge();
-	bridge.onBindToNode(receiver);
+	
+	//GIFTVHumanBridge bridge = new GIFTVHumanBridge();
     }
     
     
