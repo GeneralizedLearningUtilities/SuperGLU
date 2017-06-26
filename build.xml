@@ -15,7 +15,8 @@
     <property name="slf4j-simple_jar" value="./lib/google reflections/slf4j-simple-1.6.1.jar"/>
     <property name="xml-apis_jar" value="./lib/google reflections/xml-apis-1.0.b2.jar"/>
     <property name="json-simple_jar" value="./lib/jsonsimple/json-simple-2.1.2.jar"/>
-    
+    <property name="junit_jar" value="./lib/junit-4.9.jar"/>
+
     <property name="build-location" value = "./object-code"/>
 
     <target name="compile">
