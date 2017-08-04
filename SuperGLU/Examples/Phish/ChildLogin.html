@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>GIFT Portal</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="description" content="Redmine">
+<meta name="keywords" content="issue,bug,tracker">
+<meta name="csrf-param" content="authenticity_token">
+<meta name="csrf-token" content="vQ+CEVm34k6+jyTKp+OEUdxwfga9c4Rn5FZXVfGkPSMnZulMZ9RaRiQzul5hYPRL9cghsWzYV994pfHEiokyEw==">
+<link rel="shortcut icon" href="/favicon.ico">
+<link rel="stylesheet" href="../Phish/assets/css/login.css">
+
+    <!--Import jquery-->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.2.6/jquery.min.js"></script>
+   
+     <!-- General Utilities Imports -->   
+        <script type="text/javascript" src="js/Util/emacs5-compatibility-patches.js"></script>
+        <script type="text/javascript" src="js/Util/encoder.js"></script>
+
+        <!-- SuperGLU Imports -->            
+        <script type="text/javascript" src="js/Util/uuid.js"></script>
+		<script type="text/javascript" src="js/Util/zet.js"></script>
+		<script type="text/javascript" src="js/super-glu.js"></script>  
+		<script type="text/javascript" src="js/Util/serialization.js"></script>
+		<script type="text/javascript" src="js/Core/messaging.js"></script>
+		<script type="text/javascript" src="js/Core/messaging-gateway.js"></script>
+        
+        <!-- SuperGLU Services --> 
+		<script type="text/javascript" src="js/Services/Orchestration/heartbeat-service.js"></script>
+
+        <!-- Reference-Implementation Data --> 
+		<script type="text/javascript" src="js/reference-data.js"></script>
+
+		<script type="text/javascript">
+			var SIMPLE_ACTIVITY_SERVICE,            // Test service to send messages to the parent about an activity
+                GATEWAY_SERVICE,                    // Gateway service for relaying messages in this frame
+                PARENT_POSTING_STUB,                // Stub that represents the parent frame's messaging gateway
+                HEARTBEAT_SERVICE,                  // Heartbeat service, to generate a steady heartbeat
+                FRAME_NAME = window.name,           // A name to call this frame, for reporting purposes and postMessage
+                PARENT_NAME = parent.name,          // A name to call the parent frame, for reporting purposes and postMessage
+                LOADED_VERB = "Loaded",             // A Message verb for the "Loaded" message, which indicates that the activity loaded right
+                HEARTBEAT_NAME = "ChildHeartbeat",  // A Message verb for the heartbeat this frame looks for
+                COMPLETED_VERB = "Completed",      // A Message verb for a "Completed" message, which occurs when the activity is done
+                AVOIDED_VERB = "Avoided";
+
+            var DEFAULT_FRAME_NAME = "ActivityFrame",
+                DEFAULT_PARENT_NAME = "MainPostingGateway";
+            
+            // Allow the Parent to set the PostMessageGateway name. Only use these otherwise.
+            if (FRAME_NAME == null){
+                FRAME_NAME = DEFAULT_FRAME_NAME;
+            }
+            if (PARENT_NAME == null){
+                PARENT_NAME = DEFAULT_PARENT_NAME;
+            }
+            
+            /** Create a custom service for sending simple messages. If not for a
+                simple example, would subclass BaseService instead of TestService.
+                The only difference is that TestService has convenience functions to
+                send ad-hoc messages and that it prints messages received to the console.
+            **/
+            Zet.declare('SimpleActivityService', {
+                // Better Practice: superclass : SuperGLU.Messaging_Gateway.BaseService,
+                superclass : SuperGLU.Messaging_Gateway.TestService,
+                defineBody : function(self){
+                    // Public Properties
+                    /** Function called when the page is ready and loaded 
+                        Message Format: <Frame name> "Loaded" <URL> result=true **/
+                    self.sendLoadedMessage = function sendLoadedMessage(){
+                        self.sendTestMessage(FRAME_NAME, LOADED_VERB, window.location.href, true);
+                    };
+                    
+                    /** Example of better practice composing message manually **/
+                    self.sendAlternateLoadedMessage = function sendAlternateLoadedMessage(){
+                        var msg = SuperGLU.Messaging.Message(FRAME_NAME, LOADED_VERB, window.location.href, true);
+                        self.sendMessage(msg);
+                    };
+                    //
+
+
+                    /** Send a completed message when the activity is done **/
+                    self.sendCompletedMessage = function sendCompletedMessage(score){
+                        var username = document.getElementById('username').value;
+                        var password = document.getElementById('password').value;
+                        var actor = getParameterByName('student'),
+                            itemId = window.location.protocol + window.location.pathname,
+                            context = {};
+
+                        context['classId'] = getParameterByName('class');
+                        context['groupId'] = getParameterByName('group');
+                        context['referrerId'] = getParameterByName('referrerId');
+                        var msg;
+                        if (username == "" && password == "") {
+                            window.alert("good job not falling for it");
+
+                            // Note: The item identifier could be anything appropriate to link to that activity (i.e., not just an href)
+                            // Note 2: We have extra context fields in a dictionary to include all sorts of other useful data.  I tend
+                            //         to send along things like the browser type, a session unique ID, and similar stuff.  There are
+                            //         easy ways to add the same metadata to every single message sent from a given gateway.  Timestamps
+                            //         are already added automatically to every message, so no worries on those.
+
+                            msg = SuperGLU.Messaging.Message(actor, AVOIDED_VERB, itemId, score, Messaging.INFORM_ACT, context);
+                            self.sendMessage(msg);
+                            console.log(msg.getVerb() + "by" + msg.getActor());
+                            return;
+                        }
+
+                        // Note: The item identifier could be anything appropriate to link to that activity (i.e., not just an href)
+                        // Note 2: We have extra context fields in a dictionary to include all sorts of other useful data.  I tend
+                        //         to send along things like the browser type, a session unique ID, and similar stuff.  There are
+                        //         easy ways to add the same metadata to every single message sent from a given gateway.  Timestamps
+                        //         are already added automatically to every message, so no worries on those.
+
+                        msg = SuperGLU.Messaging.Message(actor, COMPLETED_VERB, itemId, score, Messaging.INFORM_ACT, context);
+                        self.sendMessage(msg);
+                        console.log(msg.getVerb() + "by" + msg.getActor());
+                        window.alert("Your password and username have just been phished! Next time make sure to check for a phishy url.");
+
+
+                    };
+                }
+            });
+            
+            /** Create and hook up the child frame services, in the form:
+                MAIN_POSTING_GATEWAY [stub] (id="MainPostingGateway")
+                    - CHILD_GATEWAY (id="ActivityFrame")
+                        - SIMPLE_ACTIVITY_SERVICE (id="ChildTestService")
+                        - HEARTBEAT_SERVICE (id=Random UUID)
+            **/
+            var gatewayScope = {};
+                gatewayScope[ReferenceData.REFERENCE_IMPLEMENTATION_VERSION_KEY] = ReferenceData.version;
+                gatewayScope[ReferenceData.USER_AGENT_KEY] = navigator.userAgent;
+            SIMPLE_ACTIVITY_SERVICE = SimpleActivityService("ChildTestService");
+            HEARTBEAT_SERVICE = SuperGLU.Heartbeat_Service.HeartbeatService(null, HEARTBEAT_NAME, 30);
+			PARENT_POSTING_STUB = SuperGLU.Messaging_Gateway.PostMessageGatewayStub(PARENT_NAME, null, null, parent);
+            
+            /** Create a gateway as: GatewayId, Child Nodes (Gateways/Services/Stubs), Parent Gateway, Scope added to each message**/
+			GATEWAY_SERVICE = SuperGLU.Messaging_Gateway.PostMessageGateway(FRAME_NAME, 
+                [SIMPLE_ACTIVITY_SERVICE, HEARTBEAT_SERVICE, PARENT_POSTING_STUB], 
+                null, gatewayScope);
+            HEARTBEAT_SERVICE.start();
+
+
+            // Function called when clicking a button
+            // This broadcasts a semantic message into the gateway node
+            // The message will then be relayed to various connected gateways.
+            // If no other gateways exist, nothing more will occur.
+            // In this case, the parent will display a message indicating receiving the message.
+            var onClickTheOnlyButton = function(){
+                var score = 0.0;
+                SIMPLE_ACTIVITY_SERVICE.sendCompletedMessage(score);
+                HEARTBEAT_SERVICE.stop();
+            };
+
+
+            // Function to run after loading the window
+            var oldOnload = window.onload;
+            window.onload = function(){
+                if (oldOnload != null){ 
+                    oldOnload();
+                }
+                SIMPLE_ACTIVITY_SERVICE.sendLoadedMessage();
+            };
+		</script>
+
+
+    <script type="text/javascript">
+    // A really stupid function for grabbing URL Query params
+    // Don't use this in real life, please.  Use JQuery, pURL or something else robust.
+    function getParameterByName(name) {
+    name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+    var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+    results = regex.exec(location.search);
+    return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+    }
+
+    </script>
+
+
+
+
+    <!-- page specific tags -->
+<style id="style-1-cropbar-clipper">/* Copyright 2014 Evernote Corporation. All rights reserved. */
+.en-markup-crop-options {
+    top: 18px !important;
+    left: 50% !important;
+    margin-left: -100px !important;
+    width: 200px !important;
+    border: 2px rgba(255,255,255,.38) solid !important;
+    border-radius: 4px !important;
+}
+
+.en-markup-crop-options div div:first-of-type {
+    margin-left: 0px !important;
+}
+</style></head>
+   
+   
+<body class="controller-account action-login">
+
+<div id="wrapper">
+
+<div class="flyout-menu js-flyout-menu">
+
+<!--
+
+        <div class="flyout-menu__search">
+            <form action="/search" accept-charset="UTF-8" method="get"><input name="utf8" type="hidden" value="✓">
+            
+            <label class="search-magnifier search-magnifier--flyout" for="flyout-search">⚲</label>
+            <input type="text" name="q" id="flyout-search" class="small js-search-input" placeholder="Search">
+</form>        </div>
+-->
+
+
+
+<!--
+    <h3>General</h3>
+    <span class="js-general-menu"></span>
+
+    <span class="js-sidebar flyout-menu__sidebar"></span>
+
+    <h3>Profile</h3>
+    <span class="js-profile-menu"></span>
+-->
+
+</div>
+
+<div id="wrapper2">
+<div id="wrapper3">
+<div id="top-menu">
+    <div id="account">
+        <ul><li><a class="login" href="/login">Sign in</a></li><li><a class="register" href="/account/register">Register</a></li></ul>    </div>
+    
+    <ul><li><a class="home" href="/">Home</a></li><li><a class="help" href="/projects/gift/wiki/FAQ">Help</a></li></ul></div>
+
+<div id="header">
+
+    <a href="#" class="mobile-toggle-button js-flyout-menu-toggle-button"></a>
+
+    <div id="returnCourse" style=" left: 140px;top: 25px; position: absolute;" >
+    <img src="assets/imgs/backbutton.png" style="width: 30px; "> <a href="">Return to course.</a>
+    </div>
+
+
+    <div id="quick-search">
+        <form action="/search" accept-charset="UTF-8" method="get"><input name="utf8" type="hidden" value="✓">
+        
+        <label for="q">
+          <a accesskey="4" href="/search">Search</a>:
+        </label>
+        <input type="text" name="q" id="q" size="20" class="small" accesskey="f">
+</form>        
+    </div>
+
+    <h1 ><p style = "position: absolute">GIFT Portal</p>
+	<img src="assets/imgs/GIFT.logo.blackText.wider.JustGIFT.png" style="float:right; margin: 0 10px 0 0;" height="38">
+	<img src="assets/imgs/ARL_Logo_March_2012.png" style="float:right; margin: 0 10px 0 0;" height="38">
+    </h1>
+
+</div>
+
+<div id="main" class="nosidebar">
+    <div id="sidebar">
+        
+        
+    </div>
+
+    <div id="content">
+        
+        
+<div id="login-form">
+<form accept-charset="UTF-8" ><input name="utf8" type="hidden" value="✓"><input type="hidden" name="authenticity_token" value="vQ+CEVm34k6+jyTKp+OEUdxwfga9c4Rn5FZXVfGkPSMnZulMZ9RaRiQzul5hYPRL9cghsWzYV994pfHEiokyEw==">
+<!--<input type="hidden" name="back_url" value="https://gifttutoring.org/projects/gift/wiki/Overview">-->
+<table>
+<tbody><tr>
+    <td style="text-align:right;"><label for="username">Username:</label></td>
+    <td style="text-align:left;"><input type="text" name="username" id="username" tabindex="1"></td>
+</tr>
+<tr>
+    <td style="text-align:right;"><label for="password">Password:</label></td>
+    <td style="text-align:left;"><input type="password" name="password" id="password" tabindex="2"></td>
+</tr>
+<tr>
+    <td></td>
+    <td style="text-align:left;">
+    </td>
+</tr>
+<tr>
+    <td style="text-align:left;">
+            <a href="/account/lost_password">Forgot Username or Password?</a>
+    </td>
+    <td style="text-align:right;">
+        <input onclick="onClickTheOnlyButton();" type="submit" name="login" value="Login »" tabindex="5">
+
+    </td>
+</tr>
+</tbody></table>
+</form></div>
+
+
+        
+        <div style="clear:both;"></div>
+    </div>
+</div>
+</div>
+
+<div id="ajax-indicator" style="display:none;"><span>Loading...</span></div>
+<div id="ajax-modal" style="display:none;"></div>
+
+<div id="footer">
+  <div class="bgl"><div class="bgr">
+    Powered by <a href="https://www.redmine.org/">Redmine</a> © 2006-2016 Jean-Philippe Lang
+  </div></div>
+</div>
+</div>
+</div>
+
+
+
+
+</body></html>
