@@ -1,9 +1,13 @@
 package Examples.VHuman;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import Core.ActiveMQTopicConfiguration;
 import Core.ActiveMQTopicMessagingGateway;
 import Core.BaseMessage;
 import Core.ExternalMessagingHandler;
+import Core.HTTPMessagingGateway;
 import Core.MessagingGateway;
 import Core.VHMessage;
 import edu.usc.ict.vhmsg.VHMsg;
@@ -28,6 +32,22 @@ public class GIFTVHumanBridge extends MessagingGateway
 	ActiveMQTopicMessagingGateway receiver = new ActiveMQTopicMessagingGateway("receiver", null, null, null, null, config);
 	
 	this.onBindToNode(receiver);
+	
+	ExternalMessagingHandler handler = new ExternalMessagingHandler()
+	{
+	    
+	    @Override
+	    public void handleMessage(BaseMessage msg)
+	    {
+		receiveMessage(msg);
+		
+	    }
+	};
+	
+	List<ExternalMessagingHandler> handlers = new ArrayList<>();
+	handlers.add(handler);
+	
+	//HTTPMessagingGateway socketGateway = new HTTPMessagingGateway("socketIOGateway", null, null, null, handlers, S)
 	
 	receiver.addHandler(new ExternalMessagingHandler()
 	{
@@ -56,6 +76,12 @@ public class GIFTVHumanBridge extends MessagingGateway
 	    //send out the message if it was successfully converted.
 	    vhmsg.sendMessage(convertedVHMessage.getFirstWord(), convertedVHMessage.getBody());
 	}
+    }
+    
+    
+    public void disconnect()
+    {
+	vhmsg.closeConnection();
     }
     
     

@@ -44,6 +44,13 @@ public class MessagingGateway extends BaseMessagingNode {
 	}
 	
 	
+	/** override this function to place disconnection code in here**/
+	public void disconnect()
+	{
+	    
+	}
+	
+	
 	/**
 	 *  """ When gateway receives a message, it distributes it to child nodes """
 	 */
