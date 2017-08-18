@@ -1,0 +1,86 @@
+<html>
+   <head>
+      <link type="text/css" rel="stylesheet" href="jsonTest.css">
+
+   <!--   Libraries: sigma (for graph layouting), heap (for deciding the order of the gateway/services, jQuery, stringSet (for -->
+      <script src="build/sigma.min.js"></script>
+      <script type="text/javascript" src="heap.js"></script>
+       <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+      <script type="text/javascript" src="stringSet.js"></script>
+
+       <link href="https://fonts.googleapis.com/css?family=PT+Sans|Zilla+Slab+Highlight|Zilla+Slab" rel="stylesheet">
+
+      <script type="text/javascript">
+         /**Function for resetting the JSON textbox. */
+         function reset() {
+      document.getElementById('jsonText').innerHTML= '{"gateway": ';
+      nodenum = 0;
+         }
+      </script>
+
+   </head>
+   
+   <body>
+
+      <div id="rightContainer">
+          <input type="button" value="Clear JSON box/ restart" id="clearButton" onclick="reset()"></input> 
+         <p id="instructText">Add nodes here. The JSON will then render in the box below once you hit the draw graph button</p>
+
+         <div id="addNodeMenu">
+            <br>
+            Select a gateway/service type. It will be named TYPE#, ie. ActiveMQ0, Main1. Remember this when writing edges.
+            <select id="dropdown">
+               <option value="blank"></option>
+               <option value="activemq">ActiveMQ</option>
+               <option value="Main">Main</option>
+               <option value="HTML">HTML</option>
+               <option value="Service">Service</option>
+            </select>
+            <br><br>
+            <input type="checkbox" id="lastNodeFlag" >Is this your last node?</input>
+            <br><br>
+           <textarea type="textbox" id='nodeNames' placeholder="Node names here, separated by comma"></textarea>
+            <br><br>
+            <input type="button" value="Add a node" id="dropdownsub" onclick="updateJSONText()"></input>
+         </div>
+
+         <textarea type="textbox" id='jsonText' >{"gateways": [</textarea>
+         <input type="button" value="Draw graph" id="submit" onclick="uponClick()"></input>
+
+   </div>
+
+   <!--
+
+      <div id="tutorial">
+
+
+         <p>Examples of JSON that works include:</p>
+         <pre>
+         {"gateways": [{"id": "main","type": "main", "nodes": []}]} <br>
+         </pre>
+         <p>
+            The structure of the JSON file begins like this. </p><pre>{"gateways": []} </pre><br>
+
+        <p> To add a gateway or service, we add to the array a JSON object with the following structure. <br></p>
+
+         <pre>
+
+         {"id": "NAME", "type": "TYPEOFSERVICE", "nodes": []} <br>
+         </pre>
+
+         <p>
+         An example of a well-formed JSON file would be the following. <br>
+
+
+      </p>
+      </div>
+   -->
+
+   <div id="container"> <h1>Config File JSON to Graph</h1></div> 
+
+   <script type="text/javascript" src="dropDownAuthoring.js"></script>
+   <script type="text/javascript" src="layoutAgentsGraph.js"></script>
+
+
+   </body>
+</html>
