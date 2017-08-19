@@ -1,3 +1,8 @@
+/**Keeps track of the number of nodes.
+*/
+var nodenum = 0;
+   
+
 /**
  FUNCTION uponClick, collects the string inside the text area and parses into a parameter for                      the drawgraph function.
 **/
