@@ -1,9 +1,28 @@
 #!/usr/bin/env python
 
-'''
-Created on May 19, 2016
+'''Python 3 script: RLPlayer.py was created on May 19, 2016 by
 @author: skarumbaiah
+Documentation here: https://docs.google.com/document/d/1RfX9zMZEjgFuY31qRXaRPC_b64N0yOLxdXTuean8K2s/edit#
+
+Contains class RLServiceMessaging which deals with SuperGLU messages coming from the Engage
+system which are:
+
+1. state updates
+2. requests for next coaching action. Based on experimental condition, either pick randomly or use RL policy
+    to decide.
+3. requests for next AAR action. Never include correct response in AAR. Otherwise pick randomly between DOOVER and DIAGNOSE.
+
+Version 1.1: August 23, 2017 updates by Mark Core
+
+Consolidated everything into a single class. Moved reading of weights into constructor.
+
+KNOWN ISSUES: 
+  1. Although this is a class, it has many global variables so if you created multiple instances
+      of the class then bad things would happen.
+  2. AAR decisions made before end of game and all context known.
+
 '''
+
 
 import random as rand
 from datetime import datetime
@@ -15,14 +34,8 @@ from SuperGLU.Services.RLService.Constants import *
 from math import ceil
 from SuperGLU.Util.Representation.Classes import Speech
 
-"""
-    This module contains the Reinforcement Learning service for 2 functionalities -
-    1. RL Coach - There are three flavors to it - random, feature space and full state space
-    2. RL AAR - for now its random
-    
-    Refer google docs for detailed documentation and design -
-    https://docs.google.com/document/d/1RfX9zMZEjgFuY31qRXaRPC_b64N0yOLxdXTuean8K2s/edit#
-"""
+# BEGIN initialization of global, module variables
+# These global variables are initialized the first time an import command references this module
 
 RL_SERVICE_NAME = "RL Service"
 
@@ -63,53 +76,64 @@ tutoring_state = {  SCENARIO_NUMBER : 1,                        #Scenario number
 #AAR item list
 AAR_item = {}
 
-#Random policy
-class RLRandom():
+# END initialization of global, module variables
+
+#handles incoming and outgoing messages     
+class RLServiceMessaging(BaseService):
+
+    #csvLog = LoggingService.CSVLoggingService("RLPlayerLog.csv")
+    serializeMsg = BaseMessagingNode()
+    
+    # initialize or reset object variables for local context
+    def init_local_context(self):
+        #recent locals for current
+        self.num_response = None
+        self.num_correct_response = None
+        self.num_incorrect_response = None
+        self.num_mixed_response = None
+        self.start = None
+        self.end = None
+        self.time_taken = None
+
+    def __init__(self, experimentCondition="Default"):
+        super().__init__()
+
+        self.init_local_context()
+
+        # initialize rest of object variables
+        self.experimentCondition=experimentCondition
+        self.sum_time_taken = None
+        self.sum_time_correct = None
+        self.sum_time_mixed = None
+        self.sum_time_incorrect = None
+        self.questions = []
+        #interval
+        self.interval = {None:0, 0:1, 1:1, 2:1, 3:1, 4:1, 5:2, 6:2, 7:2, 8:2, 9:3, 10:3, 11:3, 12:3, 13:4, 14:4, 15:4, 16:4}
+        self.time_interval = {None:0, 0:1, 1:1, 2:1, 3:1, 4:1, 5:1, 6:2, 7:2, 8:2, 9:2, 10:2, 11:3, 12:3, 13:3, 14:3, 15:3, 16:4, 17:4, 18:4, 19:4, 20:4}
+        self.quality_state = {(0,0):0, (0,1):1, (1,0):2, (1,1):3, (2,0):4, (2,1):5, (3,0):6, (3,1):7} #(quality,state)
+
+        #weights.csv policy file needs to be in the same directory as the Python process
+        cur = os.getcwd()
+        filepath = os.path.join(cur, 'weights.csv')
+        with open(filepath, 'r') as f:
+            reader = csv.reader(f)
+            self.weights = list(reader)
+
     #Random policy for Coach
-    def getTopAction(self):
+    def getRandomCoachAction(self):
         r = rand.random()
         if r < 0.5:
             return GIVE_HINT_FEEDBACK
         else:
             return DO_NOTHING
-    
-    #Random policy for AAR
-    def updateAARItem(self, item):
-        r = rand.random()
-        if r < 0.33:
-            AAR_item[item] = SKIP
-        elif r  < 0.66:
-            AAR_item[item] = DIAGNOSE
-        else:
-            AAR_item[item] = DOOVER
-            
-    def updateNonCorrectAARItem(self, item):
-        r = rand.random()
-        if r  < 0.5:
-            AAR_item[item] = DIAGNOSE
-        else:
-            AAR_item[item] = DOOVER
-            
- 
-#Trained policy using function approximation 
-class RLCoachFeature():
-    
-    def __init__(self):
-        pass
-      
-    #get top action from the trained policy    
-    def getTopAction(self):
-        #weights.csv file in the same directory as Application.py directory containing policy
-        cur = os.getcwd()
-        filepath = os.path.join(cur, 'weights.csv')
-        with open(filepath, 'r') as f:
-            reader = csv.reader(f)
-            weights = list(reader)
+
+    #get top action from the trained policy for the coach   
+    def getTopCoachAction(self):
 
         action = {DO_NOTHING:0, HINT:0, FEEDBACK:0, FEEDBACK_HINT:0}
         
         #add weights for the state indicators set in tutoring_state
-        for w in weights:
+        for w in self.weights:
             if w[2] == DONOTHING:
                 if tutoring_state[w[0]] == int(w[1]):
                     action[DO_NOTHING] += float(w[3])
@@ -126,35 +150,10 @@ class RLCoachFeature():
         #get best action
         top_action = max(action, key=action.get)
         print(top_action)
-        return top_action  
+        return top_action 
 
-#performs general action in the player like state updates, logging, etc
-class RLPlayer(BaseService):
-    
-    #interval
-    interval = {None:0, 0:1, 1:1, 2:1, 3:1, 4:1, 5:2, 6:2, 7:2, 8:2, 9:3, 10:3, 11:3, 12:3, 13:4, 14:4, 15:4, 16:4}
-    time_interval = {None:0, 0:1, 1:1, 2:1, 3:1, 4:1, 5:1, 6:2, 7:2, 8:2, 9:2, 10:2, 11:3, 12:3, 13:3, 14:3, 15:3, 16:4, 17:4, 18:4, 19:4, 20:4}
-    quality_state = {(0,0):0, (0,1):1, (1,0):2, (1,1):3, (2,0):4, (2,1):5, (3,0):6, (3,1):7} #(quality,state)
-    
-    num_response = None
-    num_correct_response = None
-    num_incorrect_response = None
-    num_mixed_response = None
-    start = None
-    end = None
-    time_taken = None
-    sum_time_taken = None
-    sum_time_correct = None
-    sum_time_mixed = None
-    sum_time_incorrect = None
-    questions = []
-    
-    rLService_random = RLRandom()           #random policy
-    rLService_feature = RLCoachFeature()    #trained policy for RL Coach
-    
-    def __init__(self):
-        pass
-    
+    # ************** UPDATE STATE METHODS ******************************
+
     #update state with every message
     def updateStateRLCoach(self,msg):
         #state update on relevant messages
@@ -195,17 +194,12 @@ class RLPlayer(BaseService):
                 tutoring_state[AVG_RESPONSE_TIME_INCORRECT] = 0
                 tutoring_state[AVG_RESPONSE_TIME_MIXED] = 0
                 
-                #recent locals for current
-                self.num_response = None
-                self.num_correct_response = None
-                self.num_incorrect_response = None
-                self.num_mixed_response = None
-                self.start = None
-                self.end = None
-                self.time_taken = None
-                self.time_correct = None
-                self.time_mixed = None
-                self.time_incorrect = None
+                # reset local variables
+                self.init_local_context()
+
+                #self.time_correct = None
+                #self.time_mixed = None
+                #self.time_incorrect = None
             
             #get Gender
             elif REGISTER_USER_INFO in msg.getVerb():
@@ -310,12 +304,30 @@ class RLPlayer(BaseService):
                 tutoring_state[SCORE] = self.interval.get(ceil(float(scr)),5)
                 
                 #update quality_state
-                tutoring_state[RESP_QUALITY_AFTER_RESPONSE] = quality_state[(tutoring_state[QUALITY_ANSWER], tutoring_state[AFTER_USERRESPONSE_STATE])]
+                tutoring_state[RESP_QUALITY_AFTER_RESPONSE] = self.quality_state[(tutoring_state[QUALITY_ANSWER], tutoring_state[AFTER_USERRESPONSE_STATE])]
         except:
             logInfo('{0} received RL Coach update message exception: {1}'.format(RL_SERVICE_NAME, self.messageToString(msg)), 2)
                        
         print(tutoring_state)
     
+    # randomly pick an AAR action for this decision
+    def updateAARItem(self, item):
+        r = rand.random()
+        if r < 0.33:
+            AAR_item[item] = SKIP
+        elif r  < 0.66:
+            AAR_item[item] = DIAGNOSE
+        else:
+            AAR_item[item] = DOOVER
+            
+    # randomly pick either DIAGNOSE or DOOVER for this decision
+    def updateNonCorrectAARItem(self, item):
+        r = rand.random()
+        if r  < 0.5:
+            AAR_item[item] = DIAGNOSE
+        else:
+            AAR_item[item] = DOOVER
+
     #update AAR item
     def updateStateRLAAR(self,msg):
         
@@ -332,13 +344,13 @@ class RLPlayer(BaseService):
                     diff = item - (max_key+1)
                     for i in range(diff):
                         missed_item = max_key+1+i
-                        self.rLService_random.updateAARItem(missed_item)
+                        self.updateAARItem(missed_item)
                 print(item)
                 
                 if msg.getResult() == CORRECT:
                     AAR_item[item] = SKIP
                 else:
-                    self.rLService_random.updateNonCorrectAARItem(item)
+                    self.updateNonCorrectAARItem(item)
                 print(AAR_item)
             #if message informs the start of AAR
             elif BEGIN_AAR in msg.getVerb():
@@ -350,20 +362,6 @@ class RLPlayer(BaseService):
     def getState(self):
         return tutoring_state   #can also be accessed directly as a global variable       
 
-#handles incoming and outgoing messages     
-class RLServiceMessaging(BaseService):
-    
-    rLService_internal = RLPlayer()         #for internal updates
-    rLService_random = RLRandom()           #random policy
-    rLService_feature = RLCoachFeature()    #trained policy for RL Coach
-    #csvLog = LoggingService.CSVLoggingService("RLPlayerLog.csv")
-    serializeMsg = BaseMessagingNode()
-    
-    
-    def __init__(self, experimentCondition="Default"):
-        super().__init__()
-        self.experimentCondition=experimentCondition
-    
     
     #receive message and take appropriate action by looking at the message attributes like verb         
     def receiveMessage(self, msg):
@@ -413,12 +411,12 @@ class RLServiceMessaging(BaseService):
             
             #for random RL
             if self.experimentCondition=="A":
-                action = self.rLService_random.getTopAction()
+                action = self.getRandomCoachAction()
             
             else:
                 #for trained policy based RL
                 try:
-                    action = self.rLService_feature.getTopAction()
+                    action = self.getTopCoachAction()
                 except:
                     action = DO_NOTHING
                 
@@ -436,7 +434,7 @@ class RLServiceMessaging(BaseService):
             logInfo('{0} received state update message: {1}'.format(RL_SERVICE_NAME, self.messageToString(msg)), 2)
             
             #update RL AAR state based on the message
-            self.rLService_internal.updateStateRLAAR(msg)
+            self.updateStateRLAAR(msg)
             
             #update RL coach state based on the message
-            self.rLService_internal.updateStateRLCoach(msg)
+            self.updateStateRLCoach(msg)
