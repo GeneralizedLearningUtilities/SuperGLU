@@ -51,19 +51,22 @@ public class ServiceConfiguration extends Serializable {
 	}
 	
 	
-	public static Serializable createFromToken(StorageToken token, boolean errorOnMissing) {
-		ServiceConfiguration result = (ServiceConfiguration) Serializable.createFromToken(token, errorOnMissing);
+	public void initializeFromToken(StorageToken token) { 
+		super.initializeFromToken(token);
+		
+		
+		
 		try {
-			result.type = Class.forName((String) token.getItem(TYPE_KEY));
+			this.type = Class.forName((String) token.getItem(TYPE_KEY));
 		} catch (ClassNotFoundException e) {
 			// TODO: what should I do here?
-			result.type = null;
+			this.type = null;
 		}
 		
-		result.params = (Map<String, Object>) SerializationConvenience.untokenizeObject(token.getItem(PARAMS_KEY, true, new HashMap<>()));
-		result.nodes = (List<String>)SerializationConvenience.untokenizeObject(token.getItem(NODES_KEY, true, new ArrayList<>()));
+		this.params = (Map<String, Object>) SerializationConvenience.untokenizeObject(token.getItem(PARAMS_KEY, true, new HashMap<>()));
+		this.nodes = (List<String>)SerializationConvenience.untokenizeObject(token.getItem(NODES_KEY, true, new ArrayList<>()));
 		
-		return result;
+		return;
 	}
 
 	public StorageToken saveToToken() {
