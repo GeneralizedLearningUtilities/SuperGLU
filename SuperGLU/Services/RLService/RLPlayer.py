@@ -12,9 +12,10 @@ system which are:
     to decide.
 3. requests for next AAR action. Never include correct response in AAR. Otherwise pick randomly between DOOVER and DIAGNOSE.
 
-Version 1.1: August 23, 2017 updates by Mark Core
+Version 1.x: August/September 2017 updates by Mark Core
 
 Consolidated everything into a single class. Moved reading of weights into constructor.
+Prints warning if unknown action seen in weights.
 
 KNOWN ISSUES: 
   1. Although this is a class, it has many global variables so if you created multiple instances
@@ -40,35 +41,36 @@ from SuperGLU.Util.Representation.Classes import Speech
 RL_SERVICE_NAME = "RL Service"
 
 #tutoring state for RL coach
-tutoring_state = {  SCENARIO_NUMBER : 1,                        #Scenario number (1/2) (default 1)
-                    GENDER : 1,                                 #gender of the participant (1(male)/2(female)) (default 1)
-                    NUMBER_OF_RESPONSE_PREV : 0,                #Number of responses in previous scenario (clustered in 6 classes) (default 0)
-                    NUMBER_OF_CORRECT_PREV : 0,                 #Number of correct responses in previous scenario (clustered in 6 classes) (default 0)
-                    NUMBER_OF_MIXED_PREV : 0,                   #Number of mixed responses in previous scenario (clustered in 6 classes) (default 0)
-                    NUMBER_OF_INCORRECT_PREV : 0,               #Number of incorrect responses in previous scenario (clustered in 6 classes) (default 0)
-                    SCORE_PREV : 0,                             #Score in previous scenario (clustered in 6 classes) (default 0)
-                    AVG_RESPONSE_TIME_PREV : 0,                 #Average user response time for all responses in previous scenario (clustered in 6 classes) (default 0)
-                    AVG_RESPONSE_TIME_CORRECT_PREV : 0,         #Average user response time for correct responses in previous scenario (clustered in 6 classes) (default 0)
-                    AVG_RESPONSE_TIME_MIXED_PREV : 0,           #Average user response time for mixed responses in previous scenario (clustered in 6 classes) (default 0)
-                    AVG_RESPONSE_TIME_INCORRECT_PREV : 0,       #Average user response time for incorrect responses in previous scenario (clustered in 6 classes) (default 0)
-                    SEEN_BEFORE : 0,                            #Has the system question appeared in the previous scenario? (0(no)/1(yes)) (default 0)
-                    QUALITY_PREV_IF_SEEN : 0,                   #Quality of response in the previous scenario if the same question has appeared (0(null)/1(Correct)/2(Mixed)/3(Incorrect)) (default 0)
-                    QUALITY_ANSWER : 0,                         #correctness of the previous answer 0(null)/1(Correct)/2(Mixed)/3(Incorrect) (default 0)
-                    QUALITY_ANSWER_LAST : 0,                    #correctness of the 2nd last answer 0(null)/1(Correct)/2(Mixed)/3(Incorrect) (default 0)
-                    QUALITY_ANSWER_LAST_LAST : 0,               #correctness of the 3rd last answer 0(null)/1(Correct)/2(Mixed)/3(Incorrect) (default 0)
-                    NUMBER_OF_RESPONSE : 0,                     #Number of responses in current scenario so far (clustered in 6 classes) (default 0)
-                    NUMBER_OF_CORRECT : 0,             #Number of correct responses in current scenario so far (clustered in 6 classes) (default 0)
-                    NUMBER_OF_MIXED : 0,               #Number of mixed responses in current scenario so far (clustered in 6 classes) (default 0)
-                    NUMBER_OF_INCORRECT : 0,           #Number of incorrect responses in current scenario so far (clustered in 6 classes) (default 0)
-                    SCORE : 0,                                  #Score in current scenario so far (clustered in 6 classes) (default 0)
-                    RESPONSE_TIME : 0,                          #User response time for previous question (clustered in 6 classes) (default 0)
-                    RESPONSE_TIME_LAST : 0,                     #User response time for 2nd last question (clustered in 6 classes) (default 0)
-                    RESPONSE_TIME_LAST_LAST : 0,                #User response time for 3rd last question (clustered in 6 classes) (default 0)
-                    AVG_RESPONSE_TIME : 0,                      #Average user response time for all responses in current scenario so far (clustered in 6 classes) (default 0)
-                    AVG_RESPONSE_TIME_CORRECT : 0,              #Average user response time for correct responses in current scenario so far (clustered in 6 classes) (default 0)
-                    AVG_RESPONSE_TIME_MIXED : 0,                #Average user response time for mixed responses in current scenario so far (clustered in 6 classes) (default 0)
-                    AVG_RESPONSE_TIME_INCORRECT : 0,             #Average user response time for incorrect responses in current scenario so far (clustered in 6 classes) (default 0)
-                    AFTER_USERRESPONSE_STATE : 0,        ##1 after the user has responded (before there’s potential for feedback), and 0 before the new system prompt (before there’s potential for hints)
+tutoring_state = {  SCENARIO_NUMBER : 1,                  #Scenario number (1/2) (default 1)
+                    GENDER : RMALE,                       #gender of the participant (RMALE | RFEMALE) 
+                    NUMBER_OF_RESPONSE_PREV : 0,          #Number of responses in previous scenario (clustered in 6 classes) (default 0)
+                    NUMBER_OF_CORRECT_PREV : 0,           #Number of correct responses in previous scenario (clustered in 6 classes) (default 0)
+                    NUMBER_OF_MIXED_PREV : 0,             #Number of mixed responses in previous scenario (clustered in 6 classes) (default 0)
+                    NUMBER_OF_INCORRECT_PREV : 0,         #Number of incorrect responses in previous scenario (clustered in 6 classes) (default 0)
+                    SCORE_PREV : 0,                       #Score in previous scenario (clustered in 6 classes) (default 0)
+                    AVG_RESPONSE_TIME_PREV : 0,           #Average user response time for all responses in previous scenario (clustered in 6 classes) (default 0)
+                    AVG_RESPONSE_TIME_CORRECT_PREV : 0,   #Average user response time for correct responses in previous scenario (clustered in 6 classes) (default 0)
+                    AVG_RESPONSE_TIME_MIXED_PREV : 0,     #Average user response time for mixed responses in previous scenario (clustered in 6 classes) (default 0)
+                    AVG_RESPONSE_TIME_INCORRECT_PREV : 0, #Average user response time for incorrect responses in previous scenario (clustered in 6 classes) (default 0)
+                    SEEN_BEFORE : 0,                      #Has the system question appeared in the previous scenario? (0(no)/1(yes)) (default 0)
+                    # QUALITY FEATURES: RNULL | RINCORRECT | RMIXED | RCORRECT
+                    QUALITY_PREV_IF_SEEN : RNULL,         #correctness of response in the previous scenario if the same question has appeared 
+                    QUALITY_ANSWER : RNULL,               #correctness of the previous answer 
+                    QUALITY_ANSWER_LAST : RNULL,          #correctness of the 2nd last answer 
+                    QUALITY_ANSWER_LAST_LAST : RNULL,     #correctness of the 3rd last answer 
+                    NUMBER_OF_RESPONSE : 0,               #Number of responses in current scenario so far (clustered in 6 classes) (default 0)
+                    NUMBER_OF_CORRECT : 0,                #Number of correct responses in current scenario so far (clustered in 6 classes) (default 0)
+                    NUMBER_OF_MIXED : 0,                  #Number of mixed responses in current scenario so far (clustered in 6 classes) (default 0)
+                    NUMBER_OF_INCORRECT : 0,              #Number of incorrect responses in current scenario so far (clustered in 6 classes) (default 0)
+                    SCORE : 0,                            #Score in current scenario so far (clustered in 6 classes) (default 0)
+                    RESPONSE_TIME : 0,                    #User response time for previous question (clustered in 6 classes) (default 0)
+                    RESPONSE_TIME_LAST : 0,               #User response time for 2nd last question (clustered in 6 classes) (default 0)
+                    RESPONSE_TIME_LAST_LAST : 0,          #User response time for 3rd last question (clustered in 6 classes) (default 0)
+                    AVG_RESPONSE_TIME : 0,                #Average user response time for all responses in current scenario so far (clustered in 6 classes) (default 0)
+                    AVG_RESPONSE_TIME_CORRECT : 0,        #Average user response time for correct responses in current scenario so far (clustered in 6 classes) (default 0)
+                    AVG_RESPONSE_TIME_MIXED : 0,          #Average user response time for mixed responses in current scenario so far (clustered in 6 classes) (default 0)
+                    AVG_RESPONSE_TIME_INCORRECT : 0,      #Average user response time for incorrect responses in current scenario so far (clustered in 6 classes) (default 0)
+                    AFTER_USERRESPONSE_STATE : 0,         ##1 after the user has responded (before there’s potential for feedback), and 0 before the new system prompt (before there’s potential for hints)
                     RESP_QUALITY_AFTER_RESPONSE : 0,
                     FINAL_STATE : 0
                   }
@@ -137,19 +139,21 @@ class RLServiceMessaging(BaseService):
             if w[2] == DONOTHING:
                 if tutoring_state[w[0]] == int(w[1]):
                     action[DO_NOTHING] += float(w[3])
-            if w[2] == HINT:
+            elif w[2] == HINT:
                 if tutoring_state[w[0]] == int(w[1]):
                     action[HINT] += float(w[3])
-            if w[2] == FEEDBACK:
+            elif w[2] == FEEDBACK:
                 if tutoring_state[w[0]] == int(w[1]):
                     action[FEEDBACK] += float(w[3])
-            if w[2] == FEEDBACK_HINT:
+            elif w[2] == FEEDBACK_HINT:
                 if tutoring_state[w[0]] == int(w[1]):
                     action[FEEDBACK_HINT] += float(w[3])
+            else:
+                print("warning: unrecognized action in weights: " + w[2])
                     
         #get best action
         top_action = max(action, key=action.get)
-        print(top_action)
+        print("RL picked this coach action: " + top_action)
         return top_action 
 
     # ************** UPDATE STATE METHODS ******************************
@@ -196,19 +200,15 @@ class RLServiceMessaging(BaseService):
                 
                 # reset local variables
                 self.init_local_context()
-
-                #self.time_correct = None
-                #self.time_mixed = None
-                #self.time_incorrect = None
             
             #get Gender
             elif REGISTER_USER_INFO in msg.getVerb():
                 logInfo('{0} received gender update message: {1}'.format(RL_SERVICE_NAME, self.messageToString(msg)), 2)
                 gend = msg.getObject()
                 if gend ==  FEMALE:
-                    tutoring_state[GENDER] = 2
+                    tutoring_state[GENDER] = RFEMALE
                 elif gend == MALE:
-                    tutoring_state[GENDER] = 1
+                    tutoring_state[GENDER] = RMALE
             
             #update response time
             #verb should be GameLog, the object should be PracticeEnvironment and the result should be RandomizedChoices
@@ -241,8 +241,6 @@ class RLServiceMessaging(BaseService):
                             tutoring_state[SEEN_BEFORE] = 0
                             tutoring_state[QUALITY_PREV_IF_SEEN] = 0
             
-                print(self.start)
-                
                 #update lasts
                 tutoring_state[QUALITY_ANSWER_LAST_LAST] = tutoring_state[QUALITY_ANSWER_LAST]
                 tutoring_state[QUALITY_ANSWER_LAST] = tutoring_state[QUALITY_ANSWER]
@@ -254,6 +252,8 @@ class RLServiceMessaging(BaseService):
                 if self.start is not None:
                     frmt = "%Y-%m-%dT%H:%M:%S.%f"
                     self.time_taken = (datetime.strptime(self.end, frmt) - datetime.strptime(self.start, frmt)).seconds
+                else:
+                    print("WARNING: decision end seen, but not beginning")
                 
                 #get counts and averages
                 self.num_response = 1 if self.num_response is None else self.num_response + 1
@@ -265,7 +265,7 @@ class RLServiceMessaging(BaseService):
                 
                 #correctness based responses
                 if msg.getResult() == INCORRECT:
-                    tutoring_state[QUALITY_ANSWER] = 1
+                    tutoring_state[QUALITY_ANSWER] = RINCORRECT
                     
                     self.num_incorrect_response = 1 if self.num_incorrect_response is None else self.num_incorrect_response + 1
                     tutoring_state[NUMBER_OF_INCORRECT] = self.interval.get(int(self.num_incorrect_response),5) 
@@ -273,10 +273,10 @@ class RLServiceMessaging(BaseService):
                     self.sum_time_incorrect = self.time_taken if self.sum_time_incorrect is None else self.sum_time_incorrect + self.time_taken
                     tutoring_state[AVG_RESPONSE_TIME_INCORRECT] = self.time_interval.get(ceil(self.sum_time_incorrect/self.num_incorrect_response),5)
                     
-                    self.questions[-1][1] = 1
+                    self.questions[-1][1] = RINCORRECT
                 
                 elif msg.getResult() == MIXED:
-                    tutoring_state[QUALITY_ANSWER] = 2
+                    tutoring_state[QUALITY_ANSWER] = RMIXED
                     
                     self.num_mixed_response = 1 if self.num_mixed_response is None else self.num_mixed_response + 1
                     tutoring_state[NUMBER_OF_MIXED] = self.interval.get(int(self.num_mixed_response),5)
@@ -284,10 +284,10 @@ class RLServiceMessaging(BaseService):
                     self.sum_time_mixed = self.time_taken if self.sum_time_mixed is None else self.sum_time_mixed + self.time_taken
                     tutoring_state[AVG_RESPONSE_TIME_MIXED] = self.time_interval.get(ceil(self.sum_time_mixed/self.num_mixed_response),5)
                     
-                    self.questions[-1][1] = 2
+                    self.questions[-1][1] = RMIXED
                     
                 elif msg.getResult() == CORRECT:
-                    tutoring_state[QUALITY_ANSWER] = 3 
+                    tutoring_state[QUALITY_ANSWER] = RCORRECT 
                     
                     self.num_correct_response = 1 if self.num_correct_response is None else self.num_correct_response + 1
                     tutoring_state[NUMBER_OF_CORRECT] = self.interval.get(int(self.num_correct_response),5)
@@ -295,7 +295,7 @@ class RLServiceMessaging(BaseService):
                     self.sum_time_correct = self.time_taken if self.sum_time_correct is None else self.sum_time_correct + self.time_taken
                     tutoring_state[AVG_RESPONSE_TIME_CORRECT] = self.time_interval.get(ceil(self.sum_time_correct/self.num_correct_response),5)
                     
-                    self.questions[-1][1] = 3
+                    self.questions[-1][1] = RCORRECT
                 else:
                     print("Incorrect Correctness value")
                 

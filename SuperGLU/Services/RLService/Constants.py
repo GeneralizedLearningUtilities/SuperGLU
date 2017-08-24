@@ -18,8 +18,11 @@ BEGIN_AAR = 'BeginAAR'                          #End of session message
 
 #RL Coach 
 ## State variables to define a tutoring system's status
+RNULL = 0
 SCENARIO_NUMBER = "scenario_number"                         #Scenario number (1/2) (default 1)
-GENDER = "gender"                                           #gender of the participant (0(null)/1(male)/2(female)) (default 0)
+GENDER = "gender"                                           #gender of the participant
+RMALE = 1
+RFEMALE = 2
 NUMBER_OF_RESPONSE_PREV = "num_responses_prevscenario_class"         #Number of responses in previous scenario (clustered in 6 classes) (default 0)
 NUMBER_OF_CORRECT_PREV = "num_correctresponses_prevscenario_class"           #Number of correct responses in previous scenario (clustered in 6 classes) (default 0)
 NUMBER_OF_MIXED_PREV = "num_mixedresponses_prevscenario_class"               #Number of mixed responses in previous scenario (clustered in 6 classes) (default 0)
@@ -30,10 +33,16 @@ AVG_RESPONSE_TIME_CORRECT_PREV = "avg_correctresponsetime_prevscenario_class"   
 AVG_RESPONSE_TIME_MIXED_PREV = "avg_mixedresponsetime_prevscenario_class"           #Average user response time for mixed responses in previous scenario (clustered in 6 classes) (default 0)
 AVG_RESPONSE_TIME_INCORRECT_PREV = "avg_incorrectresponsetime_prevscenario_class"   #Average user response time for incorrect responses in previous scenario (clustered in 6 classes) (default 0)
 SEEN_BEFORE = "has_question_appeared_in_prevscenario_class"                     #Has the system question appeared in the previous scenario? (0(no)/1(yes)) (default 0)
-QUALITY_PREV_IF_SEEN = "responsequality_appearedbefore_class"   #Quality of response in the previous scenario if the same question has appeared (0(null)/1(Incorrect)/2(Mixed)/3(Correct)) (default 0)
-QUALITY_ANSWER = "responsequality_prevquestion_class"                  #correctness of the previous answer 0(null)/1(Incorrect)/2(Mixed)/3(Correct) (default 0)
-QUALITY_ANSWER_LAST = "responsequality_prev2question_class"        #correctness of the 2nd last answer 0(null)/1(Incorrect)/2(Mixed)/3(Correct) (default 0)
-QUALITY_ANSWER_LAST_LAST = "responsequality_prev3question_class"        #correctness of the 3rd last answer 0(null)/1(Incorrect)/2(Mixed)/3(Correct) (default 0)
+
+# QUALITY FEATURES
+RINCORRECT = 1
+RMIXED = 2
+RCORRECT = 3
+QUALITY_PREV_IF_SEEN = "responsequality_appearedbefore_class"    # correctness of response in the previous scenario if the same question has appeared 
+QUALITY_ANSWER = "responsequality_prevquestion_class"            # correctness of the previous answer 
+QUALITY_ANSWER_LAST = "responsequality_prev2question_class"      # correctness of the 2nd last answer 
+QUALITY_ANSWER_LAST_LAST = "responsequality_prev3question_class" # correctness of the 3rd last answer 
+
 NUMBER_OF_RESPONSE = "num_responses_sofar_class"                       #Number of responses in current scenario so far (clustered in 6 classes) (default 0)
 NUMBER_OF_CORRECT = "num_correctresponses_sofar_class"       #Number of correct responses in current scenario so far (clustered in 6 classes) (default 0)
 NUMBER_OF_MIXED = "num_mixedresponses_sofar_class"           #Number of mixed responses in current scenario so far (clustered in 6 classes) (default 0)
