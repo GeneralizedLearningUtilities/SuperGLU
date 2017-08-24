@@ -1,28 +1,44 @@
 package Examples.VHuman;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import Core.ActiveMQTopicConfiguration;
-import Core.ActiveMQTopicMessagingGateway;
 import Core.BaseMessage;
-import Core.ExternalMessagingHandler;
-import Core.HTTPMessagingGateway;
 import Core.MessagingGateway;
 import Core.VHMessage;
+import Core.Config.ServiceConfiguration;
 import edu.usc.ict.vhmsg.VHMsg;
 
 /**
  * This class is the internal service that will route received virtual human
- * messages to vhmsg
+ * messages to vhmsg.  It will also attempt to convert non-VHuman messages  into VHuman messages.
  * 
  * @author auerbach
  *
  */
 
 public class GIFTVHumanBridge extends MessagingGateway {
+	
+	public static final String BROKER_HOST_PARAM_KEY = "brokerHost";
+	public static final String BROKER_PORT_PARAM_KEY = "brokerPort";
+	
+	
 	protected VHMsg vhmsg;
+	
+	public GIFTVHumanBridge(ServiceConfiguration config)
+	{
+		super(config.getId(), null, null, null, null);
+		
+		
+		String brokerHost = (String)config.getParams().get(BROKER_HOST_PARAM_KEY);
+		int brokerPort = (int)config.getParams().get(BROKER_PORT_PARAM_KEY);
+		
+		
+		this.vhmsg = new VHMsg(brokerHost, Integer.toString(brokerPort), "DEFAULT_SCOPE");
+		this.vhmsg.openConnection();
 
+
+		
+	}
+	
+	
 	public GIFTVHumanBridge(String brokerURL) {
 		super("GIFT_VHUMAN_BRIDGE", null, null, null, null);
 
@@ -33,37 +49,6 @@ public class GIFTVHumanBridge extends MessagingGateway {
 
 		this.vhmsg = new VHMsg(brokerHost, brokerPort, "DEFAULT_SCOPE");
 		this.vhmsg.openConnection();
-
-		ActiveMQTopicConfiguration config = new ActiveMQTopicConfiguration("config", null, brokerURL);
-		ActiveMQTopicMessagingGateway receiver = new ActiveMQTopicMessagingGateway("receiver", null, null, null, null,
-				config);
-
-		this.onBindToNode(receiver);
-
-		ExternalMessagingHandler handler = new ExternalMessagingHandler() {
-
-			@Override
-			public void handleMessage(BaseMessage msg) {
-				receiveMessage(msg);
-
-			}
-		};
-
-		List<ExternalMessagingHandler> handlers = new ArrayList<>();
-		handlers.add(handler);
-
-		// HTTPMessagingGateway socketGateway = new
-		// HTTPMessagingGateway("socketIOGateway", null, null, null, handlers,
-		// S)
-
-		receiver.addHandler(new ExternalMessagingHandler() {
-
-			@Override
-			public void handleMessage(BaseMessage msg) {
-				receiveMessage(msg);
-
-			}
-		});
 	}
 
 	@Override
@@ -84,10 +69,4 @@ public class GIFTVHumanBridge extends MessagingGateway {
 	public void disconnect() {
 		vhmsg.closeConnection();
 	}
-
-	public static void main(String[] args) {
-
-		// GIFTVHumanBridge bridge = new GIFTVHumanBridge();
-	}
-
 }

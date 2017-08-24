@@ -51,9 +51,8 @@ public class Scratch {
 		result.put(socketIOGateway.getId(), socketIOGateway);
 		
 		
-		Object map  = SerializationConvenience.tokenizeObject(result);
-		StorageToken token = new StorageToken((Map<String, Object>) map, "storageToken", null);
-		String json = SerializationConvenience.makeSerialized(token, SerializationFormatEnum.JSON_FORMAT);
+		ServiceConfigurations serviceConfigs = new ServiceConfigurations(result);
+		String json = SerializationConvenience.serializeObject(serviceConfigs, SerializationFormatEnum.JSON_FORMAT);
 		
 		System.out.println(json);
 

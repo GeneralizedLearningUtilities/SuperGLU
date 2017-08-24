@@ -16,6 +16,7 @@ import com.corundumstudio.socketio.SocketIOClient;
 import com.corundumstudio.socketio.SocketIOServer;
 import com.corundumstudio.socketio.listener.DataListener;
 
+import Core.Config.ServiceConfiguration;
 import Util.SerializationConvenience;
 import Util.SerializationFormatEnum;
 
@@ -52,6 +53,29 @@ public class HTTPMessagingGateway extends MessagingGateway implements DataListen
 	super();
 	this.socketIO = new SocketIOServer(new Configuration());
 	this.clients = new ConcurrentHashMap<>();
+    }
+    
+    
+    public HTTPMessagingGateway(ServiceConfiguration serviceConfig)
+    {
+    	super(serviceConfig.getId(), null, null, null, null);
+    	int socketIOPort = 5333;//Have a default port to fall back on.
+    	if(serviceConfig.getParams().containsKey(ServiceConfiguration.SOCKETIO_PARAM_KEY))
+    		 socketIOPort = (int) serviceConfig.getParams().get(ServiceConfiguration.SOCKETIO_PARAM_KEY);
+    	Configuration config = new Configuration();
+    	config.setPort(socketIOPort);
+    	SocketIOServer socketIO = new SocketIOServer(config);
+    	
+    	
+    	this.socketIO = socketIO;
+    	this.clients = new ConcurrentHashMap<>();
+    	
+    	this.socketIO.start();
+    	
+    	this.socketIO.addNamespace(MESSAGES_NAMESPACE);
+    	
+    	this.socketIO.getNamespace(MESSAGES_NAMESPACE).addEventListener(MESSAGES_KEY, Map.class, (DataListener)this);
+    	
     }
     
     
