@@ -65,9 +65,14 @@ public class ServiceLauncher {
 	public void connectService(ServiceConfiguration config) {
 		BaseMessagingNode service = services.get(config.getId());
 
-		for (String connectionId : config.getNodes()) {
-			BaseMessagingNode connection = services.get(connectionId);
-			service.onBindToNode(connection);
+		if (service != null) {
+
+			for (String connectionId : config.getNodes()) {
+				BaseMessagingNode connection = services.get(connectionId);
+				
+				if(connection != null)
+					service.addNode(connection);
+			}
 		}
 	}
 
@@ -107,10 +112,8 @@ public class ServiceLauncher {
 
 		return result;
 	}
-	
-	
-	public Map<String, BaseMessagingNode> getServices()
-	{
+
+	public Map<String, BaseMessagingNode> getServices() {
 		return this.services;
 	}
 

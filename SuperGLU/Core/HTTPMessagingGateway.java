@@ -62,9 +62,9 @@ public class HTTPMessagingGateway extends MessagingGateway implements DataListen
     	int socketIOPort = 5333;//Have a default port to fall back on.
     	if(serviceConfig.getParams().containsKey(ServiceConfiguration.SOCKETIO_PARAM_KEY))
     		 socketIOPort = (int) serviceConfig.getParams().get(ServiceConfiguration.SOCKETIO_PARAM_KEY);
-    	Configuration config = new Configuration();
-    	config.setPort(socketIOPort);
-    	SocketIOServer socketIO = new SocketIOServer(config);
+    	Configuration socketConfig = new Configuration();
+    	socketConfig.setPort(socketIOPort);
+    	SocketIOServer socketIO = new SocketIOServer(socketConfig);
     	
     	
     	this.socketIO = socketIO;

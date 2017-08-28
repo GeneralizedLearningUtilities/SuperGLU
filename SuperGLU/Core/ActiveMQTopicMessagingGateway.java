@@ -179,7 +179,10 @@ public class ActiveMQTopicMessagingGateway extends MessagingGateway implements M
 			// we already distributed this message when we sent it. no need to
 			// re-process it.
 			if (!msg.getContextValue(ORIGINATING_SERVICE_ID_KEY, "").equals(this.id))
+			{
 				super.receiveMessage(msg);
+				super.distributeMessage(msg, this.id);
+			}
 
 		} catch (Exception e) {
 			// Don't crash if the message fails to be processed
