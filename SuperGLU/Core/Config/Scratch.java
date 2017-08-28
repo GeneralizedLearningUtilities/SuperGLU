@@ -8,6 +8,7 @@ import java.util.Map;
 import Core.ActiveMQTopicConfiguration;
 import Core.ActiveMQTopicMessagingGateway;
 import Core.HTTPMessagingGateway;
+import Examples.VHuman.GIFTVHumanBridge;
 import Util.SerializationConvenience;
 import Util.SerializationFormatEnum;
 import Util.StorageToken;
@@ -29,10 +30,12 @@ public class Scratch {
 		
 		String amqGatewayName = "activeMQGateway";
 		String socketioGatewayName = "socketIOGateway";
+		String bridgeGatewayName = "VHMSGBridgeGateway";
 		
 		List<String> amqNodes = new ArrayList<>();
 		
 		amqNodes.add(socketioGatewayName);
+		amqNodes.add(bridgeGatewayName);
 		
 		ServiceConfiguration activeMQGateway = new ServiceConfiguration(amqGatewayName, ActiveMQTopicConfiguration.class, amqParams, amqNodes);
 		
@@ -42,14 +45,26 @@ public class Scratch {
 		
 		List<String> socketIONodes = new ArrayList<>();
 		socketIONodes.add(amqGatewayName);
-		
+		socketIONodes.add(bridgeGatewayName);
 		
 		ServiceConfiguration socketIOGateway = new ServiceConfiguration(socketioGatewayName, HTTPMessagingGateway.class, socketIOParams, socketIONodes);
+		
+		
+		Map<String, Object> defaultBridgeParams = new HashMap<>();
+		defaultBridgeParams.put(GIFTVHumanBridge.BROKER_HOST_PARAM_KEY, "localhost");
+		defaultBridgeParams.put(GIFTVHumanBridge.BROKER_PORT_PARAM_KEY, 61617);
+		
+		List<String> bridgeNodes = new ArrayList<>();
+		bridgeNodes.add(amqGatewayName);
+		bridgeNodes.add(socketioGatewayName);
+		
+		ServiceConfiguration GiftVHumanBridge = new ServiceConfiguration("defaultBridge", GIFTVHumanBridge.class, defaultBridgeParams, bridgeNodes);
+		
 		
 		Map<String, ServiceConfiguration> result = new HashMap<>();
 		result.put(activeMQGateway.getId(), activeMQGateway);
 		result.put(socketIOGateway.getId(), socketIOGateway);
-		
+		result.put(GiftVHumanBridge.getId(), GiftVHumanBridge);
 		
 		ServiceConfigurations serviceConfigs = new ServiceConfigurations(result);
 		String json = SerializationConvenience.serializeObject(serviceConfigs, SerializationFormatEnum.JSON_FORMAT);

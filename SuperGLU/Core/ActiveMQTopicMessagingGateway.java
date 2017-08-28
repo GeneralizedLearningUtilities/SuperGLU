@@ -44,7 +44,7 @@ public class ActiveMQTopicMessagingGateway extends MessagingGateway implements M
 	protected TopicConnection connection;
 
 	// This property defines to which system the activeMQ message belongs.
-	public static final String SYSTEM_NAME = "SYSTEM_NAME";
+	public static final String MESSAGETYPE = "MESSAGE_TYPE";
 	// this is the identifier for SUPERGLU messages
 	public static final String SUPERGLU = "SUPERGLU_MSG";
 	// Identifier for virtual human messages
@@ -126,7 +126,7 @@ public class ActiveMQTopicMessagingGateway extends MessagingGateway implements M
 			this.addContextDataToMsg(msg);
 			TextMessage activeMQMessage = session.createTextMessage(
 					SerializationConvenience.serializeObject(msg, SerializationFormatEnum.JSON_FORMAT));
-			activeMQMessage.setStringProperty(SYSTEM_NAME, SUPERGLU);
+			activeMQMessage.setStringProperty(MESSAGETYPE, SUPERGLU);
 			producer.send(activeMQMessage);
 		} catch (JMSException e) {
 			e.printStackTrace();
@@ -154,7 +154,7 @@ public class ActiveMQTopicMessagingGateway extends MessagingGateway implements M
 			String body = ((TextMessage) jmsMessage).getText();
 			body = URLDecoder.decode(body, "UTF-8");
 			BaseMessage msg;
-			String msgType = jmsMessage.getStringProperty(ActiveMQTopicMessagingGateway.SYSTEM_NAME);
+			String msgType = jmsMessage.getStringProperty(ActiveMQTopicMessagingGateway.MESSAGETYPE);
 			if (msgType != null && msgType.equals(ActiveMQTopicMessagingGateway.SUPERGLU)) {
 				msg = (Message) SerializationConvenience.nativeizeObject(body, SerializationFormatEnum.JSON_FORMAT);
 			} else if (msgType != null && msgType.equals(ActiveMQTopicMessagingGateway.VHMSG)) {

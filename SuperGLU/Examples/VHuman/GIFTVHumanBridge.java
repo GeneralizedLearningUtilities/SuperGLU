@@ -42,7 +42,6 @@ public class GIFTVHumanBridge extends MessagingGateway {
 	public GIFTVHumanBridge(String brokerURL) {
 		super("GIFT_VHUMAN_BRIDGE", null, null, null, null);
 
-		String[] split = brokerURL.split(":");
 
 		String brokerHost = brokerURL.split(":")[1].split("//")[1];
 		String brokerPort = brokerURL.split(":")[2];
