@@ -118,6 +118,21 @@ public class ActiveMQTopicMessagingGateway extends MessagingGateway implements M
 			throw new RuntimeException("Failed to connect to ActiveMQ");
 		}
 	}
+	
+	
+	
+
+	@Override
+	public void disconnect() {
+		super.disconnect();
+		try {
+			this.connection.close();
+		} catch (JMSException e) {
+			log.error("Failed to disconnect.  Connection was already closed.");
+			e.printStackTrace();
+		}
+	}
+
 
 	@Override
 	public void sendMessage(BaseMessage msg) {

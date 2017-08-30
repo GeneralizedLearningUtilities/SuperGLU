@@ -21,166 +21,145 @@ import Util.SerializationConvenience;
 import Util.SerializationFormatEnum;
 
 /**
- * This class will send and receive messages over SocketIO.
- * It's basically a bridge between the SuperGLU infrastructure and the SocketIO framework.
+ * This class will send and receive messages over SocketIO. It's basically a
+ * bridge between the SuperGLU infrastructure and the SocketIO framework.
+ * 
  * @author auerbach
  *
  */
 
-public class HTTPMessagingGateway extends MessagingGateway implements DataListener<Map<String, String>>
-{
-    
-    /**
-     * This is the object that handles the communication over the socket.
-     */
-    private SocketIOServer socketIO;
-    
-    
-    /**
-     * store the clients in association with the persistent session id.
-     * 
-     */
-    private ConcurrentHashMap<String, List<String>> clients; 
-    
-    public static final String MESSAGES_KEY = "message";
-    public static final String DATA_KEY = "data";
-    public static final String MESSAGES_NAMESPACE = "/messaging";
-    public static final String SID_KEY = "sid";
-    
-    
-    public HTTPMessagingGateway()
-    {
-	super();
-	this.socketIO = new SocketIOServer(new Configuration());
-	this.clients = new ConcurrentHashMap<>();
-    }
-    
-    
-    public HTTPMessagingGateway(ServiceConfiguration serviceConfig)
-    {
-    	super(serviceConfig.getId(), null, null, null, null);
-    	int socketIOPort = 5333;//Have a default port to fall back on.
-    	if(serviceConfig.getParams().containsKey(ServiceConfiguration.SOCKETIO_PARAM_KEY))
-    		 socketIOPort = (int) serviceConfig.getParams().get(ServiceConfiguration.SOCKETIO_PARAM_KEY);
-    	Configuration socketConfig = new Configuration();
-    	socketConfig.setPort(socketIOPort);
-    	SocketIOServer socketIO = new SocketIOServer(socketConfig);
-    	
-    	
-    	this.socketIO = socketIO;
-    	this.clients = new ConcurrentHashMap<>();
-    	
-    	this.socketIO.start();
-    	
-    	this.socketIO.addNamespace(MESSAGES_NAMESPACE);
-    	
-    	this.socketIO.getNamespace(MESSAGES_NAMESPACE).addEventListener(MESSAGES_KEY, Map.class, (DataListener)this);
-    	
-    }
-    
-    
-    public HTTPMessagingGateway(String anId, Map<String, Object> scope, Collection<BaseMessagingNode> nodes, Predicate<BaseMessage> conditions, List<ExternalMessagingHandler> handlers, SocketIOServer socketIO)
-    {
-	super(anId, scope, nodes, conditions, handlers);
-	this.socketIO = socketIO;
-	this.clients = new ConcurrentHashMap<>();
-	
-	this.socketIO.start();
-	
-	this.socketIO.addNamespace(MESSAGES_NAMESPACE);
-	
-	this.socketIO.getNamespace(MESSAGES_NAMESPACE).addEventListener(MESSAGES_KEY, Map.class, (DataListener)this);
-    }
-    
-/*
-    @Override
-    public void receiveMessage(BaseMessage msg)
-    {
-	super.receiveMessage(msg);
-	log.log(Level.INFO, "message received");
-	this.sendWebsocketMesage(msg);
-	log.log(Level.INFO, "Distributing message: " + SerializationConvenience.serializeObject(msg, SerializationFormatEnum.JSON_FORMAT));
-	this.distributeMessage(msg, this.getId());
-	log.log(Level.INFO, "message distributed");
-    }
+public class HTTPMessagingGateway extends MessagingGateway implements DataListener<Map<String, String>> {
 
-    @Override
-    public void sendMessage(BaseMessage msg)
-    {
-	super.sendMessage(msg);
-	this.sendWebsocketMesage(msg);
-    }
-    
-  */
-    
-    
-    @Override
-    public void distributeMessage(BaseMessage msg, String senderId)
-    {
-	this.addContextDataToMsg(msg);
-	this.sendWebsocketMesage(msg);
-	super.distributeMessage(msg, senderId);
-    }
-    
-    public void sendWebsocketMesage(BaseMessage msg)
-    {
-	String msgAsString = SerializationConvenience.serializeObject(msg, SerializationFormatEnum.JSON_FORMAT);
-	
-	Map<String, String> data = new HashMap<>();
-	
-	String sessionId = (String) msg.getContextValue(SESSION_KEY, null);
-	
-	if(sessionId != null)
-	{
-	    data.put(DATA_KEY, msgAsString);
-	    data.put(SESSION_KEY, sessionId);
-	    
-	    BroadcastOperations broadcastOperations = this.socketIO.getRoomOperations(sessionId);
-	    broadcastOperations.sendEvent(MESSAGES_KEY, data);
-	}
-	else
-	{
-	    log.warn("Message does not contain session id.  Cannot send: " + msgAsString);
-	}
-	
-	
-    }
-    
+	/**
+	 * This is the object that handles the communication over the socket.
+	 */
+	private SocketIOServer socketIO;
 
+	/**
+	 * store the clients in association with the persistent session id.
+	 * 
+	 */
+	private ConcurrentHashMap<String, List<String>> clients;
 
-    @Override
-    public void onData(SocketIOClient client, Map<String, String> data, AckRequest ackSender) throws Exception
-    {
-	log.debug("data received from socket: " + data.toString());
-	
-	String sid = client.getSessionId().toString();
-	
-	if(data.containsKey(DATA_KEY))
-	{
-	    String sessionId = data.getOrDefault(SESSION_KEY, null);
-	    if(SESSION_KEY != null)
-	    {
-		client.joinRoom(sessionId);
-		
-		if(!this.clients.containsKey(sessionId))
-		    this.clients.put(sessionId, new ArrayList<>());
-		
-		List<String> sids = new ArrayList<>();
-		sids.add(sid);
-		this.clients.put(sessionId, sids);
-		
-		String msgAsString = data.get(DATA_KEY);
-		BaseMessage msg = (BaseMessage) SerializationConvenience.nativeizeObject(msgAsString, SerializationFormatEnum.JSON_FORMAT);
-		
-		msg.setContextValue(SID_KEY, sid);
-		
-		this.distributeMessage(msg, this.getId());
-	    }
+	public static final String MESSAGES_KEY = "message";
+	public static final String DATA_KEY = "data";
+	public static final String MESSAGES_NAMESPACE = "/messaging";
+	public static final String SID_KEY = "sid";
+
+	public HTTPMessagingGateway() {
+		super();
+		this.socketIO = new SocketIOServer(new Configuration());
+		this.clients = new ConcurrentHashMap<>();
 	}
-	else
-	{
-	    log.warn("GATEWAY DID NOT UNDERSTAND: " + data.toString());
+
+	public HTTPMessagingGateway(ServiceConfiguration serviceConfig) {
+		super(serviceConfig.getId(), null, null, null, null);
+		int socketIOPort = 5333;// Have a default port to fall back on.
+		if (serviceConfig.getParams().containsKey(ServiceConfiguration.SOCKETIO_PARAM_KEY))
+			socketIOPort = (int) serviceConfig.getParams().get(ServiceConfiguration.SOCKETIO_PARAM_KEY);
+		Configuration socketConfig = new Configuration();
+		socketConfig.setPort(socketIOPort);
+		SocketIOServer socketIO = new SocketIOServer(socketConfig);
+
+		this.socketIO = socketIO;
+		this.clients = new ConcurrentHashMap<>();
+
+		this.socketIO.start();
+
+		this.socketIO.addNamespace(MESSAGES_NAMESPACE);
+
+		this.socketIO.getNamespace(MESSAGES_NAMESPACE).addEventListener(MESSAGES_KEY, Map.class, (DataListener) this);
+
 	}
-    }
+
+	public HTTPMessagingGateway(String anId, Map<String, Object> scope, Collection<BaseMessagingNode> nodes,
+			Predicate<BaseMessage> conditions, List<ExternalMessagingHandler> handlers, SocketIOServer socketIO) {
+		super(anId, scope, nodes, conditions, handlers);
+		this.socketIO = socketIO;
+		this.clients = new ConcurrentHashMap<>();
+
+		this.socketIO.start();
+
+		this.socketIO.addNamespace(MESSAGES_NAMESPACE);
+
+		this.socketIO.getNamespace(MESSAGES_NAMESPACE).addEventListener(MESSAGES_KEY, Map.class, (DataListener) this);
+	}
+
+	/*
+	 * @Override public void receiveMessage(BaseMessage msg) {
+	 * super.receiveMessage(msg); log.log(Level.INFO, "message received");
+	 * this.sendWebsocketMesage(msg); log.log(Level.INFO,
+	 * "Distributing message: " + SerializationConvenience.serializeObject(msg,
+	 * SerializationFormatEnum.JSON_FORMAT)); this.distributeMessage(msg,
+	 * this.getId()); log.log(Level.INFO, "message distributed"); }
+	 * 
+	 * @Override public void sendMessage(BaseMessage msg) {
+	 * super.sendMessage(msg); this.sendWebsocketMesage(msg); }
+	 * 
+	 */
+
+	@Override
+	public void distributeMessage(BaseMessage msg, String senderId) {
+		this.addContextDataToMsg(msg);
+		this.sendWebsocketMesage(msg);
+		super.distributeMessage(msg, senderId);
+	}
+
+	@Override
+	public void disconnect() {
+		// TODO Auto-generated method stub
+		super.disconnect();
+		this.socketIO.stop();
+	}
+
+	public void sendWebsocketMesage(BaseMessage msg) {
+		String msgAsString = SerializationConvenience.serializeObject(msg, SerializationFormatEnum.JSON_FORMAT);
+
+		Map<String, String> data = new HashMap<>();
+
+		String sessionId = (String) msg.getContextValue(SESSION_KEY, null);
+
+		if (sessionId != null) {
+			data.put(DATA_KEY, msgAsString);
+			data.put(SESSION_KEY, sessionId);
+
+			BroadcastOperations broadcastOperations = this.socketIO.getRoomOperations(sessionId);
+			broadcastOperations.sendEvent(MESSAGES_KEY, data);
+		} else {
+			log.warn("Message does not contain session id.  Cannot send: " + msgAsString);
+		}
+
+	}
+
+	@Override
+	public void onData(SocketIOClient client, Map<String, String> data, AckRequest ackSender) throws Exception {
+		log.debug("data received from socket: " + data.toString());
+
+		String sid = client.getSessionId().toString();
+
+		if (data.containsKey(DATA_KEY)) {
+			String sessionId = data.getOrDefault(SESSION_KEY, null);
+			if (SESSION_KEY != null) {
+				client.joinRoom(sessionId);
+
+				if (!this.clients.containsKey(sessionId))
+					this.clients.put(sessionId, new ArrayList<>());
+
+				List<String> sids = new ArrayList<>();
+				sids.add(sid);
+				this.clients.put(sessionId, sids);
+
+				String msgAsString = data.get(DATA_KEY);
+				BaseMessage msg = (BaseMessage) SerializationConvenience.nativeizeObject(msgAsString,
+						SerializationFormatEnum.JSON_FORMAT);
+
+				msg.setContextValue(SID_KEY, sid);
+
+				this.distributeMessage(msg, this.getId());
+			}
+		} else {
+			log.warn("GATEWAY DID NOT UNDERSTAND: " + data.toString());
+		}
+	}
 
 }
