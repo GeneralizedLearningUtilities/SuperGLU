@@ -43,40 +43,79 @@ RL_SERVICE_NAME = "RL Service"
 #tutoring state for RL coach
 tutoring_state = {  SCENARIO_NUMBER : 1,                  #Scenario number (1/2) (default 1)
                     GENDER : RMALE,                       #gender of the participant (RMALE | RFEMALE) 
-                    NUMBER_OF_RESPONSE_PREV : 0,          #Number of responses in previous scenario (clustered in 6 classes) (default 0)
-                    NUMBER_OF_CORRECT_PREV : 0,           #Number of correct responses in previous scenario (clustered in 6 classes) (default 0)
-                    NUMBER_OF_MIXED_PREV : 0,             #Number of mixed responses in previous scenario (clustered in 6 classes) (default 0)
-                    NUMBER_OF_INCORRECT_PREV : 0,         #Number of incorrect responses in previous scenario (clustered in 6 classes) (default 0)
-                    SCORE_PREV : 0,                       #Score in previous scenario (clustered in 6 classes) (default 0)
-                    AVG_RESPONSE_TIME_PREV : 0,           #Average user response time for all responses in previous scenario (clustered in 6 classes) (default 0)
-                    AVG_RESPONSE_TIME_CORRECT_PREV : 0,   #Average user response time for correct responses in previous scenario (clustered in 6 classes) (default 0)
-                    AVG_RESPONSE_TIME_MIXED_PREV : 0,     #Average user response time for mixed responses in previous scenario (clustered in 6 classes) (default 0)
-                    AVG_RESPONSE_TIME_INCORRECT_PREV : 0, #Average user response time for incorrect responses in previous scenario (clustered in 6 classes) (default 0)
-                    SEEN_BEFORE : 0,                      #Has the system question appeared in the previous scenario? (0(no)/1(yes)) (default 0)
-                    # QUALITY FEATURES: RNULL | RINCORRECT | RMIXED | RCORRECT
-                    QUALITY_PREV_IF_SEEN : RNULL,         #correctness of response in the previous scenario if the same question has appeared 
-                    QUALITY_ANSWER : RNULL,               #correctness of the previous answer 
-                    QUALITY_ANSWER_LAST : RNULL,          #correctness of the 2nd last answer 
-                    QUALITY_ANSWER_LAST_LAST : RNULL,     #correctness of the 3rd last answer 
-                    NUMBER_OF_RESPONSE : 0,               #Number of responses in current scenario so far (clustered in 6 classes) (default 0)
-                    NUMBER_OF_CORRECT : 0,                #Number of correct responses in current scenario so far (clustered in 6 classes) (default 0)
-                    NUMBER_OF_MIXED : 0,                  #Number of mixed responses in current scenario so far (clustered in 6 classes) (default 0)
-                    NUMBER_OF_INCORRECT : 0,              #Number of incorrect responses in current scenario so far (clustered in 6 classes) (default 0)
-                    SCORE : 0,                            #Score in current scenario so far (clustered in 6 classes) (default 0)
-                    RESPONSE_TIME : 0,                    #User response time for previous question (clustered in 6 classes) (default 0)
-                    RESPONSE_TIME_LAST : 0,               #User response time for 2nd last question (clustered in 6 classes) (default 0)
-                    RESPONSE_TIME_LAST_LAST : 0,          #User response time for 3rd last question (clustered in 6 classes) (default 0)
-                    AVG_RESPONSE_TIME : 0,                #Average user response time for all responses in current scenario so far (clustered in 6 classes) (default 0)
-                    AVG_RESPONSE_TIME_CORRECT : 0,        #Average user response time for correct responses in current scenario so far (clustered in 6 classes) (default 0)
-                    AVG_RESPONSE_TIME_MIXED : 0,          #Average user response time for mixed responses in current scenario so far (clustered in 6 classes) (default 0)
-                    AVG_RESPONSE_TIME_INCORRECT : 0,      #Average user response time for incorrect responses in current scenario so far (clustered in 6 classes) (default 0)
-                    AFTER_USERRESPONSE_STATE : 0,         ##1 after the user has responded (before there’s potential for feedback), and 0 before the new system prompt (before there’s potential for hints)
-                    RESP_QUALITY_AFTER_RESPONSE : 0,
-                    FINAL_STATE : 0
                   }
+
+def init_global_scenario_context():
+    # QUALITY FEATURES: RNULL | RINCORRECT | RMIXED | RCORRECT
+
+    # correctness of 3rd to last answer
+    tutoring_state[QUALITY_ANSWER_LAST_LAST] = RNULL
+    # correctness of 2nd to last answer
+    tutoring_state[QUALITY_ANSWER_LAST] = RNULL
+    # correctness of previous answer
+    tutoring_state[QUALITY_ANSWER] = RNULL
+    #correctness of response in the previous scenario if the same question has appeared 
+    tutoring_state[QUALITY_PREV_IF_SEEN] = RNULL
+    #Has the system question appeared in the previous scenario? (0(no)/1(yes)) (default 0)
+    tutoring_state[SEEN_BEFORE] = 0
+
+    #Score in current scenario so far (clustered in 6 classes) (default 0)
+    tutoring_state[SCORE] = 0
+
+    #Number of responses in current scenario so far (clustered in 6 classes) (default 0)
+    tutoring_state[NUMBER_OF_RESPONSE] = 0
+    #Number of correct responses in current scenario so far (clustered in 6 classes) (default 0)
+    tutoring_state[NUMBER_OF_CORRECT] = 0
+    #Number of mixed responses in current scenario so far (clustered in 6 classes) (default 0)
+    tutoring_state[NUMBER_OF_MIXED] = 0
+    #Number of incorrect responses in current scenario so far (clustered in 6 classes) (default 0)
+    tutoring_state[NUMBER_OF_INCORRECT] = 0
+
+    #User response time for previous question (clustered in 6 classes) (default 0)
+    tutoring_state[RESPONSE_TIME] = 0
+    #User response time for 2nd to last question (clustered in 6 classes) (default 0)
+    tutoring_state[RESPONSE_TIME_LAST] = 0
+    #User response time for 3rd to last question (clustered in 6 classes) (default 0)
+    tutoring_state[RESPONSE_TIME_LAST_LAST] = 0
+
+    #Average user response time for all responses in current scenario so far (clustered in 6 classes) (default 0)
+    tutoring_state[AVG_RESPONSE_TIME] = 0
+    #Average user response time for correct responses in current scenario so far (clustered in 6 classes) (default 0)
+    tutoring_state[AVG_RESPONSE_TIME_CORRECT] = 0
+    #Average user response time for mixed responses in current scenario so far (clustered in 6 classes) (default 0)
+    tutoring_state[AVG_RESPONSE_TIME_MIXED] = 0
+    #Average user response time for incorrect responses in current scenario so far (clustered in 6 classes) (default 0)
+    tutoring_state[AVG_RESPONSE_TIME_INCORRECT] = 0
+
+# copies value of context from previous scenario
+# to initialize these entries, first initialize scenario context then use this function
+# to copy those default values.
+def init_prev_scenario_context():
+    #Score in previous scenario (clustered in 6 classes) (default 0)
+    tutoring_state[SCORE_PREV] = tutoring_state[SCORE]
+    #Number of responses in previous scenario (clustered in 6 classes) (default 0)
+    tutoring_state[NUMBER_OF_RESPONSE_PREV] = tutoring_state[NUMBER_OF_RESPONSE]
+    #Number of correct responses in previous scenario (clustered in 6 classes) (default 0)
+    tutoring_state[NUMBER_OF_CORRECT_PREV] = tutoring_state[NUMBER_OF_CORRECT]
+    #Number of mixed responses in previous scenario (clustered in 6 classes) (default 0)
+    tutoring_state[NUMBER_OF_MIXED_PREV] = tutoring_state[NUMBER_OF_MIXED]
+    #Number of incorrect responses in previous scenario (clustered in 6 classes) (default 0)
+    tutoring_state[NUMBER_OF_INCORRECT_PREV] = tutoring_state[NUMBER_OF_INCORRECT]
+    #Average user response time for all responses in previous scenario (clustered in 6 classes) (default 0)
+    tutoring_state[AVG_RESPONSE_TIME_PREV] = tutoring_state[AVG_RESPONSE_TIME]
+    #Average user response time for correct responses in previous scenario (clustered in 6 classes) (default 0)
+    tutoring_state[AVG_RESPONSE_TIME_CORRECT_PREV] = tutoring_state[AVG_RESPONSE_TIME_CORRECT]
+    #Average user response time for mixed responses in previous scenario (clustered in 6 classes) (default 0)
+    tutoring_state[AVG_RESPONSE_TIME_MIXED_PREV] = tutoring_state[AVG_RESPONSE_TIME_MIXED]
+    #Average user response time for incorrect responses in previous scenario (clustered in 6 classes) (default 0)
+    tutoring_state[AVG_RESPONSE_TIME_INCORRECT_PREV] = tutoring_state[AVG_RESPONSE_TIME_INCORRECT]
+
+init_global_scenario_context()
+init_prev_scenario_context()
 
 #AAR item list
 AAR_item = {}
+
 
 # END initialization of global, module variables
 
@@ -85,7 +124,7 @@ class RLServiceMessaging(BaseService):
 
     #csvLog = LoggingService.CSVLoggingService("RLPlayerLog.csv")
     serializeMsg = BaseMessagingNode()
-    
+
     # initialize or reset object variables for local context
     def init_local_context(self):
         #recent locals for current
@@ -169,35 +208,11 @@ class RLServiceMessaging(BaseService):
                 
                 #set previous values 
                 tutoring_state[SCENARIO_NUMBER] = 2
-                tutoring_state[SCORE_PREV] = tutoring_state[SCORE]
-                tutoring_state[NUMBER_OF_RESPONSE_PREV] = tutoring_state[NUMBER_OF_RESPONSE]
-                tutoring_state[NUMBER_OF_CORRECT_PREV] = tutoring_state[NUMBER_OF_CORRECT]
-                tutoring_state[NUMBER_OF_MIXED_PREV] = tutoring_state[NUMBER_OF_MIXED]
-                tutoring_state[NUMBER_OF_INCORRECT_PREV] = tutoring_state[NUMBER_OF_INCORRECT]
-                tutoring_state[AVG_RESPONSE_TIME_PREV] = tutoring_state[AVG_RESPONSE_TIME]
-                tutoring_state[AVG_RESPONSE_TIME_CORRECT_PREV] = tutoring_state[AVG_RESPONSE_TIME_CORRECT]
-                tutoring_state[AVG_RESPONSE_TIME_MIXED_PREV] = tutoring_state[AVG_RESPONSE_TIME_MIXED]
-                tutoring_state[AVG_RESPONSE_TIME_INCORRECT_PREV] = tutoring_state[AVG_RESPONSE_TIME_INCORRECT]
+                init_prev_scenario_context()
                 
                 #reset current values
-                tutoring_state[QUALITY_ANSWER_LAST_LAST] = 0
-                tutoring_state[QUALITY_ANSWER_LAST] = 0
-                tutoring_state[QUALITY_ANSWER] = 0
-                tutoring_state[SCORE] = 0
-                tutoring_state[SEEN_BEFORE] = 0
-                tutoring_state[QUALITY_PREV_IF_SEEN] = 0
-                tutoring_state[NUMBER_OF_RESPONSE] = 0
-                tutoring_state[NUMBER_OF_CORRECT] = 0
-                tutoring_state[NUMBER_OF_INCORRECT] = 0
-                tutoring_state[NUMBER_OF_MIXED] = 0
-                tutoring_state[RESPONSE_TIME] = 0
-                tutoring_state[RESPONSE_TIME_LAST] = 0
-                tutoring_state[RESPONSE_TIME_LAST_LAST] = 0
-                tutoring_state[AVG_RESPONSE_TIME] = 0
-                tutoring_state[AVG_RESPONSE_TIME_CORRECT] = 0
-                tutoring_state[AVG_RESPONSE_TIME_INCORRECT] = 0
-                tutoring_state[AVG_RESPONSE_TIME_MIXED] = 0
-                
+                init_global_scenario_context()
+
                 # reset local variables
                 self.init_local_context()
             
@@ -303,8 +318,6 @@ class RLServiceMessaging(BaseService):
                 scr = tutoring_state[NUMBER_OF_CORRECT] + (0.5 * tutoring_state[NUMBER_OF_MIXED]) 
                 tutoring_state[SCORE] = self.interval.get(ceil(float(scr)),5)
                 
-                #update quality_state
-                tutoring_state[RESP_QUALITY_AFTER_RESPONSE] = self.quality_state[(tutoring_state[QUALITY_ANSWER], tutoring_state[AFTER_USERRESPONSE_STATE])]
         except:
             logInfo('{0} received RL Coach update message exception: {1}'.format(RL_SERVICE_NAME, self.messageToString(msg)), 2)
                        
