@@ -107,7 +107,6 @@ public class HTTPMessagingGateway extends MessagingGateway implements DataListen
 
 	@Override
 	public void disconnect() {
-		// TODO Auto-generated method stub
 		super.disconnect();
 		this.socketIO.stop();
 	}

@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 import Core.BaseMessagingNode;
+import Core.MessagingGateway;
 import Util.SerializationConvenience;
 import Util.SerializationFormatEnum;
 
@@ -56,7 +57,6 @@ public class ServiceLauncher {
 			services.put(config.getId(), service);
 		} catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException
 				| IllegalArgumentException | InvocationTargetException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
@@ -69,8 +69,8 @@ public class ServiceLauncher {
 
 			for (String connectionId : config.getNodes()) {
 				BaseMessagingNode connection = services.get(connectionId);
-				
-				if(connection != null)
+
+				if (connection != null)
 					service.addNode(connection);
 			}
 		}
@@ -115,6 +115,28 @@ public class ServiceLauncher {
 
 	public Map<String, BaseMessagingNode> getServices() {
 		return this.services;
+	}
+
+	public void stopService(String serviceName) {
+		if (this.services.containsKey(serviceName)) {
+			BaseMessagingNode serviceToStop = this.services.get(serviceName);
+
+			for (BaseMessagingNode connection : serviceToStop.getNodes()) {
+				// Remove connections to other services.
+				serviceToStop.onUnbindToNode(connection);
+				connection.onUnbindToNode(serviceToStop);
+			}
+
+			// If it's a gateway make sure to shut it down properly
+			if (serviceToStop instanceof MessagingGateway) {
+				MessagingGateway gateway = (MessagingGateway) serviceToStop;
+
+				gateway.disconnect();
+			}
+
+			// finally remove it from the list of services
+			this.services.remove(serviceName);
+		}
 	}
 
 }

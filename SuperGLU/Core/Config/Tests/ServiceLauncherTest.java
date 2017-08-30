@@ -18,6 +18,8 @@ public class ServiceLauncherTest {
 		
 		
 		Assert.assertEquals(2, launcher.getServices().size());
+		
+		launcher.stopService("socketIOGateway");
 	}
 
 	@Test
@@ -27,6 +29,21 @@ public class ServiceLauncherTest {
 		ServiceConfigurations configurations = launcher.readConfigurationFromFile("./SuperGLU/Core/Config/Tests/agentsConfig.json");
 		
 		Assert.assertEquals(2, configurations.getServiceConfigurationMap().size());
+		
+		
+	}
+	
+	
+	@Test
+	public void testShutdownActiveService()
+	{
+		ServiceLauncher launcher = new ServiceLauncher();
+		
+		ServiceConfigurations configurations = launcher.readConfigurationFromFile("./SuperGLU/Core/Config/Tests/agentsConfig.json");
+		
+		launcher.launchAndConnectAllServices(configurations);
+		
+		launcher.stopService("socketIOGateway");
 	}
 
 }
