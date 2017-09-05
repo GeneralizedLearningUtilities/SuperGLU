@@ -14,7 +14,8 @@ system which are:
 
 Version 1.x: August/September 2017 updates by Mark Core
 
-Consolidated everything into a single class. Moved reading of weights into constructor.
+Consolidated everything into a single class. Moved reading of weights into constructor. 
+Creates a log file, RLPlayerDiagnostics.txt for specific debug messages and warnings from this script.
 Prints warning if unknown action seen in weights.
 
 KNOWN ISSUES: 
@@ -24,7 +25,7 @@ KNOWN ISSUES:
 
 '''
 
-
+import sys
 import random as rand
 from datetime import datetime
 import csv,os
@@ -153,12 +154,25 @@ class RLServiceMessaging(BaseService):
         self.time_interval = {None:0, 0:1, 1:1, 2:1, 3:1, 4:1, 5:1, 6:2, 7:2, 8:2, 9:2, 10:2, 11:3, 12:3, 13:3, 14:3, 15:3, 16:4, 17:4, 18:4, 19:4, 20:4}
         self.quality_state = {(0,0):0, (0,1):1, (1,0):2, (1,1):3, (2,0):4, (2,1):5, (3,0):6, (3,1):7} #(quality,state)
 
-        #weights.csv policy file needs to be in the same directory as the Python process
         cur = os.getcwd()
+
+        #weights.csv policy file needs to be in the same directory as the Python process
         filepath = os.path.join(cur, 'weights.csv')
         with open(filepath, 'r') as f:
             reader = csv.reader(f)
             self.weights = list(reader)
+
+    def writeDiagnostic(self,msg_str):
+        cur = os.getcwd()
+        
+        # open RL log file "RLPlayerDiagnostics.txt" in the same directory as the Python process
+        # append msg_str (don't add any newline)
+        filepath = os.path.join(cur, "RLPlayerDiagnostics.txt")
+        try:
+            with open(filepath, 'a') as logfile:
+                logfile.write(msg_str)                
+        except:
+            print("WARNING: CANNOT OPEN DIAGNOSTICS LOG FILE. DIAGNOSTICS ENTRY NOT SAVED.")
 
     #Random policy for Coach
     def getRandomCoachAction(self):
@@ -172,7 +186,8 @@ class RLServiceMessaging(BaseService):
     def getTopCoachAction(self):
 
         action = {DO_NOTHING:0, HINT:0, FEEDBACK:0, FEEDBACK_HINT:0}
-        
+        logstr = ""
+
         #add weights for the state indicators set in tutoring_state
         for w in self.weights:
             if w[2] == DONOTHING:
@@ -188,11 +203,12 @@ class RLServiceMessaging(BaseService):
                 if tutoring_state[w[0]] == int(w[1]):
                     action[FEEDBACK_HINT] += float(w[3])
             else:
-                print("warning: unrecognized action in weights: " + w[2])
-                    
+                logstr = logstr + "warning: unrecognized action in weights: " + w[2] + "\n"
+
         #get best action
         top_action = max(action, key=action.get)
-        print("RL picked this coach action: " + top_action)
+        logstr = logstr + "RL picked this coach action: " + top_action + "\n"
+        self.writeDiagnostic(logstr)
         return top_action 
 
     # ************** UPDATE STATE METHODS ******************************
@@ -200,11 +216,12 @@ class RLServiceMessaging(BaseService):
     #update state with every message
     def updateStateRLCoach(self,msg):
         #state update on relevant messages
-        
+        logstr = ""
         try:
             #update scenario
             if BEGIN_AAR in msg.getVerb():
-                logInfo('{0} received scenario update message: {1}'.format(RL_SERVICE_NAME, self.messageToString(msg)), 2)
+                #logInfo('{0} received scenario update message: {1}'.format(RL_SERVICE_NAME, self.messageToString(msg)), 2)
+                logstr = logstr + "updateStateRLCoach: BEGIN_AAR msg.\n"
                 
                 #set previous values 
                 tutoring_state[SCENARIO_NUMBER] = 2
@@ -215,22 +232,28 @@ class RLServiceMessaging(BaseService):
 
                 # reset local variables
                 self.init_local_context()
+
+                logstr = logstr + str(tutoring_state) + "\n"
             
             #get Gender
             elif REGISTER_USER_INFO in msg.getVerb():
-                logInfo('{0} received gender update message: {1}'.format(RL_SERVICE_NAME, self.messageToString(msg)), 2)
+                #logInfo('{0} received gender update message: {1}'.format(RL_SERVICE_NAME, self.messageToString(msg)), 2)
+
                 gend = msg.getObject()
                 if gend ==  FEMALE:
                     tutoring_state[GENDER] = RFEMALE
                 elif gend == MALE:
                     tutoring_state[GENDER] = RMALE
+                logstr = logstr + "updateStateRLCoach: REGISTER_USER_INFO msg. Gender = " + str(tutoring_state[GENDER]) + "\n"
+                logstr = logstr + str(tutoring_state) + "\n"
             
             #update response time
             #verb should be GameLog, the object should be PracticeEnvironment and the result should be RandomizedChoices
-            if msg.getVerb() == GAME_LOG and msg.getObject() == PRACTICE_ENVIRONMENT and msg.getResult() == RANDOMIZED_CHOICES:
-                logInfo('{0} received start timestamp update message: {1}'.format(RL_SERVICE_NAME, self.messageToString(msg)), 2)
+            elif msg.getVerb() == GAME_LOG and msg.getObject() == PRACTICE_ENVIRONMENT and msg.getResult() == RANDOMIZED_CHOICES:
+                #logInfo('{0} received start timestamp update message: {1}'.format(RL_SERVICE_NAME, self.messageToString(msg)), 2)
                 self.start = msg.getTimestamp()
-                print("start = ",self.start)
+                logstr = logstr + "updateStateRLCoach: GAME_LOG, PRACTICE_ENVIRONMENT, RANDOMIZED_CHOICES msg. start = " + str(self.start) + "\n"
+                logstr = logstr + str(tutoring_state) + "\n"
             
             #once the participant answers
             elif TRANSCRIPT_UPDATE in msg.getVerb():
@@ -244,7 +267,7 @@ class RLServiceMessaging(BaseService):
                     self.questions.append(node)
             
                 #check if Chen's Utterances stored before
-                if tutoring_state[SCENARIO_NUMBER] == 2:
+                elif tutoring_state[SCENARIO_NUMBER] == 2:
                     logInfo('{0} received if seen before message: {1}'.format(RL_SERVICE_NAME, self.messageToString(msg)), 2)
                     node_id = msg.getContextValue(NODE_ID_CONTEXT_KEY)
                     for question in self.questions:
@@ -268,7 +291,7 @@ class RLServiceMessaging(BaseService):
                     frmt = "%Y-%m-%dT%H:%M:%S.%f"
                     self.time_taken = (datetime.strptime(self.end, frmt) - datetime.strptime(self.start, frmt)).seconds
                 else:
-                    print("WARNING: decision end seen, but not beginning")
+                    logstr = logstr + "WARNING: decision end seen, but not beginning\n"
                 
                 #get counts and averages
                 self.num_response = 1 if self.num_response is None else self.num_response + 1
@@ -312,16 +335,18 @@ class RLServiceMessaging(BaseService):
                     
                     self.questions[-1][1] = RCORRECT
                 else:
-                    print("Incorrect Correctness value")
+                    logstr = logstr + "WARNING: Incorrect Correctness value\n"
                 
                 #get score
                 scr = tutoring_state[NUMBER_OF_CORRECT] + (0.5 * tutoring_state[NUMBER_OF_MIXED]) 
                 tutoring_state[SCORE] = self.interval.get(ceil(float(scr)),5)
+                logstr = logstr + str(tutoring_state) + "\n"
                 
         except:
-            logInfo('{0} received RL Coach update message exception: {1}'.format(RL_SERVICE_NAME, self.messageToString(msg)), 2)
+            #logInfo('{0} received RL Coach update message exception: {1}'.format(RL_SERVICE_NAME, self.messageToString(msg)), 2)
+            logstr = logstr + 'Exception in updateStateRLCoach: ' + str(sys.exc_info()[0]) + '\n'
                        
-        print(tutoring_state)
+        self.writeDiagnostic(logstr)
     
     # randomly pick an AAR action for this decision
     def updateAARItem(self, item):
@@ -343,11 +368,11 @@ class RLServiceMessaging(BaseService):
 
     #update AAR item
     def updateStateRLAAR(self,msg):
-        
+        logstr = ""
         try:
             #if message is transcript update
             if TRANSCRIPT_UPDATE in msg.getVerb():
-                logInfo('{0} received AAR item update message: {1}'.format(RL_SERVICE_NAME, self.messageToString(msg)), 2)
+                #logInfo('{0} received AAR item update message: {1}'.format(RL_SERVICE_NAME, self.messageToString(msg)), 2)
                 item = int(msg.getContextValue(ORDER))
                 max_key = int(max(AAR_item.keys(), key=int) if AAR_item else 0)
                 if max_key == -1 or None:
@@ -358,20 +383,22 @@ class RLServiceMessaging(BaseService):
                     for i in range(diff):
                         missed_item = max_key+1+i
                         self.updateAARItem(missed_item)
-                print(item)
+                        logstr = logstr + "updating unseen AAR item " + str(missed_item) + " with value " + AAR_item[missed_item] + "\n"
                 
                 if msg.getResult() == CORRECT:
                     AAR_item[item] = SKIP
                 else:
                     self.updateNonCorrectAARItem(item)
-                print(AAR_item)
+                logstr = logstr + "updating AAR item " + str(item) + " with value " + AAR_item[item] + "\n"
             #if message informs the start of AAR
             elif BEGIN_AAR in msg.getVerb():
-                logInfo('{0} received AAR item final update message: {1}'.format(RL_SERVICE_NAME, self.messageToString(msg)), 2)
+                #logInfo('{0} received AAR item final update message: {1}'.format(RL_SERVICE_NAME, self.messageToString(msg)), 2)
                 AAR_item['-1'] = DONE
         except:
-            logInfo('{0} received RL AAR update message exception: {1}'.format(RL_SERVICE_NAME, self.messageToString(msg)), 2)
-    
+            #logInfo('{0} received RL AAR update message exception: {1}'.format(RL_SERVICE_NAME, self.messageToString(msg)), 2)
+            logstr = logstr + "Exception in updateStateRLAAR: " + str(sys.exc_info()[0]) + "\n"
+        self.writeDiagnostic(logstr)
+
     def getState(self):
         return tutoring_state   #can also be accessed directly as a global variable       
 
@@ -379,14 +406,17 @@ class RLServiceMessaging(BaseService):
     #receive message and take appropriate action by looking at the message attributes like verb         
     def receiveMessage(self, msg):
         super(RLServiceMessaging, self).receiveMessage(msg)
-        
+
+        logstr = ""
+                        
         #Check specific messages for AAR and Coach
         #if message asks for the next agenda item in AAR
         if GET_NEXT_AGENDA_ITEM in msg.getVerb():
             
+            logstr = logstr + "receiveMessage: GET_NEXT_AGENDA_ITEM msg.\n"
             #if AAR Item list reply as done
             if not AAR_item:
-                print('Empty AAR')
+                logstr = logstr + 'receiveMessage: send PERFORM_ACTION: DONE\n'
                 item = -1
                 action = DONE
             else:
@@ -395,10 +425,9 @@ class RLServiceMessaging(BaseService):
                     action = AAR_item[item]
                     #if skip don't reply
                     if action == SKIP:
-                        print('item skipped')
                         del AAR_item[item]
                     else:
-                        print('item ' + str(item) +' action ' + action)
+                        logstr = logstr + 'receiveMessage: send PERFORM_ACTION: ' + action + ' index= ' + str(item) + '\n'
                         #delete item and break
                         del AAR_item[item]
                         break
@@ -407,6 +436,7 @@ class RLServiceMessaging(BaseService):
             if action == SKIP:
                 item = -1
                 action = DONE
+                logstr = logstr + 'receiveMessage: send PERFORM_ACTION: DONE\n'
              
             #send message   
             reply_msg = self._createRequestReply(msg)
@@ -415,12 +445,13 @@ class RLServiceMessaging(BaseService):
             reply_msg.setObject(item)
             
             if reply_msg is not None:
-                logInfo('{0} is sending reply for AAR agenda item:{1}'.format(RL_SERVICE_NAME, self.messageToString(reply_msg)), 2)
+                #logInfo('{0} is sending reply for AAR agenda item:{1}'.format(RL_SERVICE_NAME, self.messageToString(reply_msg)), 2)
                 self.sendMessage(reply_msg)            
         
         #if Elite asks for coaching action
         elif REQUEST_COACHING_ACTIONS in msg.getVerb():
-            logInfo('{0} received request coaching action message: {1}'.format(RL_SERVICE_NAME, self.messageToString(msg)), 2)
+            #logInfo('{0} received request coaching action message: {1}'.format(RL_SERVICE_NAME, self.messageToString(msg)), 2)
+            logstr = logstr + 'receiveMessage: REQUEST_COACHING_ACTIONS msg.\n'
             
             #for random RL
             if self.experimentCondition=="A":
@@ -431,6 +462,7 @@ class RLServiceMessaging(BaseService):
                 try:
                     action = self.getTopCoachAction()
                 except:
+                    logstr = logstr + "Action set to DO_NOTHING. Exception in getTopCoachAction: " + str(sys.exc_info()[0]) + "\n"
                     action = DO_NOTHING
                 
             #send message   
@@ -439,15 +471,18 @@ class RLServiceMessaging(BaseService):
             reply_msg.setVerb(COACHING_ACTIONS)
             
             if reply_msg is not None:
-                logInfo('{0} is sending reply for coaching request:{1}'.format(RL_SERVICE_NAME, self.messageToString(reply_msg)), 2)
+                logstr = logstr + 'receiveMessage: send COACHING_ACTIONS: ' + action + '\n'
+                #logInfo('{0} is sending reply for coaching request:{1}'.format(RL_SERVICE_NAME, self.messageToString(reply_msg)), 2)
                 self.sendMessage(reply_msg)  
             
         #consider message for state update  - can also reuse TRANSCRIPT_UPDATE for correctness ???
         else:
-            logInfo('{0} received state update message: {1}'.format(RL_SERVICE_NAME, self.messageToString(msg)), 2)
+            #logInfo('{0} received state update message: {1}'.format(RL_SERVICE_NAME, self.messageToString(msg)), 2)
             
             #update RL AAR state based on the message
             self.updateStateRLAAR(msg)
             
             #update RL coach state based on the message
             self.updateStateRLCoach(msg)
+        
+        self.writeDiagnostic(logstr)
