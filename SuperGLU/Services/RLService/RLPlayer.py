@@ -152,7 +152,6 @@ class RLServiceMessaging(BaseService):
         #interval
         self.interval = {None:0, 0:1, 1:1, 2:1, 3:1, 4:1, 5:2, 6:2, 7:2, 8:2, 9:3, 10:3, 11:3, 12:3, 13:4, 14:4, 15:4, 16:4}
         self.time_interval = {None:0, 0:1, 1:1, 2:1, 3:1, 4:1, 5:1, 6:2, 7:2, 8:2, 9:2, 10:2, 11:3, 12:3, 13:3, 14:3, 15:3, 16:4, 17:4, 18:4, 19:4, 20:4}
-        self.quality_state = {(0,0):0, (0,1):1, (1,0):2, (1,1):3, (2,0):4, (2,1):5, (3,0):6, (3,1):7} #(quality,state)
 
         cur = os.getcwd()
 
@@ -207,7 +206,7 @@ class RLServiceMessaging(BaseService):
 
         #get best action
         top_action = max(action, key=action.get)
-        logstr = logstr + "RL picked this coach action: " + top_action + "\n"
+        #logstr = logstr + "RL picked this coach action: " + top_action + "\n"
         self.writeDiagnostic(logstr)
         return top_action 
 
@@ -257,8 +256,9 @@ class RLServiceMessaging(BaseService):
             
             #once the participant answers
             elif TRANSCRIPT_UPDATE in msg.getVerb():
-                logInfo('{0} received transcript update message: {1}'.format(RL_SERVICE_NAME, self.messageToString(msg)), 2)
-                
+                #logInfo('{0} received transcript update message: {1}'.format(RL_SERVICE_NAME, self.messageToString(msg)), 2)
+                logstr = logstr + self.messageToString(msg) + "\n"
+
                 #store unique ID of node
                 if tutoring_state[SCENARIO_NUMBER] == 1:
                     logInfo('{0} received question store message: {1}'.format(RL_SERVICE_NAME, self.messageToString(msg)), 2)
@@ -413,7 +413,7 @@ class RLServiceMessaging(BaseService):
         #if message asks for the next agenda item in AAR
         if GET_NEXT_AGENDA_ITEM in msg.getVerb():
             
-            logstr = logstr + "receiveMessage: GET_NEXT_AGENDA_ITEM msg.\n"
+            #logstr = logstr + "receiveMessage: GET_NEXT_AGENDA_ITEM msg.\n"
             #if AAR Item list reply as done
             if not AAR_item:
                 logstr = logstr + 'receiveMessage: send PERFORM_ACTION: DONE\n'
@@ -451,7 +451,7 @@ class RLServiceMessaging(BaseService):
         #if Elite asks for coaching action
         elif REQUEST_COACHING_ACTIONS in msg.getVerb():
             #logInfo('{0} received request coaching action message: {1}'.format(RL_SERVICE_NAME, self.messageToString(msg)), 2)
-            logstr = logstr + 'receiveMessage: REQUEST_COACHING_ACTIONS msg.\n'
+            #logstr = logstr + 'receiveMessage: REQUEST_COACHING_ACTIONS msg.\n'
             
             #for random RL
             if self.experimentCondition=="A":
