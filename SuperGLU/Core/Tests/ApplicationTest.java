@@ -5,6 +5,8 @@ import java.util.List;
 
 import Core.ActiveMQTopicConfiguration;
 import Core.ActiveMQTopicMessagingGateway;
+import Core.BaseMessage;
+import Core.BaseService;
 import Core.Message;
 import Core.SpeechActEnum;
 
@@ -33,10 +35,35 @@ public class ApplicationTest {
 		ActiveMQTopicMessagingGateway sender = new ActiveMQTopicMessagingGateway("sender", null, null, null, null, config);
 		ActiveMQTopicMessagingGateway receiver = new ActiveMQTopicMessagingGateway("receiver", null, null, null, null, config);
 		
+		class TestService extends BaseService
+		{
+			@Override
+			public void receiveMessage(BaseMessage msg)
+			{
+				super.receiveMessage(msg);
+				System.out.println("message received");
+			}
+			
+		}
+		
+		TestService service = new TestService();
+		
+		sender.addNode(service);
+		
+		
+		
 		
 		for(Message msg : messagesToSend)
 		{
 			sender.sendMessage(msg);
+		}
+		
+		
+		System.out.println("sending through another service");
+		
+		for (Message msg : messagesToSend)
+		{
+			service.sendMessage(msg);
 		}
 
 	}

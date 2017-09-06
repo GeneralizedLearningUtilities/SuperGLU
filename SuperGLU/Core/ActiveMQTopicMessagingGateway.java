@@ -149,6 +149,14 @@ public class ActiveMQTopicMessagingGateway extends MessagingGateway implements M
 					+ SerializationConvenience.serializeObject(msg, SerializationFormatEnum.JSON_FORMAT));
 		}
 	}
+	
+	
+	@Override
+	public void handleMessage(BaseMessage msg, String senderId) {
+		//We need to override this function so that we actually send messages from other services over activeMQ.
+		super.handleMessage(msg, senderId);
+		this.sendMessage(msg);
+	};
 
 	@Override
 	/**
