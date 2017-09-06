@@ -48,7 +48,7 @@ public class ActiveMQTopicMessagingGateway extends MessagingGateway implements M
 	// this is the identifier for SUPERGLU messages
 	public static final String SUPERGLU = "SUPERGLU_MSG";
 	// Identifier for virtual human messages
-	public static final String VHMSG = "VHMSG_MSG";
+	public static final String VHMSG = "VHMSG";
 	// Identifier for GIFT messages
 	public static final String GIFT = "GIFT_MSG";
 
@@ -178,9 +178,10 @@ public class ActiveMQTopicMessagingGateway extends MessagingGateway implements M
 			body = URLDecoder.decode(body, "UTF-8");
 			BaseMessage msg;
 			String msgType = jmsMessage.getStringProperty(ActiveMQTopicMessagingGateway.MESSAGETYPE);
+			String isVhmsg = jmsMessage.getStringProperty(ActiveMQTopicMessagingGateway.VHMSG);
 			if (msgType != null && msgType.equals(ActiveMQTopicMessagingGateway.SUPERGLU)) {
 				msg = (Message) SerializationConvenience.nativeizeObject(body, SerializationFormatEnum.JSON_FORMAT);
-			} else if (msgType != null && msgType.equals(ActiveMQTopicMessagingGateway.VHMSG)) {
+			} else if (isVhmsg != null) {
 				String[] tokenizedMsg = body.split(" ");
 				if (tokenizedMsg.length > 1) {// make sure that the VH message
 												// actually has a body
