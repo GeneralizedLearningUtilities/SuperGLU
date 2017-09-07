@@ -16,7 +16,7 @@ Version 1.x: August/September 2017 updates by Mark Core
 
 Consolidated everything into a single class. Moved reading of weights into constructor. 
 Creates a log file, RLPlayerDiagnostics.txt for specific debug messages and warnings from this script.
-Prints warning if unknown action seen in weights.
+Prints warning if unknown action or feature seen in weights.
 
 KNOWN ISSUES: 
   1. Although this is a class, it has many global variables so if you created multiple instances
@@ -42,8 +42,11 @@ from SuperGLU.Util.Representation.Classes import Speech
 RL_SERVICE_NAME = "RL Service"
 
 #tutoring state for RL coach
-tutoring_state = {  SCENARIO_NUMBER : 1,                  #Scenario number (1/2) (default 1)
-                    GENDER : RMALE,                       #gender of the participant (RMALE | RFEMALE) 
+tutoring_state = {  SCENARIO_NUMBER : 1,                  # Scenario number (1/2) (default 1)
+                    GENDER : RMALE,                       # gender of the participant (RMALE | RFEMALE) 
+                    AFTER_USERRESPONSE_STATE: 0,          # always 0.
+                    FINAL_STATE: 0,                       # always 0.
+                    RESP_QUALITY_AFTER_RESPONSE : 0       # quality_state(quality of answer,AFTER_USERRESPONSE_STATE)
                   }
 
 def init_global_scenario_context():
@@ -152,6 +155,7 @@ class RLServiceMessaging(BaseService):
         #interval
         self.interval = {None:0, 0:1, 1:1, 2:1, 3:1, 4:1, 5:2, 6:2, 7:2, 8:2, 9:3, 10:3, 11:3, 12:3, 13:4, 14:4, 15:4, 16:4}
         self.time_interval = {None:0, 0:1, 1:1, 2:1, 3:1, 4:1, 5:1, 6:2, 7:2, 8:2, 9:2, 10:2, 11:3, 12:3, 13:3, 14:3, 15:3, 16:4, 17:4, 18:4, 19:4, 20:4}
+        self.quality_state = {(0,0):0, (0,1):1, (1,0):2, (1,1):3, (2,0):4, (2,1):5, (3,0):6, (3,1):7} #(quality,state)
 
         cur = os.getcwd()
 
@@ -189,20 +193,23 @@ class RLServiceMessaging(BaseService):
 
         #add weights for the state indicators set in tutoring_state
         for w in self.weights:
-            if w[2] == DONOTHING:
-                if tutoring_state[w[0]] == int(w[1]):
-                    action[DO_NOTHING] += float(w[3])
-            elif w[2] == HINT:
-                if tutoring_state[w[0]] == int(w[1]):
-                    action[HINT] += float(w[3])
-            elif w[2] == FEEDBACK:
-                if tutoring_state[w[0]] == int(w[1]):
-                    action[FEEDBACK] += float(w[3])
-            elif w[2] == FEEDBACK_HINT:
-                if tutoring_state[w[0]] == int(w[1]):
-                    action[FEEDBACK_HINT] += float(w[3])
+            if (w[0] in tutoring_state):
+                if w[2] == DONOTHING:
+                    if tutoring_state[w[0]] == int(w[1]):
+                        action[DO_NOTHING] += float(w[3])
+                elif w[2] == HINT:
+                    if tutoring_state[w[0]] == int(w[1]):
+                        action[HINT] += float(w[3])
+                elif w[2] == FEEDBACK:
+                    if tutoring_state[w[0]] == int(w[1]):
+                        action[FEEDBACK] += float(w[3])
+                elif w[2] == FEEDBACK_HINT:
+                    if tutoring_state[w[0]] == int(w[1]):
+                        action[FEEDBACK_HINT] += float(w[3])
+                else:
+                    logstr = logstr + "warning: unrecognized action in weights: " + w[2] + "\n"
             else:
-                logstr = logstr + "warning: unrecognized action in weights: " + w[2] + "\n"
+                logstr = logstr + "warning: unrecognized feature in weights: " + w[0] + "\n"
 
         #get best action
         top_action = max(action, key=action.get)
@@ -337,6 +344,9 @@ class RLServiceMessaging(BaseService):
                 else:
                     logstr = logstr + "WARNING: Incorrect Correctness value\n"
                 
+                #update quality_state
+                tutoring_state[RESP_QUALITY_AFTER_RESPONSE] = self.quality_state[(tutoring_state[QUALITY_ANSWER], tutoring_state[AFTER_USERRESPONSE_STATE])]
+
                 #get score
                 scr = tutoring_state[NUMBER_OF_CORRECT] + (0.5 * tutoring_state[NUMBER_OF_MIXED]) 
                 tutoring_state[SCORE] = self.interval.get(ceil(float(scr)),5)
