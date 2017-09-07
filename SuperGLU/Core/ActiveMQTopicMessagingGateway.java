@@ -185,7 +185,18 @@ public class ActiveMQTopicMessagingGateway extends MessagingGateway implements M
 				String[] tokenizedMsg = body.split(" ");
 				if (tokenizedMsg.length > 1) {// make sure that the VH message
 												// actually has a body
-					msg = new VHMessage(null, null, tokenizedMsg[0], 1.0f, tokenizedMsg[1]);
+					String justTheBody = "";
+					
+					for(int ii = 1; ii < tokenizedMsg.length; ++ii)
+					{
+						if(ii == 1)
+							justTheBody = tokenizedMsg[ii];
+						else
+							justTheBody = justTheBody + " " + tokenizedMsg[ii];
+					}
+					
+					
+					msg = new VHMessage(null, null, tokenizedMsg[0], 1.0f, justTheBody);
 				} else {// otherwise just set the body to an empty string
 					msg = new VHMessage(null, null, tokenizedMsg[0], 1.0f, "");
 				}

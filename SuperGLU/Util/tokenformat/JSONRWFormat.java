@@ -286,9 +286,15 @@ public class JSONRWFormat extends TokenRWFormat {
 				storageTokenChildren.put(key, makeSerializable(value));
 			}
 			
-			processedStorageToken.put(dataAsStorageToken.getClassId(), storageTokenChildren);
-			
-			return processedStorageToken;
+			if(dataAsStorageToken.getClassId() != null)
+			{
+				processedStorageToken.put(dataAsStorageToken.getClassId(), storageTokenChildren);
+				return processedStorageToken;
+			}
+			else
+			{
+				return storageTokenChildren;
+			}
 		}
 		
 		throw new RuntimeException("Tried to serialize unserializeable object of type " + clazz.toString());
