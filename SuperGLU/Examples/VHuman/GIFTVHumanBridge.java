@@ -1,6 +1,5 @@
 package Examples.VHuman;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import Core.BaseMessage;
@@ -8,8 +7,6 @@ import Core.GIFTMessage;
 import Core.MessagingGateway;
 import Core.VHMessage;
 import Core.Config.ServiceConfiguration;
-import edu.usc.ict.vhmsg.MessageEvent;
-import edu.usc.ict.vhmsg.MessageListener;
 import edu.usc.ict.vhmsg.VHMsg;
 
 /**
@@ -68,10 +65,14 @@ public class GIFTVHumanBridge extends MessagingGateway {
 			BaseMessage convertedMessage = super.convertMessages(msg, GIFTMessage.class);
 
 			if (convertedMessage != null && convertedMessage instanceof GIFTMessage) {
-				this.sendMessage(convertedMessage);
+				vhmsg.sendMessage(convertedMessage.toString());
 			}
 
 			startVHuman((VHMessage) msg);
+		} else if (msg instanceof Core.Message){
+			
+			
+			
 		}
 	}
 
@@ -81,10 +82,10 @@ public class GIFTVHumanBridge extends MessagingGateway {
 
 		try {
 			if (vhMessage.getFirstWord().equals("vrComponent") && vhMessage.getBody().equals("nvb parser")) {
-				rt.exec("../VHuman/gift/02a-launch-unity-house.bat");
+				rt.exec("cmd /c start /D ..\\VHuman\\gift\\ 02a-launch-unity-house.bat");
 			}
 			if (vhMessage.getFirstWord().equals("vrSpeech") && vhMessage.getBody().equals("interp user0001 1 1.0 normal THEREMIN NOSFERATU THERMOCOUPLE PATRONUS"))
-				rt.exec("../VHuman/gift/03b-spawn-brad.bat");
+				rt.exec("cmd /c start /D ..\\VHuman\\gift\\ 03b-spawn-brad.bat");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

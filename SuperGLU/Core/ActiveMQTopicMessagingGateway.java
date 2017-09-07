@@ -152,11 +152,13 @@ public class ActiveMQTopicMessagingGateway extends MessagingGateway implements M
 	
 	
 	@Override
-	public void handleMessage(BaseMessage msg, String senderId) {
+	public void receiveMessage(BaseMessage msg) {
 		//We need to override this function so that we actually send messages from other services over activeMQ.
-		super.handleMessage(msg, senderId);
+		super.receiveMessage(msg);
 		this.sendMessage(msg);
 	};
+	
+	
 
 	@Override
 	/**
