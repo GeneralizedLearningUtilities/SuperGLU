@@ -140,6 +140,19 @@ class RLServiceMessaging(BaseService):
         self.end = None
         self.time_taken = None
 
+    def writeDiagnostic(self,msg_str):
+        cur = os.getcwd()
+        
+        # open RL log file "RLPlayerDiagnostics.txt" in the same directory as the Python process
+        # append msg_str (don't add any newline)
+        filepath = os.path.join(cur, "RLPlayerDiagnostics.txt")
+        try:
+            with open(filepath, 'a') as logfile:
+                logfile.write(msg_str)                
+        except:
+            print("ERROR: CANNOT OPEN DIAGNOSTICS LOG FILE. DIAGNOSTICS ENTRY NOT SAVED.")
+
+
     def __init__(self, experimentCondition="Default"):
         super().__init__()
 
@@ -157,6 +170,8 @@ class RLServiceMessaging(BaseService):
         self.time_interval = {None:0, 0:1, 1:1, 2:1, 3:1, 4:1, 5:1, 6:2, 7:2, 8:2, 9:2, 10:2, 11:3, 12:3, 13:3, 14:3, 15:3, 16:4, 17:4, 18:4, 19:4, 20:4}
         self.quality_state = {(0,0):0, (0,1):1, (1,0):2, (1,1):3, (2,0):4, (2,1):5, (3,0):6, (3,1):7} #(quality,state)
 
+        self.writeDiagnostic("new session. experimentCondition = " + self.experimentCondition + "\n")
+
         cur = os.getcwd()
 
         #weights.csv policy file needs to be in the same directory as the Python process
@@ -165,17 +180,6 @@ class RLServiceMessaging(BaseService):
             reader = csv.reader(f)
             self.weights = list(reader)
 
-    def writeDiagnostic(self,msg_str):
-        cur = os.getcwd()
-        
-        # open RL log file "RLPlayerDiagnostics.txt" in the same directory as the Python process
-        # append msg_str (don't add any newline)
-        filepath = os.path.join(cur, "RLPlayerDiagnostics.txt")
-        try:
-            with open(filepath, 'a') as logfile:
-                logfile.write(msg_str)                
-        except:
-            print("WARNING: CANNOT OPEN DIAGNOSTICS LOG FILE. DIAGNOSTICS ENTRY NOT SAVED.")
 
     #Random policy for Coach
     def getRandomCoachAction(self):
@@ -185,31 +189,55 @@ class RLServiceMessaging(BaseService):
         else:
             return DO_NOTHING
 
+    # ELITE Coaching policy
+    def getELITEcoachAction(self):
+        hint = False
+        feedback = False
+
+        if (tutoring_state[QUALITY_ANSWER] == RINCORRECT): 
+            hint = True
+            feedback = True
+        elif (tutoring_state[QUALITY_ANSWER] == RMIXED):
+            hint= True
+            performance = self.num_correct_response / self.num_response
+            if (performance < 0.6):
+                feedback = True
+
+        if (hint and feedback):
+            return GIVE_HINT_FEEDBACK
+        elif (hint):
+            return GIVE_HINT
+        elif (feedback):
+            return GIVE_FEEDBACK
+        else:
+            return DO_NOTHING
+
+
     #get top action from the trained policy for the coach   
     def getTopCoachAction(self):
 
-        action = {DO_NOTHING:0, HINT:0, FEEDBACK:0, FEEDBACK_HINT:0}
+        action = {DO_NOTHING:0, GIVE_HINT:0, GIVE_FEEDBACK:0, GIVE_HINT_FEEDBACK:0}
         logstr = ""
 
         #add weights for the state indicators set in tutoring_state
         for w in self.weights:
             if (w[0] in tutoring_state):
-                if w[2] == DONOTHING:
+                if w[2] == RDONOTHING:
                     if tutoring_state[w[0]] == int(w[1]):
                         action[DO_NOTHING] += float(w[3])
-                elif w[2] == HINT:
+                elif w[2] == RHINT:
                     if tutoring_state[w[0]] == int(w[1]):
-                        action[HINT] += float(w[3])
-                elif w[2] == FEEDBACK:
+                        action[GIVE_HINT] += float(w[3])
+                elif w[2] == RFEEDBACK:
                     if tutoring_state[w[0]] == int(w[1]):
-                        action[FEEDBACK] += float(w[3])
-                elif w[2] == FEEDBACK_HINT:
+                        action[GIVE_FEEDBACK] += float(w[3])
+                elif w[2] == RHINT_FEEDBACK:
                     if tutoring_state[w[0]] == int(w[1]):
-                        action[FEEDBACK_HINT] += float(w[3])
+                        action[GIVE_HINT_FEEDBACK] += float(w[3])
                 else:
-                    logstr = logstr + "warning: unrecognized action in weights: " + w[2] + "\n"
+                    logstr = logstr + "ERROR: unrecognized action in weights: " + w[2] + "\n"
             else:
-                logstr = logstr + "warning: unrecognized feature in weights: " + w[0] + "\n"
+                logstr = logstr + "ERROR: unrecognized feature in weights: " + w[0] + "\n"
 
         #get best action
         top_action = max(action, key=action.get)
@@ -298,7 +326,7 @@ class RLServiceMessaging(BaseService):
                     frmt = "%Y-%m-%dT%H:%M:%S.%f"
                     self.time_taken = (datetime.strptime(self.end, frmt) - datetime.strptime(self.start, frmt)).seconds
                 else:
-                    logstr = logstr + "WARNING: decision end seen, but not beginning\n"
+                    logstr = logstr + "ERROR: decision end seen, but not beginning\n"
                 
                 #get counts and averages
                 self.num_response = 1 if self.num_response is None else self.num_response + 1
@@ -342,7 +370,7 @@ class RLServiceMessaging(BaseService):
                     
                     self.questions[-1][1] = RCORRECT
                 else:
-                    logstr = logstr + "WARNING: Incorrect Correctness value\n"
+                    logstr = logstr + "ERROR: Incorrect Correctness value\n"
                 
                 #update quality_state
                 tutoring_state[RESP_QUALITY_AFTER_RESPONSE] = self.quality_state[(tutoring_state[QUALITY_ANSWER], tutoring_state[AFTER_USERRESPONSE_STATE])]
@@ -354,7 +382,7 @@ class RLServiceMessaging(BaseService):
                 
         except:
             #logInfo('{0} received RL Coach update message exception: {1}'.format(RL_SERVICE_NAME, self.messageToString(msg)), 2)
-            logstr = logstr + 'Exception in updateStateRLCoach: ' + str(sys.exc_info()[0]) + '\n'
+            logstr = logstr + 'ERROR: Exception in updateStateRLCoach: ' + str(sys.exc_info()[0]) + '\n'
                        
         self.writeDiagnostic(logstr)
     
@@ -406,7 +434,7 @@ class RLServiceMessaging(BaseService):
                 AAR_item['-1'] = DONE
         except:
             #logInfo('{0} received RL AAR update message exception: {1}'.format(RL_SERVICE_NAME, self.messageToString(msg)), 2)
-            logstr = logstr + "Exception in updateStateRLAAR: " + str(sys.exc_info()[0]) + "\n"
+            logstr = logstr + "ERROR: Exception in updateStateRLAAR: " + str(sys.exc_info()[0]) + "\n"
         self.writeDiagnostic(logstr)
 
     def getState(self):
@@ -465,14 +493,14 @@ class RLServiceMessaging(BaseService):
             
             #for random RL
             if self.experimentCondition=="A":
-                action = self.getRandomCoachAction()
+                action = self.getELITEcoachAction()
             
             else:
                 #for trained policy based RL
                 try:
                     action = self.getTopCoachAction()
                 except:
-                    logstr = logstr + "Action set to DO_NOTHING. Exception in getTopCoachAction: " + str(sys.exc_info()[0]) + "\n"
+                    logstr = logstr + "ERROR: Action set to DO_NOTHING. Exception in getTopCoachAction: " + str(sys.exc_info()[0]) + "\n"
                     action = DO_NOTHING
                 
             #send message   
