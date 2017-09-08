@@ -7,8 +7,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
-import java.util.logging.Level;
-
 import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.MessageConsumer;
@@ -38,6 +36,7 @@ public class ActiveMQTopicMessagingGateway extends MessagingGateway implements M
 	protected MessageConsumer consumer;
 	protected MessageProducer producer;
 	protected Session session;
+	protected MessageProducer vhProducer;
 
 	protected List<String> excludedTopics;
 
@@ -61,6 +60,10 @@ public class ActiveMQTopicMessagingGateway extends MessagingGateway implements M
 			session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
 			Destination dest = session.createTopic(ActiveMQTopicConfiguration.DEFAULT_TOPIC);
+
+			Destination dest2 = session.createTopic("DEFAULT_SCOPE");
+			this.vhProducer = session.createProducer(dest2);
+			
 			producer = session.createProducer(dest);
 			consumer = session.createConsumer(dest);
 			consumer.setMessageListener(this);
@@ -90,6 +93,10 @@ public class ActiveMQTopicMessagingGateway extends MessagingGateway implements M
 			this.producer = session.createProducer(dest);
 			this.consumer = session.createConsumer(dest);
 			consumer.setMessageListener(this);
+			
+			Destination dest2 = session.createTopic("DEFAULT_SCOPE");
+			this.vhProducer = session.createProducer(dest2);
+			
 			this.excludedTopics = activeMQConfig.getExcludedTopic();
 		} catch (JMSException e) {
 			e.printStackTrace();
@@ -138,11 +145,32 @@ public class ActiveMQTopicMessagingGateway extends MessagingGateway implements M
 	public void sendMessage(BaseMessage msg) {
 		super.sendMessage(msg);
 		try {
-			this.addContextDataToMsg(msg);
-			TextMessage activeMQMessage = session.createTextMessage(
+			if(msg instanceof Message)
+			{
+				this.addContextDataToMsg(msg);
+				TextMessage activeMQMessage = session.createTextMessage(
 					SerializationConvenience.serializeObject(msg, SerializationFormatEnum.JSON_FORMAT));
-			activeMQMessage.setStringProperty(MESSAGETYPE, SUPERGLU);
-			producer.send(activeMQMessage);
+				activeMQMessage.setStringProperty(MESSAGETYPE, SUPERGLU);
+				producer.send(activeMQMessage);
+			}
+			else if (msg instanceof GIFTMessage)
+			{
+				TextMessage activeMQMessage = session.createTextMessage(msg.toString());
+				activeMQMessage.setStringProperty(MESSAGETYPE, GIFT);
+				producer.send(activeMQMessage);
+			}
+			else if (msg instanceof VHMessage)
+			{
+				VHMessage vhMsg = (VHMessage) msg;
+				TextMessage activeMQMessage = session.createTextMessage(vhMsg.getFirstWord() + " " + vhMsg.getBody());
+				activeMQMessage.setStringProperty(VHMSG, VHMSG);
+				activeMQMessage.setStringProperty("ELVISH_SCOPE", "DEFAULT_SCOPE");
+				activeMQMessage.setStringProperty("MESSAGE_PREFIX", vhMsg.getFirstWord());
+				activeMQMessage.setStringProperty("VHMSG_VERSION", "1.0.0.0");
+				
+
+				vhProducer.send(activeMQMessage);
+			}
 		} catch (JMSException e) {
 			e.printStackTrace();
 			log.warn("Failed to Send Message to ActiveMQ:"

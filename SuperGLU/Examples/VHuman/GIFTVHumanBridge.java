@@ -23,6 +23,7 @@ public class GIFTVHumanBridge extends MessagingGateway {
 	public static final String BROKER_HOST_PARAM_KEY = "brokerHost";
 	public static final String BROKER_PORT_PARAM_KEY = "brokerPort";
 
+	//TODO: Remove this when we no longer need it.
 	protected VHMsg vhmsg;
 
 	public GIFTVHumanBridge(ServiceConfiguration config) {
@@ -49,23 +50,22 @@ public class GIFTVHumanBridge extends MessagingGateway {
 	@Override
 	public void receiveMessage(BaseMessage msg) {
 		super.receiveMessage(msg);
-
+		
+		
 		if (msg instanceof GIFTMessage) {
 
 			// attempt to convert the recieved message to a vhuman message.
 			BaseMessage convertedMessage = super.convertMessages(msg, VHMessage.class);
 
 			if (convertedMessage != null && convertedMessage instanceof VHMessage) {
-				VHMessage convertedVHMessage = (VHMessage) convertedMessage;
-
 				// send out the message if it was successfully converted.
-				vhmsg.sendMessage(convertedVHMessage.getFirstWord(), convertedVHMessage.getBody());
+				sendMessage(convertedMessage);
 			}
 		} else if (msg instanceof VHMessage) {
 			BaseMessage convertedMessage = super.convertMessages(msg, GIFTMessage.class);
 
 			if (convertedMessage != null && convertedMessage instanceof GIFTMessage) {
-				vhmsg.sendMessage(convertedMessage.toString());
+				sendMessage(convertedMessage);
 			}
 
 			startVHuman((VHMessage) msg);

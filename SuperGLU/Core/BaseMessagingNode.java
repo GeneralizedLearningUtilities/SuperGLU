@@ -72,7 +72,8 @@ public class BaseMessagingNode {
 
 	public void sendMessage(BaseMessage msg) {
 		log.debug(this.id + " is sending " + this.messageToString(msg));
-		this.distributeMessage(msg, this.getId());
+		String senderID = (String) msg.getContextValue(ORIGINATING_SERVICE_ID_KEY);
+		this.distributeMessage(msg, senderID);
 	}
 
 	/**
