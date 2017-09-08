@@ -1,5 +1,7 @@
 package Ontology.Mappings;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -30,6 +32,86 @@ public class MessageMapFactory
 {
     
     private static String NO_TEXT =  "no text available";
+    
+    
+    private static Map<String, String> superGLUVerbsToGIFTVerbsMap = new HashMap<>();
+    
+    
+    static
+    {
+    	superGLUVerbsToGIFTVerbsMap.put("COMPLETED", "LessonComplete");
+    }
+    
+    
+    protected static MessageTemplate buildGenericGIFTMessage() throws UnknownHostException
+    {
+    	List<Pair<FieldData, Object>> templateData = new ArrayList<>();
+    	
+    	List<Pair<Class<?>, String>> senderModuleTypePath = new ArrayList<>();
+    	senderModuleTypePath.add(new Pair<Class<?>, String>(StorageToken.class, GIFTMessage.PAYLOAD_KEY));
+    	senderModuleTypePath.add(new Pair<Class<?>, String>(String.class, "SenderModuleType"));
+    	FieldData senderModuleType = new NestedAtomic(senderModuleTypePath);
+    	
+    	templateData.add(new Pair<FieldData, Object>(senderModuleType, "VHMSGBridgeModule"));
+    	
+    	List<Pair<Class<?>, String>> senderQueueNamePath = new ArrayList<>();
+    	senderQueueNamePath.add(new Pair<Class<?>, String>(StorageToken.class, GIFTMessage.PAYLOAD_KEY));
+    	senderQueueNamePath.add(new Pair<Class<?>, String>(String.class, "SenderQueueName"));
+    	FieldData senderQueueName = new NestedAtomic(senderQueueNamePath);
+    	
+    	templateData.add(new Pair<FieldData, Object>(senderQueueName, "VHMSG_QUEUE:" + InetAddress.getLocalHost().getHostAddress() + ":Inbox"));
+    	
+    	List<Pair<Class<?>, String>> messageTypePath = new ArrayList<>();
+    	messageTypePath.add(new Pair<Class<?>, String>(StorageToken.class, GIFTMessage.PAYLOAD_KEY));
+    	messageTypePath.add(new Pair<Class<?>, String>(String.class, "Message_Type"));
+    	FieldData messageType = new NestedAtomic(messageTypePath);
+    	
+    	templateData.add(new Pair<FieldData, Object>(messageType, "ModuleStatus"));
+    	
+    	
+    	List<Pair<Class<?>, String>> needsACKPath = new ArrayList<>();
+    	needsACKPath.add(new Pair<Class<?>, String>(StorageToken.class, GIFTMessage.PAYLOAD_KEY));
+    	needsACKPath.add(new Pair<Class<?>, String>(String.class, "NeedsACK"));
+    	FieldData needsACK = new NestedAtomic(needsACKPath);
+    	
+    	templateData.add(new Pair<FieldData, Object>(needsACK, "false"));
+    	
+    	List<Pair<Class<?>, String>> timestampPath = new ArrayList<>();
+    	timestampPath.add(new Pair<Class<?>, String>(StorageToken.class, GIFTMessage.PAYLOAD_KEY));
+    	timestampPath.add(new Pair<Class<?>, String>(String.class, "Time_Stamp"));
+    	FieldData timeStamp = new NestedAtomic(timestampPath);
+    	
+    	templateData.add(new Pair<FieldData, Object>(timeStamp, 0));
+    	
+    	List<Pair<Class<?>, String>> sequenceNumberPath = new ArrayList<>();
+    	sequenceNumberPath.add(new Pair<Class<?>, String>(StorageToken.class, GIFTMessage.PAYLOAD_KEY));
+    	sequenceNumberPath.add(new Pair<Class<?>, String>(String.class, "SequenceNumber"));
+    	FieldData sequenceNumber = new NestedAtomic(sequenceNumberPath);
+    	
+    	templateData.add(new Pair<FieldData, Object>(sequenceNumber, 0));
+    	
+    	List<Pair<Class<?>, String>> senderModuleNamePath = new ArrayList<>();
+    	senderModuleNamePath.add(new Pair<Class<?>, String>(StorageToken.class, GIFTMessage.PAYLOAD_KEY));
+    	senderModuleNamePath.add(new Pair<Class<?>, String>(String.class, "SenderModuleName"));
+    	FieldData senderModuleName = new NestedAtomic(senderModuleNamePath);
+    	
+    	templateData.add(new Pair<FieldData, Object>(senderModuleName, 0));
+    	
+    	
+    	List<Pair<Class<?>, String>> destinationQueueNamePath = new ArrayList<>();
+    	destinationQueueNamePath.add(new Pair<Class<?>, String>(StorageToken.class, GIFTMessage.PAYLOAD_KEY));
+    	destinationQueueNamePath.add(new Pair<Class<?>, String>(String.class, "DestinationQueueName"));
+    	FieldData destinationQueueName = new NestedAtomic(destinationQueueNamePath);
+    	
+    	templateData.add(new Pair<FieldData, Object>(destinationQueueName, "VHMSG_QUEUE:" + InetAddress.getLocalHost().getHostAddress() + ":Inbox"));
+    	
+    	MessageTemplate result = new MessageTemplate(templateData);
+    	
+    	return result;
+    }
+    
+    
+    //protected static M
     
     protected static DataConverter buildVRExpressStorageDataConverter(int index)
     {

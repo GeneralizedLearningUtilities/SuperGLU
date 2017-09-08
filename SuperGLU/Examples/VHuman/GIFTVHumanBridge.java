@@ -23,28 +23,12 @@ public class GIFTVHumanBridge extends MessagingGateway {
 	public static final String BROKER_HOST_PARAM_KEY = "brokerHost";
 	public static final String BROKER_PORT_PARAM_KEY = "brokerPort";
 
-	//TODO: Remove this when we no longer need it.
-	protected VHMsg vhmsg;
-
 	public GIFTVHumanBridge(ServiceConfiguration config) {
 		super(config.getId(), null, null, null, null);
-
-		String brokerHost = (String) config.getParams().get(BROKER_HOST_PARAM_KEY);
-		int brokerPort = (int) config.getParams().get(BROKER_PORT_PARAM_KEY);
-
-		this.vhmsg = new VHMsg(brokerHost, Integer.toString(brokerPort), "DEFAULT_SCOPE");
-		this.vhmsg.openConnection();
-
 	}
 
 	public GIFTVHumanBridge(String brokerURL) {
 		super("GIFT_VHUMAN_BRIDGE", null, null, null, null);
-
-		String brokerHost = brokerURL.split(":")[1].split("//")[1];
-		String brokerPort = brokerURL.split(":")[2];
-
-		this.vhmsg = new VHMsg(brokerHost, brokerPort, "DEFAULT_SCOPE");
-		this.vhmsg.openConnection();
 	}
 
 	@Override
@@ -90,9 +74,5 @@ public class GIFTVHumanBridge extends MessagingGateway {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-	}
-
-	public void disconnect() {
-		vhmsg.closeConnection();
 	}
 }
