@@ -1,6 +1,7 @@
 package Examples.VHuman;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 
 import Core.BaseMessage;
 import Core.GIFTMessage;
@@ -23,12 +24,43 @@ public class GIFTVHumanBridge extends MessagingGateway {
 	public static final String BROKER_HOST_PARAM_KEY = "brokerHost";
 	public static final String BROKER_PORT_PARAM_KEY = "brokerPort";
 
+	public static final String GIFT_DOMAIN_SESSION_ID_KEY = "GIFTDomainSessionID";
+	public static final String GIFT_USER_NAME_KEY ="GIFTUserName";
+	public static final String GIFT_USER_ID_KEY = "GIFTUserID";
+	
 	public GIFTVHumanBridge(ServiceConfiguration config) {
 		super(config.getId(), null, null, null, null);
 	}
 
 	public GIFTVHumanBridge(String brokerURL) {
 		super("GIFT_VHUMAN_BRIDGE", null, null, null, null);
+	}
+	
+	
+	//TODO:Remove this hack ASAP.  Once the module is working properly we can destroy this.
+	private void addGIFTVariablesToContext(GIFTMessage msg)
+	{
+		BigDecimal sessionID = (BigDecimal) msg.getPayload().getItem("dsId", true, null);
+		
+		if(sessionID != null)
+		{
+			this.context.put(GIFT_DOMAIN_SESSION_ID_KEY, sessionID.intValue());
+		}
+		
+		BigDecimal userID = (BigDecimal)msg.getPayload().getItem("UserId", true, null);
+		
+		if(userID != null)
+		{
+			this.context.put(GIFT_USER_ID_KEY, userID.intValue());
+		}
+		
+		
+		String userName = (String)msg.getPayload().getItem("userName", true, null);
+		
+		if(userName != null)
+		{
+			this.context.put(GIFT_USER_NAME_KEY, userName);
+		}
 	}
 
 	@Override
@@ -38,6 +70,8 @@ public class GIFTVHumanBridge extends MessagingGateway {
 		
 		if (msg instanceof GIFTMessage) {
 
+			addGIFTVariablesToContext((GIFTMessage)msg);
+			
 			// attempt to convert the recieved message to a vhuman message.
 			BaseMessage convertedMessage = super.convertMessages(msg, VHMessage.class);
 

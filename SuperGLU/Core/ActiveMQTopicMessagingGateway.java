@@ -233,6 +233,12 @@ public class ActiveMQTopicMessagingGateway extends MessagingGateway implements M
 			} else if (msgType != null && msgType.equals(GIFT)) {
 				// need to figure out how to get all of the header properties
 				// (and if we actually need them).
+				
+				//Ignore ModuleStatus Messages.  They crowd things out.
+				if(body.contains("ModuleStatus"))
+					return;
+				
+				
 				StorageToken bodyAsStorageToken = SerializationConvenience.makeNative(body,
 						SerializationFormatEnum.JSON_FORMAT);
 				msg = new GIFTMessage(null, new HashMap<>(),
