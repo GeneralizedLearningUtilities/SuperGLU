@@ -1,5 +1,7 @@
 package Ontology.Mappings;
 
+import java.util.Map;
+
 import Util.StorageToken;
 
 /**
@@ -19,7 +21,7 @@ public interface FieldMap
      * @return the modified destination message
      * 
      */
-    public StorageToken applyMapping(StorageToken sourceMessage, StorageToken destinationMessage);
+    public StorageToken applyMapping(StorageToken sourceMessage, StorageToken destinationMessage, Map<String, Object> context);
     
     
     /**

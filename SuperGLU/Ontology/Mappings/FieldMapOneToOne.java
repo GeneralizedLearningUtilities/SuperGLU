@@ -8,127 +8,134 @@ package Ontology.Mappings;
  * @author tirthmehta
  */
 
+import java.util.Map;
+
 import Util.Serializable;
 import Util.SerializationConvenience;
 import Util.StorageToken;
 
-public class FieldMapOneToOne extends Serializable implements FieldMap
-{
-    public static final String FIELD_MAP_INFIELD_KEY = "inField";
-    public static final String FIELD_MAP_OUTFIELD_KEY = "outField";
+public class FieldMapOneToOne extends Serializable implements FieldMap {
+	public static final String FIELD_MAP_INFIELD_KEY = "inField";
+	public static final String FIELD_MAP_OUTFIELD_KEY = "outField";
 
-    protected FieldData inField;
-    protected FieldData outField;
-    
-    // CONSTRUCTORS
-    public FieldMapOneToOne()
-    {
-	super();
-	inField = null;
-	outField = null;
-    }
+	private static final String VARIABLE_IDENTIFIER = "~";
 
-    public FieldMapOneToOne(FieldData in, FieldData out)
-    {
-	super();
-	inField = in;
-	outField = out;
-    }
+	protected FieldData inField;
+	protected FieldData outField;
 
-    // GETTER AND SETTER METHODS FOR GETTING AND SETTING THE IN-FIELDS AND
-    // OUT-FIELDS RESPECTIVELY
+	// CONSTRUCTORS
+	public FieldMapOneToOne() {
+		super();
+		inField = null;
+		outField = null;
+	}
 
-    public void setInField(FieldData in)
-    {
-	inField = in;
-    }
+	public FieldMapOneToOne(FieldData in, FieldData out) {
+		super();
+		inField = in;
+		outField = out;
+	}
 
-    public FieldData getInField()
-    {
-	return inField;
-    }
+	// GETTER AND SETTER METHODS FOR GETTING AND SETTING THE IN-FIELDS AND
+	// OUT-FIELDS RESPECTIVELY
 
-    public FieldData getOutField()
-    {
-	return outField;
-    }
+	public void setInField(FieldData in) {
+		inField = in;
+	}
 
-    public void setOutField(FieldData out)
-    {
-	outField = out;
-    }
+	public FieldData getInField() {
+		return inField;
+	}
 
-    // Equality Operations
-    @Override
-    public boolean equals(Object otherObject)
-    {
-	if (!super.equals(otherObject))
-	    return false;
+	public FieldData getOutField() {
+		return outField;
+	}
 
-	if (!(otherObject instanceof FieldMapOneToOne))
-	    return false;
+	public void setOutField(FieldData out) {
+		outField = out;
+	}
 
-	FieldMapOneToOne other = (FieldMapOneToOne) otherObject;
+	// Equality Operations
+	@Override
+	public boolean equals(Object otherObject) {
+		if (!super.equals(otherObject))
+			return false;
 
-	if (!fieldIsEqual(this.inField, other.inField))
-	    return false;
+		if (!(otherObject instanceof FieldMapOneToOne))
+			return false;
 
-	if (!fieldIsEqual(this.outField, other.outField))
-	    return false;
-	
-	return true;
-    }
+		FieldMapOneToOne other = (FieldMapOneToOne) otherObject;
 
-    @Override
-    public int hashCode()
-    {
-	int result = super.hashCode();
-	int arbitraryPrimeNumber = 23;
+		if (!fieldIsEqual(this.inField, other.inField))
+			return false;
 
-	if (this.inField != null)
-	    result = result * arbitraryPrimeNumber + this.inField.hashCode();
-	if (this.outField != null)
-	    result = result * arbitraryPrimeNumber + this.outField.hashCode();
-	return result;
+		if (!fieldIsEqual(this.outField, other.outField))
+			return false;
 
-    }
+		return true;
+	}
 
-    // Serialization/Deserialization
-    @Override
-    public void initializeFromToken(StorageToken token)
-    {
-	super.initializeFromToken(token);
-	this.inField = (NestedAtomic) SerializationConvenience.untokenizeObject(token.getItem(FIELD_MAP_INFIELD_KEY));
-	this.outField = (NestedAtomic) SerializationConvenience.untokenizeObject(token.getItem(FIELD_MAP_OUTFIELD_KEY));
-    }
+	@Override
+	public int hashCode() {
+		int result = super.hashCode();
+		int arbitraryPrimeNumber = 23;
 
-    @Override
-    public StorageToken saveToToken()
-    {
-	StorageToken result = super.saveToToken();
-	result.setItem(FIELD_MAP_INFIELD_KEY, SerializationConvenience.tokenizeObject(this.inField));
-	result.setItem(FIELD_MAP_OUTFIELD_KEY, SerializationConvenience.tokenizeObject(this.outField));
-	return result;
-    }
+		if (this.inField != null)
+			result = result * arbitraryPrimeNumber + this.inField.hashCode();
+		if (this.outField != null)
+			result = result * arbitraryPrimeNumber + this.outField.hashCode();
+		return result;
 
-    /**
-     * apply the field mapping to an incoming StorageToken
-     * 
-     */
-    public StorageToken applyMapping(StorageToken sourceMessage, StorageToken destinationMessage)
-    {
-	Object data = this.inField.retrieveFieldData(sourceMessage);
-	this.outField.storeData(destinationMessage, data);
-	return destinationMessage;
-    }
+	}
 
-    @Override
-    public boolean doesMappingApply(StorageToken sourceMessage)
-    {
-	Object data = this.inField.retrieveFieldData(sourceMessage);
-	
-	return data != null;
-    }
-    
-    
+	// Serialization/Deserialization
+	@Override
+	public void initializeFromToken(StorageToken token) {
+		super.initializeFromToken(token);
+		this.inField = (NestedAtomic) SerializationConvenience.untokenizeObject(token.getItem(FIELD_MAP_INFIELD_KEY));
+		this.outField = (NestedAtomic) SerializationConvenience.untokenizeObject(token.getItem(FIELD_MAP_OUTFIELD_KEY));
+	}
+
+	@Override
+	public StorageToken saveToToken() {
+		StorageToken result = super.saveToToken();
+		result.setItem(FIELD_MAP_INFIELD_KEY, SerializationConvenience.tokenizeObject(this.inField));
+		result.setItem(FIELD_MAP_OUTFIELD_KEY, SerializationConvenience.tokenizeObject(this.outField));
+		return result;
+	}
+
+	/**
+	 * apply the field mapping to an incoming StorageToken
+	 * 
+	 */
+	public StorageToken applyMapping(StorageToken sourceMessage, StorageToken destinationMessage,
+			Map<String, Object> context) {
+		Object data = this.inField.retrieveFieldData(sourceMessage);
+		Object contextData = getContextData(data, context);
+		this.outField.storeData(destinationMessage, contextData);
+		return destinationMessage;
+	}
+
+	/**
+	 * Grab information from the context as needed
+	 */
+	public Object getContextData(Object data, Map<String, Object> context) {
+		Object result = data;
+
+		if (data instanceof String) {
+			String key = (String) data;
+			if (context.containsKey(key))
+				result = context.get(key);
+		}
+
+		return result;
+	}
+
+	@Override
+	public boolean doesMappingApply(StorageToken sourceMessage) {
+		Object data = this.inField.retrieveFieldData(sourceMessage);
+
+		return data != null;
+	}
+
 }

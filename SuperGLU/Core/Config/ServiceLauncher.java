@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import Core.BaseMessagingNode;
@@ -62,6 +61,10 @@ public class ServiceLauncher {
 
 	}
 
+	public void addContextToService(BaseMessagingNode service, String key, Object context) {
+		service.addToContext(key, context);
+	}
+
 	public void connectService(ServiceConfiguration config) {
 		BaseMessagingNode service = services.get(config.getId());
 
@@ -103,10 +106,8 @@ public class ServiceLauncher {
 			result = fileAsString.toString();
 
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 

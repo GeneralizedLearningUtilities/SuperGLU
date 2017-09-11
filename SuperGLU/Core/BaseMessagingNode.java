@@ -30,6 +30,7 @@ public class BaseMessagingNode {
 	protected Predicate<BaseMessage> conditions;
 	protected Map<String, BaseMessagingNode> nodes;
 	protected List<ExternalMessagingHandler> handlers;
+	protected Map<String, Object> context;
 
 	private static boolean CATCH_BAD_MESSAGES = false;
 
@@ -58,6 +59,8 @@ public class BaseMessagingNode {
 			this.handlers = handlers;
 		else
 			this.handlers = new ArrayList<>();
+		
+		this.context = new HashMap<>();
 
 	}
 
@@ -253,6 +256,19 @@ public class BaseMessagingNode {
 
 	public String getId() {
 		return this.id;
+	}
+
+	public Map<String, Object> getContext() {
+		return context;
+	}
+
+	public void setContext(Map<String, Object> context) {
+		this.context = context;
+	}
+	
+	public void addToContext(String key, Object value)
+	{
+		this.context.put(key, value);
 	}
 
 }
