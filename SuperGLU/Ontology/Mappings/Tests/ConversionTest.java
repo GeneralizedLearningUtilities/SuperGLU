@@ -7,7 +7,13 @@ import java.util.Map;
 
 import org.junit.Test;
 
+import Core.BaseMessage;
+import Core.GIFTMessage;
+import Core.Message;
 import Core.VHMessage;
+import Ontology.OntologyBroker;
+import Ontology.Mappings.MessageMapFactory;
+import Ontology.Mappings.MessageType;
 import Util.SerializationConvenience;
 import Util.SerializationFormatEnum;
 import Util.StorageToken;
@@ -16,41 +22,17 @@ import Util.StorageToken;
 public class ConversionTest {
 
 	@Test
-	public void test() {
+	public void testConvertCompletedMessage() {
 	
+		OntologyBroker broker = new OntologyBroker(MessageMapFactory.buildMessageMaps(), MessageMapFactory.buildDefaultMessageTemplates());
 		
-		String given="ScenarioName Being Heard (Interview 1)";
-		String first="ScenarioName";
-		System.out.println(given);
-		/*
-		String body="Being Heard (Interview 1)";
-		float version=0.0f;
-		HashMap<String,Object> hmap=new HashMap<String, Object>();
-		if(first.equals("ScenarioName"))
-		{
-			VHMessage v1=new VHMessage("100", hmap, first, version, body);	
-			
-			
-			StorageToken vhmsgToken=(StorageToken) SerializationConvenience.tokenizeObject(v1);
-			vhmsgToken.setId("FIRST_WORD_KEY");
-			vhmsgToken.setId("BODY_KEY");
-			
-			vhmsgToken.setItem("FIRST_WORD_KEY", first);
-			vhmsgToken.setItem("BODY_KEY", body);
-			//System.out.println(vhmsgToken.getItem("FIRST_WORD_KEY"));
-			
-			//OntologyConverter o=new OntologyConverter(vhmsgToken);
-			
-			
-			
+		Message completedMessage = new Message();
+		completedMessage.setVerb("Completed");
+	
+		 MessageType inMsgType = broker.buildMessageType(Message.class.getSimpleName(), "Completed", 1.0f, 1.0f);
+		 MessageType outMsgType = broker.buildMessageType(GIFTMessage.class.getSimpleName(), "", 1.0f, 1.0f);
 		
-		}*/
-		
-		
-		
-		
-		
-		
+		BaseMessage result = broker.findPathAndConvertMessage(completedMessage, inMsgType, outMsgType, null, true);
 		
 	}
 
