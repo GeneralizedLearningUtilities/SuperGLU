@@ -53,6 +53,7 @@ public abstract class TokenRWFormat {
 		VALID_ATOMIC_VALUE_TYPES.add(float.class);
 		VALID_ATOMIC_VALUE_TYPES.add(Number.class);
 		VALID_ATOMIC_VALUE_TYPES.add(String.class);
+		VALID_ATOMIC_VALUE_TYPES.add(Long.class);
 		VALID_ATOMIC_VALUE_TYPES.add(BigDecimal.class);
 		//VALID_ATOMIC_VALUE_TYPES.add(null);//Not sure if this should be here.  I don't think so.
 	}

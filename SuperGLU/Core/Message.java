@@ -42,7 +42,7 @@ public class Message extends BaseMessage {
 	public static final String CONTEXT_REPLY_BY_KEY = "reply-by";
 	
 	
-	private static DateFormat timestampFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
+	public static DateFormat timestampFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
 	
     /**
      * The actor performing the verb

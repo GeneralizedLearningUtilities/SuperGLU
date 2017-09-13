@@ -43,6 +43,7 @@ public class JSONRWFormat extends TokenRWFormat {
 		NAME_MAPPING.put("tuple", List.class);
 		NAME_MAPPING.put("list", List.class);
 		NAME_MAPPING.put("map", Map.class);
+		NAME_MAPPING.put("long", Long.class);
 		
 		TYPE_MAPPING.put(Boolean.class, "bool");
 		TYPE_MAPPING.put(String.class, "unicode");
@@ -52,6 +53,7 @@ public class JSONRWFormat extends TokenRWFormat {
 		TYPE_MAPPING.put(Short.class, "int");
 		TYPE_MAPPING.put(Integer.class, "int");
 		TYPE_MAPPING.put(List.class, "list");
+		TYPE_MAPPING.put(Long.class, "long");
 		TYPE_MAPPING.put(Map.class, "map");
 		
 	}

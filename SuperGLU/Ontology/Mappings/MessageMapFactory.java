@@ -252,7 +252,7 @@ public class MessageMapFactory {
     }
     
     
-    protected static List<FieldMap> buildCompletedToLessonCompleteFieldMappings()
+    protected static List<FieldMap> buildDomainSessionMappings()
     {
     	List<FieldMap> result = new ArrayList<>();
 
@@ -289,7 +289,7 @@ public class MessageMapFactory {
                 Message.class.getSimpleName());
         MessageType outMsg = new MessageType("LessonComplete", 1.0f, 1.0f, buildLessonCompleteMessageTemplate(),
                 GIFTMessage.class.getSimpleName());
-        MessageMap result = new MessageMap(inMsg, outMsg, buildCompletedToLessonCompleteFieldMappings());
+        MessageMap result = new MessageMap(inMsg, outMsg, buildDomainSessionMappings());
         return result;
     }
 
