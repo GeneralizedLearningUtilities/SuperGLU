@@ -174,7 +174,7 @@ public class OntologyBroker {
 		StorageToken currentForm = (StorageToken) SerializationConvenience.tokenizeObject(msg);
 
 		for (MessageMap currentMap : path) {
-			if (currentMap.isValidSourceMsg(currentForm)) {
+			if (currentMap.isValidSourceMsg(currentForm, context)) {
 				currentForm = currentMap.convert(currentForm, context);
 			}
 		}

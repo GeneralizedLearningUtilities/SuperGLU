@@ -27,5 +27,5 @@ public interface FieldMap
     /**
      * determine if mapping can apply to the current sourceMessage
      */
-    public boolean doesMappingApply(StorageToken sourceMessage);
+    public boolean doesMappingApply(StorageToken sourceMessage, Map<String, Object> context);
 }

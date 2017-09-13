@@ -157,9 +157,9 @@ public class MessageMap extends Serializable {
 	 * THE FUNCTION NECESSARY FOR CHECKING WHETHER THE MESSAGE INOUT TOKEN
 	 * COMING IN HAS A VALID MATCH WITH THE AVAIALABLE SET OF MAPPINGS
 	 */
-	public boolean isValidSourceMsg(StorageToken input) {
+	public boolean isValidSourceMsg(StorageToken input, Map<String, Object> context) {
 		for (FieldMap currentFieldMap : this.fieldMappings) {
-			if (!currentFieldMap.doesMappingApply(input))
+			if (!currentFieldMap.doesMappingApply(input, context))
 				return false;
 		}
 

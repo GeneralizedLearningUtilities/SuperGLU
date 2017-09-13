@@ -30,6 +30,10 @@ public class GIFTVHumanBridge extends MessagingGateway {
 	
 	public GIFTVHumanBridge(ServiceConfiguration config) {
 		super(config.getId(), null, null, null, null);
+		
+		this.context.put(GIFT_DOMAIN_SESSION_ID_KEY, 0);
+		this.context.put(GIFT_USER_ID_KEY, 0);
+	//	this.context.put(GIFT_DOMAIN_SESSION_ID_KEY, sessionID.intValue());
 	}
 
 	public GIFTVHumanBridge(String brokerURL) {
@@ -89,6 +93,11 @@ public class GIFTVHumanBridge extends MessagingGateway {
 			startVHuman((VHMessage) msg);
 		} else if (msg instanceof Core.Message){
 			
+			BaseMessage convertedMessage = super.convertMessages(msg, GIFTMessage.class);
+
+			if (convertedMessage != null && convertedMessage instanceof GIFTMessage) {
+				sendMessage(convertedMessage);
+			}
 			
 			
 		}

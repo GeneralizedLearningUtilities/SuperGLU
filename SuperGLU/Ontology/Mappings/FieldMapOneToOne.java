@@ -132,7 +132,7 @@ public class FieldMapOneToOne extends Serializable implements FieldMap {
 	}
 
 	@Override
-	public boolean doesMappingApply(StorageToken sourceMessage) {
+	public boolean doesMappingApply(StorageToken sourceMessage, Map<String, Object> context) {
 		Object data = this.inField.retrieveFieldData(sourceMessage);
 
 		return data != null;

@@ -155,8 +155,9 @@ public class ActiveMQTopicMessagingGateway extends MessagingGateway implements M
 			}
 			else if (msg instanceof GIFTMessage)
 			{
-				TextMessage activeMQMessage = session.createTextMessage(msg.toString());
+				TextMessage activeMQMessage = session.createTextMessage(((GIFTMessage)msg).getPayload().toString());
 				activeMQMessage.setStringProperty(MESSAGETYPE, GIFT);
+				activeMQMessage.setByteProperty("Encoding", (byte) 0);
 				producer.send(activeMQMessage);
 			}
 			else if (msg instanceof VHMessage)
@@ -236,8 +237,9 @@ public class ActiveMQTopicMessagingGateway extends MessagingGateway implements M
 				
 				//Ignore ModuleStatus Messages.  They crowd things out.
 				if(body.contains("ModuleStatus"))
+				{
 					return;
-				
+				}
 				
 				StorageToken bodyAsStorageToken = SerializationConvenience.makeNative(body,
 						SerializationFormatEnum.JSON_FORMAT);

@@ -58,7 +58,7 @@ public class MessageMapFactory {
         needsACKPath.add(new Pair<Class<?>, String>(String.class, "NeedsACK"));
         FieldData needsACK = new NestedAtomic(needsACKPath);
 
-        templateData.add(new Pair<FieldData, Object>(needsACK, "false"));
+        templateData.add(new Pair<FieldData, Object>(needsACK, false));
 
 
         List<Pair<Class<?>, String>> timestampPath = new ArrayList<>();
@@ -250,6 +250,38 @@ public class MessageMapFactory {
 
         return result;
     }
+    
+    
+    protected static List<FieldMap> buildCompletedToLessonCompleteFieldMappings()
+    {
+    	List<FieldMap> result = new ArrayList<>();
+
+        List<Pair<Class<?>, String>> dsIDPath = new ArrayList<>();
+        dsIDPath.add(new Pair<Class<?>, String>(StorageToken.class, GIFTMessage.PAYLOAD_KEY));
+        dsIDPath.add(new Pair<Class<?>, String>(String.class, "SessionId"));
+        FieldData dsId = new NestedAtomic(dsIDPath);
+        
+        FieldMap domainSessionID = new FieldMapContextToOne(GIFTVHumanBridge.GIFT_DOMAIN_SESSION_ID_KEY, dsId);
+        result.add(domainSessionID);
+        
+        List<Pair<Class<?>, String>> userIDPath = new ArrayList<>();
+        userIDPath.add(new Pair<Class<?>, String>(StorageToken.class, GIFTMessage.PAYLOAD_KEY));
+        userIDPath.add(new Pair<Class<?>, String>(String.class, "UserId"));
+        FieldData userId = new NestedAtomic(userIDPath);
+        
+        FieldMap userIdMap = new FieldMapContextToOne(GIFTVHumanBridge.GIFT_USER_ID_KEY, userId);
+        result.add(userIdMap);
+        
+        List<Pair<Class<?>, String>> userNamePath = new ArrayList<>();
+        userNamePath.add(new Pair<Class<?>, String>(StorageToken.class, GIFTMessage.PAYLOAD_KEY));
+        userNamePath.add(new Pair<Class<?>, String>(String.class, "userName"));
+        FieldData userName = new NestedAtomic(userNamePath);
+        
+        FieldMap userNameMap = new FieldMapContextToOne(GIFTVHumanBridge.GIFT_USER_NAME_KEY, userName);
+        result.add(userNameMap);
+        
+        return result;
+    }
 
 
     protected static MessageMap buildCompletedToLessonCompleteMapping() throws UnknownHostException {
@@ -257,7 +289,7 @@ public class MessageMapFactory {
                 Message.class.getSimpleName());
         MessageType outMsg = new MessageType("LessonComplete", 1.0f, 1.0f, buildLessonCompleteMessageTemplate(),
                 GIFTMessage.class.getSimpleName());
-        MessageMap result = new MessageMap(inMsg, outMsg, new ArrayList<>());
+        MessageMap result = new MessageMap(inMsg, outMsg, buildCompletedToLessonCompleteFieldMappings());
         return result;
     }
 
