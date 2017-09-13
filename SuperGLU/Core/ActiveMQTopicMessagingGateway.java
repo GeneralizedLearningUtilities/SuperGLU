@@ -238,6 +238,9 @@ public class ActiveMQTopicMessagingGateway extends MessagingGateway implements M
 				//Ignore ModuleStatus Messages.  They crowd things out.
 				if(body.contains("ModuleStatus"))
 				{
+					Message msg2 = new Message();
+					msg2.setVerb("Completed");
+					super.distributeMessage(msg2, this.id);
 					return;
 				}
 				

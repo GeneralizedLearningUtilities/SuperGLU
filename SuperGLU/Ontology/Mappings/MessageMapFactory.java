@@ -18,6 +18,8 @@ import Ontology.Converters.DataConverter;
 import Ontology.Converters.GetElementFromStringList;
 import Ontology.Converters.ListToString;
 import Ontology.Converters.StringToList;
+import Ontology.Converters.TimestampLongToString;
+import Ontology.Converters.TimestampStringToLong;
 import Ontology.Converters.XMLActWrapped;
 import Util.Pair;
 import Util.StorageToken;
@@ -111,7 +113,7 @@ public class MessageMapFactory {
         FieldData userName = new NestedAtomic(userNamePath);
 
         templateData.add(new Pair<FieldData, Object>(userName, GIFTVHumanBridge.GIFT_USER_NAME_KEY));
-
+        
         return result;
     }
 
@@ -279,6 +281,19 @@ public class MessageMapFactory {
         
         FieldMap userNameMap = new FieldMapContextToOne(GIFTVHumanBridge.GIFT_USER_NAME_KEY, userName);
         result.add(userNameMap);
+        
+        
+        List<Pair<Class<?>, String>> timestampPath = new ArrayList<>();
+        timestampPath.add(new Pair<Class<?>, String>(String.class, Message.TIMESTAMP_KEY));
+        NestedSubAtomic timestamp = new NestedSubAtomic(timestampPath, new TimestampLongToString(), new TimestampStringToLong());
+        
+        List<Pair<Class<?>, String>> outTimestampPath = new ArrayList<>();
+        outTimestampPath.add(new Pair<Class<?>, String>(StorageToken.class, GIFTMessage.PAYLOAD_KEY));
+        outTimestampPath.add(new Pair<Class<?>, String>(String.class, "Time_Stamp"));
+        FieldData outTimestamp = new NestedAtomic(outTimestampPath);
+        
+        FieldMap timestampMap = new FieldMapOneToOne(timestamp, outTimestamp);
+        result.add(timestampMap);
         
         return result;
     }
