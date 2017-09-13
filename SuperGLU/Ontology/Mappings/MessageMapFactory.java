@@ -3,6 +3,7 @@ package Ontology.Mappings;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -78,7 +79,7 @@ public class MessageMapFactory {
 		senderModuleNamePath.add(new Pair<Class<?>, String>(String.class, "SenderModuleName"));
 		FieldData senderModuleName = new NestedAtomic(senderModuleNamePath);
 
-		templateData.add(new Pair<FieldData, Object>(senderModuleName, 0));
+		templateData.add(new Pair<FieldData, Object>(senderModuleName, "VHMSGBridge_Module"));
 
 		
 
@@ -141,7 +142,111 @@ public class MessageMapFactory {
 		return result;
 
 	}
-
+	
+	
+	protected static MessageTemplate buildPerformanceAssessmentMessageTemplate() throws UnknownHostException
+	{
+		MessageTemplate result = buildGIFTDomainSessionMessageTemplate();
+		
+		List<Pair<FieldData, Object>> templateData = result.getDefaultFieldData();
+		
+		List<Pair<Class<?>, String>> assessmentNamePath = new ArrayList<>();
+		assessmentNamePath.add(new Pair<Class<?>, String>(StorageToken.class, GIFTMessage.PAYLOAD_KEY));
+		assessmentNamePath.add(new Pair<Class<?>, String>(StorageToken.class, "payload"));
+		assessmentNamePath.add(new Pair<Class<?>, String>(ArrayList.class, "tasks"));
+		assessmentNamePath.add(new Pair<Class<?>, String>(StorageToken.class, "0"));
+		assessmentNamePath.add(new Pair<Class<?>, String>(String.class, "attributeName"));
+		
+		FieldData assessmentName = new NestedAtomic(assessmentNamePath);
+		templateData.add(new Pair<>(assessmentName, "KC"));
+		
+		
+		List<Pair<Class<?>, String>> shortTermPath = new ArrayList<>();
+		shortTermPath.add(new Pair<Class<?>, String>(StorageToken.class, GIFTMessage.PAYLOAD_KEY));
+		shortTermPath.add(new Pair<Class<?>, String>(StorageToken.class, "payload"));
+		shortTermPath.add(new Pair<Class<?>, String>(ArrayList.class, "tasks"));
+		shortTermPath.add(new Pair<Class<?>, String>(StorageToken.class, "0"));
+		shortTermPath.add(new Pair<Class<?>, String>(String.class, "shortTerm"));
+		
+		FieldData shortTerm = new NestedAtomic(shortTermPath);
+		templateData.add(new Pair<>(shortTerm, "Unknown"));
+		
+		List<Pair<Class<?>, String>> stTimestampPath = new ArrayList<>();
+		stTimestampPath.add(new Pair<Class<?>, String>(StorageToken.class, GIFTMessage.PAYLOAD_KEY));
+		stTimestampPath.add(new Pair<Class<?>, String>(StorageToken.class, "payload"));
+		stTimestampPath.add(new Pair<Class<?>, String>(ArrayList.class, "tasks"));
+		stTimestampPath.add(new Pair<Class<?>, String>(StorageToken.class, "0"));
+		stTimestampPath.add(new Pair<Class<?>, String>(long.class, "shortTermTimestamp"));
+		
+		FieldData stTimestamp = new NestedAtomic(stTimestampPath);
+		templateData.add(new Pair<>(stTimestamp, new Date().getTime()));
+		
+		
+		List<Pair<Class<?>, String>> longTermPath = new ArrayList<>();
+		longTermPath.add(new Pair<Class<?>, String>(StorageToken.class, GIFTMessage.PAYLOAD_KEY));
+		longTermPath.add(new Pair<Class<?>, String>(StorageToken.class, "payload"));
+		longTermPath.add(new Pair<Class<?>, String>(ArrayList.class, "tasks"));
+		longTermPath.add(new Pair<Class<?>, String>(StorageToken.class, "0"));
+		longTermPath.add(new Pair<Class<?>, String>(String.class, "longTerm"));
+		
+		FieldData longTerm = new NestedAtomic(longTermPath);
+		templateData.add(new Pair<>(longTerm, "Unknown"));
+		
+		List<Pair<Class<?>, String>> ltTimestampPath = new ArrayList<>();
+		ltTimestampPath.add(new Pair<Class<?>, String>(StorageToken.class, GIFTMessage.PAYLOAD_KEY));
+		ltTimestampPath.add(new Pair<Class<?>, String>(StorageToken.class, "payload"));
+		ltTimestampPath.add(new Pair<Class<?>, String>(ArrayList.class, "tasks"));
+		ltTimestampPath.add(new Pair<Class<?>, String>(StorageToken.class, "0"));
+		ltTimestampPath.add(new Pair<Class<?>, String>(long.class, "longTermTimestamp"));
+		
+		FieldData ltTimestamp = new NestedAtomic(ltTimestampPath);
+		templateData.add(new Pair<>(ltTimestamp, new Date().getTime()));
+		
+		
+		List<Pair<Class<?>, String>> predictedTermPath = new ArrayList<>();
+		predictedTermPath.add(new Pair<Class<?>, String>(StorageToken.class, GIFTMessage.PAYLOAD_KEY));
+		predictedTermPath.add(new Pair<Class<?>, String>(StorageToken.class, "payload"));
+		predictedTermPath.add(new Pair<Class<?>, String>(ArrayList.class, "tasks"));
+		predictedTermPath.add(new Pair<Class<?>, String>(StorageToken.class, "0"));
+		predictedTermPath.add(new Pair<Class<?>, String>(String.class, "predicted"));
+		
+		FieldData predictedTerm = new NestedAtomic(predictedTermPath);
+		templateData.add(new Pair<>(predictedTerm, "Unknown"));
+		
+		List<Pair<Class<?>, String>> pTimestampPath = new ArrayList<>();
+		pTimestampPath.add(new Pair<Class<?>, String>(StorageToken.class, GIFTMessage.PAYLOAD_KEY));
+		pTimestampPath.add(new Pair<Class<?>, String>(StorageToken.class, "payload"));
+		pTimestampPath.add(new Pair<Class<?>, String>(ArrayList.class, "tasks"));
+		pTimestampPath.add(new Pair<Class<?>, String>(StorageToken.class, "0"));
+		pTimestampPath.add(new Pair<Class<?>, String>(long.class, "predictedTimestamp"));
+		
+		FieldData pTimestamp = new NestedAtomic(pTimestampPath);
+		templateData.add(new Pair<>(pTimestamp, new Date().getTime()));
+		
+		List<Pair<Class<?>, String>> idPath = new ArrayList<>();
+		idPath.add(new Pair<Class<?>, String>(StorageToken.class, GIFTMessage.PAYLOAD_KEY));
+		idPath.add(new Pair<Class<?>, String>(StorageToken.class, "payload"));
+		idPath.add(new Pair<Class<?>, String>(ArrayList.class, "tasks"));
+		idPath.add(new Pair<Class<?>, String>(StorageToken.class, "0"));
+		idPath.add(new Pair<Class<?>, String>(Integer.class, "id"));
+		
+		FieldData id = new NestedAtomic(idPath);
+		templateData.add(new Pair<>(id, 0));
+		
+		List<Pair<Class<?>, String>> clazzPath = new ArrayList<>();
+		clazzPath.add(new Pair<Class<?>, String>(StorageToken.class, GIFTMessage.PAYLOAD_KEY));
+		clazzPath.add(new Pair<Class<?>, String>(StorageToken.class, "payload"));
+		clazzPath.add(new Pair<Class<?>, String>(ArrayList.class, "tasks"));
+		clazzPath.add(new Pair<Class<?>, String>(StorageToken.class, "0"));
+		clazzPath.add(new Pair<Class<?>, String>(Integer.class, "performanceStateAttributeType"));
+		
+		FieldData clazz = new NestedAtomic(clazzPath);
+		templateData.add(new Pair<>(clazz, "TaskAssessment"));
+		
+		return result;
+	}
+	
+	
 	protected static MessageTemplate buildCompletedMessageTemplate() {
 		List<Pair<FieldData, Object>> templateData = new ArrayList<>();
 
@@ -154,6 +259,8 @@ public class MessageMapFactory {
 	}
 	
 	
+	
+	
 	protected static MessageMap buildCompletedToLessonCompleteMapping() throws UnknownHostException {
 		MessageType inMsg = new MessageType("Completed", 1.0f, 1.0f, buildCompletedMessageTemplate(),
 				Message.class.getSimpleName());
@@ -162,6 +269,7 @@ public class MessageMapFactory {
 		MessageMap result = new MessageMap(inMsg, outMsg, new ArrayList<>());
 		return result;
 	}
+	
 
 	protected static DataConverter buildVRExpressStorageDataConverter(int index) {
 		List<DataConverter> storageConverterList = new ArrayList<>();
