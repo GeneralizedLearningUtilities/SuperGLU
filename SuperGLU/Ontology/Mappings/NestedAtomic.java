@@ -242,14 +242,17 @@ public class NestedAtomic extends Serializable implements FieldData
 		
 		List<Object> containerAsList = (List<Object>) currentContainer;
 		int listIndex = Integer.parseInt(intermediateContainerData.getSecond());
-		nextContainer = containerAsList.get(listIndex);
+		
+		
 
-		if (nextContainer == null)
+		if(containerAsList.size() <= listIndex)
 		{
 		    Class<?> clazz = intermediateContainerData.getFirst();
 		    nextContainer = createNextContainer(clazz);
 		    containerAsList.add(listIndex, nextContainer);
 		}
+		
+		nextContainer = containerAsList.get(listIndex);
 
 	    } else if (currentContainer instanceof Map<?, ?>)
 	    {// This code will currently assume that the Map has a key of
