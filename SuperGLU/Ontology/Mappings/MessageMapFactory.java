@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import Core.GIFTMessage;
 import Core.Message;
@@ -127,98 +128,52 @@ public class MessageMapFactory {
 		
 		List<Pair<FieldData, Object>> templateData = result.getDefaultFieldData();
 		
-		List<Pair<Class<?>, String>> assessmentNamePath = new ArrayList<>();
-		assessmentNamePath.add(new Pair<Class<?>, String>(StorageToken.class, GIFTMessage.PAYLOAD_KEY));
-		assessmentNamePath.add(new Pair<Class<?>, String>(StorageToken.class, "payload"));
-		assessmentNamePath.add(new Pair<Class<?>, String>(ArrayList.class, "tasks"));
-		assessmentNamePath.add(new Pair<Class<?>, String>(StorageToken.class, "0"));
-		assessmentNamePath.add(new Pair<Class<?>, String>(String.class, "attributeName"));
+		List<Pair<Class<?>, String>> namePath = new ArrayList<>();
+		namePath.add(new Pair<Class<?>, String>(StorageToken.class, GIFTMessage.PAYLOAD_KEY));
+		namePath.add(new Pair<Class<?>, String>(ArrayList.class, "tasks"));
+		namePath.add(new Pair<Class<?>, String>(StorageToken.class, "0"));
+		namePath.add(new Pair<Class<?>, String>(String.class, "name"));
 		
-		FieldData assessmentName = new NestedAtomic(assessmentNamePath);
-		templateData.add(new Pair<>(assessmentName, "KC"));
-		
-		
-		List<Pair<Class<?>, String>> shortTermPath = new ArrayList<>();
-		shortTermPath.add(new Pair<Class<?>, String>(StorageToken.class, GIFTMessage.PAYLOAD_KEY));
-		shortTermPath.add(new Pair<Class<?>, String>(StorageToken.class, "payload"));
-		shortTermPath.add(new Pair<Class<?>, String>(ArrayList.class, "tasks"));
-		shortTermPath.add(new Pair<Class<?>, String>(StorageToken.class, "0"));
-		shortTermPath.add(new Pair<Class<?>, String>(String.class, "shortTerm"));
-		
-		FieldData shortTerm = new NestedAtomic(shortTermPath);
-		templateData.add(new Pair<>(shortTerm, "Unknown"));
-		
-		List<Pair<Class<?>, String>> stTimestampPath = new ArrayList<>();
-		stTimestampPath.add(new Pair<Class<?>, String>(StorageToken.class, GIFTMessage.PAYLOAD_KEY));
-		stTimestampPath.add(new Pair<Class<?>, String>(StorageToken.class, "payload"));
-		stTimestampPath.add(new Pair<Class<?>, String>(ArrayList.class, "tasks"));
-		stTimestampPath.add(new Pair<Class<?>, String>(StorageToken.class, "0"));
-		stTimestampPath.add(new Pair<Class<?>, String>(long.class, "shortTermTimestamp"));
-		
-		FieldData stTimestamp = new NestedAtomic(stTimestampPath);
-		templateData.add(new Pair<>(stTimestamp, new Date().getTime()));
+		FieldData name = new NestedAtomic(namePath);
+		templateData.add(new Pair<>(name, "KC"));
 		
 		
-		List<Pair<Class<?>, String>> longTermPath = new ArrayList<>();
-		longTermPath.add(new Pair<Class<?>, String>(StorageToken.class, GIFTMessage.PAYLOAD_KEY));
-		longTermPath.add(new Pair<Class<?>, String>(StorageToken.class, "payload"));
-		longTermPath.add(new Pair<Class<?>, String>(ArrayList.class, "tasks"));
-		longTermPath.add(new Pair<Class<?>, String>(StorageToken.class, "0"));
-		longTermPath.add(new Pair<Class<?>, String>(String.class, "longTerm"));
+		List<Pair<Class<?>, String>> assessmentPath = new ArrayList<>();
+		assessmentPath.add(new Pair<Class<?>, String>(StorageToken.class, GIFTMessage.PAYLOAD_KEY));
+		assessmentPath.add(new Pair<Class<?>, String>(ArrayList.class, "tasks"));
+		assessmentPath.add(new Pair<Class<?>, String>(StorageToken.class, "0"));
+		assessmentPath.add(new Pair<Class<?>, String>(String.class, "assessment"));
 		
-		FieldData longTerm = new NestedAtomic(longTermPath);
-		templateData.add(new Pair<>(longTerm, "Unknown"));
+		FieldData assessment = new NestedAtomic(assessmentPath);
+		templateData.add(new Pair<>(assessment, "Unknown"));
 		
-		List<Pair<Class<?>, String>> ltTimestampPath = new ArrayList<>();
-		ltTimestampPath.add(new Pair<Class<?>, String>(StorageToken.class, GIFTMessage.PAYLOAD_KEY));
-		ltTimestampPath.add(new Pair<Class<?>, String>(StorageToken.class, "payload"));
-		ltTimestampPath.add(new Pair<Class<?>, String>(ArrayList.class, "tasks"));
-		ltTimestampPath.add(new Pair<Class<?>, String>(StorageToken.class, "0"));
-		ltTimestampPath.add(new Pair<Class<?>, String>(long.class, "longTermTimestamp"));
+		List<Pair<Class<?>, String>> timePath = new ArrayList<>();
+		timePath.add(new Pair<Class<?>, String>(StorageToken.class, GIFTMessage.PAYLOAD_KEY));
+		timePath.add(new Pair<Class<?>, String>(ArrayList.class, "tasks"));
+		timePath.add(new Pair<Class<?>, String>(StorageToken.class, "0"));
+		timePath.add(new Pair<Class<?>, String>(long.class, "time"));
 		
-		FieldData ltTimestamp = new NestedAtomic(ltTimestampPath);
-		templateData.add(new Pair<>(ltTimestamp, new Date().getTime()));
-		
-		
-		List<Pair<Class<?>, String>> predictedTermPath = new ArrayList<>();
-		predictedTermPath.add(new Pair<Class<?>, String>(StorageToken.class, GIFTMessage.PAYLOAD_KEY));
-		predictedTermPath.add(new Pair<Class<?>, String>(StorageToken.class, "payload"));
-		predictedTermPath.add(new Pair<Class<?>, String>(ArrayList.class, "tasks"));
-		predictedTermPath.add(new Pair<Class<?>, String>(StorageToken.class, "0"));
-		predictedTermPath.add(new Pair<Class<?>, String>(String.class, "predicted"));
-		
-		FieldData predictedTerm = new NestedAtomic(predictedTermPath);
-		templateData.add(new Pair<>(predictedTerm, "Unknown"));
-		
-		List<Pair<Class<?>, String>> pTimestampPath = new ArrayList<>();
-		pTimestampPath.add(new Pair<Class<?>, String>(StorageToken.class, GIFTMessage.PAYLOAD_KEY));
-		pTimestampPath.add(new Pair<Class<?>, String>(StorageToken.class, "payload"));
-		pTimestampPath.add(new Pair<Class<?>, String>(ArrayList.class, "tasks"));
-		pTimestampPath.add(new Pair<Class<?>, String>(StorageToken.class, "0"));
-		pTimestampPath.add(new Pair<Class<?>, String>(long.class, "predictedTimestamp"));
-		
-		FieldData pTimestamp = new NestedAtomic(pTimestampPath);
-		templateData.add(new Pair<>(pTimestamp, new Date().getTime()));
+		FieldData time = new NestedAtomic(timePath);
+		templateData.add(new Pair<>(time, ""));
+	
 		
 		List<Pair<Class<?>, String>> idPath = new ArrayList<>();
 		idPath.add(new Pair<Class<?>, String>(StorageToken.class, GIFTMessage.PAYLOAD_KEY));
-		idPath.add(new Pair<Class<?>, String>(StorageToken.class, "payload"));
 		idPath.add(new Pair<Class<?>, String>(ArrayList.class, "tasks"));
 		idPath.add(new Pair<Class<?>, String>(StorageToken.class, "0"));
 		idPath.add(new Pair<Class<?>, String>(Integer.class, "id"));
 		
 		FieldData id = new NestedAtomic(idPath);
-		templateData.add(new Pair<>(id, 0));
+		templateData.add(new Pair<>(id, new Random().nextInt()));
 		
-		List<Pair<Class<?>, String>> clazzPath = new ArrayList<>();
-		clazzPath.add(new Pair<Class<?>, String>(StorageToken.class, GIFTMessage.PAYLOAD_KEY));
-		clazzPath.add(new Pair<Class<?>, String>(StorageToken.class, "payload"));
-		clazzPath.add(new Pair<Class<?>, String>(ArrayList.class, "tasks"));
-		clazzPath.add(new Pair<Class<?>, String>(StorageToken.class, "0"));
-		clazzPath.add(new Pair<Class<?>, String>(Integer.class, "performanceStateAttributeType"));
+		List<Pair<Class<?>, String>> clazzPath2 = new ArrayList<>();
+		clazzPath2.add(new Pair<Class<?>, String>(StorageToken.class, GIFTMessage.PAYLOAD_KEY));
+		clazzPath2.add(new Pair<Class<?>, String>(ArrayList.class, "tasks"));
+		clazzPath2.add(new Pair<Class<?>, String>(StorageToken.class, "0"));
+		clazzPath2.add(new Pair<Class<?>, String>(Integer.class, "assessmentType"));
 		
-		FieldData clazz = new NestedAtomic(clazzPath);
-		templateData.add(new Pair<>(clazz, "TaskAssessment"));
+		FieldData clazz2 = new NestedAtomic(clazzPath2);
+		templateData.add(new Pair<>(clazz2, "mil.arl.gift.common.TaskAssessment"));
 		
 		List<Pair<Class<?>, String>> messageTypePath = new ArrayList<>();
         messageTypePath.add(new Pair<Class<?>, String>(StorageToken.class, GIFTMessage.PAYLOAD_KEY));
@@ -321,64 +276,46 @@ public class MessageMapFactory {
     	List<FieldMap> result = buildDomainSessionMappings();
     	
     	SimpleFieldData object = new SimpleFieldData(Message.OBJECT_KEY);
+    	SimpleFieldData actor = new SimpleFieldData(Message.ACTOR_KEY);
     	SimpleFieldData superGLUResultField = new SimpleFieldData(Message.RESULT_KEY);
+        FieldData timestamp = new SimpleFieldData(Message.TIMESTAMP_KEY);
     	
     	List<Pair<Class<?>, String>> timestampPath = new ArrayList<>();
-        timestampPath.add(new Pair<Class<?>, String>(String.class, Message.TIMESTAMP_KEY));
-        NestedSubAtomic timestamp = new NestedSubAtomic(timestampPath, new TimestampLongToString(), new TimestampStringToLong());
+    	timestampPath.add(new Pair<Class<?>, String>(StorageToken.class, GIFTMessage.PAYLOAD_KEY));
+		timestampPath.add(new Pair<Class<?>, String>(ArrayList.class, "tasks"));
+		timestampPath.add(new Pair<Class<?>, String>(StorageToken.class, "0"));
+		timestampPath.add(new Pair<Class<?>, String>(long.class, "time"));
+		
+		FieldData giftTimestamp = new NestedAtomic(timestampPath);
     	
-    	List<Pair<Class<?>, String>> stTimestampPath = new ArrayList<>();
-    	stTimestampPath.add(new Pair<Class<?>, String>(StorageToken.class, GIFTMessage.PAYLOAD_KEY));
-		stTimestampPath.add(new Pair<Class<?>, String>(StorageToken.class, "payload"));
-		stTimestampPath.add(new Pair<Class<?>, String>(ArrayList.class, "tasks"));
-		stTimestampPath.add(new Pair<Class<?>, String>(StorageToken.class, "0"));
-		stTimestampPath.add(new Pair<Class<?>, String>(long.class, "shortTermTimestamp"));
+		FieldMap timestampToGIFTTimestamp = new FieldMapOneToOne(timestamp, giftTimestamp);
 		
-		FieldData stTimestamp = new NestedAtomic(stTimestampPath);
-    	
-		FieldMap timestampToSTTimestamp = new FieldMapOneToOne(timestamp, stTimestamp);
+		result.add(timestampToGIFTTimestamp);
 		
-		result.add(timestampToSTTimestamp);
-		
-		List<Pair<Class<?>, String>> ltTimestampPath = new ArrayList<>();
-		ltTimestampPath.add(new Pair<Class<?>, String>(StorageToken.class, GIFTMessage.PAYLOAD_KEY));
-		ltTimestampPath.add(new Pair<Class<?>, String>(StorageToken.class, "payload"));
-		ltTimestampPath.add(new Pair<Class<?>, String>(ArrayList.class, "tasks"));
-		ltTimestampPath.add(new Pair<Class<?>, String>(StorageToken.class, "0"));
-		ltTimestampPath.add(new Pair<Class<?>, String>(long.class, "longTermTimestamp"));
-		
-		FieldData ltTimestamp = new NestedAtomic(ltTimestampPath);
-		
-		FieldMap timeStamptoLTTimestamp = new FieldMapOneToOne(timestamp, ltTimestamp);
-		result.add(timeStamptoLTTimestamp);
-		
-		List<Pair<Class<?>, String>> pTimestampPath = new ArrayList<>();
-		pTimestampPath.add(new Pair<Class<?>, String>(StorageToken.class, GIFTMessage.PAYLOAD_KEY));
-		pTimestampPath.add(new Pair<Class<?>, String>(StorageToken.class, "payload"));
-		pTimestampPath.add(new Pair<Class<?>, String>(ArrayList.class, "tasks"));
-		pTimestampPath.add(new Pair<Class<?>, String>(StorageToken.class, "0"));
-		pTimestampPath.add(new Pair<Class<?>, String>(long.class, "predictedTimestamp"));
-		
-		FieldData pTimestamp = new NestedAtomic(pTimestampPath);
-		
-		FieldMap timeStamptoPredictedTimestamp = new FieldMapOneToOne(timestamp, pTimestamp);
-		result.add(timeStamptoPredictedTimestamp);
-		
-		List<Pair<Class<?>, String>> shortTermPath = new ArrayList<>();
-		shortTermPath.add(new Pair<Class<?>, String>(StorageToken.class, GIFTMessage.PAYLOAD_KEY));
-		shortTermPath.add(new Pair<Class<?>, String>(StorageToken.class, "payload"));
-		shortTermPath.add(new Pair<Class<?>, String>(ArrayList.class, "tasks"));
-		shortTermPath.add(new Pair<Class<?>, String>(StorageToken.class, "0"));
-		shortTermPath.add(new Pair<Class<?>, String>(String.class, "shortTerm"));
+		List<Pair<Class<?>, String>> assessmentPath = new ArrayList<>();
+		assessmentPath.add(new Pair<Class<?>, String>(StorageToken.class, GIFTMessage.PAYLOAD_KEY));
+		assessmentPath.add(new Pair<Class<?>, String>(ArrayList.class, "tasks"));
+		assessmentPath.add(new Pair<Class<?>, String>(StorageToken.class, "0"));
+		assessmentPath.add(new Pair<Class<?>, String>(String.class, "assessment"));
 		
 		List<String> assesmentLevelEnumValues = new ArrayList<>();
 		assesmentLevelEnumValues.add("BelowExpectation");
 		assesmentLevelEnumValues.add("AtExpectation");
 		assesmentLevelEnumValues.add("AboveExpectation");
 		
-		FieldData shortTerm = new NestedSubAtomic(shortTermPath, new FloatToEnum(assesmentLevelEnumValues, 0.0f, 100.0f), new DummyConverter());
-		FieldMap resultToShortTermMap = new FieldMapOneToOne(superGLUResultField, shortTerm);
+		FieldData assessment = new NestedSubAtomic(assessmentPath, new FloatToEnum(assesmentLevelEnumValues, 0.0f, 100.0f), new DummyConverter());
+		FieldMap resultToShortTermMap = new FieldMapOneToOne(superGLUResultField, assessment);
 		result.add(resultToShortTermMap);
+		
+		List<Pair<Class<?>, String>> assessmentNamePath = new ArrayList<>();
+		assessmentNamePath.add(new Pair<Class<?>, String>(StorageToken.class, GIFTMessage.PAYLOAD_KEY));
+		assessmentNamePath.add(new Pair<Class<?>, String>(ArrayList.class, "tasks"));
+		assessmentNamePath.add(new Pair<Class<?>, String>(StorageToken.class, "0"));
+		assessmentNamePath.add(new Pair<Class<?>, String>(String.class, "name"));
+		
+		FieldData assessmentName = new NestedAtomic(assessmentNamePath);
+		FieldMap objectToAssessmentName = new FieldMapOneToOne(actor, assessmentName);
+		result.add(objectToAssessmentName);
 		
     	return result;
     }

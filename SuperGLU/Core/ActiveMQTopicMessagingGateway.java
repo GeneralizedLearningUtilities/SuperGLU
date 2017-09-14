@@ -18,6 +18,10 @@ import javax.jms.TopicConnection;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.command.ActiveMQTopic;
+import org.json.simple.DeserializationException;
+import org.json.simple.JsonArray;
+import org.json.simple.JsonObject;
+import org.json.simple.Jsoner;
 
 import Core.Config.ServiceConfiguration;
 import Util.SerializationConvenience;
@@ -139,6 +143,28 @@ public class ActiveMQTopicMessagingGateway extends MessagingGateway implements M
 			e.printStackTrace();
 		}
 	}
+	
+	
+	//TODO: burn this hack as soon as possible.
+	private String alterJSON(String msgAsString)
+	{
+		try {
+			JsonObject rawParseResults =  (JsonObject) Jsoner.deserialize(msgAsString);
+			JsonObject tasks = (JsonObject) rawParseResults.getOrDefault("tasks", null);
+			if(tasks != null)
+			{
+				JsonArray list = (JsonArray)tasks.getOrDefault("list", null);
+				rawParseResults.put("tasks", list);
+				String result = rawParseResults.toJson();
+				return result;
+			}	
+		} catch (DeserializationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return msgAsString;
+	}
 
 
 	@Override
@@ -155,7 +181,9 @@ public class ActiveMQTopicMessagingGateway extends MessagingGateway implements M
 			}
 			else if (msg instanceof GIFTMessage)
 			{
-				TextMessage activeMQMessage = session.createTextMessage(((GIFTMessage)msg).getPayload().toString());
+				String msgAsString = ((GIFTMessage)msg).getPayload().toString();
+				String alteredMsg = this.alterJSON(msgAsString);
+				TextMessage activeMQMessage = session.createTextMessage(alteredMsg);
 				activeMQMessage.setStringProperty(MESSAGETYPE, GIFT);
 				activeMQMessage.setByteProperty("Encoding", (byte) 0);
 				producer.send(activeMQMessage);
@@ -240,6 +268,8 @@ public class ActiveMQTopicMessagingGateway extends MessagingGateway implements M
 				{
 					//Message msg2 = new Message();
 					//msg2.setVerb("Completed");
+					//msg2.setResult(50.0);
+					//msg2.setObj("penguins");
 					//super.distributeMessage(msg2, this.id);
 					return;
 				}
