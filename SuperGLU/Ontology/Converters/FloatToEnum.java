@@ -22,8 +22,8 @@ public class FloatToEnum extends Serializable implements DataConverter {
 	
 	private List<String> enumValues;
 	
-	private float minFloatValue;
-	private float maxFloatValue;
+	private double minFloatValue;
+	private double maxFloatValue;
 	
 	
 	public FloatToEnum() {
@@ -75,8 +75,8 @@ public class FloatToEnum extends Serializable implements DataConverter {
 		int arbitraryPrimeNumber = 23;
 		if (this.enumValues != null)
 			result = result * arbitraryPrimeNumber + enumValues.hashCode();
-		result = result * arbitraryPrimeNumber + Float.hashCode(minFloatValue);
-		result = result * arbitraryPrimeNumber + Float.hashCode(maxFloatValue);
+		result = result * arbitraryPrimeNumber + Double.hashCode(minFloatValue);
+		result = result * arbitraryPrimeNumber + Double.hashCode(maxFloatValue);
 		return result;
 	}
 
@@ -107,15 +107,15 @@ public class FloatToEnum extends Serializable implements DataConverter {
 
 	@Override
 	public boolean isApplicable(Object input) {
-		return input != null && input instanceof Float && this.enumValues.size() > 0;
+		return input != null && input instanceof Double && this.enumValues.size() > 0;
 	}
 
 	@Override
 	public Object convert(Object input, Object context) {
 		
-		float in = (float) input;
+		double in = (double) context;
 		
-		float adjustedInput;
+		double adjustedInput;
 		
 		//This gives us a 0 - n scale.
 		if(this.minFloatValue <= 0)

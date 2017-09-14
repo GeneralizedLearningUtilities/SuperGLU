@@ -15,6 +15,8 @@ import Examples.VHuman.GIFTVHumanBridge;
 import Ontology.Converters.AddElementToStringList;
 import Ontology.Converters.CompoundConverter;
 import Ontology.Converters.DataConverter;
+import Ontology.Converters.DummyConverter;
+import Ontology.Converters.FloatToEnum;
 import Ontology.Converters.GetElementFromStringList;
 import Ontology.Converters.ListToString;
 import Ontology.Converters.StringToList;
@@ -147,6 +149,7 @@ public class MessageMapFactory {
 		templateData.add(new Pair<>(shortTerm, "Unknown"));
 		
 		List<Pair<Class<?>, String>> stTimestampPath = new ArrayList<>();
+		stTimestampPath.add(new Pair<Class<?>, String>(StorageToken.class, GIFTMessage.PAYLOAD_KEY));
 		stTimestampPath.add(new Pair<Class<?>, String>(StorageToken.class, "payload"));
 		stTimestampPath.add(new Pair<Class<?>, String>(ArrayList.class, "tasks"));
 		stTimestampPath.add(new Pair<Class<?>, String>(StorageToken.class, "0"));
@@ -216,6 +219,20 @@ public class MessageMapFactory {
 		
 		FieldData clazz = new NestedAtomic(clazzPath);
 		templateData.add(new Pair<>(clazz, "TaskAssessment"));
+		
+		List<Pair<Class<?>, String>> messageTypePath = new ArrayList<>();
+        messageTypePath.add(new Pair<Class<?>, String>(StorageToken.class, GIFTMessage.PAYLOAD_KEY));
+        messageTypePath.add(new Pair<Class<?>, String>(String.class, "Message_Type"));
+        FieldData messageType = new NestedAtomic(messageTypePath);
+
+        templateData.add(new Pair<FieldData, Object>(messageType, "PerformanceAssessment"));
+        
+        List<Pair<Class<?>, String>> destinationQueueNamePath = new ArrayList<>();
+        destinationQueueNamePath.add(new Pair<Class<?>, String>(StorageToken.class, GIFTMessage.PAYLOAD_KEY));
+        destinationQueueNamePath.add(new Pair<Class<?>, String>(String.class, "DestinationQueueName"));
+        FieldData destinationQueueName = new NestedAtomic(destinationQueueNamePath);
+
+        templateData.add(new Pair<FieldData, Object>(destinationQueueName, "Pedagogical_Queue:" + InetAddress.getLocalHost().getHostAddress() + ":Inbox"));
 		
 		return result;
 	}
@@ -297,14 +314,82 @@ public class MessageMapFactory {
         
         return result;
     }
+    
+    
+    protected static List<FieldMap> buildCompletedtoPerformanceAssessmentsMappings()
+    {
+    	List<FieldMap> result = buildDomainSessionMappings();
+    	
+    	SimpleFieldData object = new SimpleFieldData(Message.OBJECT_KEY);
+    	SimpleFieldData superGLUResultField = new SimpleFieldData(Message.RESULT_KEY);
+    	
+    	List<Pair<Class<?>, String>> timestampPath = new ArrayList<>();
+        timestampPath.add(new Pair<Class<?>, String>(String.class, Message.TIMESTAMP_KEY));
+        NestedSubAtomic timestamp = new NestedSubAtomic(timestampPath, new TimestampLongToString(), new TimestampStringToLong());
+    	
+    	List<Pair<Class<?>, String>> stTimestampPath = new ArrayList<>();
+    	stTimestampPath.add(new Pair<Class<?>, String>(StorageToken.class, GIFTMessage.PAYLOAD_KEY));
+		stTimestampPath.add(new Pair<Class<?>, String>(StorageToken.class, "payload"));
+		stTimestampPath.add(new Pair<Class<?>, String>(ArrayList.class, "tasks"));
+		stTimestampPath.add(new Pair<Class<?>, String>(StorageToken.class, "0"));
+		stTimestampPath.add(new Pair<Class<?>, String>(long.class, "shortTermTimestamp"));
+		
+		FieldData stTimestamp = new NestedAtomic(stTimestampPath);
+    	
+		FieldMap timestampToSTTimestamp = new FieldMapOneToOne(timestamp, stTimestamp);
+		
+		result.add(timestampToSTTimestamp);
+		
+		List<Pair<Class<?>, String>> ltTimestampPath = new ArrayList<>();
+		ltTimestampPath.add(new Pair<Class<?>, String>(StorageToken.class, GIFTMessage.PAYLOAD_KEY));
+		ltTimestampPath.add(new Pair<Class<?>, String>(StorageToken.class, "payload"));
+		ltTimestampPath.add(new Pair<Class<?>, String>(ArrayList.class, "tasks"));
+		ltTimestampPath.add(new Pair<Class<?>, String>(StorageToken.class, "0"));
+		ltTimestampPath.add(new Pair<Class<?>, String>(long.class, "longTermTimestamp"));
+		
+		FieldData ltTimestamp = new NestedAtomic(ltTimestampPath);
+		
+		FieldMap timeStamptoLTTimestamp = new FieldMapOneToOne(timestamp, ltTimestamp);
+		result.add(timeStamptoLTTimestamp);
+		
+		List<Pair<Class<?>, String>> pTimestampPath = new ArrayList<>();
+		pTimestampPath.add(new Pair<Class<?>, String>(StorageToken.class, GIFTMessage.PAYLOAD_KEY));
+		pTimestampPath.add(new Pair<Class<?>, String>(StorageToken.class, "payload"));
+		pTimestampPath.add(new Pair<Class<?>, String>(ArrayList.class, "tasks"));
+		pTimestampPath.add(new Pair<Class<?>, String>(StorageToken.class, "0"));
+		pTimestampPath.add(new Pair<Class<?>, String>(long.class, "predictedTimestamp"));
+		
+		FieldData pTimestamp = new NestedAtomic(pTimestampPath);
+		
+		FieldMap timeStamptoPredictedTimestamp = new FieldMapOneToOne(timestamp, pTimestamp);
+		result.add(timeStamptoPredictedTimestamp);
+		
+		List<Pair<Class<?>, String>> shortTermPath = new ArrayList<>();
+		shortTermPath.add(new Pair<Class<?>, String>(StorageToken.class, GIFTMessage.PAYLOAD_KEY));
+		shortTermPath.add(new Pair<Class<?>, String>(StorageToken.class, "payload"));
+		shortTermPath.add(new Pair<Class<?>, String>(ArrayList.class, "tasks"));
+		shortTermPath.add(new Pair<Class<?>, String>(StorageToken.class, "0"));
+		shortTermPath.add(new Pair<Class<?>, String>(String.class, "shortTerm"));
+		
+		List<String> assesmentLevelEnumValues = new ArrayList<>();
+		assesmentLevelEnumValues.add("BelowExpectation");
+		assesmentLevelEnumValues.add("AtExpectation");
+		assesmentLevelEnumValues.add("AboveExpectation");
+		
+		FieldData shortTerm = new NestedSubAtomic(shortTermPath, new FloatToEnum(assesmentLevelEnumValues, 0.0f, 100.0f), new DummyConverter());
+		FieldMap resultToShortTermMap = new FieldMapOneToOne(superGLUResultField, shortTerm);
+		result.add(resultToShortTermMap);
+		
+    	return result;
+    }
 
 
-    protected static MessageMap buildCompletedToLessonCompleteMapping() throws UnknownHostException {
+    protected static MessageMap buildCompletedToPerformanceAssessmentMapping() throws UnknownHostException {
         MessageType inMsg = new MessageType("Completed", 1.0f, 1.0f, buildCompletedMessageTemplate(),
                 Message.class.getSimpleName());
-        MessageType outMsg = new MessageType("LessonComplete", 1.0f, 1.0f, buildLessonCompleteMessageTemplate(),
+        MessageType outMsg = new MessageType("PerformanceAssessment", 1.0f, 1.0f, buildPerformanceAssessmentMessageTemplate(),
                 GIFTMessage.class.getSimpleName());
-        MessageMap result = new MessageMap(inMsg, outMsg, buildDomainSessionMappings());
+        MessageMap result = new MessageMap(inMsg, outMsg, buildCompletedtoPerformanceAssessmentsMappings());
         return result;
     }
 
@@ -505,7 +590,7 @@ public class MessageMapFactory {
         result.add(buildDisplayFeedbackTutorRequestToSuperGLU());
         result.add(buildGiveFeedBackToVHuman());
         try {
-            result.add(buildCompletedToLessonCompleteMapping());
+            result.add(buildCompletedToPerformanceAssessmentMapping());
         } catch (UnknownHostException e) {
             e.printStackTrace();
         }
