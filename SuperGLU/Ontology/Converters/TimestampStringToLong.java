@@ -18,7 +18,7 @@ public class TimestampStringToLong extends Serializable implements DataConverter
 
 	@Override
 	public Object convert(Object input, Object context) {
-		String in = (String) input;
+		String in = (String) context;
 		
 		try {
 			Date date = Message.timestampFormat.parse(in);

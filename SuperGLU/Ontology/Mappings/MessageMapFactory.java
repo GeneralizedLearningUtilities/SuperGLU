@@ -120,6 +120,66 @@ public class MessageMapFactory {
         return result;
     }
 
+    
+    protected static void buildConceptAssessmentTemplateData(List<Pair<FieldData, Object>> templateData)
+    {
+    	List<Pair<Class<?>, String>> namePath = new ArrayList<>();
+		namePath.add(new Pair<Class<?>, String>(StorageToken.class, GIFTMessage.PAYLOAD_KEY));
+		namePath.add(new Pair<Class<?>, String>(ArrayList.class, "tasks"));
+		namePath.add(new Pair<Class<?>, String>(StorageToken.class, "0"));
+		namePath.add(new Pair<Class<?>, String>(ArrayList.class, "concepts"));
+		namePath.add(new Pair<Class<?>, String>(StorageToken.class, "0"));
+		namePath.add(new Pair<Class<?>, String>(String.class, "name"));
+		
+		FieldData name = new NestedAtomic(namePath);
+		templateData.add(new Pair<>(name, "KC"));
+		
+		
+		List<Pair<Class<?>, String>> assessmentPath = new ArrayList<>();
+		assessmentPath.add(new Pair<Class<?>, String>(StorageToken.class, GIFTMessage.PAYLOAD_KEY));
+		assessmentPath.add(new Pair<Class<?>, String>(ArrayList.class, "tasks"));
+		assessmentPath.add(new Pair<Class<?>, String>(StorageToken.class, "0"));
+		assessmentPath.add(new Pair<Class<?>, String>(ArrayList.class, "concepts"));
+		assessmentPath.add(new Pair<Class<?>, String>(StorageToken.class, "0"));
+		assessmentPath.add(new Pair<Class<?>, String>(String.class, "assessment"));
+		
+		FieldData assessment = new NestedAtomic(assessmentPath);
+		templateData.add(new Pair<>(assessment, "Unknown"));
+		
+		List<Pair<Class<?>, String>> timePath = new ArrayList<>();
+		timePath.add(new Pair<Class<?>, String>(StorageToken.class, GIFTMessage.PAYLOAD_KEY));
+		timePath.add(new Pair<Class<?>, String>(ArrayList.class, "tasks"));
+		timePath.add(new Pair<Class<?>, String>(StorageToken.class, "0"));
+		timePath.add(new Pair<Class<?>, String>(ArrayList.class, "concepts"));
+		timePath.add(new Pair<Class<?>, String>(StorageToken.class, "0"));
+		timePath.add(new Pair<Class<?>, String>(long.class, "time"));
+		
+		FieldData time = new NestedAtomic(timePath);
+		templateData.add(new Pair<>(time, ""));
+	
+		
+		List<Pair<Class<?>, String>> idPath = new ArrayList<>();
+		idPath.add(new Pair<Class<?>, String>(StorageToken.class, GIFTMessage.PAYLOAD_KEY));
+		idPath.add(new Pair<Class<?>, String>(ArrayList.class, "tasks"));
+		idPath.add(new Pair<Class<?>, String>(StorageToken.class, "0"));
+		idPath.add(new Pair<Class<?>, String>(ArrayList.class, "concepts"));
+		idPath.add(new Pair<Class<?>, String>(StorageToken.class, "0"));
+		idPath.add(new Pair<Class<?>, String>(Integer.class, "id"));
+		
+		FieldData id = new NestedAtomic(idPath);
+		templateData.add(new Pair<>(id, new Random().nextInt(Integer.MAX_VALUE)));
+		
+		List<Pair<Class<?>, String>> clazzPath2 = new ArrayList<>();
+		clazzPath2.add(new Pair<Class<?>, String>(StorageToken.class, GIFTMessage.PAYLOAD_KEY));
+		clazzPath2.add(new Pair<Class<?>, String>(ArrayList.class, "tasks"));
+		clazzPath2.add(new Pair<Class<?>, String>(StorageToken.class, "0"));
+		clazzPath2.add(new Pair<Class<?>, String>(ArrayList.class, "concepts"));
+		clazzPath2.add(new Pair<Class<?>, String>(StorageToken.class, "0"));
+		clazzPath2.add(new Pair<Class<?>, String>(Integer.class, "assessmentType"));
+		
+		FieldData clazz2 = new NestedAtomic(clazzPath2);
+		templateData.add(new Pair<>(clazz2, "mil.arl.gift.common.ConceptAssessment"));
+    }
 	
 	
 	protected static MessageTemplate buildPerformanceAssessmentMessageTemplate() throws UnknownHostException
@@ -164,7 +224,7 @@ public class MessageMapFactory {
 		idPath.add(new Pair<Class<?>, String>(Integer.class, "id"));
 		
 		FieldData id = new NestedAtomic(idPath);
-		templateData.add(new Pair<>(id, new Random().nextInt()));
+		templateData.add(new Pair<>(id, new Random().nextInt(Integer.MAX_VALUE)));
 		
 		List<Pair<Class<?>, String>> clazzPath2 = new ArrayList<>();
 		clazzPath2.add(new Pair<Class<?>, String>(StorageToken.class, GIFTMessage.PAYLOAD_KEY));
@@ -189,6 +249,8 @@ public class MessageMapFactory {
 
         templateData.add(new Pair<FieldData, Object>(destinationQueueName, "Pedagogical_Queue:" + InetAddress.getLocalHost().getHostAddress() + ":Inbox"));
 		
+        buildConceptAssessmentTemplateData(templateData);
+        
 		return result;
 	}
 	
@@ -257,12 +319,12 @@ public class MessageMapFactory {
         
         List<Pair<Class<?>, String>> timestampPath = new ArrayList<>();
         timestampPath.add(new Pair<Class<?>, String>(String.class, Message.TIMESTAMP_KEY));
-        NestedSubAtomic timestamp = new NestedSubAtomic(timestampPath, new TimestampLongToString(), new TimestampStringToLong());
+        FieldData timestamp = new SimpleFieldData(Message.TIMESTAMP_KEY);
         
         List<Pair<Class<?>, String>> outTimestampPath = new ArrayList<>();
         outTimestampPath.add(new Pair<Class<?>, String>(StorageToken.class, GIFTMessage.PAYLOAD_KEY));
         outTimestampPath.add(new Pair<Class<?>, String>(String.class, "Time_Stamp"));
-        FieldData outTimestamp = new NestedAtomic(outTimestampPath);
+        FieldData outTimestamp = new NestedSubAtomic(outTimestampPath, new TimestampStringToLong(), new TimestampLongToString());
         
         FieldMap timestampMap = new FieldMapOneToOne(timestamp, outTimestamp);
         result.add(timestampMap);
@@ -275,7 +337,7 @@ public class MessageMapFactory {
     {
     	List<FieldMap> result = buildDomainSessionMappings();
     	
-    	SimpleFieldData object = new SimpleFieldData(Message.OBJECT_KEY);
+    	
     	SimpleFieldData actor = new SimpleFieldData(Message.ACTOR_KEY);
     	SimpleFieldData superGLUResultField = new SimpleFieldData(Message.RESULT_KEY);
         FieldData timestamp = new SimpleFieldData(Message.TIMESTAMP_KEY);
@@ -286,7 +348,7 @@ public class MessageMapFactory {
 		timestampPath.add(new Pair<Class<?>, String>(StorageToken.class, "0"));
 		timestampPath.add(new Pair<Class<?>, String>(long.class, "time"));
 		
-		FieldData giftTimestamp = new NestedAtomic(timestampPath);
+		FieldData giftTimestamp = new NestedSubAtomic(timestampPath, new TimestampStringToLong(), new TimestampLongToString());
     	
 		FieldMap timestampToGIFTTimestamp = new FieldMapOneToOne(timestamp, giftTimestamp);
 		
@@ -317,7 +379,61 @@ public class MessageMapFactory {
 		FieldMap objectToAssessmentName = new FieldMapOneToOne(actor, assessmentName);
 		result.add(objectToAssessmentName);
 		
+		buildConceptAssessmentMappings(result);
+		
     	return result;
+    }
+    
+    
+    private static void buildConceptAssessmentMappings(List<FieldMap> result)
+    {
+    	SimpleFieldData object = new SimpleFieldData(Message.OBJECT_KEY);        
+        SimpleFieldData actor = new SimpleFieldData(Message.ACTOR_KEY);
+    	SimpleFieldData superGLUResultField = new SimpleFieldData(Message.RESULT_KEY);
+        FieldData timestamp = new SimpleFieldData(Message.TIMESTAMP_KEY);
+    	
+    	List<Pair<Class<?>, String>> timestampPath = new ArrayList<>();
+    	timestampPath.add(new Pair<Class<?>, String>(StorageToken.class, GIFTMessage.PAYLOAD_KEY));
+		timestampPath.add(new Pair<Class<?>, String>(ArrayList.class, "tasks"));
+		timestampPath.add(new Pair<Class<?>, String>(StorageToken.class, "0"));
+		timestampPath.add(new Pair<Class<?>, String>(ArrayList.class, "concepts"));
+		timestampPath.add(new Pair<Class<?>, String>(StorageToken.class, "0"));
+		timestampPath.add(new Pair<Class<?>, String>(long.class, "time"));
+		
+		FieldData giftTimestamp = new NestedSubAtomic(timestampPath, new TimestampStringToLong(), new TimestampLongToString());
+    	
+		FieldMap timestampToGIFTTimestamp = new FieldMapOneToOne(timestamp, giftTimestamp);
+		
+		result.add(timestampToGIFTTimestamp);
+		
+		List<Pair<Class<?>, String>> assessmentPath = new ArrayList<>();
+		assessmentPath.add(new Pair<Class<?>, String>(StorageToken.class, GIFTMessage.PAYLOAD_KEY));
+		assessmentPath.add(new Pair<Class<?>, String>(ArrayList.class, "tasks"));
+		assessmentPath.add(new Pair<Class<?>, String>(StorageToken.class, "0"));
+		assessmentPath.add(new Pair<Class<?>, String>(ArrayList.class, "concepts"));
+		assessmentPath.add(new Pair<Class<?>, String>(StorageToken.class, "0"));
+		assessmentPath.add(new Pair<Class<?>, String>(String.class, "assessment"));
+		
+		List<String> assesmentLevelEnumValues = new ArrayList<>();
+		assesmentLevelEnumValues.add("BelowExpectation");
+		assesmentLevelEnumValues.add("AtExpectation");
+		assesmentLevelEnumValues.add("AboveExpectation");
+		
+		FieldData assessment = new NestedSubAtomic(assessmentPath, new FloatToEnum(assesmentLevelEnumValues, 0.0f, 100.0f), new DummyConverter());
+		FieldMap resultToShortTermMap = new FieldMapOneToOne(superGLUResultField, assessment);
+		result.add(resultToShortTermMap);
+		
+		List<Pair<Class<?>, String>> assessmentNamePath = new ArrayList<>();
+		assessmentNamePath.add(new Pair<Class<?>, String>(StorageToken.class, GIFTMessage.PAYLOAD_KEY));
+		assessmentNamePath.add(new Pair<Class<?>, String>(ArrayList.class, "tasks"));
+		assessmentNamePath.add(new Pair<Class<?>, String>(StorageToken.class, "0"));
+		assessmentNamePath.add(new Pair<Class<?>, String>(ArrayList.class, "concepts"));
+		assessmentNamePath.add(new Pair<Class<?>, String>(StorageToken.class, "0"));
+		assessmentNamePath.add(new Pair<Class<?>, String>(String.class, "name"));
+		
+		FieldData assessmentName = new NestedAtomic(assessmentNamePath);
+		FieldMap objectToAssessmentName = new FieldMapOneToOne(actor, assessmentName);
+		result.add(objectToAssessmentName);
     }
 
 

@@ -130,6 +130,10 @@ public class ActiveMQTopicMessagingGateway extends MessagingGateway implements M
             JsonObject tasks = (JsonObject) rawParseResults.getOrDefault("tasks", null);
             if (tasks != null) {
                 JsonArray list = (JsonArray) tasks.getOrDefault("list", null);
+                JsonObject task = (JsonObject) list.get(0);
+                JsonObject concepts = (JsonObject) task.getOrDefault("concepts", null);
+                JsonArray conceptList = (JsonArray) concepts.getOrDefault("list", null);
+                task.put("concepts", conceptList);
                 rawParseResults.put("tasks", list);
                 String result = rawParseResults.toJson();
                 return result;
@@ -155,7 +159,6 @@ public class ActiveMQTopicMessagingGateway extends MessagingGateway implements M
                 producer.send(activeMQMessage);
             } else if (msg instanceof GIFTMessage) {
                 String msgAsString = ((GIFTMessage) msg).getPayload().toString();
-//				TextMessage activeMQMessage = session.createTextMessage("{\"SenderModuleType\":\"VHMSGBridge_Module\",\"SenderQueueName\":\"VHMSG_QUEUE:" + localIpAddr + ":Inbox\",\"Time_Stamp\":" + new Date().getTime() + ",\"payload\":{\"tasks\":[{\"longTerm\":\"Unknown\",\"shortTermTimestamp\":" + new Date().getTime() + ",\"shortTerm\":\"Unknown\",\"longTermTimestamp\":" + new Date().getTime() + ",\"attributeName\":\"KC\",\"id\":0,\"performanceStateAttributeType\":\"TaskAssessment\",\"predicted\":\"Unknown\",\"predictedTimestamp\":" + new Date().getTime() + "}]},\"UserId\":0,\"Message_Type\":\"PerformanceAssessment\",\"SequenceNumber\":0,\"SenderModuleName\":\"VHMSGBridge_Module\",\"NeedsACK\":false,\"userName\":null,\"SessionId\":0,\"DestinationQueueName\":\"" + pedagogicalQueueName + "\"}");
                 String alteredMsg = this.alterJSON(msgAsString);
                 TextMessage activeMQMessage = session.createTextMessage(alteredMsg);
                 activeMQMessage.setStringProperty(MESSAGETYPE, GIFT);
@@ -235,11 +238,12 @@ public class ActiveMQTopicMessagingGateway extends MessagingGateway implements M
 
                 //Ignore ModuleStatus Messages.  They crowd things out.
                 if (body.contains("ModuleStatus")) {
-                    //Message msg2 = new Message();
-                    //msg2.setVerb("Completed");
-                    //msg2.setResult(50.0);
-                    //msg2.setObj("penguins");
-                    //super.distributeMessage(msg2, this.id);
+                   /* Message msg2 = new Message();
+                    msg2.setVerb("Completed");
+                    msg2.setResult(50.0);
+                    msg2.setObj("penguins");
+                    msg2.setActor("actor");
+                    super.distributeMessage(msg2, this.id);*/
                     return;
                 }
 
