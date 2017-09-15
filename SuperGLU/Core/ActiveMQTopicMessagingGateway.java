@@ -15,6 +15,10 @@ import javax.jms.TopicConnection;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.command.ActiveMQTopic;
+import org.json.simple.DeserializationException;
+import org.json.simple.JsonArray;
+import org.json.simple.JsonObject;
+import org.json.simple.Jsoner;
 
 import Core.Config.ServiceConfiguration;
 import Util.SerializationConvenience;
@@ -46,12 +50,6 @@ public class ActiveMQTopicMessagingGateway extends MessagingGateway implements M
     public static final String VHMSG = "VHMSG";
     // Identifier for GIFT messages
     public static final String GIFT = "GIFT_MSG";
-
-    public ActiveMQTopicMessagingGateway() {
-        super();
-        ActiveMQTopicConfiguration defaultConfig = new ActiveMQTopicConfiguration();
-        init(defaultConfig);
-    }
 
     public static String pedagogicalQueueName;
     public static String localIpAddr;
@@ -87,15 +85,20 @@ public class ActiveMQTopicMessagingGateway extends MessagingGateway implements M
         }
     }
 
+    public ActiveMQTopicMessagingGateway() {
+        super();
+        ActiveMQTopicConfiguration defaultConfig = new ActiveMQTopicConfiguration();
+        init(defaultConfig);
+    }
+
 
     public ActiveMQTopicMessagingGateway(ServiceConfiguration config) {
         super(config.getId(), null, null, null, null);
 
         ActiveMQTopicConfiguration activeMQConfig = new ActiveMQTopicConfiguration();//Have a default configuration to fall back on.
 
-        if (config.getParams().containsKey(ServiceConfiguration.ACTIVEMQ_PARAM_KEY)) {
+        if (config.getParams().containsKey(ServiceConfiguration.ACTIVEMQ_PARAM_KEY))
             activeMQConfig = (ActiveMQTopicConfiguration) config.getParams().get(ServiceConfiguration.ACTIVEMQ_PARAM_KEY);
-        }
 
         init(activeMQConfig);
     }
@@ -107,6 +110,7 @@ public class ActiveMQTopicMessagingGateway extends MessagingGateway implements M
         init(activeMQConfiguration);
     }
 
+
     @Override
     public void disconnect() {
         super.disconnect();
@@ -116,6 +120,26 @@ public class ActiveMQTopicMessagingGateway extends MessagingGateway implements M
             log.error("Failed to disconnect.  Connection was already closed.");
             e.printStackTrace();
         }
+    }
+
+
+    //TODO: burn this hack as soon as possible.
+    private String alterJSON(String msgAsString) {
+        try {
+            JsonObject rawParseResults = (JsonObject) Jsoner.deserialize(msgAsString);
+            JsonObject tasks = (JsonObject) rawParseResults.getOrDefault("tasks", null);
+            if (tasks != null) {
+                JsonArray list = (JsonArray) tasks.getOrDefault("list", null);
+                rawParseResults.put("tasks", list);
+                String result = rawParseResults.toJson();
+                return result;
+            }
+        } catch (DeserializationException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        return msgAsString;
     }
 
 
@@ -130,8 +154,10 @@ public class ActiveMQTopicMessagingGateway extends MessagingGateway implements M
                 activeMQMessage.setStringProperty(MESSAGETYPE, SUPERGLU);
                 producer.send(activeMQMessage);
             } else if (msg instanceof GIFTMessage) {
-//				TextMessage activeMQMessage = session.createTextMessage(((GIFTMessage)msg).getPayload().toString());
-                TextMessage activeMQMessage = session.createTextMessage("{\"SenderModuleType\":\"VHMSGBridge_Module\",\"SenderQueueName\":\"VHMSG_QUEUE:" + localIpAddr + ":Inbox\",\"Time_Stamp\":" + new Date().getTime() + ",\"payload\":{\"tasks\":[{\"longTerm\":\"Unknown\",\"shortTermTimestamp\":" + new Date().getTime() + ",\"shortTerm\":\"Unknown\",\"longTermTimestamp\":" + new Date().getTime() + ",\"attributeName\":\"KC\",\"id\":0,\"performanceStateAttributeType\":\"TaskAssessment\",\"predicted\":\"Unknown\",\"predictedTimestamp\":" + new Date().getTime() + "}]},\"UserId\":0,\"Message_Type\":\"PerformanceAssessment\",\"SequenceNumber\":0,\"SenderModuleName\":\"VHMSGBridge_Module\",\"NeedsACK\":false,\"userName\":null,\"SessionId\":0,\"DestinationQueueName\":\"" + pedagogicalQueueName + "\"}");
+                String msgAsString = ((GIFTMessage) msg).getPayload().toString();
+//				TextMessage activeMQMessage = session.createTextMessage("{\"SenderModuleType\":\"VHMSGBridge_Module\",\"SenderQueueName\":\"VHMSG_QUEUE:" + localIpAddr + ":Inbox\",\"Time_Stamp\":" + new Date().getTime() + ",\"payload\":{\"tasks\":[{\"longTerm\":\"Unknown\",\"shortTermTimestamp\":" + new Date().getTime() + ",\"shortTerm\":\"Unknown\",\"longTermTimestamp\":" + new Date().getTime() + ",\"attributeName\":\"KC\",\"id\":0,\"performanceStateAttributeType\":\"TaskAssessment\",\"predicted\":\"Unknown\",\"predictedTimestamp\":" + new Date().getTime() + "}]},\"UserId\":0,\"Message_Type\":\"PerformanceAssessment\",\"SequenceNumber\":0,\"SenderModuleName\":\"VHMSGBridge_Module\",\"NeedsACK\":false,\"userName\":null,\"SessionId\":0,\"DestinationQueueName\":\"" + pedagogicalQueueName + "\"}");
+                String alteredMsg = this.alterJSON(msgAsString);
+                TextMessage activeMQMessage = session.createTextMessage(alteredMsg);
                 activeMQMessage.setStringProperty(MESSAGETYPE, GIFT);
                 activeMQMessage.setByteProperty("Encoding", (byte) 0);
                 producer.send(activeMQMessage);
@@ -161,14 +187,12 @@ public class ActiveMQTopicMessagingGateway extends MessagingGateway implements M
         this.sendMessage(msg);
     }
 
-    ;
 
-
-    @Override
     /**
      * message handler for receiving all activeMQ messages Will filter out
      * topics that this gateway doesn't care about.
      */
+    @Override
     public void onMessage(javax.jms.Message jmsMessage) {
         try {
             if (jmsMessage instanceof TextMessage) {
@@ -180,52 +204,52 @@ public class ActiveMQTopicMessagingGateway extends MessagingGateway implements M
                 }
             }
 
-			String body = ((TextMessage) jmsMessage).getText();
-			body = URLDecoder.decode(body, "UTF-8");
-			BaseMessage msg;
-			String msgType = jmsMessage.getStringProperty(ActiveMQTopicMessagingGateway.MESSAGETYPE);
-			String isVhmsg = jmsMessage.getStringProperty(ActiveMQTopicMessagingGateway.VHMSG);
-			if (msgType != null && msgType.equals(ActiveMQTopicMessagingGateway.SUPERGLU)) {
-				msg = (Message) SerializationConvenience.nativeizeObject(body, SerializationFormatEnum.JSON_FORMAT);
-			} else if (isVhmsg != null) {
-				String[] tokenizedMsg = body.split(" ");
-				if (tokenizedMsg.length > 1) {// make sure that the VH message
-												// actually has a body
-					String justTheBody = "";
-					
-					for(int ii = 1; ii < tokenizedMsg.length; ++ii){
+            String body = ((TextMessage) jmsMessage).getText();
+            body = URLDecoder.decode(body, "UTF-8");
+            BaseMessage msg;
+            String msgType = jmsMessage.getStringProperty(ActiveMQTopicMessagingGateway.MESSAGETYPE);
+            String isVhmsg = jmsMessage.getStringProperty(ActiveMQTopicMessagingGateway.VHMSG);
+            if (msgType != null && msgType.equals(ActiveMQTopicMessagingGateway.SUPERGLU)) {
+                msg = (Message) SerializationConvenience.nativeizeObject(body, SerializationFormatEnum.JSON_FORMAT);
+            } else if (isVhmsg != null) {
+                String[] tokenizedMsg = body.split(" ");
+                if (tokenizedMsg.length > 1) {// make sure that the VH message
+                    // actually has a body
+                    String justTheBody = "";
 
-						if(ii == 1)
-							justTheBody = tokenizedMsg[ii];
-						else
-							justTheBody = justTheBody + " " + tokenizedMsg[ii];
-					}
+                    for (int ii = 1; ii < tokenizedMsg.length; ++ii) {
+                        if (ii == 1)
+                            justTheBody = tokenizedMsg[ii];
+                        else
+                            justTheBody = justTheBody + " " + tokenizedMsg[ii];
+                    }
 
 
-					msg = new VHMessage(null, null, tokenizedMsg[0], 1.0f, justTheBody);
-				} else {// otherwise just set the body to an empty string
-					msg = new VHMessage(null, null, tokenizedMsg[0], 1.0f, "");
-				}
-			} else if (msgType != null && msgType.equals(GIFT)) {
-				// need to figure out how to get all of the header properties
-				// (and if we actually need them).
+                    msg = new VHMessage(null, null, tokenizedMsg[0], 1.0f, justTheBody);
+                } else {// otherwise just set the body to an empty string
+                    msg = new VHMessage(null, null, tokenizedMsg[0], 1.0f, "");
+                }
+            } else if (msgType != null && msgType.equals(GIFT)) {
+                // need to figure out how to get all of the header properties
+                // (and if we actually need them).
 
-				//Ignore ModuleStatus Messages.  They crowd things out.
-				if(body.contains("ModuleStatus"))
-				{
-					//Message msg2 = new Message();
-					//msg2.setVerb("Completed");
-					//super.distributeMessage(msg2, this.id);
-					return;
-				}
-				
-				StorageToken bodyAsStorageToken = SerializationConvenience.makeNative(body,
-						SerializationFormatEnum.JSON_FORMAT);
-				msg = new GIFTMessage(null, new HashMap<>(),
-						(String) bodyAsStorageToken.getItem(GIFTMessage.MESSAGE_TYPE_KEY), bodyAsStorageToken);
-			} else {
-				msg = (Message) SerializationConvenience.nativeizeObject(body, SerializationFormatEnum.JSON_FORMAT);
-			}
+                //Ignore ModuleStatus Messages.  They crowd things out.
+                if (body.contains("ModuleStatus")) {
+                    //Message msg2 = new Message();
+                    //msg2.setVerb("Completed");
+                    //msg2.setResult(50.0);
+                    //msg2.setObj("penguins");
+                    //super.distributeMessage(msg2, this.id);
+                    return;
+                }
+
+                StorageToken bodyAsStorageToken = SerializationConvenience.makeNative(body,
+                        SerializationFormatEnum.JSON_FORMAT);
+                msg = new GIFTMessage(null, new HashMap<>(),
+                        (String) bodyAsStorageToken.getItem(GIFTMessage.MESSAGE_TYPE_KEY), bodyAsStorageToken);
+            } else {
+                msg = (Message) SerializationConvenience.nativeizeObject(body, SerializationFormatEnum.JSON_FORMAT);
+            }
 
             // we already distributed this message when we sent it. no need to
             // re-process it.
