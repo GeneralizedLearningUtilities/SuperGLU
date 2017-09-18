@@ -432,7 +432,7 @@ public class MessageMapFactory {
 		assessmentNamePath.add(new Pair<Class<?>, String>(String.class, "name"));
 		
 		FieldData assessmentName = new NestedAtomic(assessmentNamePath);
-		FieldMap objectToAssessmentName = new FieldMapOneToOne(actor, assessmentName);
+		FieldMap objectToAssessmentName = new FieldMapOneToOne(object, assessmentName);
 		result.add(objectToAssessmentName);
     }
 

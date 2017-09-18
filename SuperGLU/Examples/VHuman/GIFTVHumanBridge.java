@@ -93,6 +93,13 @@ public class GIFTVHumanBridge extends MessagingGateway {
 			startVHuman((VHMessage) msg);
 		} else if (msg instanceof Core.Message){
 			
+			if(((Core.Message) msg).getResult() instanceof Integer)
+			{
+				Integer result = (Integer) ((Core.Message) msg).getResult();
+				
+				((Core.Message) msg).setResult(result.doubleValue());
+			}
+			
 			BaseMessage convertedMessage = super.convertMessages(msg, GIFTMessage.class);
 
 			if (convertedMessage != null && convertedMessage instanceof GIFTMessage) {
