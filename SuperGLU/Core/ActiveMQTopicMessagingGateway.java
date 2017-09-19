@@ -57,7 +57,7 @@ public class ActiveMQTopicMessagingGateway extends MessagingGateway implements M
     static {
         try {
             localIpAddr = InetAddress.getLocalHost().getHostAddress();
-            pedagogicalQueueName = "Learner_Queue:" + localIpAddr;      //Pedagogical_Queue:172.16.41.14
+            pedagogicalQueueName = "Learner_Queue:" + localIpAddr + ":Inbox" ;      //Pedagogical_Queue:172.16.41.14
         } catch (Exception ex) {
             pedagogicalQueueName = null;
             ex.printStackTrace();

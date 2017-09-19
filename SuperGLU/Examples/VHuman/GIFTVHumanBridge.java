@@ -44,7 +44,7 @@ public class GIFTVHumanBridge extends MessagingGateway {
 	//TODO:Remove this hack ASAP.  Once the module is working properly we can destroy this.
 	private void addGIFTVariablesToContext(GIFTMessage msg)
 	{
-		BigDecimal sessionID = (BigDecimal) msg.getPayload().getItem("dsId", true, null);
+		BigDecimal sessionID = (BigDecimal) msg.getPayload().getItem("SessionId", true, null);
 		
 		if(sessionID != null)
 		{
