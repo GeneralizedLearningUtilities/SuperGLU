@@ -139,6 +139,7 @@ class RLServiceMessaging(BaseService):
         self.start = None
         self.end = None
         self.time_taken = None
+        self.decision_index = 0
 
     def writeDiagnostic(self,msg_str):
         cur = os.getcwd()
@@ -179,6 +180,12 @@ class RLServiceMessaging(BaseService):
         with open(filepath, 'r') as f:
             reader = csv.reader(f)
             self.weights = list(reader)
+
+        #weights-AAR.csv policy file needs to be in the same directory as the Python process
+        filepath = os.path.join(cur, 'weights-AAR.csv')
+        with open(filepath, 'r') as f:
+            reader = csv.reader(f)
+            self.weights_AAR = list(reader)
 
 
     #Random policy for Coach
@@ -245,6 +252,32 @@ class RLServiceMessaging(BaseService):
         self.writeDiagnostic(logstr)
         return top_action 
 
+    #get top action from the trained policy for the AAR   
+    def getTopAAR_Action(self):
+
+        action = {DIAGNOSE:0, DOOVER:0}
+        logstr = ""
+
+        #add weights for the state indicators set in tutoring_state
+        for w in self.weights_AAR:
+            if (w[0] in tutoring_state):
+                if w[2] == RDIAGNOSE:
+                    if tutoring_state[w[0]] == int(w[1]):
+                        action[DIAGNOSE] += float(w[3])
+                elif w[2] == RDOOVER:
+                    if tutoring_state[w[0]] == int(w[1]):
+                        action[DOOVER] += float(w[3])
+                else:
+                    logstr = logstr + "ERROR: unrecognized action in AAR weights: " + w[2] + "\n"
+            else:
+                logstr = logstr + "ERROR: unrecognized feature in AAR weights: " + w[0] + "\n"
+
+        #get best action
+        top_action = max(action, key=action.get)
+
+        self.writeDiagnostic(logstr)
+        return top_action 
+
     # ************** UPDATE STATE METHODS ******************************
 
     #update state with every message
@@ -258,7 +291,9 @@ class RLServiceMessaging(BaseService):
                 logstr = logstr + "updateStateRLCoach: BEGIN_AAR msg.\n"
                 
                 #set previous values 
-                tutoring_state[SCENARIO_NUMBER] = 2
+                tutoring_state[SCENARIO_NUMBER] = tutoring_state[SCENARIO_NUMBER] + 1
+                if (tutoring_state[SCENARIO_NUMBER] == 3):
+                    self.questions = []
                 init_prev_scenario_context()
                 
                 #reset current values
@@ -345,8 +380,9 @@ class RLServiceMessaging(BaseService):
                     
                     self.sum_time_incorrect = self.time_taken if self.sum_time_incorrect is None else self.sum_time_incorrect + self.time_taken
                     tutoring_state[AVG_RESPONSE_TIME_INCORRECT] = self.time_interval.get(ceil(self.sum_time_incorrect/self.num_incorrect_response),5)
-                    
-                    self.questions[-1][1] = RINCORRECT
+
+                    if tutoring_state[SCENARIO_NUMBER] == 1:
+                        self.questions[-1][1] = RINCORRECT
                 
                 elif msg.getResult() == MIXED:
                     tutoring_state[QUALITY_ANSWER] = RMIXED
@@ -356,8 +392,9 @@ class RLServiceMessaging(BaseService):
                     
                     self.sum_time_mixed = self.time_taken if self.sum_time_mixed is None else self.sum_time_mixed + self.time_taken
                     tutoring_state[AVG_RESPONSE_TIME_MIXED] = self.time_interval.get(ceil(self.sum_time_mixed/self.num_mixed_response),5)
-                    
-                    self.questions[-1][1] = RMIXED
+
+                    if tutoring_state[SCENARIO_NUMBER] == 1:
+                        self.questions[-1][1] = RMIXED
                     
                 elif msg.getResult() == CORRECT:
                     tutoring_state[QUALITY_ANSWER] = RCORRECT 
@@ -368,7 +405,8 @@ class RLServiceMessaging(BaseService):
                     self.sum_time_correct = self.time_taken if self.sum_time_correct is None else self.sum_time_correct + self.time_taken
                     tutoring_state[AVG_RESPONSE_TIME_CORRECT] = self.time_interval.get(ceil(self.sum_time_correct/self.num_correct_response),5)
                     
-                    self.questions[-1][1] = RCORRECT
+                    if tutoring_state[SCENARIO_NUMBER] == 1:
+                        self.questions[-1][1] = RCORRECT
                 else:
                     logstr = logstr + "ERROR: Incorrect Correctness value\n"
                 
@@ -378,6 +416,9 @@ class RLServiceMessaging(BaseService):
                 #get score
                 scr = tutoring_state[NUMBER_OF_CORRECT] + (0.5 * tutoring_state[NUMBER_OF_MIXED]) 
                 tutoring_state[SCORE] = self.interval.get(ceil(float(scr)),5)
+
+                self.decision_index = self.decision_index + 1
+
                 logstr = logstr + str(tutoring_state) + "\n"
                 
         except:

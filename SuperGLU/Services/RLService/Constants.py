@@ -10,6 +10,7 @@ DIAGNOSE ='diagnose'    #Diagnose
 DOOVER ='do_over'       #Do Over
 ORDER = 'order'         #Order of AAR items
 DONE = 'done'           #End of AAR Item
+DEFER = 'defer'         # defer decision about AAR item
 #Verbs
 PERFORM_ACTION = 'PerformAction'                #Verb for AAR Item action - reply message
 GET_NEXT_AGENDA_ITEM = 'GetNextAgendaItem'      #Ask for next AAR item - update message
@@ -90,3 +91,6 @@ RDONOTHING = DO_NOTHING
 RFEEDBACK = GIVE_FEEDBACK
 RHINT = GIVE_HINT
 RHINT_FEEDBACK = GIVE_HINT_FEEDBACK
+RDIAGNOSE = DIAGNOSE
+RDOOVER = DOOVER
+
