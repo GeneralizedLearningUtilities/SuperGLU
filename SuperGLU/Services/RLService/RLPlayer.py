@@ -15,13 +15,12 @@ system which are:
 Version 1.x: August/September 2017 updates by Mark Core
 
 Consolidated everything into a single class. Moved reading of weights into constructor. 
-Creates a log file, RLPlayerDiagnostics.txt for specific debug messages and warnings from this script.
-Prints warning if unknown action or feature seen in weights.
+Creates a log file, RLPlayerDiagnostics.txt for specific debug messages and error messages from this script.
+Prints error message if unknown action or feature seen in weights.
 
 KNOWN ISSUES: 
   1. Although this is a class, it has many global variables so if you created multiple instances
       of the class then bad things would happen.
-  2. AAR decisions made before end of game and all context known.
 
 '''
 
@@ -117,10 +116,6 @@ def init_prev_scenario_context():
 init_global_scenario_context()
 init_prev_scenario_context()
 
-#AAR item list
-AAR_item = {}
-
-
 # END initialization of global, module variables
 
 #handles incoming and outgoing messages     
@@ -140,6 +135,10 @@ class RLServiceMessaging(BaseService):
         self.end = None
         self.time_taken = None
         self.decision_index = 0
+        self.AAR_item_offset = -1
+        self.next_AAR_item = -1
+        self.next_AAR_action = DEFER
+        self.dynamic_state = []
 
     def writeDiagnostic(self,msg_str):
         cur = os.getcwd()
@@ -280,6 +279,34 @@ class RLServiceMessaging(BaseService):
 
     # ************** UPDATE STATE METHODS ******************************
 
+    def end_scenario(self):
+        #set previous values 
+        tutoring_state[SCENARIO_NUMBER] = tutoring_state[SCENARIO_NUMBER] + 1
+        if (tutoring_state[SCENARIO_NUMBER] == 3):
+            self.questions = []
+        init_prev_scenario_context()
+                
+        #reset current values
+        init_global_scenario_context()
+        
+        # reset local variables
+        self.init_local_context()
+
+    def calculate_next_AAR_info(self,item):
+        for i in range(item,self.decision_index):
+            # if correct, do nothing (i.e., skip over the item)
+            if (self.dynamic_state[i][QUALITY_ANSWER] != RCORRECT):
+                self.next_AAR_item = i
+                r = rand.random()
+                if r  < 0.5:
+                    self.next_AAR_action = DIAGNOSE
+                else:
+                    self.next_AAR_action = DOOVER
+                break
+        else:
+            self.next_AAR_item = -1
+            self.next_AAR_action = DONE
+
     #update state with every message
     def updateStateRLCoach(self,msg):
         #state update on relevant messages
@@ -289,20 +316,8 @@ class RLServiceMessaging(BaseService):
             if BEGIN_AAR in msg.getVerb():
                 #logInfo('{0} received scenario update message: {1}'.format(RL_SERVICE_NAME, self.messageToString(msg)), 2)
                 logstr = logstr + "updateStateRLCoach: BEGIN_AAR msg.\n"
-                
-                #set previous values 
-                tutoring_state[SCENARIO_NUMBER] = tutoring_state[SCENARIO_NUMBER] + 1
-                if (tutoring_state[SCENARIO_NUMBER] == 3):
-                    self.questions = []
-                init_prev_scenario_context()
-                
-                #reset current values
-                init_global_scenario_context()
 
-                # reset local variables
-                self.init_local_context()
-
-                logstr = logstr + str(tutoring_state) + "\n"
+                self.calculate_next_AAR_info(0)
             
             #get Gender
             elif REGISTER_USER_INFO in msg.getVerb():
@@ -329,6 +344,16 @@ class RLServiceMessaging(BaseService):
                 #logInfo('{0} received transcript update message: {1}'.format(RL_SERVICE_NAME, self.messageToString(msg)), 2)
                 logstr = logstr + self.messageToString(msg) + "\n"
 
+                # update AAR item offset
+                item = int(msg.getContextValue(ORDER))
+
+                tmp_offset = item - self.decision_index
+                if (self.AAR_item_offset == -1):
+                    self.AAR_item_offset = tmp_offset
+                elif not(tmp_offset == self.AAR_item_offset):
+                    logstr = logstr + "ERROR: current offset: " + str(tmp_offset) + " different than initial one: " + str(self.AAR_item_offset) + "\n"
+                    logstr = logstr + "\t sticking with initial offset. item = " + str(item) + " decision_index = " + str(self.decision_index) + "\n"
+
                 #store unique ID of node
                 if tutoring_state[SCENARIO_NUMBER] == 1:
                     logInfo('{0} received question store message: {1}'.format(RL_SERVICE_NAME, self.messageToString(msg)), 2)
@@ -349,6 +374,8 @@ class RLServiceMessaging(BaseService):
                             tutoring_state[SEEN_BEFORE] = 0
                             tutoring_state[QUALITY_PREV_IF_SEEN] = 0
             
+                self.dynamic_state.append(dict())
+
                 #update lasts
                 tutoring_state[QUALITY_ANSWER_LAST_LAST] = tutoring_state[QUALITY_ANSWER_LAST]
                 tutoring_state[QUALITY_ANSWER_LAST] = tutoring_state[QUALITY_ANSWER]
@@ -381,6 +408,8 @@ class RLServiceMessaging(BaseService):
                     self.sum_time_incorrect = self.time_taken if self.sum_time_incorrect is None else self.sum_time_incorrect + self.time_taken
                     tutoring_state[AVG_RESPONSE_TIME_INCORRECT] = self.time_interval.get(ceil(self.sum_time_incorrect/self.num_incorrect_response),5)
 
+                    self.dynamic_state[self.decision_index][QUALITY_ANSWER] = RINCORRECT
+
                     if tutoring_state[SCENARIO_NUMBER] == 1:
                         self.questions[-1][1] = RINCORRECT
                 
@@ -392,6 +421,8 @@ class RLServiceMessaging(BaseService):
                     
                     self.sum_time_mixed = self.time_taken if self.sum_time_mixed is None else self.sum_time_mixed + self.time_taken
                     tutoring_state[AVG_RESPONSE_TIME_MIXED] = self.time_interval.get(ceil(self.sum_time_mixed/self.num_mixed_response),5)
+
+                    self.dynamic_state[self.decision_index][QUALITY_ANSWER] = RMIXED
 
                     if tutoring_state[SCENARIO_NUMBER] == 1:
                         self.questions[-1][1] = RMIXED
@@ -405,6 +436,8 @@ class RLServiceMessaging(BaseService):
                     self.sum_time_correct = self.time_taken if self.sum_time_correct is None else self.sum_time_correct + self.time_taken
                     tutoring_state[AVG_RESPONSE_TIME_CORRECT] = self.time_interval.get(ceil(self.sum_time_correct/self.num_correct_response),5)
                     
+                    self.dynamic_state[self.decision_index][QUALITY_ANSWER] = RCORRECT
+
                     if tutoring_state[SCENARIO_NUMBER] == 1:
                         self.questions[-1][1] = RCORRECT
                 else:
@@ -426,61 +459,10 @@ class RLServiceMessaging(BaseService):
             logstr = logstr + 'ERROR: Exception in updateStateRLCoach: ' + str(sys.exc_info()[0]) + '\n'
                        
         self.writeDiagnostic(logstr)
-    
-    # randomly pick an AAR action for this decision
-    def updateAARItem(self, item):
-        r = rand.random()
-        if r < 0.33:
-            AAR_item[item] = SKIP
-        elif r  < 0.66:
-            AAR_item[item] = DIAGNOSE
-        else:
-            AAR_item[item] = DOOVER
-            
-    # randomly pick either DIAGNOSE or DOOVER for this decision
-    def updateNonCorrectAARItem(self, item):
-        r = rand.random()
-        if r  < 0.5:
-            AAR_item[item] = DIAGNOSE
-        else:
-            AAR_item[item] = DOOVER
 
-    #update AAR item
-    def updateStateRLAAR(self,msg):
-        logstr = ""
-        try:
-            #if message is transcript update
-            if TRANSCRIPT_UPDATE in msg.getVerb():
-                #logInfo('{0} received AAR item update message: {1}'.format(RL_SERVICE_NAME, self.messageToString(msg)), 2)
-                item = int(msg.getContextValue(ORDER))
-                max_key = int(max(AAR_item.keys(), key=int) if AAR_item else 0)
-                if max_key == -1 or None:
-                    max_key = 0
-                
-                if item > max_key+1:
-                    diff = item - (max_key+1)
-                    for i in range(diff):
-                        missed_item = max_key+1+i
-                        self.updateAARItem(missed_item)
-                        logstr = logstr + "updating unseen AAR item " + str(missed_item) + " with value " + AAR_item[missed_item] + "\n"
-                
-                if msg.getResult() == CORRECT:
-                    AAR_item[item] = SKIP
-                else:
-                    self.updateNonCorrectAARItem(item)
-                logstr = logstr + "updating AAR item " + str(item) + " with value " + AAR_item[item] + "\n"
-            #if message informs the start of AAR
-            elif BEGIN_AAR in msg.getVerb():
-                #logInfo('{0} received AAR item final update message: {1}'.format(RL_SERVICE_NAME, self.messageToString(msg)), 2)
-                AAR_item['-1'] = DONE
-        except:
-            #logInfo('{0} received RL AAR update message exception: {1}'.format(RL_SERVICE_NAME, self.messageToString(msg)), 2)
-            logstr = logstr + "ERROR: Exception in updateStateRLAAR: " + str(sys.exc_info()[0]) + "\n"
-        self.writeDiagnostic(logstr)
 
     def getState(self):
         return tutoring_state   #can also be accessed directly as a global variable       
-
     
     #receive message and take appropriate action by looking at the message attributes like verb         
     def receiveMessage(self, msg):
@@ -488,44 +470,35 @@ class RLServiceMessaging(BaseService):
 
         logstr = ""
                         
-        #Check specific messages for AAR and Coach
         #if message asks for the next agenda item in AAR
         if GET_NEXT_AGENDA_ITEM in msg.getVerb():
             
             #logstr = logstr + "receiveMessage: GET_NEXT_AGENDA_ITEM msg.\n"
-            #if AAR Item list reply as done
-            if not AAR_item:
-                logstr = logstr + 'receiveMessage: send PERFORM_ACTION: DONE\n'
-                item = -1
-                action = DONE
-            else:
-                #loops through dictionary
-                for item in list(AAR_item.keys()):
-                    action = AAR_item[item]
-                    #if skip don't reply
-                    if action == SKIP:
-                        del AAR_item[item]
-                    else:
-                        logstr = logstr + 'receiveMessage: send PERFORM_ACTION: ' + action + ' index= ' + str(item) + '\n'
-                        #delete item and break
-                        del AAR_item[item]
-                        break
-            
-            #if SKIPs remain, its the end of the item list
-            if action == SKIP:
-                item = -1
-                action = DONE
-                logstr = logstr + 'receiveMessage: send PERFORM_ACTION: DONE\n'
+            try:
+                if (self.next_AAR_item == -1):
+                    item = -1
+                    action = DONE
+                    self.end_scenario()
+                    logstr = logstr + 'receiveMessage: send PERFORM_ACTION: DONE\n'
+                else:
+                    item = self.next_AAR_item + self.AAR_item_offset
+                    action = self.next_AAR_action
+                    logstr = logstr + 'receiveMessage: send PERFORM_ACTION: ' + action + ' index= ' + str(item) + '\n'
+
+                    # update next_AAR_item and next_AAR_action
+                    self.calculate_next_AAR_info(self.next_AAR_item + 1)
              
-            #send message   
-            reply_msg = self._createRequestReply(msg)
-            reply_msg.setResult(action)
-            reply_msg.setVerb(PERFORM_ACTION)
-            reply_msg.setObject(item)
+                #send message   
+                reply_msg = self._createRequestReply(msg)
+                reply_msg.setResult(action)
+                reply_msg.setVerb(PERFORM_ACTION)
+                reply_msg.setObject(item)
             
-            if reply_msg is not None:
-                #logInfo('{0} is sending reply for AAR agenda item:{1}'.format(RL_SERVICE_NAME, self.messageToString(reply_msg)), 2)
-                self.sendMessage(reply_msg)            
+                if reply_msg is not None:
+                    #logInfo('{0} is sending reply for AAR agenda item:{1}'.format(RL_SERVICE_NAME, self.messageToString(reply_msg)), 2)
+                    self.sendMessage(reply_msg)            
+            except:
+                logstr = logstr + 'ERROR: Exception handling GET_NEXT_AGENGA_ITEM: ' + str(sys.exc_info()[0]) + '\n'
         
         #if Elite asks for coaching action
         elif REQUEST_COACHING_ACTIONS in msg.getVerb():
@@ -557,9 +530,6 @@ class RLServiceMessaging(BaseService):
         #consider message for state update  - can also reuse TRANSCRIPT_UPDATE for correctness ???
         else:
             #logInfo('{0} received state update message: {1}'.format(RL_SERVICE_NAME, self.messageToString(msg)), 2)
-            
-            #update RL AAR state based on the message
-            self.updateStateRLAAR(msg)
             
             #update RL coach state based on the message
             self.updateStateRLCoach(msg)
