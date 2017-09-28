@@ -1,0 +1,49 @@
+{
+	"ServiceConfigurationsCollection": {
+		"classId": "ServiceConfigurationsCollection",
+		"serviceConfigurations": {
+			"map": {
+				"socketIOGateway": {
+					"ServiceConfiguration": {
+						"classId": "ServiceConfiguration",
+						"nodes": {
+							"list": ["activeMQGateway"]
+						},
+						"id": "socketIOGateway",
+						"type": "edu.usc.ict.superglu.core.HTTPMessagingGateway",
+						"params": {
+							"map": {
+								"socketIOConfig": 5333
+							}
+						}
+					}
+				},
+				"activeMQGateway": {
+					"ServiceConfiguration": {
+						"classId": "ServiceConfiguration",
+						"nodes": {
+							"list": ["socketIOGateway"]
+						},
+						"id": "activeMQGateway",
+						"type": "edu.usc.ict.superglu.core.ActiveMQTopicMessagingGateway",
+						"params": {
+							"map": {
+								"activeMQConfig": {
+									"ActiveMQTopicConfiguration": {
+										"brokerURL": "tcp:\/\/localhost:61617",
+										"classId": "ActiveMQTopicConfiguration",
+										"topic": {
+											"list": []
+										},
+										"id": "ActiveMQ"
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"id": "20b2ebe0-f974-4b32-bb27-7ec908fe0ce5"
+	}
+}

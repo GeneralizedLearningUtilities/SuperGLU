@@ -201,6 +201,7 @@ DerivedData
 *.jar
 *.war
 *.ear
+java_maven/target
 
 #------------------------------
 # Matlab Ignores
