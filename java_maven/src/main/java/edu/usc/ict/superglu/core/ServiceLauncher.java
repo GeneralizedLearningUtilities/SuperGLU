@@ -1,7 +1,7 @@
 package edu.usc.ict.superglu.core;
 
 import edu.usc.ict.superglu.core.config.ServiceConfiguration;
-import edu.usc.ict.superglu.core.config.ServiceConfigurationsCollection;
+import edu.usc.ict.superglu.core.config.ServiceConfigurationCollection;
 import edu.usc.ict.superglu.util.SerializationConvenience;
 import edu.usc.ict.superglu.util.SerializationFormatEnum;
 
@@ -33,7 +33,7 @@ public class ServiceLauncher {
         services = new HashMap<>();
     }
 
-    public void launchAndConnectAllServices(ServiceConfigurationsCollection configs) {
+    public void launchAndConnectAllServices(ServiceConfigurationCollection configs) {
 
         for (String key : configs.getServiceConfigurationMap().keySet()) {
             ServiceConfiguration config = configs.getServiceConfigurationMap().get(key);
@@ -78,11 +78,11 @@ public class ServiceLauncher {
         }
     }
 
-    public ServiceConfigurationsCollection readConfigurationFromResources(String fileName) {
+    public ServiceConfigurationCollection readConfigurationFromResources(String fileName) {
         String fullFilePath = getClass().getClassLoader().getResource(fileName).getFile();
         String fileAsString = this.fileToString(fullFilePath);
 
-        ServiceConfigurationsCollection result = (ServiceConfigurationsCollection) SerializationConvenience.nativeizeObject(fileAsString,
+        ServiceConfigurationCollection result = (ServiceConfigurationCollection) SerializationConvenience.nativeizeObject(fileAsString,
                 SerializationFormatEnum.JSON_FORMAT);
 
         return result;

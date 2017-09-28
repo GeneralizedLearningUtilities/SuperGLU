@@ -12,7 +12,7 @@ public class ServiceLauncherTest {
     public void testLaunchAndConnectAllServices() {
         ServiceLauncher launcher = new ServiceLauncher();
 
-        ServiceConfigurationsCollection configurations = launcher.readConfigurationFromResources(CONFIG_FILE);
+        ServiceConfigurationCollection configurations = launcher.readConfigurationFromResources(CONFIG_FILE);
 
         launcher.launchAndConnectAllServices(configurations);
 
@@ -26,7 +26,7 @@ public class ServiceLauncherTest {
     public void testReadConfigurationFromFile() {
         ServiceLauncher launcher = new ServiceLauncher();
 
-        ServiceConfigurationsCollection configurations = launcher.readConfigurationFromResources(CONFIG_FILE);
+        ServiceConfigurationCollection configurations = launcher.readConfigurationFromResources(CONFIG_FILE);
 
         Assert.assertEquals(2, configurations.getServiceConfigurationMap().size());
     }
@@ -36,7 +36,7 @@ public class ServiceLauncherTest {
     public void testShutdownActiveService() {
         ServiceLauncher launcher = new ServiceLauncher();
 
-        ServiceConfigurationsCollection configurations = launcher.readConfigurationFromResources(CONFIG_FILE);
+        ServiceConfigurationCollection configurations = launcher.readConfigurationFromResources(CONFIG_FILE);
 
         launcher.launchAndConnectAllServices(configurations);
 

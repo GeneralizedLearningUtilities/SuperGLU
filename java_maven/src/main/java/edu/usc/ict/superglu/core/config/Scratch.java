@@ -64,7 +64,7 @@ public class Scratch {
 		result.put(socketIOGateway.getId(), socketIOGateway);
 		result.put(GiftVHumanBridge.getId(), GiftVHumanBridge);
 
-		ServiceConfigurationsCollection serviceConfigs = new ServiceConfigurationsCollection(result);
+		ServiceConfigurationCollection serviceConfigs = new ServiceConfigurationCollection(result);
 		String json = SerializationConvenience.serializeObject(serviceConfigs, SerializationFormatEnum.JSON_FORMAT);
 		
 		System.out.println(json);

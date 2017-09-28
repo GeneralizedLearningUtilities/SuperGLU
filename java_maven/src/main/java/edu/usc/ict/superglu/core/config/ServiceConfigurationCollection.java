@@ -13,17 +13,17 @@ import java.util.Map;
  * @author auerbach
  */
 
-public class ServiceConfigurationsCollection extends SuperGlu_Serializable {
+public class ServiceConfigurationCollection extends SuperGlu_Serializable {
 
     public static final String SERVICE_CONFIG_MAP_KEY = "serviceConfigurations";
 
     private Map<String, ServiceConfiguration> serviceConfigurationMap;
 
-    public ServiceConfigurationsCollection() {
+    public ServiceConfigurationCollection() {
         this.serviceConfigurationMap = new HashMap<>();
     }
 
-    public ServiceConfigurationsCollection(Map<String, ServiceConfiguration> serviceConfigurationMap) {
+    public ServiceConfigurationCollection(Map<String, ServiceConfiguration> serviceConfigurationMap) {
         this.serviceConfigurationMap = serviceConfigurationMap;
     }
 
