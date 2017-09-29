@@ -23,7 +23,7 @@ import Util.StorageToken;
 
 
 /**
- *  """ JSON Serialization Format Handler ""
+ *  """ JSON Serialization for SuperGLU Format Handler ""
  * @author auerbach
  *
  */

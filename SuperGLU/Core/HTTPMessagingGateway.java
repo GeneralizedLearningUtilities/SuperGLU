@@ -52,6 +52,9 @@ public class HTTPMessagingGateway extends MessagingGateway implements DataListen
 
 	public HTTPMessagingGateway(ServiceConfiguration serviceConfig) {
 		super(serviceConfig.getId(), null, null, null, null);
+		log.debug("starting http messaging gateway");
+		try
+		{
 		int socketIOPort = 5333;// Have a default port to fall back on.
 		if (serviceConfig.getParams().containsKey(ServiceConfiguration.SOCKETIO_PARAM_KEY))
 			socketIOPort = (int) serviceConfig.getParams().get(ServiceConfiguration.SOCKETIO_PARAM_KEY);
@@ -59,15 +62,28 @@ public class HTTPMessagingGateway extends MessagingGateway implements DataListen
 		socketConfig.setPort(socketIOPort);
 		SocketIOServer socketIO = new SocketIOServer(socketConfig);
 
+		log.debug("created SocketIOServer object");
+		
 		this.socketIO = socketIO;
 		this.clients = new ConcurrentHashMap<>();
 
+		log.debug("about to start socketIO");
+		
 		this.socketIO.start();
+		
+		log.debug("starting socketIO");
 
 		this.socketIO.addNamespace(MESSAGES_NAMESPACE);
 
 		this.socketIO.getNamespace(MESSAGES_NAMESPACE).addEventListener(MESSAGES_KEY, Map.class, (DataListener) this);
-
+		
+		log.debug("http messaging gateway started");
+		}
+		catch (Exception e)
+		{
+			log.error("caught exception", e);
+			throw e;
+		}
 	}
 
 	public HTTPMessagingGateway(String anId, Map<String, Object> scope, Collection<BaseMessagingNode> nodes,
