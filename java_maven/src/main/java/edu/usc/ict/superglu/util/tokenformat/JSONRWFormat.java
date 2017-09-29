@@ -88,23 +88,6 @@ public class JSONRWFormat extends TokenRWFormat {
 				
 	}
 	
-	
-	private static boolean isNullOrPrimitive(Object input)
-	{
-		if(input == null)
-			return true;
-		
-		Class<?> inputClass = input.getClass();
-		
-		if(TokenRWFormat.VALID_ATOMIC_VALUE_TYPES.contains(inputClass))
-			return true;
-		
-		if(!(input instanceof Iterable<?> || input instanceof Map<?, ?>))
-			return true;
-		
-		return false;
-	}
-	
 	//remember to check for null values.  Python code didn't have to explicitly do so.
 	private static Object makeNative(Object input)
 	{

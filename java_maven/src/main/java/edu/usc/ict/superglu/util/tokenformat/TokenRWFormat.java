@@ -76,6 +76,23 @@ public abstract class TokenRWFormat {
     public static Object serialize(StorageToken data) {
         throw new RuntimeException("Method Not Implemented");
     }
+    
+    
+    protected static boolean isNullOrPrimitive(Object input)
+	{
+		if(input == null)
+			return true;
+		
+		Class<?> inputClass = input.getClass();
+		
+		if(TokenRWFormat.VALID_ATOMIC_VALUE_TYPES.contains(inputClass))
+			return true;
+		
+		if(!(input instanceof Iterable<?> || input instanceof Map<?, ?>))
+			return true;
+		
+		return false;
+	}
 
 
 };
