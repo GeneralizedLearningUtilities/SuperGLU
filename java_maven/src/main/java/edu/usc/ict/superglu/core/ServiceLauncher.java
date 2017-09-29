@@ -78,9 +78,8 @@ public class ServiceLauncher {
         }
     }
 
-    public ServiceConfigurationCollection readConfigurationFromResources(String fileName) {
-        String fullFilePath = getClass().getClassLoader().getResource(fileName).getFile();
-        String fileAsString = this.fileToString(fullFilePath);
+    public ServiceConfigurationCollection readConfigurationFromFile(String fileName) {
+        String fileAsString = this.fileToString(fileName);
 
         ServiceConfigurationCollection result = (ServiceConfigurationCollection) SerializationConvenience.nativeizeObject(fileAsString,
                 SerializationFormatEnum.JSON_FORMAT);

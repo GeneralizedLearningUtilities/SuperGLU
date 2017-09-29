@@ -14,7 +14,7 @@ public class SerializableTest {
 
     @Test
     public void testReflection() {
-        SuperGlu_Serializable.populateClassIDs(null);
+        SuperGlu_Serializable.populateClassIDs("edu.usc.ict.superglu");
     }
 
 

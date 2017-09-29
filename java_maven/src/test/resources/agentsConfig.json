@@ -1,6 +1,6 @@
 {
-	"ServiceConfigurationsCollection": {
-		"classId": "ServiceConfigurationsCollection",
+	"ServiceConfigurationCollection": {
+		"classId": "ServiceConfigurationCollection",
 		"serviceConfigurations": {
 			"map": {
 				"socketIOGateway": {
