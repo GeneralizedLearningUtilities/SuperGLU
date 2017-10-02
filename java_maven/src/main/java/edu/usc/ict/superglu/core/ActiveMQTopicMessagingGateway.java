@@ -78,7 +78,7 @@ public class ActiveMQTopicMessagingGateway extends MessagingGateway implements M
 			session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
 			Destination consumerDestination = session.createTopic(ActiveMQTopicConfiguration.DEFAULT_TOPIC);
-			Destination producerDestination = session.createTopic("*");
+			Destination producerDestination = session.createTopic(ActiveMQTopicConfiguration.DEFAULT_TOPIC);
 			producer = session.createProducer(producerDestination);
 			consumer = session.createConsumer(consumerDestination);
 			consumer.setMessageListener(this);
