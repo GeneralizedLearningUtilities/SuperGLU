@@ -64,6 +64,12 @@ public class GIFTMessage extends BaseMessage {
         this.payload = payload;
     }
 
+    
+    public String getDestinationQueueName()
+    {
+    	String result = (String) this.payload.getItem("DestinationQueueName", true,  ActiveMQTopicMessagingGateway.pedagogicalQueueName);
+    	return result;
+    }
 
     @Override
     public boolean equals(Object otherObject) {

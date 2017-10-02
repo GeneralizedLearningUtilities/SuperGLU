@@ -1,21 +1,31 @@
 package edu.usc.ict.superglu.core;
 
+import java.net.InetAddress;
+import java.net.URLDecoder;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Predicate;
+
+import javax.jms.Destination;
+import javax.jms.JMSException;
+import javax.jms.MessageConsumer;
+import javax.jms.MessageListener;
+import javax.jms.MessageProducer;
+import javax.jms.Session;
+import javax.jms.TextMessage;
+import javax.jms.TopicConnection;
+
+import org.apache.activemq.ActiveMQConnectionFactory;
+import org.apache.activemq.command.ActiveMQTopic;
+
 import edu.usc.ict.superglu.core.config.ServiceConfiguration;
 import edu.usc.ict.superglu.util.SerializationConvenience;
 import edu.usc.ict.superglu.util.SerializationFormatEnum;
 import edu.usc.ict.superglu.util.StorageToken;
-import org.apache.activemq.ActiveMQConnectionFactory;
-import org.apache.activemq.command.ActiveMQTopic;
-import org.json.simple.DeserializationException;
-import org.json.simple.JsonArray;
-import org.json.simple.JsonObject;
-import org.json.simple.Jsoner;
-
-import javax.jms.*;
-import java.net.InetAddress;
-import java.net.URLDecoder;
-import java.util.*;
-import java.util.function.Predicate;
+import edu.usc.ict.superglu.util.tokenformat.JSONStandardRWFormat;
 
 /**
  * this class will connect to an ActiveMQ Broker and subscribe to a single
@@ -32,6 +42,8 @@ public class ActiveMQTopicMessagingGateway extends MessagingGateway implements M
 
     protected List<String> excludedTopics;
 
+    //protected
+    
     protected TopicConnection connection;
 
     // This property defines to which system the activeMQ message belongs.
@@ -115,30 +127,6 @@ public class ActiveMQTopicMessagingGateway extends MessagingGateway implements M
     }
 
 
-    //TODO: burn this hack as soon as possible.
-    private String alterJSON(String msgAsString) {
-        try {
-            JsonObject rawParseResults = (JsonObject) Jsoner.deserialize(msgAsString);
-            JsonObject tasks = (JsonObject) rawParseResults.getOrDefault("tasks", null);
-            if (tasks != null) {
-                JsonArray list = (JsonArray) tasks.getOrDefault("list", null);
-                JsonObject task = (JsonObject) list.get(0);
-                JsonObject concepts = (JsonObject) task.getOrDefault("concepts", null);
-                JsonArray conceptList = (JsonArray) concepts.getOrDefault("list", null);
-                task.put("concepts", conceptList);
-                rawParseResults.put("tasks", list);
-                String result = rawParseResults.toJson();
-                return result;
-            }
-        } catch (DeserializationException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-
-        return msgAsString;
-    }
-
-
     @Override
     public void sendMessage(BaseMessage msg) {
         super.sendMessage(msg);
@@ -150,9 +138,8 @@ public class ActiveMQTopicMessagingGateway extends MessagingGateway implements M
                 activeMQMessage.setStringProperty(MESSAGETYPE, SUPERGLU);
                 producer.send(activeMQMessage);
             } else if (msg instanceof GIFTMessage) {
-                String msgAsString = ((GIFTMessage) msg).getPayload().toString();
-                String alteredMsg = this.alterJSON(msgAsString);
-                TextMessage activeMQMessage = session.createTextMessage(alteredMsg);
+                String msgAsString = JSONStandardRWFormat.serialize(((GIFTMessage) msg).getPayload());
+                TextMessage activeMQMessage = session.createTextMessage(msgAsString);
                 activeMQMessage.setStringProperty(MESSAGETYPE, GIFT);
                 activeMQMessage.setByteProperty("Encoding", (byte) 0);
                 producer.send(activeMQMessage);

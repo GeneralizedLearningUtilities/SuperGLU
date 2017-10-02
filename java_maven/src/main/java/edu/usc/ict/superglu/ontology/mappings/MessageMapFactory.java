@@ -230,7 +230,7 @@ public class MessageMapFactory {
         destinationQueueNamePath.add(new Pair<Class<?>, String>(String.class, "DestinationQueueName"));
         FieldData destinationQueueName = new NestedAtomic(destinationQueueNamePath);
 
-        templateData.add(new Pair<FieldData, Object>(destinationQueueName, "Pedagogical_Queue:" + InetAddress.getLocalHost().getHostAddress() + ":Inbox"));
+        templateData.add(new Pair<FieldData, Object>(destinationQueueName, "Learner_Queue:" + InetAddress.getLocalHost().getHostAddress() + ":Inbox"));
 
         buildConceptAssessmentTemplateData(templateData);
 
