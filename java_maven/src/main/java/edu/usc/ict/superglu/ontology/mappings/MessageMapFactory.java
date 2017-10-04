@@ -41,7 +41,7 @@ public class MessageMapFactory {
         senderQueueNamePath.add(new Pair<Class<?>, String>(String.class, "SenderQueueName"));
         FieldData senderQueueName = new NestedAtomic(senderQueueNamePath);
 
-        templateData.add(new Pair<FieldData, Object>(senderQueueName, "VHMSG_QUEUE:" + InetAddress.getLocalHost().getHostAddress() + ":Inbox"));
+        templateData.add(new Pair<FieldData, Object>(senderQueueName, "VHMSG_Queue:" + InetAddress.getLocalHost().getHostAddress() + ":Inbox"));
 
         List<Pair<Class<?>, String>> needsACKPath = new ArrayList<>();
         needsACKPath.add(new Pair<Class<?>, String>(StorageToken.class, GIFTMessage.PAYLOAD_KEY));
