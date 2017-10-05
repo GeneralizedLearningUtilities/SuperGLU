@@ -141,6 +141,7 @@ public class ActiveMQTopicMessagingGateway extends MessagingGateway implements M
 				this.queueProducers.put(destination, result);
 			} catch (JMSException e) {
 				log.error("failed to connect to queue: " + destination, e);
+				throw new RuntimeException(e);
 			}
 			
 		}
