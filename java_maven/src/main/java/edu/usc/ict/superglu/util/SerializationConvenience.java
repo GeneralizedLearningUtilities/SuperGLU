@@ -1,6 +1,7 @@
 package edu.usc.ict.superglu.util;
 
 import edu.usc.ict.superglu.util.tokenformat.JSONRWFormat;
+import edu.usc.ict.superglu.util.tokenformat.JSONStandardRWFormat;
 import edu.usc.ict.superglu.util.tokenformat.TokenRWFormat;
 
 import java.math.BigDecimal;
@@ -29,6 +30,8 @@ public class SerializationConvenience {
 
         if (sFormat == null || sFormat == SerializationFormatEnum.JSON_FORMAT)
             return JSONRWFormat.serialize(storageToken);
+        else if (sFormat == SerializationFormatEnum.JSON_STANDARD_FORMAT)
+        	return JSONStandardRWFormat.serialize(storageToken);
         else if (sFormat == SerializationFormatEnum.XML_FORMAT)
             throw new RuntimeException("XML FORMAT NOT YET IMPLEMENTED");
         else if (sFormat == SerializationFormatEnum.PICKLE_FORMAT)
@@ -48,6 +51,8 @@ public class SerializationConvenience {
     public static StorageToken makeNative(String input, SerializationFormatEnum sFormat) {
         if (sFormat == null || sFormat == SerializationFormatEnum.JSON_FORMAT)
             return JSONRWFormat.parse(input);
+        else if(sFormat == SerializationFormatEnum.JSON_STANDARD_FORMAT)
+        	return JSONStandardRWFormat.parse(input);
         else if (sFormat == SerializationFormatEnum.XML_FORMAT)
             throw new RuntimeException("XML FORMAT NOT YET IMPLEMENTED");
         else if (sFormat == SerializationFormatEnum.PICKLE_FORMAT)
