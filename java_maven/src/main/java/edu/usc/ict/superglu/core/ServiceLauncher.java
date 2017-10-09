@@ -82,7 +82,7 @@ public class ServiceLauncher {
         String fileAsString = this.fileToString(fileName);
 
         ServiceConfigurationCollection result = (ServiceConfigurationCollection) SerializationConvenience.nativeizeObject(fileAsString,
-                SerializationFormatEnum.JSON_FORMAT);
+                SerializationFormatEnum.JSON_STANDARD_FORMAT);
 
         return result;
     }

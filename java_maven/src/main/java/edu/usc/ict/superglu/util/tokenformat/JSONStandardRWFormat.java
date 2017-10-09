@@ -34,8 +34,6 @@ public class JSONStandardRWFormat extends TokenRWFormat {
 		NAME_MAPPING.put("float", Float.class);
 		NAME_MAPPING.put("int", Integer.class);
 		NAME_MAPPING.put("tuple", List.class);
-		NAME_MAPPING.put("list", List.class);
-		NAME_MAPPING.put("map", Map.class);
 		NAME_MAPPING.put("long", Long.class);
 
 		TYPE_MAPPING.put(Boolean.class, "bool");
@@ -45,9 +43,7 @@ public class JSONStandardRWFormat extends TokenRWFormat {
 		TYPE_MAPPING.put(Double.class, "float");
 		TYPE_MAPPING.put(Short.class, "int");
 		TYPE_MAPPING.put(Integer.class, "int");
-		TYPE_MAPPING.put(List.class, "list");
 		TYPE_MAPPING.put(Long.class, "long");
-		TYPE_MAPPING.put(Map.class, "map");
 
 	}
 
@@ -126,12 +122,12 @@ public class JSONStandardRWFormat extends TokenRWFormat {
 				storageTokenChildren.put(key, makeSerializable(value));
 			}
 
-			if (dataAsStorageToken.getClassId() != null) {
-				processedStorageToken.put(dataAsStorageToken.getClassId(), storageTokenChildren);
-				return processedStorageToken;
-			} else {
+//			if (dataAsStorageToken.getClassId() != null) {
+//				processedStorageToken.put(dataAsStorageToken.getClassId(), storageTokenChildren);
+//				return processedStorageToken;
+	//		} else {
 				return storageTokenChildren;
-			}
+		//	}
 		}
 
 		throw new RuntimeException("Tried to serialize unserializeable object of type " + clazz.toString());
@@ -142,16 +138,19 @@ public class JSONStandardRWFormat extends TokenRWFormat {
 	private static Object makeNative(Object input) {
 		if (isNullOrPrimitive(input))
 			return input;
+		
+		
+		if (input instanceof JsonArray) {
+			List<Object> result = new ArrayList<>();
 
-		Class<?> inputClass = input.getClass();
+			for (Object currentElement : (JsonArray) input) {
+				result.add(makeNative(currentElement));
+			}
 
-		if (TokenRWFormat.VALID_ATOMIC_VALUE_TYPES.contains(inputClass))
-			return input;
-
-		if (!(input instanceof Iterable<?> || input instanceof Map<?, ?>))
-			return input;
-
-		if (input instanceof JsonObject) {
+			return result;
+		}
+		
+		else if (input instanceof JsonObject) {
 			JsonObject inputAsJsonObject = (JsonObject) input;
 
 			// corner case if object is empty
@@ -159,60 +158,48 @@ public class JSONStandardRWFormat extends TokenRWFormat {
 				return new HashMap<String, Object>();
 
 			String datatypeName = inputAsJsonObject.keySet().iterator().next();
+			
 			Class<?> dataType = NAME_MAPPING.getOrDefault(datatypeName, StorageToken.class);
 
-			if (dataType.equals(StorageToken.class)) {// We are deserializing an
+			
+
+			
+			if (!((JsonObject) input).containsKey("isMap")) {// We are deserializing an
 														// object
 
 				Map<String, Object> nativizedData = new HashMap<>();
-				boolean primitivesPresent = false;
 				for (String key : inputAsJsonObject.keySet()) {
 					Object value = inputAsJsonObject.get(key);
 
 					if (isNullOrPrimitive(value)) {
 						nativizedData.put(key, value);
-						primitivesPresent = true;
 					} else {
 
 						if (value instanceof JsonObject) {
-							JsonObject innerData = (JsonObject) value;
-
-							for (String innerKey : innerData.keySet()) {
-								Object innerValue = innerData.get(innerKey);
-								nativizedData.put(innerKey, makeNative(innerValue));
-							}
+							Object nativeValue = makeNative(value);
+							
+							nativizedData.put(key, nativeValue);
+							
 						} else if (value instanceof JsonArray) {
-							JsonArray innerData = (JsonArray) value;
-
-							int index = 0;
-							for (Object currentInnerItem : innerData) {
-								nativizedData.put(Integer.toString(index), makeNative(currentInnerItem));
-								++index;
-							}
+							
+							Object nativizedValue = makeNative(value);
+							
+							nativizedData.put(key, nativizedValue);
 						}
 					}
 				}
 
-				if (primitivesPresent)
-					return nativizedData;
-
-				StorageToken result = new StorageToken(nativizedData, null, null);
+				StorageToken result = new StorageToken(nativizedData, null, (String) nativizedData.get(StorageToken.CLASS_ID_KEY));
 				return result;
-			} else if (dataType.equals(List.class)) {
-				for (String key : inputAsJsonObject.keySet()) {
-					Object value = inputAsJsonObject.get(key);
-					return makeNative(value);
-				}
 			}
+			 
 
 			else {// We are deserializing a Map
 
 				Map<Object, Object> result = new HashMap<>();
 
-				Map<Object, Object> innerData = inputAsJsonObject.getMap(TYPE_MAPPING.get(Map.class));
-
-				for (Object key : innerData.keySet()) {
-					Object value = innerData.get(key);
+				for (Object key : inputAsJsonObject.keySet()) {
+					Object value = inputAsJsonObject.get(key);
 
 					Object nativizedKey = makeNative(key);
 					Object nativizedValue = makeNative(value);
@@ -223,15 +210,7 @@ public class JSONStandardRWFormat extends TokenRWFormat {
 			}
 		}
 
-		if (input instanceof JsonArray) {
-			List<Object> result = new ArrayList<>();
-
-			for (Object currentElement : (JsonArray) input) {
-				result.add(makeNative(currentElement));
-			}
-
-			return result;
-		}
+		
 
 		// should never reach here
 		return null;

@@ -150,13 +150,14 @@ public class SerializableTest {
         StorageToken token = nestedAtomic.saveToToken();
         System.out.println(token.toString());
 
-//        System.out.println(nestedAtomic instanceof StorageToken);
-//        System.out.println(nestedAtomic instanceof StorageToken);
         NestedAtomic copy = (NestedAtomic) nestedAtomic.clone(false);
 
         System.out.println(copy.toString());
 
         Assert.assertEquals(nestedAtomic, copy);
     }
+    
+    
+    
 
 }

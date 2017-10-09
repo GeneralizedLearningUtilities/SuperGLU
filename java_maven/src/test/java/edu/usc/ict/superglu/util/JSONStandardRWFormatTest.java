@@ -24,7 +24,7 @@ public class JSONStandardRWFormatTest {
 
 	@Test
 	public void testParse() {
-		String input = ("{\"classID\":{\"float1\":3.14,\"nullVal\":null,\"classId\":\"classID\",\"int1\":10,\"str1\":\"value\",\"id\":\"id\",\"bool1\":true}}");
+		String input = ("{\"classID\":{\"float1\":3.14,\"nullVal\":null,\"classId\":\"classID\",\"int1\":10,\"str1\":\"value\",\"id\":\"id\",\"bool1\":true},\"id\":\"id\"}");
 		
 		StorageToken token = JSONStandardRWFormat.parse(input);
 		
@@ -36,7 +36,7 @@ public class JSONStandardRWFormatTest {
 	
 	@Test
 	public void testParseList() {
-		String input = "{\"classID\":{\"classId\":\"classID\",\"stringList\":[\"string1\",\"string2\",\"string3\"],\"id\":\"id\"}}";
+		String input = "{\"classID\":{\"classId\":\"classID\",\"stringList\":[\"string1\",\"string2\",\"string3\"],\"id\":\"id\"},\"id\":\"id\"}";
 		
 		StorageToken token = JSONStandardRWFormat.parse(input);
 		
@@ -48,7 +48,7 @@ public class JSONStandardRWFormatTest {
 	
 	@Test
 	public void testParseMap() {
-		String input = "{\"classID\":{\"classId\":\"classID\",\"stringIntMap\":{\"key1\":13,\"key2\":32,\"key3\":1300,\"isMap\":true},\"id\":\"id\"}}";
+		String input = "{\"classId\":\"classID\",\"stringIntMap\":{\"key1\":13,\"key2\":32,\"key3\":1300,\"isMap\":true},\"id\":\"id\"}";
 		
 		StorageToken token = JSONStandardRWFormat.parse(input);
 		
@@ -61,7 +61,7 @@ public class JSONStandardRWFormatTest {
 	@Test
 	public void testParseNestedObject()
 	{
-		String input = "{\"TestData\":{\"classId\":\"TestData\",\"innerTokens\":[{\"classID1\":{\"float1\":3.14,\"classId\":\"classID1\",\"int1\":10,\"str1\":\"value\",\"id\":\"id1\",\"bool1\":true}},{\"classID2\":{\"float1\":43212,\"classId\":\"classID2\",\"int1\":1113,\"str1\":\"value2\",\"id\":\"id2\",\"bool1\":true}}],\"id\":\"outerToken\"}}";
+		String input = "{\"TestData\":{\"classId\":\"TestData\",\"innerTokens\":[{\"classID1\":{\"float1\":3.14,\"classId\":\"classID1\",\"int1\":10,\"str1\":\"value\",\"id\":\"id1\",\"bool1\":true},\"id\":\"id\"},{\"classID2\":{\"float1\":43212,\"classId\":\"classID2\",\"int1\":1113,\"str1\":\"value2\",\"id\":\"id2\",\"bool1\":true},\"id\":\"id\"}],\"id\":\"outerToken\"},\"id\":\"id\"}";
 		
 		StorageToken token = JSONStandardRWFormat.parse(input);
 		
@@ -83,7 +83,7 @@ public class JSONStandardRWFormatTest {
 		
 		String json = JSONStandardRWFormat.serialize(token);
 		
-		Assert.assertEquals("{\"classID\":{\"float1\":3.14,\"nullVal\":null,\"classId\":\"classID\",\"int1\":10,\"str1\":\"value\",\"id\":\"id\",\"bool1\":true}}", json);
+		Assert.assertEquals("{\"float1\":3.14,\"nullVal\":null,\"classId\":\"classID\",\"int1\":10,\"str1\":\"value\",\"id\":\"id\",\"bool1\":true}", json);
 		
 		System.out.println(json);
 	}
@@ -106,7 +106,7 @@ public class JSONStandardRWFormatTest {
 		
 		String json = JSONStandardRWFormat.serialize(token);
 		
-		Assert.assertEquals("{\"classID\":{\"classId\":\"classID\",\"stringList\":[\"string1\",\"string2\",\"string3\"],\"id\":\"id\"}}", json);
+		Assert.assertEquals("{\"classId\":\"classID\",\"stringList\":[\"string1\",\"string2\",\"string3\"],\"id\":\"id\"}", json);
 		
 		System.out.println(json);
 	}
@@ -129,7 +129,7 @@ public class JSONStandardRWFormatTest {
 		
 		String json = JSONStandardRWFormat.serialize(token);
 		
-		Assert.assertEquals("{\"classID\":{\"classId\":\"classID\",\"stringIntMap\":{\"key1\":13,\"key2\":32,\"key3\":1300,\"isMap\":true},\"id\":\"id\"}}", json);
+		Assert.assertEquals("{\"classId\":\"classID\",\"stringIntMap\":{\"key1\":13,\"key2\":32,\"key3\":1300,\"isMap\":true},\"id\":\"id\"}", json);
 		
 		System.out.println(json);
 	}
@@ -162,7 +162,7 @@ public class JSONStandardRWFormatTest {
 		
 		String json = JSONStandardRWFormat.serialize(outerToken);
 
-		Assert.assertEquals("{\"TestData\":{\"classId\":\"TestData\",\"innerTokens\":[{\"classID1\":{\"float1\":3.14,\"classId\":\"classID1\",\"int1\":10,\"str1\":\"value\",\"id\":\"id1\",\"bool1\":true}},{\"classID2\":{\"float1\":43212,\"classId\":\"classID2\",\"int1\":1113,\"str1\":\"value2\",\"id\":\"id2\",\"bool1\":true}}],\"id\":\"outerToken\"}}", json);
+		Assert.assertEquals("{\"classId\":\"TestData\",\"innerTokens\":[{\"float1\":3.14,\"classId\":\"classID1\",\"int1\":10,\"str1\":\"value\",\"id\":\"id1\",\"bool1\":true},{\"float1\":43212,\"classId\":\"classID2\",\"int1\":1113,\"str1\":\"value2\",\"id\":\"id2\",\"bool1\":true}],\"id\":\"outerToken\"}", json);
 		
 		System.out.println(json);
 		
