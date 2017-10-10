@@ -9,7 +9,7 @@ public class ServiceLauncherTest {
     private static String CONFIG_FILE = "agentsConfig.json";
 
     private String testResourceFullPath(String fileName) {
-        String fullFilePath = getClass().getClassLoader().getResource(fileName).getFile();
+        String fullFilePath = "C:\\workspace2\\SuperGLU\\java_maven\\src\\test\\resources\\agentsConfig.json";
         return fullFilePath;
     }
 
@@ -18,7 +18,7 @@ public class ServiceLauncherTest {
         ServiceLauncher launcher = new ServiceLauncher();
         ServiceConfigurationCollection configurations = launcher.readConfigurationFromFile(testResourceFullPath(CONFIG_FILE));
         launcher.launchAndConnectAllServices(configurations);
-        Assert.assertEquals(2, launcher.getServices().size());
+        Assert.assertEquals(3, launcher.getServices().size());
         launcher.stopService("socketIOGateway");
     }
 
@@ -26,7 +26,7 @@ public class ServiceLauncherTest {
     public void testReadConfigurationFromFile() {
         ServiceLauncher launcher = new ServiceLauncher();
         ServiceConfigurationCollection configurations = launcher.readConfigurationFromFile(testResourceFullPath(CONFIG_FILE));
-        Assert.assertEquals(2, configurations.getServiceConfigurationMap().size());
+        Assert.assertEquals(4, configurations.getServiceConfigurationMap().size());
     }
 
     @Test

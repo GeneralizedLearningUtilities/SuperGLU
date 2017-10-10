@@ -36,14 +36,20 @@ public class ServiceLauncher {
     public void launchAndConnectAllServices(ServiceConfigurationCollection configs) {
 
         for (String key : configs.getServiceConfigurationMap().keySet()) {
-            ServiceConfiguration config = configs.getServiceConfigurationMap().get(key);
+        	if(configs.getServiceConfigurationMap().get(key) instanceof ServiceConfiguration)
+        	{
+        		ServiceConfiguration config = configs.getServiceConfigurationMap().get(key);
 
-            launchService(config);
+        		launchService(config);
+        	}
         }
 
         for (String key : configs.getServiceConfigurationMap().keySet()) {
-            ServiceConfiguration config = configs.getServiceConfigurationMap().get(key);
-            connectService(config);
+        	if(configs.getServiceConfigurationMap().get(key) instanceof ServiceConfiguration)
+        	{
+        		ServiceConfiguration config = configs.getServiceConfigurationMap().get(key);
+            	connectService(config);
+        	}
         }
 
     }
