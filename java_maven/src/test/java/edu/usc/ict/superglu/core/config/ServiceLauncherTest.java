@@ -9,7 +9,7 @@ public class ServiceLauncherTest {
     private static String CONFIG_FILE = "agentsConfig.json";
 
     private String testResourceFullPath(String fileName) {
-        String fullFilePath = "C:\\workspace2\\SuperGLU\\java_maven\\src\\test\\resources\\agentsConfig.json";
+        String fullFilePath = this.getClass().getClassLoader().getResource(fileName).getPath();
         return fullFilePath;
     }
 
