@@ -1,13 +1,25 @@
-language: python
-python:
-- '3.4'
-deploy:
-  provider: pypi
-  user: benjamid
-  password:
-    secure: RKBAw6Pu5HA78D/VxOCK9EG/qT3uRpcVh1EBz8tGnyziQzCrU26iG+lQbdHfCcIumfRocanZDFTfEV8NYnroceLg5ua9PReiSjOADjX1c1rOXJkrxmCu2lNvNV6OX94ME5sLjXm3GTIPK9oe0BApc611vlPQIx8QxzsRPJEtY9rTtUleNL82pHWA4/8puwLpccv/TrASQ3AlqRVpZp9EJS/EZhqtqL74qT3HCfkE53UXO/kNDbjavdVEUIEVeMt9viBwFMu1qmiIM/bRu0dSazShxNJX0InCvo1n2vkzn02+jNH0/NygL8FCj4nkVaQDk2gOMxgXyMnRvYg76CnRQQ3dYX5ltwnLvMnF2Eje4H1aRQUx/J7WkLZH0zs6LN0eSOWxuMs26GJox9hQ6IPp7IZXonJhkaB5A6gPYV5gERTQoDrxPf8Oaexx14ay+OugnahFpXtIeJwgjnMKh8k5s7MzJesSVzYjssUgp/KfD0pgwZVzQbPfb0eS+Uf/5BR1RnXpmLZ4dPW15XG2QRFFQ0dA3px9KHxpAK0hz8um6481MAWyqeUq2svTdl8dG5atLY1oFBqKPsK41+Jhz8G8FU1XQC2W+yy+9QDbJcilXCdoWP3lNWFtONHNHBczXSctEGxJCEh8W9t6Eg+NPYPXh0OsIWwsNYupWyZnvgeZvrg=
-  on:
-    tags: true
-    branch: master
-script:
-    touch Readme.md
+matrix:
+  include:
+    - language: python
+      python:
+      - '3.4'
+      deploy:
+        provider: pypi
+        user: benjamid
+        password:
+          secure: RKBAw6Pu5HA78D/VxOCK9EG/qT3uRpcVh1EBz8tGnyziQzCrU26iG+lQbdHfCcIumfRocanZDFTfEV8NYnroceLg5ua9PReiSjOADjX1c1rOXJkrxmCu2lNvNV6OX94ME5sLjXm3GTIPK9oe0BApc611vlPQIx8QxzsRPJEtY9rTtUleNL82pHWA4/8puwLpccv/TrASQ3AlqRVpZp9EJS/EZhqtqL74qT3HCfkE53UXO/kNDbjavdVEUIEVeMt9viBwFMu1qmiIM/bRu0dSazShxNJX0InCvo1n2vkzn02+jNH0/NygL8FCj4nkVaQDk2gOMxgXyMnRvYg76CnRQQ3dYX5ltwnLvMnF2Eje4H1aRQUx/J7WkLZH0zs6LN0eSOWxuMs26GJox9hQ6IPp7IZXonJhkaB5A6gPYV5gERTQoDrxPf8Oaexx14ay+OugnahFpXtIeJwgjnMKh8k5s7MzJesSVzYjssUgp/KfD0pgwZVzQbPfb0eS+Uf/5BR1RnXpmLZ4dPW15XG2QRFFQ0dA3px9KHxpAK0hz8um6481MAWyqeUq2svTdl8dG5atLY1oFBqKPsK41+Jhz8G8FU1XQC2W+yy+9QDbJcilXCdoWP3lNWFtONHNHBczXSctEGxJCEh8W9t6Eg+NPYPXh0OsIWwsNYupWyZnvgeZvrg=
+        on:
+          tags: true
+          branch: master
+      script:
+          touch Readme.md
+
+    - language: java
+      jdk: openjdk8
+      before_script:
+        - cd java_maven
+
+
+notifications:
+  email:
+    - nsurana@usc.edu
