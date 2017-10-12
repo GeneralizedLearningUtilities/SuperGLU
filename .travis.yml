@@ -1,8 +1,8 @@
+python:
+  - '3.4'
 matrix:
   include:
     - language: python
-      python:
-      - '3.4'
       deploy:
         provider: pypi
         user: benjamid
