@@ -18,6 +18,8 @@ matrix:
       jdk: openjdk8
       before_script:
         - cd java_maven
+      install: true
+      script: mvn clean package -DskipTests=true
 
 
 notifications:
