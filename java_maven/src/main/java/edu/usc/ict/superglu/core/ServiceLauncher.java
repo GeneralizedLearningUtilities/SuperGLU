@@ -11,8 +11,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * This class is responsible for launching services based on a
@@ -36,20 +35,18 @@ public class ServiceLauncher {
     public void launchAndConnectAllServices(ServiceConfigurationCollection configs) {
 
         for (String key : configs.getServiceConfigurationMap().keySet()) {
-        	if(configs.getServiceConfigurationMap().get(key) instanceof ServiceConfiguration)
-        	{
-        		ServiceConfiguration config = configs.getServiceConfigurationMap().get(key);
+            if (configs.getServiceConfigurationMap().get(key) instanceof ServiceConfiguration) {
+                ServiceConfiguration config = configs.getServiceConfigurationMap().get(key);
 
-        		launchService(config);
-        	}
+                launchService(config);
+            }
         }
 
         for (String key : configs.getServiceConfigurationMap().keySet()) {
-        	if(configs.getServiceConfigurationMap().get(key) instanceof ServiceConfiguration)
-        	{
-        		ServiceConfiguration config = configs.getServiceConfigurationMap().get(key);
-            	connectService(config);
-        	}
+            if (configs.getServiceConfigurationMap().get(key) instanceof ServiceConfiguration) {
+                ServiceConfiguration config = configs.getServiceConfigurationMap().get(key);
+                connectService(config);
+            }
         }
 
     }
@@ -127,8 +124,9 @@ public class ServiceLauncher {
         if (this.services.containsKey(serviceName)) {
             BaseMessagingNode serviceToStop = this.services.get(serviceName);
 
-            for (BaseMessagingNode connection : serviceToStop.getNodes()) {
-                // Remove connections to other services.
+            final List<BaseMessagingNode> connections = new ArrayList<>(serviceToStop.getNodes());
+
+            for (BaseMessagingNode connection : connections) {
                 serviceToStop.onUnbindToNode(connection);
                 connection.onUnbindToNode(serviceToStop);
             }
