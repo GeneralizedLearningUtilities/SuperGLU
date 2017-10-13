@@ -27,6 +27,7 @@ matrix:
     - language: node_js
       before_script:
         - cd javascript_module
+        - npm install gulp
         - npm install -g gulp-cli
       script: gulp
 
