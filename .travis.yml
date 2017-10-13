@@ -1,5 +1,8 @@
 python:
   - '3.4'
+node_js:
+  - "7"
+
 matrix:
   include:
     - language: python
@@ -21,6 +24,11 @@ matrix:
       install: true
       script: mvn clean package -DskipTests=true
 
+    - language: node_js
+      before_script:
+        - cd javascript_module
+        - npm install -g gulp-cli
+      script: gulp
 
 notifications:
   email:

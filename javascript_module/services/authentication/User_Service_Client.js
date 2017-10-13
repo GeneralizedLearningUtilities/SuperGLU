@@ -5,6 +5,8 @@ if (typeof window === "undefined") {
 
 (function(namespace, undefined) {
 
+
+
 //TODO: Note that we just ad-hoc the context and user objects instead
 //      of using the serialization framework.  This should really be
 //      corrected, but ran out of time
