@@ -48,6 +48,7 @@ NUMBER_OF_RESPONSE = "num_responses_sofar_class"                       #Number o
 NUMBER_OF_CORRECT = "num_correctresponses_sofar_class"       #Number of correct responses in current scenario so far (clustered in 6 classes) (default 0)
 NUMBER_OF_MIXED = "num_mixedresponses_sofar_class"           #Number of mixed responses in current scenario so far (clustered in 6 classes) (default 0)
 NUMBER_OF_INCORRECT = "num_incorrectresponses_sofar_class"   #Number of incorrect responses in current scenario so far (clustered in 6 classes) (default 0)
+QUESTION_DIFFICULTY = "question_difficulty"                  # difficulty class of current decision. 0 means don't know, or not applicable.
 SCORE = "score_sofar_class"                         #Score in current scenario so far (clustered in 6 classes) (default 0)
 RESPONSE_TIME = "responsetime_prevquestion_class"                         #User response time for previous question (clustered in 6 classes) (default 0)
 RESPONSE_TIME_LAST = "responsetime_prev2question_class"               #User response time for 2nd last question (clustered in 6 classes) (default 0)
