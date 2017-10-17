@@ -17,10 +17,11 @@ public class MessagingGatewayTest {
 	class TestService extends BaseService
 	{
 		@Override
-		public void receiveMessage(BaseMessage msg)
+		public boolean receiveMessage(BaseMessage msg)
 		{
 			super.receiveMessage(msg);
 			System.out.println("message received");
+			return true;
 		}
 		
 	}
@@ -52,8 +53,8 @@ public class MessagingGatewayTest {
 		TestService mockService = new TestService();
 		nodes.add(mockService);
 		
-		receiver = new MessagingGateway("Receiver", null, new ArrayList<>(), null, null);
-		gateway = new MessagingGateway("Sender", scope, nodes, condition, null);
+		receiver = new MessagingGateway("Receiver", null, new ArrayList<>(), null, null, null, null);
+		gateway = new MessagingGateway("Sender", scope, nodes, condition, null, null, null);
 		
 		mockService.addNode(gateway);
 		

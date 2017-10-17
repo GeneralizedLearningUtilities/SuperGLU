@@ -21,6 +21,7 @@ import javax.jms.TopicConnection;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.command.ActiveMQTopic;
 
+import edu.usc.ict.superglu.core.blackwhitelist.BlackWhiteListEntry;
 import edu.usc.ict.superglu.core.config.ServiceConfiguration;
 import edu.usc.ict.superglu.util.SerializationConvenience;
 import edu.usc.ict.superglu.util.SerializationFormatEnum;
@@ -100,7 +101,7 @@ public class ActiveMQTopicMessagingGateway extends MessagingGateway implements M
     }
 
     public ActiveMQTopicMessagingGateway(ServiceConfiguration config) {
-        super(config.getId(), null, null, null, null);
+        super(config.getId(), null, null, null, null, config.getBlackList(), config.getWhiteList());
         // Have a default configuration to fall back on.
         ActiveMQTopicConfiguration activeMQConfig = new ActiveMQTopicConfiguration();
 
@@ -113,8 +114,9 @@ public class ActiveMQTopicMessagingGateway extends MessagingGateway implements M
 
     public ActiveMQTopicMessagingGateway(String anId, Map<String, Object> scope, Collection<BaseMessagingNode> nodes,
                                          Predicate<BaseMessage> conditions, List<ExternalMessagingHandler> handlers,
+                                         List<BlackWhiteListEntry> blackList, List<BlackWhiteListEntry> whitelist,
                                          ActiveMQTopicConfiguration activeMQConfiguration) {
-        super(anId, scope, nodes, conditions, handlers);
+        super(anId, scope, nodes, conditions, handlers, blackList, whitelist);
         init(activeMQConfiguration);
     }
 
@@ -189,11 +191,12 @@ public class ActiveMQTopicMessagingGateway extends MessagingGateway implements M
     }
 
     @Override
-    public void receiveMessage(BaseMessage msg) {
+    public boolean receiveMessage(BaseMessage msg) {
         // We need to override this function so that we actually send messages
         // from other services over activeMQ.
         super.receiveMessage(msg);
         this.sendMessage(msg);
+        return true;
     }
 
     /**
