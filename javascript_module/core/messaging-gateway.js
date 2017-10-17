@@ -124,7 +124,7 @@ if (typeof SuperGLU === "undefined") {
             /** Get all connected nodes for the gateway **/
             self.getNodes = function getNodes() {
                 return Object.keys(self._nodes).map(function (key) {
-                    return obj[key].node;
+                    return self._nodes[key].node;
                 });
             };
 
@@ -376,23 +376,6 @@ if (typeof SuperGLU === "undefined") {
                 self._origin = origin;
                 self._element = element;
                 self._queue = [];
-                if (element == window.parent) {
-                    self._isActive = false;
-                    self.startRegistration();
-                } else {
-                    self._isActive = true;
-                }
-            };
-
-            self.startRegistration = function () {
-                var msg = Message(self.getId(), 'REGISTER', null, true);
-                self.registrationInterval = setInterval(function () {
-                    self.sendMessage(msg);
-                }, 1000);
-            };
-
-            self.stopRegistration = function () {
-                clearInterval(self.registrationInterval);
             };
 
             /** Get the origin, which is the frame location that is expected **/
@@ -440,12 +423,35 @@ if (typeof SuperGLU === "undefined") {
                 self._postNodes = {};
                 self._validOrigins = {};
                 self._anyOriginValid = true;
+                self._registrationInterval = 0;
+                self._registry = {};
                 // Construct
                 self.inherited(construct, [id, nodes, scope]);
                 self.validatePostingHierarchy();
                 if (window) {
                     self.bindToWindow(window);
                 }
+                if (nodes && nodes.length) {
+                    nodes.forEach(function (t) {
+                        if (PostMessageGatewayStub.isInstance(t) && t.getElement() === window.parent) {
+                            self.startRegistration(t);
+                            t._isActive = false;        //stub is inactive unless registered
+                        }
+                    });
+                }
+            };
+
+            self.startRegistration = function (node) {
+                var senderId = self.getId();
+                var msg = Message(senderId, 'REGISTER', null, true);
+                var interval = setInterval(function () {
+                    self._transmitPostMessage(node, msg, senderId);
+                }, 2000);
+                self._registrationInterval = interval
+            };
+
+            self.stopRegistration = function () {
+                clearInterval(self._registrationInterval);
             };
 
             /** Get the origin for this window **/
@@ -543,14 +549,34 @@ if (typeof SuperGLU === "undefined") {
             /** Transmit the message to another node **/
             self._transmitMessage = function _transmitMessage(node, msg, senderId) {
                 if (PostMessageGatewayStub.isInstance(node)) {
-                    self._transmitPostMessage(node, msg, senderId);
+                    if (node._isActive) {
+                        self._processPostMessageQueue(node);
+                        self._transmitPostMessage(node, msg, senderId);
+                    } else {
+                        node.getQueue().push({
+                            msg: msg,
+                            senderId: senderId
+                        });
+                    }
                 } else {
                     node.handleMessage(msg, senderId);
                 }
             };
 
+            self._processPostMessageQueue = function (stub) {
+                stub.getQueue().forEach(function (o) {
+                    self._transmitPostMessage(stub, o.msg, o.senderId);
+                });
+                stub.getQueue().splice(0, stub.getQueue().length);
+            };
+
             // HTML5 PostMessage Commands
             self._transmitPostMessage = function _transmitPostMessage(node, msg, senderId) {
+                if (node._stubId) {
+                    msg.setObject(msg.getObject() == null ? {} : msg.getObject());
+                    msg.getObject()["stubId"] = node._stubId;
+                }
+
                 var postMsg, element;
                 postMsg = JSON.stringify({
                     'SuperGLU': true,
@@ -581,7 +607,39 @@ if (typeof SuperGLU === "undefined") {
                     targetId = message.targetId;
                     message = self.stringToMessage(message.msg);
                     console.log(message);
-                    if (Messaging.Message.isInstance(message) &&
+                    if (Messaging.Message.isInstance(message) &
+                        (targetId === self.getId()) &&
+                        message.getVerb() === 'REGISTER'
+                    ) {
+                        var obj = message.getObject() || {};
+                        var node = null;
+                        var verb = 'REGISTERED';
+                        var stubId = UUID.genV4().toString();
+                        if (obj.stubId) {
+                            stubId = obj.stubId;
+                            node = self._registry[stubId];
+                        } else {
+                            node = SuperGLU.Messaging_Gateway.PostMessageGatewayStub(senderId, null, null, event.source);
+                            self._registry[stubId] = node;
+                            self.addNodes([node]);
+                        }
+                        var msg = Message(self.getId(), verb, {stubId: stubId}, true);
+                        self._transmitPostMessage(node, msg, self.getId());
+                    } else if (Messaging.Message.isInstance(message) &
+                        (targetId === self.getId()) &&
+                        message.getVerb() === 'REGISTERED'
+                    ) {
+                        var nodes = self.getNodes();
+                        nodes.forEach(function (node) {
+                            if (PostMessageGatewayStub.isInstance(node) && node.getElement() === window.parent) {
+                                self.stopRegistration();
+                                node._isActive = true;        //stub is inactive unless registered
+                                self._stubId = message.getObject().stubId;
+                                self._processPostMessageQueue(node);
+                            }
+                        });
+                    }
+                    else if (Messaging.Message.isInstance(message) &
                         (targetId === self.getId()) &&
                         (senderId in self._postNodes)) {
                         self.handleMessage(message, senderId);
