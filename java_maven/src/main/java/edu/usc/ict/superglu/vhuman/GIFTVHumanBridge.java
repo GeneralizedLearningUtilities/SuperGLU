@@ -24,7 +24,7 @@ public class GIFTVHumanBridge extends MessagingGateway {
     public static final String GIFT_USER_ID_KEY = "GIFTUserID";
 
     public GIFTVHumanBridge(ServiceConfiguration config) {
-        super(config.getId(), null, null, null, null);
+        super(config.getId(), null, null, null, null, config.getBlackList(), config.getWhiteList());
 
         this.context.put(GIFT_DOMAIN_SESSION_ID_KEY, 0);
         this.context.put(GIFT_USER_ID_KEY, 0);
@@ -32,7 +32,7 @@ public class GIFTVHumanBridge extends MessagingGateway {
     }
 
     public GIFTVHumanBridge(String brokerURL) {
-        super("GIFT_VHUMAN_BRIDGE", null, null, null, null);
+        super("GIFT_VHUMAN_BRIDGE", null, null, null, null, null, null);
     }
 
 
@@ -59,7 +59,7 @@ public class GIFTVHumanBridge extends MessagingGateway {
     }
 
     @Override
-    public void receiveMessage(BaseMessage msg) {
+    public boolean receiveMessage(BaseMessage msg) {
         super.receiveMessage(msg);
 
 
@@ -97,6 +97,8 @@ public class GIFTVHumanBridge extends MessagingGateway {
 
 
         }
+        
+        return true;
     }
 
     // Special code to handle the startup of the virtual human

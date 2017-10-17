@@ -1,6 +1,7 @@
 package edu.usc.ict.superglu.core;
 
 
+import edu.usc.ict.superglu.core.blackwhitelist.BlackWhiteListEntry;
 import edu.usc.ict.superglu.util.Pair;
 import edu.usc.ict.superglu.util.SerializationConvenience;
 import edu.usc.ict.superglu.util.SerializationFormatEnum;
@@ -26,6 +27,9 @@ public class BaseMessagingNode {
     protected Map<String, BaseMessagingNode> nodes;
     protected List<ExternalMessagingHandler> handlers;
     protected Map<String, Object> context;
+    
+    protected List<BlackWhiteListEntry> blackList;
+    protected List<BlackWhiteListEntry> whiteList;
 
     private static boolean CATCH_BAD_MESSAGES = false;
 
@@ -33,7 +37,7 @@ public class BaseMessagingNode {
     public static final String SESSION_KEY = "sessionId";
 
     public BaseMessagingNode(String anId, Predicate<BaseMessage> conditions, Collection<BaseMessagingNode> nodes,
-                             List<ExternalMessagingHandler> handlers) {
+                             List<ExternalMessagingHandler> handlers, List<BlackWhiteListEntry> blackList, List<BlackWhiteListEntry> whiteList) {
         this.nodes = new HashMap<>();
 
         if (anId == null)
@@ -56,16 +60,33 @@ public class BaseMessagingNode {
             this.handlers = new ArrayList<>();
 
         this.context = new HashMap<>();
-
+        
+        if(blackList != null)
+        	this.blackList = blackList;
+        else
+        	this.blackList = new ArrayList<>();
+        
+        
+        if(whiteList != null)
+        	this.whiteList = whiteList;
+        else
+        	this.whiteList = new ArrayList<>();
     }
 
-    public void receiveMessage(BaseMessage msg) {
+    /**
+     * handler for receiving messages
+     * @param msg incoming message
+     * @return true if we should handle the message, false otherwise.
+     */
+    public boolean receiveMessage(BaseMessage msg) {
         log.info(this.id + " received MSG:" + this.messageToString(msg));
         if (msg instanceof Message)
             this.triggerRequests((Message) msg);
 
         for (ExternalMessagingHandler handler : this.handlers)
             handler.handleMessage(msg);
+        
+        return true;
     }
 
     public void sendMessage(BaseMessage msg) {

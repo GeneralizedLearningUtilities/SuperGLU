@@ -62,6 +62,9 @@ def init_global_scenario_context():
     #Has the system question appeared in the previous scenario? (0(no)/1(yes)) (default 0)
     tutoring_state[SEEN_BEFORE] = 0
 
+    #difficulty class of current decision. 0 means don't know, or not applicable.
+    tutoring_state[QUESTION_DIFFICULTY] = 0
+
     #Score in current scenario so far (clustered in 6 classes) (default 0)
     tutoring_state[SCORE] = 0
 
@@ -139,6 +142,7 @@ class RLServiceMessaging(BaseService):
         self.next_AAR_item = -1
         self.next_AAR_action = DEFER
         self.dynamic_state = []
+        self.decision_id = "UNKNOWN"
 
     def writeDiagnostic(self,msg_str):
         cur = os.getcwd()
@@ -185,6 +189,14 @@ class RLServiceMessaging(BaseService):
         with open(filepath, 'r') as f:
             reader = csv.reader(f)
             self.weights_AAR = list(reader)
+
+        self.difficulty_dict = {}
+        #difficulty.csv file needs to be in the same directory as the Python process
+        filepath = os.path.join(cur, 'difficulty.csv')
+        with open(filepath, 'r') as f:
+            reader = csv.reader(f)
+            for row in reader:
+                self.difficulty_dict[row[0]] = row[1]
 
 
     #Random policy for Coach
@@ -277,6 +289,13 @@ class RLServiceMessaging(BaseService):
         self.writeDiagnostic(logstr)
         return top_action 
 
+    def getRandomAAR_Action(self):
+        r = rand.random()
+        if r  < 0.5:
+            return DIAGNOSE
+        else:
+            return DOOVER
+
     # ************** UPDATE STATE METHODS ******************************
 
     def end_scenario(self):
@@ -284,6 +303,8 @@ class RLServiceMessaging(BaseService):
         tutoring_state[SCENARIO_NUMBER] = tutoring_state[SCENARIO_NUMBER] + 1
         if (tutoring_state[SCENARIO_NUMBER] == 3):
             self.questions = []
+            tutoring_state[SEEN_BEFORE] = 0
+            tutoring_state[QUALITY_PREV_IF_SEEN] = RNULL
         init_prev_scenario_context()
                 
         #reset current values
@@ -297,11 +318,7 @@ class RLServiceMessaging(BaseService):
             # if correct, do nothing (i.e., skip over the item)
             if (self.dynamic_state[i][QUALITY_ANSWER] != RCORRECT):
                 self.next_AAR_item = i
-                r = rand.random()
-                if r  < 0.5:
-                    self.next_AAR_action = DIAGNOSE
-                else:
-                    self.next_AAR_action = DOOVER
+                self.next_AAR_action = self.getRandomAAR_Action()
                 break
         else:
             self.next_AAR_item = -1
@@ -319,6 +336,16 @@ class RLServiceMessaging(BaseService):
 
                 self.calculate_next_AAR_info(0)
             
+            elif msg.getVerb() == VR_EXPRESS:
+                result = msg.getResult()
+                self.decision_id = result.ref
+                if (self.decision_id in self.difficulty_dict):
+                    tutoring_state[QUESTION_DIFFICULTY] = self.difficulty_dict[self.decision_id]
+                    logstr = logstr + "decision id is: " + self.decision_id + " question_difficulty is " + self.difficulty_dict[self.decision_id] + "\n"
+                else:
+                    tutoring_state[QUESTION_DIFFICULTY] = 0
+                    logstr = logstr + "decision id is: " + self.decision_id + " question_difficulty is 0 (not seen in training)\n"
+
             #get Gender
             elif REGISTER_USER_INFO in msg.getVerb():
                 #logInfo('{0} received gender update message: {1}'.format(RL_SERVICE_NAME, self.messageToString(msg)), 2)
@@ -372,7 +399,7 @@ class RLServiceMessaging(BaseService):
                             break
                         else:
                             tutoring_state[SEEN_BEFORE] = 0
-                            tutoring_state[QUALITY_PREV_IF_SEEN] = 0
+                            tutoring_state[QUALITY_PREV_IF_SEEN] = RNULL
             
                 self.dynamic_state.append(dict())
 

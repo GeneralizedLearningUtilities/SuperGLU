@@ -19,12 +19,12 @@ import java.util.function.Predicate;
 
 public class MinimalHttpsServer extends BaseMessagingNode {
     public MinimalHttpsServer(String anId, MessagingGateway gateway, Predicate<BaseMessage> conditions) {
-        super(anId, conditions, null, null);
+        super(anId, conditions, null, null, null, null);
     }
 
 
     @Override
-    public void receiveMessage(BaseMessage msg) {
+    public boolean receiveMessage(BaseMessage msg) {
         super.receiveMessage(msg);
 
         String msgAsString = SerializationConvenience.serializeObject(msg, SerializationFormatEnum.JSON_FORMAT);
@@ -33,6 +33,8 @@ public class MinimalHttpsServer extends BaseMessagingNode {
         log.info(msgAsString);
 
         sendMessage(msg);
+        
+        return true;
     }
 
 
@@ -44,7 +46,7 @@ public class MinimalHttpsServer extends BaseMessagingNode {
 
         SocketIOServer socketIO = new SocketIOServer(config);
 
-        MessagingGateway gateway = new HTTPMessagingGateway("httpGatweay", null, null, null, null, socketIO);
+        MessagingGateway gateway = new HTTPMessagingGateway("httpGatweay", null, null, null, null, socketIO, null, null);
 
         MinimalHttpsServer server = new MinimalHttpsServer("server", gateway, null);
 

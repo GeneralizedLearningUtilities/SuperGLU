@@ -16,12 +16,12 @@ public class BaseService extends BaseMessagingNode {
 	}
 	
 	public BaseService(String anId, Predicate<BaseMessage> conditions) {
-		super(anId, conditions, null, null);
+		super(anId, conditions, null, null, null, null);
 	}
 	
 	public BaseService(String anId, Predicate<BaseMessage> conditions, List<ExternalMessagingHandler> handlers)
 	{
-	    super(anId, conditions, null, handlers);
+	    super(anId, conditions, null, handlers,null,null);
 	}
 
 }

@@ -2,6 +2,8 @@ package edu.usc.ict.superglu.core;
 
 import com.corundumstudio.socketio.*;
 import com.corundumstudio.socketio.listener.DataListener;
+
+import edu.usc.ict.superglu.core.blackwhitelist.BlackWhiteListEntry;
 import edu.usc.ict.superglu.core.config.ServiceConfiguration;
 import edu.usc.ict.superglu.util.SerializationConvenience;
 import edu.usc.ict.superglu.util.SerializationFormatEnum;
@@ -43,7 +45,7 @@ public class HTTPMessagingGateway extends MessagingGateway implements DataListen
 	}
 
 	public HTTPMessagingGateway(ServiceConfiguration serviceConfig) {
-		super(serviceConfig.getId(), null, null, null, null);
+		super(serviceConfig.getId(), null, null, null, null, serviceConfig.getBlackList(), serviceConfig.getWhiteList());
 		log.debug("starting http messaging gateway");
 		try
 		{
@@ -79,8 +81,8 @@ public class HTTPMessagingGateway extends MessagingGateway implements DataListen
 	}
 
 	public HTTPMessagingGateway(String anId, Map<String, Object> scope, Collection<BaseMessagingNode> nodes,
-			Predicate<BaseMessage> conditions, List<ExternalMessagingHandler> handlers, SocketIOServer socketIO) {
-		super(anId, scope, nodes, conditions, handlers);
+			Predicate<BaseMessage> conditions, List<ExternalMessagingHandler> handlers,  SocketIOServer socketIO, List<BlackWhiteListEntry> blackList, List<BlackWhiteListEntry> whiteList) {
+		super(anId, scope, nodes, conditions, handlers, blackList, whiteList);
 		this.socketIO = socketIO;
 		this.clients = new ConcurrentHashMap<>();
 

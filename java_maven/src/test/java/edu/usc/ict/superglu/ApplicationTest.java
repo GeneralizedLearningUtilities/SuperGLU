@@ -27,16 +27,17 @@ public class ApplicationTest {
 		
 		
 		
-		ActiveMQTopicMessagingGateway sender = new ActiveMQTopicMessagingGateway("sender", null, null, null, null, config);
-		ActiveMQTopicMessagingGateway receiver = new ActiveMQTopicMessagingGateway("receiver", null, null, null, null, config);
+		ActiveMQTopicMessagingGateway sender = new ActiveMQTopicMessagingGateway("sender", null, null, null, null, null, null, config);
+		ActiveMQTopicMessagingGateway receiver = new ActiveMQTopicMessagingGateway("receiver", null, null, null, null, null, null, config);
 		
 		class TestService extends BaseService
 		{
 			@Override
-			public void receiveMessage(BaseMessage msg)
+			public boolean receiveMessage(BaseMessage msg)
 			{
 				super.receiveMessage(msg);
 				System.out.println("message received");
+				return true;
 			}
 			
 		}
