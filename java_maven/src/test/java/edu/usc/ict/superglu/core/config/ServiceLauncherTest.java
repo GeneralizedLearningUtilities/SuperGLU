@@ -9,7 +9,7 @@ public class ServiceLauncherTest {
     private static String CONFIG_FILE = "agentsConfig.json";
 
     private String testResourceFullPath(String fileName) {
-        String fullFilePath = this.getClass().getClassLoader().getResource(fileName).getPath();
+        String fullFilePath = "java_maven/src/test/resources/agentsConfig.json"; //this.getClass().getClassLoader().getResource(fileName).getPath();
         return fullFilePath;
     }
 
@@ -27,6 +27,7 @@ public class ServiceLauncherTest {
         ServiceLauncher launcher = new ServiceLauncher();
         ServiceConfigurationCollection configurations = launcher.readConfigurationFromFile(testResourceFullPath(CONFIG_FILE));
         Assert.assertEquals(4, configurations.getServiceConfigurationMap().size());
+        Assert.assertNotNull(configurations.getServiceConfigurationMap().get("defaultBridge").getWhiteList());
     }
 
     @Test

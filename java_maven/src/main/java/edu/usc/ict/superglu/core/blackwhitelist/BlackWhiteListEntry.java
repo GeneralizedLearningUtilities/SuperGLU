@@ -23,6 +23,7 @@ public class BlackWhiteListEntry extends SuperGlu_Serializable {
 	private static final String VERSION_KEY = "version";
 	private static final String MESSAGE_NAME_KEY = "messageName";
 	
+	private static final String WILDCARD = "*";
 	
 	public static final String GIFT_MESSAGE_TYPE = "GIFT";
 	public static final String SUPERGLU_MESSAGE_TYPE = "SuperGLU";
@@ -94,6 +95,13 @@ public class BlackWhiteListEntry extends SuperGlu_Serializable {
 
 		return result;
 	}
+	
+	
+
+	@Override
+	public String toString() {
+		return this.messageType + "." + this.version + "." + this.messageName;
+	}
 
 	@Override
 	public void initializeFromToken(StorageToken token) {
@@ -150,7 +158,7 @@ public class BlackWhiteListEntry extends SuperGlu_Serializable {
 		else if (this.messageType.equals(VHUMAN_MESSAGE_TYPE))
 			return msg instanceof VHMessage;
 		
-		else if (this.messageType.equals("*"))
+		else if (this.messageType.equals(WILDCARD))
 			return true;
 		
 		else 
@@ -161,7 +169,7 @@ public class BlackWhiteListEntry extends SuperGlu_Serializable {
 	private boolean evaluateMessageVersion(BaseMessage msg)
 	{
 		//For now just accept wildcards
-		if(this.version.equals("*"))
+		if(this.version.equals(WILDCARD))
 			return true;
 		
 		
@@ -171,7 +179,7 @@ public class BlackWhiteListEntry extends SuperGlu_Serializable {
 	
 	private boolean evaluateMessageName(BaseMessage msg)
 	{
-		if(this.messageName.equals("*"))
+		if(this.messageName.equals(WILDCARD))
 			return true;
 		
 		if(msg instanceof VHMessage)

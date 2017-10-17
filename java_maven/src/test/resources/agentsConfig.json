@@ -6,6 +6,8 @@
 					"nodes": ["activeMQGateway",
 					"VHMSGBridgeGateway"],
 					"id": "socketIOGateway",
+                    "whiteList":["*.*.*"],
+                    "blackList":[],
 					"type": "edu.usc.ict.superglu.core.HTTPMessagingGateway",
 					"params": {
 						"socketIOConfig": 5333,
@@ -18,6 +20,8 @@
 					"nodes": ["socketIOGateway",
 					"VHMSGBridgeGateway"],
 					"id": "activeMQGateway",
+                    "whiteList":["*.*.*"],
+                    "blackList":[],
 					"type": "edu.usc.ict.superglu.core.ActiveMQTopicMessagingGateway",
 					"params": {
 						"activeMQConfig": {
@@ -36,6 +40,8 @@
 					"classId": "ServiceConfiguration",
 					"nodes": ["activeMQGateway",
 					"socketIOGateway"],
+                    "whiteList":["*.*.*"],
+                    "blackList":[],
 					"id": "defaultBridge",
 					"type": "edu.usc.ict.superglu.vhuman.GIFTVHumanBridge",
 					"params": {

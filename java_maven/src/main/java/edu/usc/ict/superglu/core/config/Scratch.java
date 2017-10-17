@@ -35,7 +35,7 @@ public class Scratch {
 		amqNodes.add(socketioGatewayName);
 		amqNodes.add(bridgeGatewayName);
 		
-		ServiceConfiguration activeMQGateway = new ServiceConfiguration(amqGatewayName, ActiveMQTopicConfiguration.class, amqParams, amqNodes);
+		ServiceConfiguration activeMQGateway = new ServiceConfiguration(amqGatewayName, ActiveMQTopicConfiguration.class, amqParams, amqNodes, null,null);
 		
 		
 		Map<String, Object> socketIOParams = new HashMap<>();
@@ -45,7 +45,7 @@ public class Scratch {
 		socketIONodes.add(amqGatewayName);
 		socketIONodes.add(bridgeGatewayName);
 		
-		ServiceConfiguration socketIOGateway = new ServiceConfiguration(socketioGatewayName, HTTPMessagingGateway.class, socketIOParams, socketIONodes);
+		ServiceConfiguration socketIOGateway = new ServiceConfiguration(socketioGatewayName, HTTPMessagingGateway.class, socketIOParams, socketIONodes,null,null);
 		
 		
 		Map<String, Object> defaultBridgeParams = new HashMap<>();
@@ -56,7 +56,7 @@ public class Scratch {
 		bridgeNodes.add(amqGatewayName);
 		bridgeNodes.add(socketioGatewayName);
 		
-		ServiceConfiguration GiftVHumanBridge = new ServiceConfiguration("defaultBridge", GIFTVHumanBridge.class, defaultBridgeParams, bridgeNodes);
+		ServiceConfiguration GiftVHumanBridge = new ServiceConfiguration("defaultBridge", GIFTVHumanBridge.class, defaultBridgeParams, bridgeNodes,null,null);
 		
 		
 		Map<String, ServiceConfiguration> result = new HashMap<>();
