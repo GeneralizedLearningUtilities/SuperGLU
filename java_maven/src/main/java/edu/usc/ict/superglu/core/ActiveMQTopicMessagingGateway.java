@@ -223,7 +223,7 @@ public class ActiveMQTopicMessagingGateway extends MessagingGateway implements M
             }
             BaseMessage msg;
             String msgType = jmsMessage.getStringProperty(ActiveMQTopicMessagingGateway.MESSAGETYPE);
-            String isVhmsg = jmsMessage.getStringProperty(ActiveMQTopicMessagingGateway.VHMSG);
+            String isVhmsg = jmsMessage.getStringProperty("ELVISH_SCOPE");
             if (msgType != null && msgType.equals(ActiveMQTopicMessagingGateway.SUPERGLU)) {
                 msg = (Message) SerializationConvenience.nativeizeObject(body, SerializationFormatEnum.JSON_FORMAT);
             } else if (isVhmsg != null) {
