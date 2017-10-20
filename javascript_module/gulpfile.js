@@ -9,6 +9,7 @@ gulp.task('default', function () {
         , './util/zet.js'
         , './super-glu.js'
         , './util/serialization.js'
+        , './util/socket.io.js'
         , './core/messaging.js'
         , './core/messaging-gateway.js'
         , './services/orchestration/heartbeat-service.js'
