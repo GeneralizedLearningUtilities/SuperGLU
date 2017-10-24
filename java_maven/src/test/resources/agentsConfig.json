@@ -8,7 +8,7 @@
 			"id": "socketIOGateway",
 			"whiteList": ["*.*.*"],
 			"blackList": [],
-			"type": "edu.usc.ict.superglu.core.HTTPMessagingGateway",
+			"type": "edu.usc.ict.superglu.core.SocketIOGateway",
 			"params": {
 				"gatewayBlackList": {
 					"classId": "GatewayBlackWhiteListConfiguration",
