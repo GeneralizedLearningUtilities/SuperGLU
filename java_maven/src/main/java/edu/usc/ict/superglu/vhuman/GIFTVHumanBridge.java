@@ -1,6 +1,7 @@
 package edu.usc.ict.superglu.vhuman;
 
 import edu.usc.ict.superglu.core.*;
+import edu.usc.ict.superglu.core.config.GatewayBlackWhiteListConfiguration;
 import edu.usc.ict.superglu.core.config.ServiceConfiguration;
 
 import java.io.IOException;
@@ -24,7 +25,7 @@ public class GIFTVHumanBridge extends MessagingGateway {
     public static final String GIFT_USER_ID_KEY = "GIFTUserID";
 
     public GIFTVHumanBridge(ServiceConfiguration config) {
-        super(config.getId(), null, null, null, null, config.getBlackList(), config.getWhiteList());
+        super(config.getId(), null, null, null, null, config.getBlackList(), config.getWhiteList(), (GatewayBlackWhiteListConfiguration) config.getParams().getOrDefault(GATEWAY_BLACKLIST_KEY, null));
 
         this.context.put(GIFT_DOMAIN_SESSION_ID_KEY, 0);
         this.context.put(GIFT_USER_ID_KEY, 0);
@@ -32,7 +33,7 @@ public class GIFTVHumanBridge extends MessagingGateway {
     }
 
     public GIFTVHumanBridge(String brokerURL) {
-        super("GIFT_VHUMAN_BRIDGE", null, null, null, null, null, null);
+        super("GIFT_VHUMAN_BRIDGE", null, null, null, null, null, null, null);
     }
 
 

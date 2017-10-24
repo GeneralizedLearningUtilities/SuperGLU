@@ -168,7 +168,7 @@ public class BlackWhiteListEntry extends SuperGlu_Serializable {
 	
 	private boolean evaluateMessageVersion(BaseMessage msg)
 	{
-		//For now just accept wildcards
+		//For now just accept wildcards until all message types have versions.
 		if(this.version.equals(WILDCARD))
 			return true;
 		

@@ -53,8 +53,8 @@ public class MessagingGatewayTest {
 		TestService mockService = new TestService();
 		nodes.add(mockService);
 		
-		receiver = new MessagingGateway("Receiver", null, new ArrayList<>(), null, null, null, null);
-		gateway = new MessagingGateway("Sender", scope, nodes, condition, null, null, null);
+		receiver = new MessagingGateway("Receiver", null, new ArrayList<>(), null, null, null, null, null);
+		gateway = new MessagingGateway("Sender", scope, nodes, condition, null, null, null, null);
 		
 		mockService.addNode(gateway);
 		

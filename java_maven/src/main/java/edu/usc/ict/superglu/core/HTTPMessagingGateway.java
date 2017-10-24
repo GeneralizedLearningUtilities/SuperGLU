@@ -4,6 +4,7 @@ import com.corundumstudio.socketio.*;
 import com.corundumstudio.socketio.listener.DataListener;
 
 import edu.usc.ict.superglu.core.blackwhitelist.BlackWhiteListEntry;
+import edu.usc.ict.superglu.core.config.GatewayBlackWhiteListConfiguration;
 import edu.usc.ict.superglu.core.config.ServiceConfiguration;
 import edu.usc.ict.superglu.util.SerializationConvenience;
 import edu.usc.ict.superglu.util.SerializationFormatEnum;
@@ -45,7 +46,7 @@ public class HTTPMessagingGateway extends MessagingGateway implements DataListen
 	}
 
 	public HTTPMessagingGateway(ServiceConfiguration serviceConfig) {
-		super(serviceConfig.getId(), null, null, null, null, serviceConfig.getBlackList(), serviceConfig.getWhiteList());
+		super(serviceConfig.getId(), null, null, null, null, serviceConfig.getBlackList(), serviceConfig.getWhiteList(), (GatewayBlackWhiteListConfiguration) serviceConfig.getParams().getOrDefault(GATEWAY_BLACKLIST_KEY, null));
 		log.debug("starting http messaging gateway");
 		try
 		{
@@ -82,7 +83,7 @@ public class HTTPMessagingGateway extends MessagingGateway implements DataListen
 
 	public HTTPMessagingGateway(String anId, Map<String, Object> scope, Collection<BaseMessagingNode> nodes,
 			Predicate<BaseMessage> conditions, List<ExternalMessagingHandler> handlers,  SocketIOServer socketIO, List<BlackWhiteListEntry> blackList, List<BlackWhiteListEntry> whiteList) {
-		super(anId, scope, nodes, conditions, handlers, blackList, whiteList);
+		super(anId, scope, nodes, conditions, handlers, blackList, whiteList, new GatewayBlackWhiteListConfiguration());
 		this.socketIO = socketIO;
 		this.clients = new ConcurrentHashMap<>();
 

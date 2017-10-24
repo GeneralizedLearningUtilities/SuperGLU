@@ -1,6 +1,7 @@
 package edu.usc.ict.superglu.core;
 
 import edu.usc.ict.superglu.core.blackwhitelist.BlackWhiteListEntry;
+import edu.usc.ict.superglu.core.config.GatewayBlackWhiteListConfiguration;
 import edu.usc.ict.superglu.ontology.OntologyBroker;
 import edu.usc.ict.superglu.ontology.mappings.MessageMapFactory;
 import edu.usc.ict.superglu.ontology.mappings.MessageType;
@@ -20,19 +21,21 @@ import java.util.function.Predicate;
 
 public class MessagingGateway extends BaseMessagingNode {
 
+	public static final String GATEWAY_BLACKLIST_KEY = "gatewayBlackList";
+	
 	private Map<String, Object> scope;
 
 	private OntologyBroker ontologyBroker;
 
 	public MessagingGateway() {// Default constructor for ease of access
-		this(null, null, null, null, null, null, null);
+		this(null, null, null, null, null, null, null, null);
 		ontologyBroker = new OntologyBroker(MessageMapFactory.buildMessageMaps(),
 				MessageMapFactory.buildDefaultMessageTemplates());
 	}
 
 	public MessagingGateway(String anId, Map<String, Object> scope, Collection<BaseMessagingNode> nodes,
 			Predicate<BaseMessage> conditions, List<ExternalMessagingHandler> handlers,
-			List<BlackWhiteListEntry> blackList, List<BlackWhiteListEntry> whiteList) {
+			List<BlackWhiteListEntry> blackList, List<BlackWhiteListEntry> whiteList, GatewayBlackWhiteListConfiguration gatewayBlackList) {
 		super(anId, conditions, nodes, handlers, blackList, whiteList);
 		if (scope == null)
 			this.scope = new HashMap<>();

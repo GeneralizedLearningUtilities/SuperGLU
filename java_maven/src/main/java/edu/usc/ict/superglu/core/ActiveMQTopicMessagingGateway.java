@@ -22,6 +22,7 @@ import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.command.ActiveMQTopic;
 
 import edu.usc.ict.superglu.core.blackwhitelist.BlackWhiteListEntry;
+import edu.usc.ict.superglu.core.config.GatewayBlackWhiteListConfiguration;
 import edu.usc.ict.superglu.core.config.ServiceConfiguration;
 import edu.usc.ict.superglu.util.SerializationConvenience;
 import edu.usc.ict.superglu.util.SerializationFormatEnum;
@@ -101,7 +102,7 @@ public class ActiveMQTopicMessagingGateway extends MessagingGateway implements M
     }
 
     public ActiveMQTopicMessagingGateway(ServiceConfiguration config) {
-        super(config.getId(), null, null, null, null, config.getBlackList(), config.getWhiteList());
+        super(config.getId(), null, null, null, null, config.getBlackList(), config.getWhiteList(), (GatewayBlackWhiteListConfiguration) config.getParams().getOrDefault(GATEWAY_BLACKLIST_KEY, null));
         // Have a default configuration to fall back on.
         ActiveMQTopicConfiguration activeMQConfig = new ActiveMQTopicConfiguration();
 
@@ -116,7 +117,7 @@ public class ActiveMQTopicMessagingGateway extends MessagingGateway implements M
                                          Predicate<BaseMessage> conditions, List<ExternalMessagingHandler> handlers,
                                          List<BlackWhiteListEntry> blackList, List<BlackWhiteListEntry> whitelist,
                                          ActiveMQTopicConfiguration activeMQConfiguration) {
-        super(anId, scope, nodes, conditions, handlers, blackList, whitelist);
+        super(anId, scope, nodes, conditions, handlers, blackList, whitelist, new GatewayBlackWhiteListConfiguration());
         init(activeMQConfiguration);
     }
 
