@@ -1,25 +1,22 @@
 #!/usr/bin/env python
 
-'''Python 3 script: RLPlayer.py was created on May 19, 2016 by
-@author: skarumbaiah
-Documentation here: https://docs.google.com/document/d/1RfX9zMZEjgFuY31qRXaRPC_b64N0yOLxdXTuean8K2s/edit#
+'''Python 3 script: RLPlayer.py 
+
+Version 1.x: fall 2017 updates by Mark Core
+Documentation: https://docs.google.com/document/d/1ugSHaWLXTKXawXAGkdsGblTAGnew-wZOGedYdvqVhQk/edit?usp=sharing
 
 Contains class RLServiceMessaging which deals with SuperGLU messages coming from the Engage
 system which are:
 
 1. state updates
-2. requests for next coaching action. Based on experimental condition, either pick randomly or use RL policy
-    to decide.
-3. requests for next AAR action. Never include correct response in AAR. Otherwise pick randomly between DOOVER and DIAGNOSE.
+2. requests for next coaching action. 
+3. requests for next AAR action.
 
-Version 1.x: August/September 2017 updates by Mark Core
+Original version created on May 19, 2016 by
+@author: skarumbaiah
+Documentation here: https://docs.google.com/document/d/1RfX9zMZEjgFuY31qRXaRPC_b64N0yOLxdXTuean8K2s/edit#
 
-Consolidated everything into a single class. Moved reading of weights into constructor. 
-Creates a log file, RLPlayerDiagnostics.txt for specific debug messages and error messages from this script.
-Prints error message if unknown action or feature seen in weights.
-
-KNOWN ISSUES: 
-  1. Although this is a class, it has many global variables so if you created multiple instances
+KNOWN ISSUE: Although this is a class, it has many global variables so if you created multiple instances
       of the class then bad things would happen.
 
 '''
@@ -41,12 +38,18 @@ from SuperGLU.Util.Representation.Classes import Speech
 RL_SERVICE_NAME = "RL Service"
 
 #tutoring state for RL coach
-tutoring_state = {  SCENARIO_NUMBER : 1,                  # Scenario number (1/2) (default 1)
-                    GENDER : RMALE,                       # gender of the participant (RMALE | RFEMALE) 
-                    AFTER_USERRESPONSE_STATE: 0,          # always 0.
-                    FINAL_STATE: 0,                       # always 0.
-                    RESP_QUALITY_AFTER_RESPONSE : 0       # quality_state(quality of answer,AFTER_USERRESPONSE_STATE)
-                  }
+tutoring_state = {  
+    # Scenario number (1/2) (default 1)
+    SCENARIO_NUMBER : 1,                  
+    # gender of the participant (RMALE | RFEMALE)
+    GENDER : RMALE,
+    # 0 = hint possible state
+    # 1 = feedback possible state            
+    AFTER_USERRESPONSE_STATE: 1,           
+    FINAL_STATE: 0,                       # always 0.
+    # quality_state(quality of answer,AFTER_USERRESPONSE_STATE)
+    RESP_QUALITY_AFTER_RESPONSE : 0       
+}
 
 def init_global_scenario_context():
     # QUALITY FEATURES: RNULL | RINCORRECT | RMIXED | RCORRECT
@@ -129,7 +132,8 @@ class RLServiceMessaging(BaseService):
 
     # initialize or reset object variables for local context
     def init_local_context(self):
-        #recent locals for current
+
+        self.state = "NOT AAR"
         self.num_response = None
         self.num_correct_response = None
         self.num_incorrect_response = None
@@ -137,24 +141,30 @@ class RLServiceMessaging(BaseService):
         self.start = None
         self.end = None
         self.time_taken = None
+        self.sum_time_taken = None
+        self.sum_time_correct = None
+        self.sum_time_mixed = None
+        self.sum_time_incorrect = None
+
         self.decision_index = 0
         self.AAR_item_offset = -1
         self.next_AAR_item = -1
-        self.next_AAR_action = DEFER
+        self.next_AAR_action = DONE
         self.dynamic_state = []
         self.decision_id = "UNKNOWN"
 
     def writeDiagnostic(self,msg_str):
-        cur = os.getcwd()
+        if (msg_str != ""):
+            cur = os.getcwd()
         
-        # open RL log file "RLPlayerDiagnostics.txt" in the same directory as the Python process
-        # append msg_str (don't add any newline)
-        filepath = os.path.join(cur, "RLPlayerDiagnostics.txt")
-        try:
-            with open(filepath, 'a') as logfile:
-                logfile.write(msg_str)                
-        except:
-            print("ERROR: CANNOT OPEN DIAGNOSTICS LOG FILE. DIAGNOSTICS ENTRY NOT SAVED.")
+            # open RL log file "RLPlayerDiagnostics.txt" in the same directory as the Python process
+            # append msg_str (don't add any newline)
+            filepath = os.path.join(cur, "RLPlayerDiagnostics.txt")
+            try:
+                with open(filepath, 'a') as logfile:
+                    logfile.write(msg_str)                
+            except:
+                print("ERROR: CANNOT OPEN DIAGNOSTICS LOG FILE. DIAGNOSTICS ENTRY NOT SAVED.")
 
 
     def __init__(self, experimentCondition="Default"):
@@ -164,16 +174,11 @@ class RLServiceMessaging(BaseService):
 
         # initialize rest of object variables
         self.experimentCondition=experimentCondition
-        self.sum_time_taken = None
-        self.sum_time_correct = None
-        self.sum_time_mixed = None
-        self.sum_time_incorrect = None
         self.questions = []
         #interval
         self.interval = {None:0, 0:1, 1:1, 2:1, 3:1, 4:1, 5:2, 6:2, 7:2, 8:2, 9:3, 10:3, 11:3, 12:3, 13:4, 14:4, 15:4, 16:4}
         self.time_interval = {None:0, 0:1, 1:1, 2:1, 3:1, 4:1, 5:1, 6:2, 7:2, 8:2, 9:2, 10:2, 11:3, 12:3, 13:3, 14:3, 15:3, 16:4, 17:4, 18:4, 19:4, 20:4}
         self.quality_state = {(0,0):0, (0,1):1, (1,0):2, (1,1):3, (2,0):4, (2,1):5, (3,0):6, (3,1):7} #(quality,state)
-
         self.writeDiagnostic("new session. experimentCondition = " + self.experimentCondition + "\n")
 
         cur = os.getcwd()
@@ -232,7 +237,7 @@ class RLServiceMessaging(BaseService):
 
 
     #get top action from the trained policy for the coach   
-    def getTopCoachAction(self):
+    def getRLcoachAction(self):
 
         action = {DO_NOTHING:0, GIVE_HINT:0, GIVE_FEEDBACK:0, GIVE_HINT_FEEDBACK:0}
         logstr = ""
@@ -263,11 +268,62 @@ class RLServiceMessaging(BaseService):
         self.writeDiagnostic(logstr)
         return top_action 
 
+    def isGiveFeedback(self,feedback_action,hint_action):
+        if (feedback_action == GIVE_FEEDBACK):
+            return True
+        elif (hint_action == GIVE_FEEDBACK):
+            return True
+        else:
+            return False
+
+    def isGiveHint(self,feedback_action,hint_action):
+        if (feedback_action == GIVE_HINT):
+            return True
+        elif (hint_action == GIVE_HINT):
+            return True
+        else:
+            return False
+
+
+    def getTopCoachAction(self):
+        feedback_action = self.getRLcoachAction()
+        
+        tutoring_state[AFTER_USERRESPONSE_STATE] = 0
+        tutoring_state[RESP_QUALITY_AFTER_RESPONSE] = self.quality_state[(tutoring_state[QUALITY_ANSWER], tutoring_state[AFTER_USERRESPONSE_STATE])]
+        
+        hint_action = self.getRLcoachAction()
+        tutoring_state[AFTER_USERRESPONSE_STATE] = 1
+        
+        if (self.isGiveFeedback(feedback_action,hint_action) and self.isGiveHint(feedback_action,hint_action)):
+            return GIVE_HINT_FEEDBACK
+        elif (self.isGiveFeedback(feedback_action,hint_action)):
+            return GIVE_FEEDBACK
+        elif (self.isGiveHint(feedback_action,hint_action)):
+            return GIVE_HINT
+        else:
+            return DO_NOTHING
+
     #get top action from the trained policy for the AAR   
-    def getTopAAR_Action(self):
+    def getTopAAR_Action(self,decision_index):
 
         action = {DIAGNOSE:0, DOOVER:0}
         logstr = ""
+
+        # set following state variables to appropriate variables for decision_index:
+        tutoring_state[QUESTION_DIFFICULTY] = self.dynamic_state[decision_index][QUESTION_DIFFICULTY]
+        tutoring_state[RESPONSE_TIME] = self.dynamic_state[decision_index][RESPONSE_TIME]
+        tutoring_state[QUALITY_ANSWER] = self.dynamic_state[decision_index][QUALITY_ANSWER]
+
+        if (tutoring_state[SCENARIO_NUMBER] == 2):
+            tutoring_state[SEEN_BEFORE] = self.dynamic_state[decision_index][SEEN_BEFORE]
+            tutoring_state[QUALITY_PREV_IF_SEEN] = self.dynamic_state[decision_index][QUALITY_PREV_IF_SEEN]
+        # else either scenario == 1 or 3 and these variables will correctly have their initial values
+
+        # set following state variables to null values (meaning not applicable):
+        tutoring_state[QUALITY_ANSWER_LAST] = RNULL
+        tutoring_state[QUALITY_ANSWER_LAST_LAST] = RNULL
+        tutoring_state[RESPONSE_TIME_LAST] = 0
+        tutoring_state[RESPONSE_TIME_LAST_LAST] = 0
 
         #add weights for the state indicators set in tutoring_state
         for w in self.weights_AAR:
@@ -286,6 +342,9 @@ class RLServiceMessaging(BaseService):
         #get best action
         top_action = max(action, key=action.get)
 
+        logstr = logstr + "AAR RL policy says next action = " + top_action + " index = " + str(decision_index) + " based on the following state: \n"
+        logstr = logstr + str(tutoring_state) + "\n"
+        
         self.writeDiagnostic(logstr)
         return top_action 
 
@@ -303,8 +362,6 @@ class RLServiceMessaging(BaseService):
         tutoring_state[SCENARIO_NUMBER] = tutoring_state[SCENARIO_NUMBER] + 1
         if (tutoring_state[SCENARIO_NUMBER] == 3):
             self.questions = []
-            tutoring_state[SEEN_BEFORE] = 0
-            tutoring_state[QUALITY_PREV_IF_SEEN] = RNULL
         init_prev_scenario_context()
                 
         #reset current values
@@ -318,7 +375,16 @@ class RLServiceMessaging(BaseService):
             # if correct, do nothing (i.e., skip over the item)
             if (self.dynamic_state[i][QUALITY_ANSWER] != RCORRECT):
                 self.next_AAR_item = i
-                self.next_AAR_action = self.getRandomAAR_Action()
+                # for now, assume that we DON'T use RL policy for AAR in scenario 3
+                if ((self.experimentCondition=="A") or (tutoring_state[SCENARIO_NUMBER] == 3)):
+                    self.next_AAR_action = self.getRandomAAR_Action()
+                    self.writeDiagnostic("AAR random choice says next action = " + self.next_AAR_action + " index = " + str(self.next_AAR_item) + "\n")
+                else:
+                    try:
+                        self.next_AAR_action = self.getTopAAR_Action(self.next_AAR_item)
+                    except:
+                        self.writeDiagnostic("ERROR: AAR Action set to DOOVER. Exception in getTopAAR_Action: " + str(sys.exc_info()[0]) + "\n")
+                        self.next_AAR_action = DOOVER
                 break
         else:
             self.next_AAR_item = -1
@@ -332,19 +398,26 @@ class RLServiceMessaging(BaseService):
             #update scenario
             if BEGIN_AAR in msg.getVerb():
                 #logInfo('{0} received scenario update message: {1}'.format(RL_SERVICE_NAME, self.messageToString(msg)), 2)
-                logstr = logstr + "updateStateRLCoach: BEGIN_AAR msg.\n"
-
+                # write diagnostic before calculate_next_AAR_info
+                self.writeDiagnostic("BEGIN_AAR -> updateStateRLCoach\n")
+                self.state = "AAR"
                 self.calculate_next_AAR_info(0)
             
             elif msg.getVerb() == VR_EXPRESS:
-                result = msg.getResult()
-                self.decision_id = result.ref
-                if (self.decision_id in self.difficulty_dict):
-                    tutoring_state[QUESTION_DIFFICULTY] = self.difficulty_dict[self.decision_id]
-                    logstr = logstr + "decision id is: " + self.decision_id + " question_difficulty is " + self.difficulty_dict[self.decision_id] + "\n"
-                else:
-                    tutoring_state[QUESTION_DIFFICULTY] = 0
-                    logstr = logstr + "decision id is: " + self.decision_id + " question_difficulty is 0 (not seen in training)\n"
+                if (self.state != "AAR"):
+                    self.dynamic_state.append(dict())            
+
+                    result = msg.getResult()
+                    self.decision_id = result.ref
+
+
+                    if (self.decision_id in self.difficulty_dict):
+                        tutoring_state[QUESTION_DIFFICULTY] = self.difficulty_dict[self.decision_id]
+                        self.dynamic_state[self.decision_index][QUESTION_DIFFICULTY] = self.difficulty_dict[self.decision_id]
+                    else:
+                        tutoring_state[QUESTION_DIFFICULTY] = 0
+                        self.dynamic_state[self.decision_index][QUESTION_DIFFICULTY] = 0
+                    logstr = logstr + "VR_EXPRESS (" + self.decision_id + ") -> question_difficulty = " + str(tutoring_state[QUESTION_DIFFICULTY]) + "\n"
 
             #get Gender
             elif REGISTER_USER_INFO in msg.getVerb():
@@ -355,20 +428,19 @@ class RLServiceMessaging(BaseService):
                     tutoring_state[GENDER] = RFEMALE
                 elif gend == MALE:
                     tutoring_state[GENDER] = RMALE
-                logstr = logstr + "updateStateRLCoach: REGISTER_USER_INFO msg. Gender = " + str(tutoring_state[GENDER]) + "\n"
-                logstr = logstr + str(tutoring_state) + "\n"
+                logstr = logstr + "REGISTER_USER_INFO -> Gender = " + str(tutoring_state[GENDER]) + "\n"
             
             #update response time
             #verb should be GameLog, the object should be PracticeEnvironment and the result should be RandomizedChoices
             elif msg.getVerb() == GAME_LOG and msg.getObject() == PRACTICE_ENVIRONMENT and msg.getResult() == RANDOMIZED_CHOICES:
                 #logInfo('{0} received start timestamp update message: {1}'.format(RL_SERVICE_NAME, self.messageToString(msg)), 2)
                 self.start = msg.getTimestamp()
-                logstr = logstr + "updateStateRLCoach: GAME_LOG, PRACTICE_ENVIRONMENT, RANDOMIZED_CHOICES msg. start = " + str(self.start) + "\n"
-                logstr = logstr + str(tutoring_state) + "\n"
+                logstr = logstr + "GAME_LOG, PRACTICE_ENVIRONMENT, RANDOMIZED_CHOICES -> start = " + str(self.start) + "\n"
             
             #once the participant answers
             elif TRANSCRIPT_UPDATE in msg.getVerb():
                 #logInfo('{0} received transcript update message: {1}'.format(RL_SERVICE_NAME, self.messageToString(msg)), 2)
+                logstr = logstr + "TRANSCRIPT_UPDATE -> updating state (see msg and new state)\n"
                 logstr = logstr + self.messageToString(msg) + "\n"
 
                 # update AAR item offset
@@ -392,17 +464,19 @@ class RLServiceMessaging(BaseService):
                 elif tutoring_state[SCENARIO_NUMBER] == 2:
                     logInfo('{0} received if seen before message: {1}'.format(RL_SERVICE_NAME, self.messageToString(msg)), 2)
                     node_id = msg.getContextValue(NODE_ID_CONTEXT_KEY)
+                    
+                    tutoring_state[SEEN_BEFORE] = 0
+                    tutoring_state[QUALITY_PREV_IF_SEEN] = RNULL
+                    self.dynamic_state[self.decision_index][SEEN_BEFORE] = 0
+                    self.dynamic_state[self.decision_index][QUALITY_PREV_IF_SEEN] = RNULL
                     for question in self.questions:
                         if question[0] == node_id:
                             tutoring_state[SEEN_BEFORE] = 1
                             tutoring_state[QUALITY_PREV_IF_SEEN] = question[1]
+                            self.dynamic_state[self.decision_index][SEEN_BEFORE] = 1
+                            self.dynamic_state[self.decision_index][QUALITY_PREV_IF_SEEN] = question[1]
                             break
-                        else:
-                            tutoring_state[SEEN_BEFORE] = 0
-                            tutoring_state[QUALITY_PREV_IF_SEEN] = RNULL
             
-                self.dynamic_state.append(dict())
-
                 #update lasts
                 tutoring_state[QUALITY_ANSWER_LAST_LAST] = tutoring_state[QUALITY_ANSWER_LAST]
                 tutoring_state[QUALITY_ANSWER_LAST] = tutoring_state[QUALITY_ANSWER]
@@ -423,6 +497,7 @@ class RLServiceMessaging(BaseService):
                 
                 self.sum_time_taken = self.time_taken if self.sum_time_taken is None else self.sum_time_taken + self.time_taken
                 tutoring_state[RESPONSE_TIME] = self.time_interval.get(ceil(self.time_taken),5)
+                self.dynamic_state[self.decision_index][RESPONSE_TIME] = tutoring_state[RESPONSE_TIME]
                 tutoring_state[AVG_RESPONSE_TIME] = self.time_interval.get(ceil(self.sum_time_taken/self.num_response),5)
                 
                 #correctness based responses
@@ -506,11 +581,12 @@ class RLServiceMessaging(BaseService):
                     item = -1
                     action = DONE
                     self.end_scenario()
-                    logstr = logstr + 'receiveMessage: send PERFORM_ACTION: DONE\n'
+                    # print diagnostic before calculate_next_AAR_info prints diagnostics
+                    self.writeDiagnostic('GET_NEXT_AGENDA_ITEM -> PERFORM_ACTION (DONE)\n')
                 else:
                     item = self.next_AAR_item + self.AAR_item_offset
                     action = self.next_AAR_action
-                    logstr = logstr + 'receiveMessage: send PERFORM_ACTION: ' + action + ' index= ' + str(item) + '\n'
+                    self.writeDiagnostic('GET_NEXT_AGENDA_ITEM -> PERFORM_ACTION (action= ' + action + ' index= ' + str(item) + ')\n')
 
                     # update next_AAR_item and next_AAR_action
                     self.calculate_next_AAR_info(self.next_AAR_item + 1)
@@ -535,14 +611,21 @@ class RLServiceMessaging(BaseService):
             #for random RL
             if self.experimentCondition=="A":
                 action = self.getELITEcoachAction()
-            
+                logstr = logstr + 'REQUEST_COACHING_ACTIONS -> ELITE Coach -> COACHING_ACTIONS (' + action + ')\n'
             else:
-                #for trained policy based RL
-                try:
-                    action = self.getTopCoachAction()
-                except:
-                    logstr = logstr + "ERROR: Action set to DO_NOTHING. Exception in getTopCoachAction: " + str(sys.exc_info()[0]) + "\n"
+                # coach is turned off for scenario 3, and RL policy is
+                # not trained to produce sensible actions for scenario 3.
+                if (tutoring_state[SCENARIO_NUMBER] == 3):
                     action = DO_NOTHING
+                    logstr = logstr + 'REQUEST_COACHING_ACTIONS -> 3rd scenario / RL Coach -> COACHING_ACTIONS (always DO_NOTHING)\n'
+                else:
+                    #for trained policy based RL
+                    try:
+                        action = self.getTopCoachAction()
+                        logstr = logstr + 'REQUEST_COACHING_ACTIONS -> RL Coach -> COACHING_ACTIONS (' + action + ')\n'                                            
+                    except:
+                        logstr = logstr + "ERROR: Action set to DO_NOTHING. Exception in getTopCoachAction: " + str(sys.exc_info()[0]) + "\n"
+                        action = DO_NOTHING
                 
             #send message   
             reply_msg = self._createRequestReply(msg)
@@ -550,7 +633,7 @@ class RLServiceMessaging(BaseService):
             reply_msg.setVerb(COACHING_ACTIONS)
             
             if reply_msg is not None:
-                logstr = logstr + 'receiveMessage: send COACHING_ACTIONS: ' + action + '\n'
+                
                 #logInfo('{0} is sending reply for coaching request:{1}'.format(RL_SERVICE_NAME, self.messageToString(reply_msg)), 2)
                 self.sendMessage(reply_msg)  
             
