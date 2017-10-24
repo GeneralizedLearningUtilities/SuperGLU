@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import edu.usc.ict.superglu.util.SerializationConvenience;
 import edu.usc.ict.superglu.util.StorageToken;
@@ -44,6 +45,12 @@ public class GatewayBlackWhiteListConfiguration extends SuperGlu_Serializable {
 
 	public List<String> getMessageList(String destination) {
 		return config.get(destination);
+	}
+	
+	
+	public Set<String> getKeys()
+	{
+		return this.config.keySet();
 	}
 
 	@Override
