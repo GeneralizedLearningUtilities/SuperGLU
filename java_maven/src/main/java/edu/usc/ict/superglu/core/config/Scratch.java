@@ -27,10 +27,10 @@ public class Scratch {
 		Map<String, Object> amqParams = new HashMap<String, Object>();
 		amqParams.put(ServiceConfiguration.ACTIVEMQ_PARAM_KEY, topicConfiguration);
 		
-		Map<String, List<String>> amqGatewayBlackList = new HashMap<>();
+		GatewayBlackWhiteListConfiguration amqGatewayBlackList = new GatewayBlackWhiteListConfiguration();
 		List<String> vhumanMessages = new ArrayList<>();
 		vhumanMessages.add("VHuman.*.*");
-		amqGatewayBlackList.put("external", vhumanMessages);
+		amqGatewayBlackList.addMessage("external", "VHuman.*.*");
 		
 		amqParams.put(MessagingGateway.GATEWAY_BLACKLIST_KEY, amqGatewayBlackList);
 		

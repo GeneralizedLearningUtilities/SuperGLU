@@ -11,9 +11,12 @@
 			"type": "edu.usc.ict.superglu.core.HTTPMessagingGateway",
 			"params": {
 				"gatewayBlackList": {
-					"external": ["VHuman.*.*"],
-                    "all":["SuperGLU.*.REGISTER"],
-					"isMap": true
+					"classId": "GatewayBlackWhiteListConfiguration",
+					"id": "d22e5ad1-3c4d-4cdd-8f71-9efd5ed37693",
+					"config": {
+						"external": ["VHuman.*.*"],
+						"isMap": true
+					}
 				},
 				"socketIOConfig": 5333,
 				"isMap": true
