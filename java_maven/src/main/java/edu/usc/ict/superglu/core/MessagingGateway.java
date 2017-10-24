@@ -6,6 +6,7 @@ import edu.usc.ict.superglu.ontology.OntologyBroker;
 import edu.usc.ict.superglu.ontology.mappings.MessageMapFactory;
 import edu.usc.ict.superglu.ontology.mappings.MessageType;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -22,10 +23,12 @@ import java.util.function.Predicate;
 public class MessagingGateway extends BaseMessagingNode {
 
 	public static final String GATEWAY_BLACKLIST_KEY = "gatewayBlackList";
-	
+
 	private Map<String, Object> scope;
 
 	private OntologyBroker ontologyBroker;
+
+	private Map<String, List<BlackWhiteListEntry>> gatewayBlackList;
 
 	public MessagingGateway() {// Default constructor for ease of access
 		this(null, null, null, null, null, null, null, null);
@@ -35,7 +38,8 @@ public class MessagingGateway extends BaseMessagingNode {
 
 	public MessagingGateway(String anId, Map<String, Object> scope, Collection<BaseMessagingNode> nodes,
 			Predicate<BaseMessage> conditions, List<ExternalMessagingHandler> handlers,
-			List<BlackWhiteListEntry> blackList, List<BlackWhiteListEntry> whiteList, GatewayBlackWhiteListConfiguration gatewayBlackList) {
+			List<BlackWhiteListEntry> blackList, List<BlackWhiteListEntry> whiteList,
+			GatewayBlackWhiteListConfiguration gatewayBlackList) {
 		super(anId, conditions, nodes, handlers, blackList, whiteList);
 		if (scope == null)
 			this.scope = new HashMap<>();
@@ -46,7 +50,32 @@ public class MessagingGateway extends BaseMessagingNode {
 
 		ontologyBroker = new OntologyBroker(MessageMapFactory.buildMessageMaps(),
 				MessageMapFactory.buildDefaultMessageTemplates());
+		
+		buildGatewayBlackWhiteList(gatewayBlackList);
 	}
+	
+	
+	private void buildGatewayBlackWhiteList(GatewayBlackWhiteListConfiguration config) {
+		if(config == null)
+			return;
+		
+		this.gatewayBlackList = new HashMap<>();
+
+		for (String destination : config.getKeys()) {
+			List<String> entriesAsString = config.getMessageList(destination);
+
+			List<BlackWhiteListEntry> entries = new ArrayList<>();
+
+			for (String entryAsString : entriesAsString) {
+				BlackWhiteListEntry entry = new BlackWhiteListEntry(entryAsString);
+				entries.add(entry);
+			}
+
+			this.gatewayBlackList.put(destination, entries);
+		}
+	}
+	
+	
 
 	/**
 	 * override this function to place disconnection code in here

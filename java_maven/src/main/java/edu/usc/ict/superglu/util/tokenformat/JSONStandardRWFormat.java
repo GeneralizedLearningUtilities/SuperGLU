@@ -199,11 +199,14 @@ public class JSONStandardRWFormat extends TokenRWFormat {
 				Map<Object, Object> result = new HashMap<>();
 
 				for (Object key : inputAsJsonObject.keySet()) {
-					Object value = inputAsJsonObject.get(key);
+					if(!key.equals("isMap"))
+					{
+						Object value = inputAsJsonObject.get(key);	
 
-					Object nativizedKey = makeNative(key);
-					Object nativizedValue = makeNative(value);
-					result.put(nativizedKey, nativizedValue);
+						Object nativizedKey = makeNative(key);
+						Object nativizedValue = makeNative(value);
+						result.put(nativizedKey, nativizedValue);
+					}
 				}
 
 				return result;
