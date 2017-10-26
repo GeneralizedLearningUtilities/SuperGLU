@@ -108,11 +108,10 @@ public class SocketIOGateway extends MessagingGateway implements DataListener<Ma
 	 */
 
 	@Override
-	public boolean distributeMessage(BaseMessage msg, String senderId) {
+	public void distributeMessage(BaseMessage msg, String senderId) {
 		this.addContextDataToMsg(msg);
 		this.sendWebsocketMesage(msg);
 		super.distributeMessage(msg, senderId);
-		return true;
 	}
 
 	@Override
@@ -122,6 +121,10 @@ public class SocketIOGateway extends MessagingGateway implements DataListener<Ma
 	}
 
 	public void sendWebsocketMesage(BaseMessage msg) {
+		
+		if(this.IsMessageOnGatewayExternalBlackList(msg))
+			return;
+		
 		String msgAsString = SerializationConvenience.serializeObject(msg, SerializationFormatEnum.JSON_FORMAT);
 
 		Map<String, String> data = new HashMap<>();

@@ -92,6 +92,48 @@ public class MessagingGateway extends BaseMessagingNode {
 		super.receiveMessage(msg);
 		this.distributeMessage(msg, senderId);
 	}
+	
+	
+	protected boolean isMessageOnDestinationBlackList(List<BlackWhiteListEntry> entries, BaseMessage msg)
+	{
+		if(entries != null)
+		{
+			for(BlackWhiteListEntry entry : entries)
+			{
+				if(entry.evaluateMessage(msg))
+					return true;
+			}
+		}
+		
+		return false;
+	}
+	
+
+	@Override
+	protected boolean isMessageOnGatewayBlackList(BaseMessagingNode destination, BaseMessage msg) {
+		String destinationID = destination.getId();
+		List<BlackWhiteListEntry> entries = this.gatewayBlackList.getOrDefault(destinationID, null);
+		
+		boolean result = isMessageOnDestinationBlackList(entries, msg);
+		
+		List<BlackWhiteListEntry> allDestinationEntries = this.gatewayBlackList.getOrDefault(GatewayBlackWhiteListConfiguration.ALL_DESTINATIONS, null);
+		
+		result = result || isMessageOnDestinationBlackList(allDestinationEntries, msg);
+		
+		return result;
+	
+	}
+	
+	
+	protected boolean IsMessageOnGatewayExternalBlackList(BaseMessage msg)
+	{
+		List<BlackWhiteListEntry> externalEntries = this.gatewayBlackList.getOrDefault(GatewayBlackWhiteListConfiguration.EXTERNAL_DESTINATIONS, null);
+		boolean result = isMessageOnDestinationBlackList(externalEntries, msg);
+		List<BlackWhiteListEntry> allEntries = this.gatewayBlackList.getOrDefault(GatewayBlackWhiteListConfiguration.ALL_DESTINATIONS, null);
+		result = result || isMessageOnDestinationBlackList(allEntries, msg);
+		
+		return result;
+	}
 
 	/**
 	 * """ Send a message from a child node to parent and sibling nodes """
@@ -102,10 +144,9 @@ public class MessagingGateway extends BaseMessagingNode {
 	 *            Sender ID
 	 */
 	@Override
-	public boolean distributeMessage(BaseMessage msg, String senderId) {
+	public void distributeMessage(BaseMessage msg, String senderId) {
 		this.addContextDataToMsg(msg);
 		super.distributeMessage(msg, senderId);
-		return true;
 	}
 
 	/**

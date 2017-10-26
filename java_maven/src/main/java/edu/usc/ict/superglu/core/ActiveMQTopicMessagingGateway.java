@@ -155,9 +155,11 @@ public class ActiveMQTopicMessagingGateway extends MessagingGateway implements M
 	}
 
     @Override
-    public boolean sendMessage(BaseMessage msg) {
-        if(!super.sendMessage(msg))
-        	return false;
+    public void sendMessage(BaseMessage msg) {
+        super.sendMessage(msg);
+        
+        if(IsMessageOnGatewayExternalBlackList(msg))
+        	return;
         
         try {
             if (msg instanceof Message) {
@@ -191,8 +193,6 @@ public class ActiveMQTopicMessagingGateway extends MessagingGateway implements M
             log.warn("Failed to Send Message to ActiveMQ:"
                     + SerializationConvenience.serializeObject(msg, SerializationFormatEnum.JSON_FORMAT));
         }
-        
-        return true;
     }
 
     @Override

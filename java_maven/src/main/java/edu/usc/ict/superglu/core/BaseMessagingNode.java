@@ -115,10 +115,10 @@ public class BaseMessagingNode {
 		return true;
 	}
 
-	public boolean sendMessage(BaseMessage msg) {
+	public void sendMessage(BaseMessage msg) {
 		log.debug(this.id + " is sending " + this.messageToString(msg));
 		String senderID = (String) msg.getContextValue(ORIGINATING_SERVICE_ID_KEY);
-		return this.distributeMessage(msg, senderID);
+		this.distributeMessage(msg, senderID);
 	}
 
 	/**
@@ -141,9 +141,14 @@ public class BaseMessagingNode {
 	 * @param senderId
 	 * @return true if message is distributed, false if not.
 	 */
-	public boolean distributeMessage(BaseMessage msg, String senderId) {
+	public void distributeMessage(BaseMessage msg, String senderId) {
 		this.distributeMessage_impl(this.nodes, msg, senderId);
-		return true;
+	}
+	
+	
+	protected boolean isMessageOnGatewayBlackList(BaseMessagingNode destination, BaseMessage msg)
+	{
+		return false;
 	}
 
 	/**
@@ -157,8 +162,9 @@ public class BaseMessagingNode {
 	 */
 	protected void distributeMessage_impl(Map<String, BaseMessagingNode> nodes, BaseMessage msg, String senderId) {
 		for (BaseMessagingNode node : nodes.values()) {
-			if (node.id != senderId && (node.getMessageConditions() == null || node.getMessageConditions().test(msg)))
-				node.receiveMessage(msg);
+			if(!isMessageOnGatewayBlackList(node, msg))
+				if (node.id != senderId && (node.getMessageConditions() == null || node.getMessageConditions().test(msg)))
+					node.receiveMessage(msg);
 		}
 	}
 
