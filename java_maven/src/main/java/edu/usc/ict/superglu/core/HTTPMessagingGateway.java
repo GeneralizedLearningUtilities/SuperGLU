@@ -108,10 +108,15 @@ public class HTTPMessagingGateway extends MessagingGateway implements DataListen
 	 */
 
 	@Override
-	public void distributeMessage(BaseMessage msg, String senderId) {
+	public boolean distributeMessage(BaseMessage msg, String senderId) {
+		
+		if(!super.distributeMessage(msg, senderId))
+			return false;
+		
 		this.addContextDataToMsg(msg);
 		this.sendWebsocketMesage(msg);
-		super.distributeMessage(msg, senderId);
+		
+		return true;
 	}
 
 	@Override

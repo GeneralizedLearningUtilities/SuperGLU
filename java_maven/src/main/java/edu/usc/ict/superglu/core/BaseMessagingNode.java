@@ -115,10 +115,10 @@ public class BaseMessagingNode {
 		return true;
 	}
 
-	public void sendMessage(BaseMessage msg) {
+	public boolean sendMessage(BaseMessage msg) {
 		log.debug(this.id + " is sending " + this.messageToString(msg));
 		String senderID = (String) msg.getContextValue(ORIGINATING_SERVICE_ID_KEY);
-		this.distributeMessage(msg, senderID);
+		return this.distributeMessage(msg, senderID);
 	}
 
 	/**
@@ -139,9 +139,11 @@ public class BaseMessagingNode {
 	 *
 	 * @param msg
 	 * @param senderId
+	 * @return true if message is distributed, false if not.
 	 */
-	public void distributeMessage(BaseMessage msg, String senderId) {
+	public boolean distributeMessage(BaseMessage msg, String senderId) {
 		this.distributeMessage_impl(this.nodes, msg, senderId);
+		return true;
 	}
 
 	/**

@@ -28,7 +28,7 @@ public class MessagingGateway extends BaseMessagingNode {
 
 	private OntologyBroker ontologyBroker;
 
-	private Map<String, List<BlackWhiteListEntry>> gatewayBlackList;
+	protected Map<String, List<BlackWhiteListEntry>> gatewayBlackList;
 
 	public MessagingGateway() {// Default constructor for ease of access
 		this(null, null, null, null, null, null, null, null);
@@ -102,9 +102,10 @@ public class MessagingGateway extends BaseMessagingNode {
 	 *            Sender ID
 	 */
 	@Override
-	public void distributeMessage(BaseMessage msg, String senderId) {
+	public boolean distributeMessage(BaseMessage msg, String senderId) {
 		this.addContextDataToMsg(msg);
 		super.distributeMessage(msg, senderId);
+		return true;
 	}
 
 	/**
