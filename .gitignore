@@ -460,3 +460,4 @@ logfile.csv
 env
 
 javascript_module/node_modules
+/target/

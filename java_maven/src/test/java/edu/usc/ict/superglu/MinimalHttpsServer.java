@@ -4,7 +4,7 @@ import com.corundumstudio.socketio.Configuration;
 import com.corundumstudio.socketio.SocketIOServer;
 import edu.usc.ict.superglu.core.BaseMessage;
 import edu.usc.ict.superglu.core.BaseMessagingNode;
-import edu.usc.ict.superglu.core.HTTPMessagingGateway;
+import edu.usc.ict.superglu.core.SocketIOGateway;
 import edu.usc.ict.superglu.core.MessagingGateway;
 import edu.usc.ict.superglu.util.SerializationConvenience;
 import edu.usc.ict.superglu.util.SerializationFormatEnum;
@@ -46,7 +46,7 @@ public class MinimalHttpsServer extends BaseMessagingNode {
 
         SocketIOServer socketIO = new SocketIOServer(config);
 
-        MessagingGateway gateway = new HTTPMessagingGateway("httpGatweay", null, null, null, null, socketIO, null, null);
+        MessagingGateway gateway = new SocketIOGateway("socketIOGateway", null, null, null, null, socketIO, null, null);
 
         MinimalHttpsServer server = new MinimalHttpsServer("server", gateway, null);
 
