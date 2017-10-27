@@ -56,11 +56,12 @@ public class MessagingGateway extends BaseMessagingNode {
 	
 	
 	private void buildGatewayBlackWhiteList(GatewayBlackWhiteListConfiguration config) {
+		
+		this.gatewayBlackList = new HashMap<>();
+		
 		if(config == null)
 			return;
 		
-		this.gatewayBlackList = new HashMap<>();
-
 		for (String destination : config.getKeys()) {
 			List<String> entriesAsString = config.getMessageList(destination);
 

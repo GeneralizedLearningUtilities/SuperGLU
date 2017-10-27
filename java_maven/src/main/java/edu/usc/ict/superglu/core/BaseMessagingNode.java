@@ -83,8 +83,9 @@ public class BaseMessagingNode {
 			}
 		}
 
-		for (BlackWhiteListEntry entry : this.whiteList) {
+		for (BlackWhiteListEntry entry : this.blackList) {
 			if (entry.evaluateMessage(msg)) {
+				log.info(this.id + " recieved a blacklisted message: " + SerializationConvenience.serializeObject(msg, SerializationFormatEnum.JSON_FORMAT) + "| message will be ignored");
 				result = false;
 				break;
 			}
@@ -270,8 +271,8 @@ public class BaseMessagingNode {
 		return SerializationConvenience.serializeObject(msg, SerializationFormatEnum.JSON_FORMAT);
 	}
 
-	public Message stringToMessage(String msgAsString) {
-		Message result = null;
+	public BaseMessage stringToMessage(String msgAsString) {
+		BaseMessage result = null;
 		if (CATCH_BAD_MESSAGES) {
 
 			try {
@@ -282,14 +283,14 @@ public class BaseMessagingNode {
 				log.error("Exception Caught:" + e.toString());
 			}
 		} else {
-			result = (Message) SerializationConvenience.nativeizeObject(msgAsString,
+			result = (BaseMessage) SerializationConvenience.nativeizeObject(msgAsString,
 					SerializationFormatEnum.JSON_FORMAT);
 		}
 
 		return result;
 	}
 
-	public List<String> messagesToStringList(List<Message> msgs) {
+	public List<String> messagesToStringList(List<BaseMessage> msgs) {
 		List<String> result = new ArrayList<>();
 
 		for (BaseMessage msg : msgs) {
@@ -299,11 +300,11 @@ public class BaseMessagingNode {
 		return result;
 	}
 
-	public List<Message> stringListToMessages(List<String> strMsgs) {
-		List<Message> result = new ArrayList<>();
+	public List<BaseMessage> stringListToMessages(List<String> strMsgs) {
+		List<BaseMessage> result = new ArrayList<>();
 
 		for (String strMsg : strMsgs) {
-			Message msg = this.stringToMessage(strMsg);
+			BaseMessage msg = this.stringToMessage(strMsg);
 			result.add(msg);
 		}
 

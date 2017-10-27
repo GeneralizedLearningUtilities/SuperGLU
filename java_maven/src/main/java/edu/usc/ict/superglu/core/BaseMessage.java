@@ -83,7 +83,7 @@ public class BaseMessage extends SuperGlu_Serializable {
         if (!(otherObject instanceof BaseMessage))
             return false;
 
-        Message other = (Message) otherObject;
+        BaseMessage other = (BaseMessage) otherObject;
 
         if (!fieldIsEqual(this.context, other.context))
             return false;

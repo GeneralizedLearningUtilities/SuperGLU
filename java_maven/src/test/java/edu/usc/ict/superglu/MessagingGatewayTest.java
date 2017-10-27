@@ -1,10 +1,14 @@
 package edu.usc.ict.superglu;
 
 import edu.usc.ict.superglu.core.*;
+import edu.usc.ict.superglu.core.blackwhitelist.BlackWhiteListEntry;
+
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import com.fasterxml.jackson.databind.deser.Deserializers.Base;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,7 +33,7 @@ public class MessagingGatewayTest {
 	private MessagingGateway gateway;
 	private MessagingGateway receiver;
 	
-	private List<Message> testMessages;
+	private List<BaseMessage> testMessages;
 	
 	private static boolean messageConditions(BaseMessage msg)
 	{
@@ -53,8 +57,11 @@ public class MessagingGatewayTest {
 		TestService mockService = new TestService();
 		nodes.add(mockService);
 		
-		receiver = new MessagingGateway("Receiver", null, new ArrayList<>(), null, null, null, null, null);
-		gateway = new MessagingGateway("Sender", scope, nodes, condition, null, null, null, null);
+		List<BlackWhiteListEntry> blackList = new ArrayList<>();
+		blackList.add(new BlackWhiteListEntry("VHuman.*.*"));
+		
+		receiver = new MessagingGateway("Receiver", null, new ArrayList<>(), null, null, blackList, null, null);
+		gateway = new MessagingGateway("Sender", scope, nodes, condition, null, blackList, null, null);
 		
 		mockService.addNode(gateway);
 		
@@ -62,14 +69,17 @@ public class MessagingGatewayTest {
 	}
 	
 	
-	private List<Message> buildMessages()
+	private List<BaseMessage> buildMessages()
 	{
-		List<Message> result = new ArrayList<>();
+		List<BaseMessage> result = new ArrayList<>();
 		
 		Message msg1 = new Message("penguin", "eats", "fish", "gets fat", SpeechActEnum.INFORM_ACT, null, new HashMap<>(), "msg1");
 		result.add(msg1);
 		Message msg2 = new Message("TestService", "Sends Message", "to somebody", "this message should go through", SpeechActEnum.INFORM_ACT, null, new HashMap<>(), "msg2");
 		result.add(msg2);
+		VHMessage msg3 = new VHMessage("vhMessage", null, "vrSpeak", 1.2f, "speaking");
+		result.add(msg3);
+		
 		return result;
 	}
 
@@ -79,7 +89,7 @@ public class MessagingGatewayTest {
 
 	@Test
 	public void testReceiveMessage() {
-		for(Message msg : this.testMessages)
+		for(BaseMessage msg : this.testMessages)
 			gateway.receiveMessage(msg);
 	}
 	
@@ -87,14 +97,14 @@ public class MessagingGatewayTest {
 	@Test
 	public void testSendMessage()
 	{
-		for(Message msg : this.testMessages)
+		for(BaseMessage msg : this.testMessages)
 			gateway.sendMessage(msg);
 	}
 	
 
 	@Test
 	public void testAddContextDataToMsg() {
-		Message msg1 = testMessages.get(0);
+		BaseMessage msg1 = testMessages.get(0);
 		gateway.addContextDataToMsg(msg1);
 		
 		Assert.assertEquals(msg1.getContextValue("key2"), "penguins");
@@ -117,7 +127,7 @@ public class MessagingGatewayTest {
 	public void testMessagesToStringListAndBack() {
 		List<String> msgsAsStrings = gateway.messagesToStringList(testMessages);
 		System.out.print(msgsAsStrings.toString());
-		List<Message> copy = gateway.stringListToMessages(msgsAsStrings);
+		List<BaseMessage> copy = gateway.stringListToMessages(msgsAsStrings);
 		
 		Assert.assertEquals(testMessages, copy);
 	}
