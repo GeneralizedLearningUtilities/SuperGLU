@@ -23,15 +23,18 @@ import java.util.function.Predicate;
 public class MessagingGateway extends BaseMessagingNode {
 
 	public static final String GATEWAY_BLACKLIST_KEY = "gatewayBlackList";
+	public static final String GATEWAY_WHITELIST_KEY = "gatewayWhiteList";
 
 	private Map<String, Object> scope;
 
 	private OntologyBroker ontologyBroker;
 
 	protected Map<String, List<BlackWhiteListEntry>> gatewayBlackList;
+	
+	protected Map<String, List<BlackWhiteListEntry>> gatewayWhiteList;
 
 	public MessagingGateway() {// Default constructor for ease of access
-		this(null, null, null, null, null, null, null, null);
+		this(null, null, null, null, null, null, null, null, null);
 		ontologyBroker = new OntologyBroker(MessageMapFactory.buildMessageMaps(),
 				MessageMapFactory.buildDefaultMessageTemplates());
 	}
@@ -39,7 +42,7 @@ public class MessagingGateway extends BaseMessagingNode {
 	public MessagingGateway(String anId, Map<String, Object> scope, Collection<BaseMessagingNode> nodes,
 			Predicate<BaseMessage> conditions, List<ExternalMessagingHandler> handlers,
 			List<BlackWhiteListEntry> blackList, List<BlackWhiteListEntry> whiteList,
-			GatewayBlackWhiteListConfiguration gatewayBlackList) {
+			GatewayBlackWhiteListConfiguration gatewayBlackList, GatewayBlackWhiteListConfiguration gatewayWhiteList) {
 		super(anId, conditions, nodes, handlers, blackList, whiteList);
 		if (scope == null)
 			this.scope = new HashMap<>();
@@ -51,16 +54,17 @@ public class MessagingGateway extends BaseMessagingNode {
 		ontologyBroker = new OntologyBroker(MessageMapFactory.buildMessageMaps(),
 				MessageMapFactory.buildDefaultMessageTemplates());
 		
-		buildGatewayBlackWhiteList(gatewayBlackList);
+		this.gatewayBlackList = buildGatewayBlackWhiteList(gatewayBlackList);
+		this.gatewayWhiteList = buildGatewayBlackWhiteList(gatewayWhiteList);
 	}
 	
 	
-	private void buildGatewayBlackWhiteList(GatewayBlackWhiteListConfiguration config) {
+	private Map<String, List<BlackWhiteListEntry>> buildGatewayBlackWhiteList(GatewayBlackWhiteListConfiguration config) {
 		
-		this.gatewayBlackList = new HashMap<>();
+		Map<String, List<BlackWhiteListEntry>> result = new HashMap<>();
 		
 		if(config == null)
-			return;
+			return result;
 		
 		for (String destination : config.getKeys()) {
 			List<String> entriesAsString = config.getMessageList(destination);
@@ -72,8 +76,10 @@ public class MessagingGateway extends BaseMessagingNode {
 				entries.add(entry);
 			}
 
-			this.gatewayBlackList.put(destination, entries);
+			result.put(destination, entries);
 		}
+		
+		return result;
 	}
 	
 	
@@ -95,7 +101,7 @@ public class MessagingGateway extends BaseMessagingNode {
 	}
 	
 	
-	protected boolean isMessageOnDestinationBlackList(List<BlackWhiteListEntry> entries, BaseMessage msg)
+	protected boolean isMessageOnDestinationList(List<BlackWhiteListEntry> entries, BaseMessage msg)
 	{
 		if(entries != null)
 		{
@@ -115,23 +121,57 @@ public class MessagingGateway extends BaseMessagingNode {
 		String destinationID = destination.getId();
 		List<BlackWhiteListEntry> entries = this.gatewayBlackList.getOrDefault(destinationID, null);
 		
-		boolean result = isMessageOnDestinationBlackList(entries, msg);
+		boolean result = isMessageOnDestinationList(entries, msg);
 		
 		List<BlackWhiteListEntry> allDestinationEntries = this.gatewayBlackList.getOrDefault(GatewayBlackWhiteListConfiguration.ALL_DESTINATIONS, null);
 		
-		result = result || isMessageOnDestinationBlackList(allDestinationEntries, msg);
+		result = result || isMessageOnDestinationList(allDestinationEntries, msg);
 		
 		return result;
 	
 	}
 	
 	
-	protected boolean IsMessageOnGatewayExternalBlackList(BaseMessage msg)
+	@Override
+	protected boolean isMessageOnGatewayWhiteList(BaseMessagingNode destination, BaseMessage msg) {
+		
+		if(this.gatewayWhiteList.isEmpty())
+			return true;
+		
+		String destinationID = destination.getId();
+		List<BlackWhiteListEntry> entries = this.gatewayWhiteList.getOrDefault(destinationID, null);
+		
+		boolean result = isMessageOnDestinationList(entries, msg);
+		
+		List<BlackWhiteListEntry> allDestinationEntries = this.gatewayWhiteList.getOrDefault(GatewayBlackWhiteListConfiguration.ALL_DESTINATIONS, null);
+		
+		result = result || isMessageOnDestinationList(allDestinationEntries, msg);
+		
+		return result;
+		
+		
+	}
+
+	protected boolean isMessageOnGatewayExternalBlackList(BaseMessage msg)
 	{
 		List<BlackWhiteListEntry> externalEntries = this.gatewayBlackList.getOrDefault(GatewayBlackWhiteListConfiguration.EXTERNAL_DESTINATIONS, null);
-		boolean result = isMessageOnDestinationBlackList(externalEntries, msg);
+		boolean result = isMessageOnDestinationList(externalEntries, msg);
 		List<BlackWhiteListEntry> allEntries = this.gatewayBlackList.getOrDefault(GatewayBlackWhiteListConfiguration.ALL_DESTINATIONS, null);
-		result = result || isMessageOnDestinationBlackList(allEntries, msg);
+		result = result || isMessageOnDestinationList(allEntries, msg);
+		
+		return result;
+	}
+	
+	
+	protected boolean isMessageOnGatewayExternalWhiteList(BaseMessage msg)
+	{
+		if(this.gatewayWhiteList.isEmpty())
+			return true;
+		
+		List<BlackWhiteListEntry> externalEntries = this.gatewayWhiteList.getOrDefault(GatewayBlackWhiteListConfiguration.EXTERNAL_DESTINATIONS, null);
+		boolean result = isMessageOnDestinationList(externalEntries, msg);
+		List<BlackWhiteListEntry> allEntries = this.gatewayWhiteList.getOrDefault(GatewayBlackWhiteListConfiguration.ALL_DESTINATIONS, null);
+		result = result || isMessageOnDestinationList(allEntries, msg);
 		
 		return result;
 	}

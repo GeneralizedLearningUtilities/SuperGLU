@@ -46,7 +46,7 @@ public class SocketIOGateway extends MessagingGateway implements DataListener<Ma
 	}
 
 	public SocketIOGateway(ServiceConfiguration serviceConfig) {
-		super(serviceConfig.getId(), null, null, null, null, serviceConfig.getBlackList(), serviceConfig.getWhiteList(), (GatewayBlackWhiteListConfiguration) serviceConfig.getParams().getOrDefault(GATEWAY_BLACKLIST_KEY, null));
+		super(serviceConfig.getId(), null, null, null, null, serviceConfig.getBlackList(), serviceConfig.getWhiteList(), (GatewayBlackWhiteListConfiguration) serviceConfig.getParams().getOrDefault(GATEWAY_BLACKLIST_KEY, null),(GatewayBlackWhiteListConfiguration) serviceConfig.getParams().getOrDefault(GATEWAY_WHITELIST_KEY, null));
 		log.debug("starting http messaging gateway");
 		try
 		{
@@ -83,7 +83,7 @@ public class SocketIOGateway extends MessagingGateway implements DataListener<Ma
 
 	public SocketIOGateway(String anId, Map<String, Object> scope, Collection<BaseMessagingNode> nodes,
 						   Predicate<BaseMessage> conditions, List<ExternalMessagingHandler> handlers, SocketIOServer socketIO, List<BlackWhiteListEntry> blackList, List<BlackWhiteListEntry> whiteList) {
-		super(anId, scope, nodes, conditions, handlers, blackList, whiteList, new GatewayBlackWhiteListConfiguration());
+		super(anId, scope, nodes, conditions, handlers, blackList, whiteList, new GatewayBlackWhiteListConfiguration(), new GatewayBlackWhiteListConfiguration());
 		this.socketIO = socketIO;
 		this.clients = new ConcurrentHashMap<>();
 
@@ -122,23 +122,25 @@ public class SocketIOGateway extends MessagingGateway implements DataListener<Ma
 
 	public void sendWebsocketMesage(BaseMessage msg) {
 		
-		if(this.IsMessageOnGatewayExternalBlackList(msg))
+		if(this.isMessageOnGatewayExternalBlackList(msg))
 			return;
-		
-		String msgAsString = SerializationConvenience.serializeObject(msg, SerializationFormatEnum.JSON_FORMAT);
 
-		Map<String, String> data = new HashMap<>();
+		if (this.isMessageOnGatewayExternalWhiteList(msg)) {
+			String msgAsString = SerializationConvenience.serializeObject(msg, SerializationFormatEnum.JSON_FORMAT);
 
-		String sessionId = (String) msg.getContextValue(SESSION_KEY, null);
+			Map<String, String> data = new HashMap<>();
 
-		if (sessionId != null) {
-			data.put(DATA_KEY, msgAsString);
-			data.put(SESSION_KEY, sessionId);
+			String sessionId = (String) msg.getContextValue(SESSION_KEY, null);
 
-			BroadcastOperations broadcastOperations = this.socketIO.getRoomOperations(sessionId);
-			broadcastOperations.sendEvent(MESSAGES_KEY, data);
-		} else {
-			log.warn("Message does not contain session id.  Cannot send: " + msgAsString);
+			if (sessionId != null) {
+				data.put(DATA_KEY, msgAsString);
+				data.put(SESSION_KEY, sessionId);
+
+				BroadcastOperations broadcastOperations = this.socketIO.getRoomOperations(sessionId);
+				broadcastOperations.sendEvent(MESSAGES_KEY, data);
+			} else {
+				log.warn("Message does not contain session id.  Cannot send: " + msgAsString);
+			}
 		}
 
 	}

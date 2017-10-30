@@ -102,7 +102,7 @@ public class ActiveMQTopicMessagingGateway extends MessagingGateway implements M
     }
 
     public ActiveMQTopicMessagingGateway(ServiceConfiguration config) {
-        super(config.getId(), null, null, null, null, config.getBlackList(), config.getWhiteList(), (GatewayBlackWhiteListConfiguration) config.getParams().getOrDefault(GATEWAY_BLACKLIST_KEY, null));
+        super(config.getId(), null, null, null, null, config.getBlackList(), config.getWhiteList(), (GatewayBlackWhiteListConfiguration) config.getParams().getOrDefault(GATEWAY_BLACKLIST_KEY, null), (GatewayBlackWhiteListConfiguration) config.getParams().getOrDefault(GATEWAY_WHITELIST_KEY, null));
         // Have a default configuration to fall back on.
         ActiveMQTopicConfiguration activeMQConfig = new ActiveMQTopicConfiguration();
 
@@ -117,7 +117,7 @@ public class ActiveMQTopicMessagingGateway extends MessagingGateway implements M
                                          Predicate<BaseMessage> conditions, List<ExternalMessagingHandler> handlers,
                                          List<BlackWhiteListEntry> blackList, List<BlackWhiteListEntry> whitelist,
                                          ActiveMQTopicConfiguration activeMQConfiguration) {
-        super(anId, scope, nodes, conditions, handlers, blackList, whitelist, new GatewayBlackWhiteListConfiguration());
+        super(anId, scope, nodes, conditions, handlers, blackList, whitelist, new GatewayBlackWhiteListConfiguration(), new GatewayBlackWhiteListConfiguration());
         init(activeMQConfiguration);
     }
 
@@ -158,41 +158,44 @@ public class ActiveMQTopicMessagingGateway extends MessagingGateway implements M
     public void sendMessage(BaseMessage msg) {
         super.sendMessage(msg);
         
-        if(IsMessageOnGatewayExternalBlackList(msg))
+        if(isMessageOnGatewayExternalBlackList(msg))
         	return;
         
-        try {
-            if (msg instanceof Message) {
-                this.addContextDataToMsg(msg);
-                TextMessage activeMQMessage = session.createTextMessage(
-                        SerializationConvenience.serializeObject(msg, SerializationFormatEnum.JSON_FORMAT));
-                activeMQMessage.setStringProperty(MESSAGETYPE, SUPERGLU);
-                producer.send(activeMQMessage);
-            } else if (msg instanceof GIFTMessage) {
-                String msgAsString = JSONStandardRWFormat.serialize(((GIFTMessage) msg).getPayload());
-                TextMessage activeMQMessage = session.createTextMessage(msgAsString);
-                activeMQMessage.setStringProperty(MESSAGETYPE, GIFT);
-                activeMQMessage.setByteProperty("Encoding", (byte) 0);
+		if (isMessageOnGatewayExternalWhiteList(msg)) {
+			try {
+				if (msg instanceof Message) {
+					this.addContextDataToMsg(msg);
+					TextMessage activeMQMessage = session.createTextMessage(
+							SerializationConvenience.serializeObject(msg, SerializationFormatEnum.JSON_FORMAT));
+					activeMQMessage.setStringProperty(MESSAGETYPE, SUPERGLU);
+					producer.send(activeMQMessage);
+				} else if (msg instanceof GIFTMessage) {
+					String msgAsString = JSONStandardRWFormat.serialize(((GIFTMessage) msg).getPayload());
+					TextMessage activeMQMessage = session.createTextMessage(msgAsString);
+					activeMQMessage.setStringProperty(MESSAGETYPE, GIFT);
+					activeMQMessage.setByteProperty("Encoding", (byte) 0);
 
-                String destination = ((GIFTMessage) msg).getDestinationQueueName();
-                MessageProducer queueProducer = getOrCreateQueueProducer(destination);
+					String destination = ((GIFTMessage) msg).getDestinationQueueName();
+					MessageProducer queueProducer = getOrCreateQueueProducer(destination);
 
-                queueProducer.send(activeMQMessage);
-            } else if (msg instanceof VHMessage) {
-                VHMessage vhMsg = (VHMessage) msg;
-                TextMessage activeMQMessage = session.createTextMessage(vhMsg.getFirstWord() + " " + vhMsg.getBody());
-                activeMQMessage.setStringProperty(VHMSG, VHMSG);
-                activeMQMessage.setStringProperty("ELVISH_SCOPE", "DEFAULT_SCOPE");
-                activeMQMessage.setStringProperty("MESSAGE_PREFIX", vhMsg.getFirstWord());
-                activeMQMessage.setStringProperty("VHMSG_VERSION", "1.0.0.0");
+					queueProducer.send(activeMQMessage);
+				} else if (msg instanceof VHMessage) {
+					VHMessage vhMsg = (VHMessage) msg;
+					TextMessage activeMQMessage = session
+							.createTextMessage(vhMsg.getFirstWord() + " " + vhMsg.getBody());
+					activeMQMessage.setStringProperty(VHMSG, VHMSG);
+					activeMQMessage.setStringProperty("ELVISH_SCOPE", "DEFAULT_SCOPE");
+					activeMQMessage.setStringProperty("MESSAGE_PREFIX", vhMsg.getFirstWord());
+					activeMQMessage.setStringProperty("VHMSG_VERSION", "1.0.0.0");
 
-                vhProducer.send(activeMQMessage);
-            }
-        } catch (JMSException e) {
-            e.printStackTrace();
-            log.warn("Failed to Send Message to ActiveMQ:"
-                    + SerializationConvenience.serializeObject(msg, SerializationFormatEnum.JSON_FORMAT));
-        }
+					vhProducer.send(activeMQMessage);
+				}
+			} catch (JMSException e) {
+				e.printStackTrace();
+				log.warn("Failed to Send Message to ActiveMQ:"
+						+ SerializationConvenience.serializeObject(msg, SerializationFormatEnum.JSON_FORMAT));
+			}
+		}
     }
 
     @Override

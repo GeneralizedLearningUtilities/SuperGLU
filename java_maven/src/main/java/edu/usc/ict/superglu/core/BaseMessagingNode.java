@@ -151,6 +151,12 @@ public class BaseMessagingNode {
 	{
 		return false;
 	}
+	
+	
+	protected boolean isMessageOnGatewayWhiteList(BaseMessagingNode destination, BaseMessage msg)
+	{
+		return true;
+	}
 
 	/**
 	 * Internal implementation of DistributeMessage ""
@@ -163,7 +169,7 @@ public class BaseMessagingNode {
 	 */
 	protected void distributeMessage_impl(Map<String, BaseMessagingNode> nodes, BaseMessage msg, String senderId) {
 		for (BaseMessagingNode node : nodes.values()) {
-			if(!isMessageOnGatewayBlackList(node, msg))
+			if(!isMessageOnGatewayBlackList(node, msg) && isMessageOnGatewayWhiteList(node, msg))
 				if (node.id != senderId && (node.getMessageConditions() == null || node.getMessageConditions().test(msg)))
 					node.receiveMessage(msg);
 		}
