@@ -2,6 +2,7 @@ package edu.usc.ict.superglu;
 
 import edu.usc.ict.superglu.core.*;
 import edu.usc.ict.superglu.core.blackwhitelist.BlackWhiteListEntry;
+import edu.usc.ict.superglu.core.config.GatewayBlackWhiteListConfiguration;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -20,6 +21,11 @@ public class MessagingGatewayTest {
 
 	class TestService extends BaseService
 	{
+		
+		public TestService(String id) {
+			super(id, null);
+		}
+		
 		@Override
 		public boolean receiveMessage(BaseMessage msg)
 		{
@@ -54,7 +60,7 @@ public class MessagingGatewayTest {
 		Map<String, Object> scope = new HashMap<>();
 		scope.put("scope1","value1");
 		scope.put("key2", "penguins");
-		TestService mockService = new TestService();
+		TestService mockService = new TestService("service1");
 		nodes.add(mockService);
 		
 		List<BlackWhiteListEntry> blackList = new ArrayList<>();
@@ -132,4 +138,28 @@ public class MessagingGatewayTest {
 		Assert.assertEquals(testMessages, copy);
 	}
 
+	
+	@Test
+	public void testGatewayBlackList()
+	{
+		System.out.println("testGatewayBlackList");
+		Map<String, List<String>> config = new HashMap<>();
+		List<String> messages = new ArrayList<>();
+		messages.add("VHuman.*.*");
+		config.put("service1", messages);
+		GatewayBlackWhiteListConfiguration gateway1BlackList = new GatewayBlackWhiteListConfiguration(config);
+		
+		MessagingGateway gateway1 = new MessagingGateway("gateway1", null, null, null, null, null, null, gateway1BlackList);
+		
+		TestService service = new TestService("service1");
+		TestService service2 = new TestService("service2");
+		
+		service.addNode(gateway1);
+		service2.addNode(gateway1);
+		
+		for(BaseMessage msg : testMessages)
+		{
+			gateway1.sendMessage(msg);
+		}
+	}
 }

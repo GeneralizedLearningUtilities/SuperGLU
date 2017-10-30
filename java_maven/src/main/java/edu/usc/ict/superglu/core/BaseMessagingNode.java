@@ -102,11 +102,11 @@ public class BaseMessagingNode {
 	 * @return true if we should handle the message, false otherwise.
 	 */
 	public boolean receiveMessage(BaseMessage msg) {
-		log.info(this.id + " received MSG:" + this.messageToString(msg));
-
 		if (!acceptIncomingMessge(msg))
 			return false;
 
+		log.info(this.id + " received MSG:" + this.messageToString(msg));
+		
 		if (msg instanceof Message)
 			this.triggerRequests((Message) msg);
 
