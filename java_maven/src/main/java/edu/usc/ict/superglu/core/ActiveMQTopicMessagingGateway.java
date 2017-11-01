@@ -102,7 +102,7 @@ public class ActiveMQTopicMessagingGateway extends MessagingGateway implements M
     }
 
     public ActiveMQTopicMessagingGateway(ServiceConfiguration config) {
-        super(config.getId(), null, null, null, null, config.getBlackList(), config.getWhiteList(), (GatewayBlackWhiteListConfiguration) config.getParams().getOrDefault(GATEWAY_BLACKLIST_KEY, null), (GatewayBlackWhiteListConfiguration) config.getParams().getOrDefault(GATEWAY_WHITELIST_KEY, null));
+        super(config.getId(), null, null, null, null, config);
         // Have a default configuration to fall back on.
         ActiveMQTopicConfiguration activeMQConfig = new ActiveMQTopicConfiguration();
 
@@ -117,7 +117,7 @@ public class ActiveMQTopicMessagingGateway extends MessagingGateway implements M
                                          Predicate<BaseMessage> conditions, List<ExternalMessagingHandler> handlers,
                                          List<BlackWhiteListEntry> blackList, List<BlackWhiteListEntry> whitelist,
                                          ActiveMQTopicConfiguration activeMQConfiguration) {
-        super(anId, scope, nodes, conditions, handlers, blackList, whitelist, new GatewayBlackWhiteListConfiguration(), new GatewayBlackWhiteListConfiguration());
+        super(anId, scope, nodes, conditions, handlers, new ServiceConfiguration());
         init(activeMQConfiguration);
     }
 

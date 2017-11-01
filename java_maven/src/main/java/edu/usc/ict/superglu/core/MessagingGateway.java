@@ -2,6 +2,7 @@ package edu.usc.ict.superglu.core;
 
 import edu.usc.ict.superglu.core.blackwhitelist.BlackWhiteListEntry;
 import edu.usc.ict.superglu.core.config.GatewayBlackWhiteListConfiguration;
+import edu.usc.ict.superglu.core.config.ServiceConfiguration;
 import edu.usc.ict.superglu.ontology.OntologyBroker;
 import edu.usc.ict.superglu.ontology.mappings.MessageMapFactory;
 import edu.usc.ict.superglu.ontology.mappings.MessageType;
@@ -34,16 +35,14 @@ public class MessagingGateway extends BaseMessagingNode {
 	protected Map<String, List<BlackWhiteListEntry>> gatewayWhiteList;
 
 	public MessagingGateway() {// Default constructor for ease of access
-		this(null, null, null, null, null, null, null, null, null);
+		this(null, null, null, null, null, new ServiceConfiguration());
 		ontologyBroker = new OntologyBroker(MessageMapFactory.buildMessageMaps(),
 				MessageMapFactory.buildDefaultMessageTemplates());
 	}
 
 	public MessagingGateway(String anId, Map<String, Object> scope, Collection<BaseMessagingNode> nodes,
-			Predicate<BaseMessage> conditions, List<ExternalMessagingHandler> handlers,
-			List<BlackWhiteListEntry> blackList, List<BlackWhiteListEntry> whiteList,
-			GatewayBlackWhiteListConfiguration gatewayBlackList, GatewayBlackWhiteListConfiguration gatewayWhiteList) {
-		super(anId, conditions, nodes, handlers, blackList, whiteList);
+			Predicate<BaseMessage> conditions, List<ExternalMessagingHandler> handlers, ServiceConfiguration config) {
+		super(anId, conditions, nodes, handlers, config.getBlackList(), config.getWhiteList());
 		if (scope == null)
 			this.scope = new HashMap<>();
 		else
@@ -54,8 +53,8 @@ public class MessagingGateway extends BaseMessagingNode {
 		ontologyBroker = new OntologyBroker(MessageMapFactory.buildMessageMaps(),
 				MessageMapFactory.buildDefaultMessageTemplates());
 		
-		this.gatewayBlackList = buildGatewayBlackWhiteList(gatewayBlackList);
-		this.gatewayWhiteList = buildGatewayBlackWhiteList(gatewayWhiteList);
+		this.gatewayBlackList = buildGatewayBlackWhiteList((GatewayBlackWhiteListConfiguration) config.getParams().getOrDefault(GATEWAY_BLACKLIST_KEY, null));
+		this.gatewayWhiteList = buildGatewayBlackWhiteList((GatewayBlackWhiteListConfiguration) config.getParams().getOrDefault(GATEWAY_WHITELIST_KEY, null));
 	}
 	
 	

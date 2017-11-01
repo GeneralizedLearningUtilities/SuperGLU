@@ -25,7 +25,7 @@ public class GIFTVHumanBridge extends MessagingGateway {
     public static final String GIFT_USER_ID_KEY = "GIFTUserID";
 
     public GIFTVHumanBridge(ServiceConfiguration config) {
-        super(config.getId(), null, null, null, null, config.getBlackList(), config.getWhiteList(), (GatewayBlackWhiteListConfiguration) config.getParams().getOrDefault(GATEWAY_BLACKLIST_KEY, null),(GatewayBlackWhiteListConfiguration) config.getParams().getOrDefault(GATEWAY_WHITELIST_KEY, null));
+        super(config.getId(), null, null, null, null, config);
 
         this.context.put(GIFT_DOMAIN_SESSION_ID_KEY, 0);
         this.context.put(GIFT_USER_ID_KEY, 0);
@@ -33,7 +33,7 @@ public class GIFTVHumanBridge extends MessagingGateway {
     }
 
     public GIFTVHumanBridge(String brokerURL) {
-        super("GIFT_VHUMAN_BRIDGE", null, null, null, null, null, null, null, null);
+        super("GIFT_VHUMAN_BRIDGE", null, null, null, null, new ServiceConfiguration());
     }
 
 

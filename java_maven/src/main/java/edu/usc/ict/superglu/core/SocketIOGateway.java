@@ -46,44 +46,43 @@ public class SocketIOGateway extends MessagingGateway implements DataListener<Ma
 	}
 
 	public SocketIOGateway(ServiceConfiguration serviceConfig) {
-		super(serviceConfig.getId(), null, null, null, null, serviceConfig.getBlackList(), serviceConfig.getWhiteList(), (GatewayBlackWhiteListConfiguration) serviceConfig.getParams().getOrDefault(GATEWAY_BLACKLIST_KEY, null),(GatewayBlackWhiteListConfiguration) serviceConfig.getParams().getOrDefault(GATEWAY_WHITELIST_KEY, null));
+		super(serviceConfig.getId(), null, null, null, null, serviceConfig);
 		log.debug("starting http messaging gateway");
-		try
-		{
-		int socketIOPort = 5333;// Have a default port to fall back on.
-		if (serviceConfig.getParams().containsKey(ServiceConfiguration.SOCKETIO_PARAM_KEY))
-			socketIOPort = (int) serviceConfig.getParams().get(ServiceConfiguration.SOCKETIO_PARAM_KEY);
-		Configuration socketConfig = new Configuration();
-		socketConfig.setPort(socketIOPort);
-		SocketIOServer socketIO = new SocketIOServer(socketConfig);
+		try {
+			int socketIOPort = 5333;// Have a default port to fall back on.
+			if (serviceConfig.getParams().containsKey(ServiceConfiguration.SOCKETIO_PARAM_KEY))
+				socketIOPort = (int) serviceConfig.getParams().get(ServiceConfiguration.SOCKETIO_PARAM_KEY);
+			Configuration socketConfig = new Configuration();
+			socketConfig.setPort(socketIOPort);
+			SocketIOServer socketIO = new SocketIOServer(socketConfig);
 
-		log.debug("created SocketIOServer object");
-		
-		this.socketIO = socketIO;
-		this.clients = new ConcurrentHashMap<>();
+			log.debug("created SocketIOServer object");
 
-		log.debug("about to start socketIO");
-		
-		this.socketIO.start();
-		
-		log.debug("starting socketIO");
+			this.socketIO = socketIO;
+			this.clients = new ConcurrentHashMap<>();
 
-		this.socketIO.addNamespace(MESSAGES_NAMESPACE);
+			log.debug("about to start socketIO");
 
-		this.socketIO.getNamespace(MESSAGES_NAMESPACE).addEventListener(MESSAGES_KEY, Map.class, (DataListener) this);
-		
-		log.debug("http messaging gateway started");
-		}
-		catch (Exception e)
-		{
+			this.socketIO.start();
+
+			log.debug("starting socketIO");
+
+			this.socketIO.addNamespace(MESSAGES_NAMESPACE);
+
+			this.socketIO.getNamespace(MESSAGES_NAMESPACE).addEventListener(MESSAGES_KEY, Map.class,
+					(DataListener) this);
+
+			log.debug("http messaging gateway started");
+		} catch (Exception e) {
 			log.error("caught exception", e);
 			throw e;
 		}
 	}
 
 	public SocketIOGateway(String anId, Map<String, Object> scope, Collection<BaseMessagingNode> nodes,
-						   Predicate<BaseMessage> conditions, List<ExternalMessagingHandler> handlers, SocketIOServer socketIO, List<BlackWhiteListEntry> blackList, List<BlackWhiteListEntry> whiteList) {
-		super(anId, scope, nodes, conditions, handlers, blackList, whiteList, new GatewayBlackWhiteListConfiguration(), new GatewayBlackWhiteListConfiguration());
+			Predicate<BaseMessage> conditions, List<ExternalMessagingHandler> handlers, SocketIOServer socketIO,
+			List<BlackWhiteListEntry> blackList, List<BlackWhiteListEntry> whiteList) {
+		super(anId, scope, nodes, conditions, handlers, new ServiceConfiguration());
 		this.socketIO = socketIO;
 		this.clients = new ConcurrentHashMap<>();
 
@@ -121,8 +120,8 @@ public class SocketIOGateway extends MessagingGateway implements DataListener<Ma
 	}
 
 	public void sendWebsocketMesage(BaseMessage msg) {
-		
-		if(this.isMessageOnGatewayExternalBlackList(msg))
+
+		if (this.isMessageOnGatewayExternalBlackList(msg))
 			return;
 
 		if (this.isMessageOnGatewayExternalWhiteList(msg)) {

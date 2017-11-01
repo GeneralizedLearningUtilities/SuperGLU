@@ -3,6 +3,7 @@ package edu.usc.ict.superglu;
 import edu.usc.ict.superglu.core.*;
 import edu.usc.ict.superglu.core.blackwhitelist.BlackWhiteListEntry;
 import edu.usc.ict.superglu.core.config.GatewayBlackWhiteListConfiguration;
+import edu.usc.ict.superglu.core.config.ServiceConfiguration;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -66,8 +67,10 @@ public class MessagingGatewayTest {
 		List<BlackWhiteListEntry> blackList = new ArrayList<>();
 		blackList.add(new BlackWhiteListEntry("VHuman.*.*"));
 		
-		receiver = new MessagingGateway("Receiver", null, new ArrayList<>(), null, null, blackList, null, null, null);
-		gateway = new MessagingGateway("Sender", scope, nodes, condition, null, blackList, null, null, null);
+		ServiceConfiguration config = new ServiceConfiguration("mockConfiguration", null, new HashMap<>(), null, blackList, null);
+		
+		receiver = new MessagingGateway("Receiver", null, new ArrayList<>(), null, null, config);
+		gateway = new MessagingGateway("Sender", scope, nodes, condition, null, config);
 		
 		mockService.addNode(gateway);
 		
@@ -149,7 +152,12 @@ public class MessagingGatewayTest {
 		config.put("service1", messages);
 		GatewayBlackWhiteListConfiguration gateway1BlackList = new GatewayBlackWhiteListConfiguration(config);
 		
-		MessagingGateway gateway1 = new MessagingGateway("gateway1", null, null, null, null, null, null, gateway1BlackList, null);
+		Map<String, Object> params = new HashMap<>();
+		params.put(MessagingGateway.GATEWAY_BLACKLIST_KEY, gateway1BlackList);
+
+		ServiceConfiguration serviceConfig = new ServiceConfiguration("config", null, params, null, null, null);
+		
+		MessagingGateway gateway1 = new MessagingGateway("gateway1", null, null, null, null, serviceConfig);
 		
 		TestService service = new TestService("service1");
 		TestService service2 = new TestService("service2");
@@ -174,7 +182,13 @@ public class MessagingGatewayTest {
 		config.put("service1", messages);
 		GatewayBlackWhiteListConfiguration gateway1WhiteList = new GatewayBlackWhiteListConfiguration(config);
 		
-		MessagingGateway gateway1 = new MessagingGateway("gateway1", null, null, null, null, null, null, null, gateway1WhiteList);
+		
+		Map<String, Object> params = new HashMap<>();
+		params.put(MessagingGateway.GATEWAY_WHITELIST_KEY, gateway1WhiteList);
+
+		ServiceConfiguration serviceConfig = new ServiceConfiguration("config", null, params, null, null, null);
+		
+		MessagingGateway gateway1 = new MessagingGateway("gateway1", null, null, null, null, serviceConfig);
 		
 		TestService service = new TestService("service1");
 		TestService service2 = new TestService("service2");
