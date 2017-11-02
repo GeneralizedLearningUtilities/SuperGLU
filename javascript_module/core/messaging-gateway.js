@@ -642,6 +642,9 @@ if (typeof SuperGLU === "undefined") {
                     else if (Messaging.Message.isInstance(message) &
                         (targetId === self.getId()) &&
                         (senderId in self._postNodes)) {
+                        if(PostMessageGatewayStub.isInstance(self._postNodes[senderId])){
+                            self._postNodes[senderId]._isActive=true;
+                        }
                         self.handleMessage(message, senderId);
                     }
                 }
