@@ -220,6 +220,13 @@
     </div>
 </div>
 
+<button id="removeFrame" onclick="removeFrameSix()">Remove Frame Six</button>
+<script>
+    var removeFrameSix = () => {
+        document.getElementById('six').remove();
+    }
+</script>
+
 <iframe id="six" src="6.html?student=six&class=ClassId&group=GroupId&referrerId=ReferrerGUID&stub=true"
         scrolling="yes"
         style="overflow: hidden; background-color: black; width:100%; height:600px;"></iframe>
@@ -232,6 +239,5 @@
         scrolling="yes"
         style="overflow: hidden; background-color: black; width:100%; height:600px;"></iframe>
 
-<div id="AnElement">The page is loading.</div>
 </body>
 </html>
