@@ -5,6 +5,7 @@ import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
+import org.apache.http.client.methods.HttpUriRequest;
 
 import edu.usc.ict.superglu.util.SerializationConvenience;
 import edu.usc.ict.superglu.util.StorageToken;
@@ -123,9 +124,9 @@ public class RESTMessage extends BaseMessage {
 	}
 	
 	
-	public HttpRequest createRequest()
+	public HttpUriRequest createRequest()
 	{
-		HttpRequest result = null;
+		HttpUriRequest result = null;
 		
 		if(this.verb.equals(HTTPRequestVerbEnum.GET))
 		{
