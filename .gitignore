@@ -459,5 +459,6 @@ App_Data/*.ldf
 logfile.csv
 env
 
-javascript_module/node_modules
+**/node_modules/
+javascript_module/**/dist/
 /target/
