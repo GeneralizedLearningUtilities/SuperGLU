@@ -39,7 +39,7 @@ RL_SERVICE_NAME = "RL Service"
 
 #tutoring state for RL coach
 tutoring_state = {  
-    # Scenario number (1/2) (default 1)
+    # Scenario number (1/2/3) (default 1)
     SCENARIO_NUMBER : 1,                  
     # gender of the participant (RMALE | RFEMALE)
     GENDER : RMALE,
@@ -96,6 +96,10 @@ def init_global_scenario_context():
     #Average user response time for incorrect responses in current scenario so far (clustered in 6 classes) (default 0)
     tutoring_state[AVG_RESPONSE_TIME_INCORRECT] = 0
 
+    # count of AAR actions (clustered in 6 classes) (default 0)
+    tutoring_state[NUM_DOOVER] = 0
+    tutoring_state[NUM_DIAGNOSE] = 0
+
 # copies value of context from previous scenario
 # to initialize these entries, first initialize scenario context then use this function
 # to copy those default values.
@@ -124,6 +128,66 @@ init_prev_scenario_context()
 
 # END initialization of global, module variables
 
+SCORE_THRESH_LOW = 1
+SCORE_THRESH_LOWMID = 3
+SCORE_THRESH_MID = 6
+SCORE_THRESH_MIDHIGH = 11
+SCORE_THRESH_HIGH = 18
+
+def calScoreClass(num):
+    value = 0
+    if (num>=0 and num<=SCORE_THRESH_LOW):
+        value = 1
+    elif (num>SCORE_THRESH_LOW and num<=SCORE_THRESH_LOWMID):
+        value = 2
+    elif (num>SCORE_THRESH_LOWMID and num<=SCORE_THRESH_MID):
+        value = 3
+    elif (num>SCORE_THRESH_MID and num<=SCORE_THRESH_MIDHIGH):
+        value = 4
+    elif (num > SCORE_THRESH_MIDHIGH):
+        value = 5
+    return value
+
+TIME_THRESH_LOW = 3
+TIME_THRESH_LOWMID = 5
+TIME_THRESH_MID = 10
+TIME_THRESH_MIDHIGH = 17
+TIME_THRESH_HIGH = 28
+
+def calTimeClass(time):
+    value = 0
+    if (time>=0 and time<=TIME_THRESH_LOW):
+        value = 1
+    elif (time>TIME_THRESH_LOW and time<=TIME_THRESH_LOWMID):
+        value = 2
+    elif (time>TIME_THRESH_LOWMID and time<=TIME_THRESH_MID):
+        value = 3
+    elif (time>TIME_THRESH_MID and time<=TIME_THRESH_MIDHIGH):
+        value = 4
+    elif (time > TIME_THRESH_MIDHIGH):
+        value = 5
+    return value
+
+AAR_THRESH_LOW = 2
+AAR_THRESH_LOWMID = 4
+AAR_THRESH_MID = 6
+AAR_THRESH_MIDHIGH = 8
+AAR_THRESH_HIGH = 10
+
+def calAARcount(count):
+    value = 0
+    if (count>0 and count<=AAR_THRESH_LOW):
+        value = 1
+    elif (count>AAR_THRESH_LOW and count<=AAR_THRESH_LOWMID):
+        value = 2
+    elif (count>AAR_THRESH_LOWMID and count<=AAR_THRESH_MID):
+        value = 3
+    elif (count>AAR_THRESH_MID and count<=AAR_THRESH_MIDHIGH):
+        value = 4
+    elif (count>AAR_THRESH_MIDHIGH):
+        value = 5
+    return value
+
 #handles incoming and outgoing messages     
 class RLServiceMessaging(BaseService):
 
@@ -150,6 +214,8 @@ class RLServiceMessaging(BaseService):
         self.AAR_item_offset = -1
         self.next_AAR_item = -1
         self.next_AAR_action = DONE
+        self.num_do_over = 0
+        self.num_diagnose = 0
         self.dynamic_state = []
         self.decision_id = "UNKNOWN"
 
@@ -175,9 +241,7 @@ class RLServiceMessaging(BaseService):
         # initialize rest of object variables
         self.experimentCondition=experimentCondition
         self.questions = []
-        #interval
-        self.interval = {None:0, 0:1, 1:1, 2:1, 3:1, 4:1, 5:2, 6:2, 7:2, 8:2, 9:3, 10:3, 11:3, 12:3, 13:4, 14:4, 15:4, 16:4}
-        self.time_interval = {None:0, 0:1, 1:1, 2:1, 3:1, 4:1, 5:1, 6:2, 7:2, 8:2, 9:2, 10:2, 11:3, 12:3, 13:3, 14:3, 15:3, 16:4, 17:4, 18:4, 19:4, 20:4}
+
         self.quality_state = {(0,0):0, (0,1):1, (1,0):2, (1,1):3, (2,0):4, (2,1):5, (3,0):6, (3,1):7} #(quality,state)
         self.writeDiagnostic("new session. experimentCondition = " + self.experimentCondition + "\n")
 
@@ -375,8 +439,8 @@ class RLServiceMessaging(BaseService):
             # if correct, do nothing (i.e., skip over the item)
             if (self.dynamic_state[i][QUALITY_ANSWER] != RCORRECT):
                 self.next_AAR_item = i
-                # for now, assume that we DON'T use RL policy for AAR in scenario 3
-                if ((self.experimentCondition=="A") or (tutoring_state[SCENARIO_NUMBER] == 3)):
+                # we only use random choice for condition A
+                if (self.experimentCondition=="A"):
                     self.next_AAR_action = self.getRandomAAR_Action()
                     self.writeDiagnostic("AAR random choice says next action = " + self.next_AAR_action + " index = " + str(self.next_AAR_item) + "\n")
                 else:
@@ -493,22 +557,22 @@ class RLServiceMessaging(BaseService):
                 
                 #get counts and averages
                 self.num_response = 1 if self.num_response is None else self.num_response + 1
-                tutoring_state[NUMBER_OF_RESPONSE] = self.interval.get(int(self.num_response),5) 
+                tutoring_state[NUMBER_OF_RESPONSE] = calScoreClass(int(self.num_response)) 
                 
                 self.sum_time_taken = self.time_taken if self.sum_time_taken is None else self.sum_time_taken + self.time_taken
-                tutoring_state[RESPONSE_TIME] = self.time_interval.get(ceil(self.time_taken),5)
+                tutoring_state[RESPONSE_TIME] = calTimeClass(ceil(self.time_taken))
                 self.dynamic_state[self.decision_index][RESPONSE_TIME] = tutoring_state[RESPONSE_TIME]
-                tutoring_state[AVG_RESPONSE_TIME] = self.time_interval.get(ceil(self.sum_time_taken/self.num_response),5)
+                tutoring_state[AVG_RESPONSE_TIME] = calTimeClass(ceil(self.sum_time_taken/self.num_response))
                 
                 #correctness based responses
                 if msg.getResult() == INCORRECT:
                     tutoring_state[QUALITY_ANSWER] = RINCORRECT
                     
                     self.num_incorrect_response = 1 if self.num_incorrect_response is None else self.num_incorrect_response + 1
-                    tutoring_state[NUMBER_OF_INCORRECT] = self.interval.get(int(self.num_incorrect_response),5) 
+                    tutoring_state[NUMBER_OF_INCORRECT] = calScoreClass(int(self.num_incorrect_response)) 
                     
                     self.sum_time_incorrect = self.time_taken if self.sum_time_incorrect is None else self.sum_time_incorrect + self.time_taken
-                    tutoring_state[AVG_RESPONSE_TIME_INCORRECT] = self.time_interval.get(ceil(self.sum_time_incorrect/self.num_incorrect_response),5)
+                    tutoring_state[AVG_RESPONSE_TIME_INCORRECT] = calTimeClass(ceil(self.sum_time_incorrect/self.num_incorrect_response))
 
                     self.dynamic_state[self.decision_index][QUALITY_ANSWER] = RINCORRECT
 
@@ -519,10 +583,10 @@ class RLServiceMessaging(BaseService):
                     tutoring_state[QUALITY_ANSWER] = RMIXED
                     
                     self.num_mixed_response = 1 if self.num_mixed_response is None else self.num_mixed_response + 1
-                    tutoring_state[NUMBER_OF_MIXED] = self.interval.get(int(self.num_mixed_response),5)
+                    tutoring_state[NUMBER_OF_MIXED] = calScoreClass(int(self.num_mixed_response))
                     
                     self.sum_time_mixed = self.time_taken if self.sum_time_mixed is None else self.sum_time_mixed + self.time_taken
-                    tutoring_state[AVG_RESPONSE_TIME_MIXED] = self.time_interval.get(ceil(self.sum_time_mixed/self.num_mixed_response),5)
+                    tutoring_state[AVG_RESPONSE_TIME_MIXED] = calTimeClass(ceil(self.sum_time_mixed/self.num_mixed_response))
 
                     self.dynamic_state[self.decision_index][QUALITY_ANSWER] = RMIXED
 
@@ -533,10 +597,10 @@ class RLServiceMessaging(BaseService):
                     tutoring_state[QUALITY_ANSWER] = RCORRECT 
                     
                     self.num_correct_response = 1 if self.num_correct_response is None else self.num_correct_response + 1
-                    tutoring_state[NUMBER_OF_CORRECT] = self.interval.get(int(self.num_correct_response),5)
+                    tutoring_state[NUMBER_OF_CORRECT] = calScoreClass(int(self.num_correct_response))
                     
                     self.sum_time_correct = self.time_taken if self.sum_time_correct is None else self.sum_time_correct + self.time_taken
-                    tutoring_state[AVG_RESPONSE_TIME_CORRECT] = self.time_interval.get(ceil(self.sum_time_correct/self.num_correct_response),5)
+                    tutoring_state[AVG_RESPONSE_TIME_CORRECT] = calTimeClass(ceil(self.sum_time_correct/self.num_correct_response))
                     
                     self.dynamic_state[self.decision_index][QUALITY_ANSWER] = RCORRECT
 
@@ -550,7 +614,7 @@ class RLServiceMessaging(BaseService):
 
                 #get score
                 scr = tutoring_state[NUMBER_OF_CORRECT] + (0.5 * tutoring_state[NUMBER_OF_MIXED]) 
-                tutoring_state[SCORE] = self.interval.get(ceil(float(scr)),5)
+                tutoring_state[SCORE] = calScoreClass(ceil(float(scr)))
 
                 self.decision_index = self.decision_index + 1
 
@@ -587,6 +651,12 @@ class RLServiceMessaging(BaseService):
                     item = self.next_AAR_item + self.AAR_item_offset
                     action = self.next_AAR_action
                     self.writeDiagnostic('GET_NEXT_AGENDA_ITEM -> PERFORM_ACTION (action= ' + action + ' index= ' + str(item) + ')\n')
+                    if (action == DOOVER):
+                        self.num_do_over = self.num_do_over + 1
+                        tutoring_state[NUM_DOOVER] = calAARcount(self.num_do_over)
+                    elif (action == DIAGNOSE):
+                        self.num_diagnose = self.num_diagnose + 1
+                        tutoring_state[NUM_DIAGNOSE] = calAARcount(self.num_diagnose)
 
                     # update next_AAR_item and next_AAR_action
                     self.calculate_next_AAR_info(self.next_AAR_item + 1)

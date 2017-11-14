@@ -101,11 +101,14 @@ AVG_RESPONSE_TIME_CORRECT_PREV = "avg_correctresponsetime_prevscenario_class"
 AVG_RESPONSE_TIME_MIXED_PREV = "avg_mixedresponsetime_prevscenario_class"           
 AVG_RESPONSE_TIME_INCORRECT_PREV = "avg_incorrectresponsetime_prevscenario_class"   
 
+NUM_DOOVER = "numdoover_sofar_class"
+NUM_DIAGNOSE = "numdiagnose_sofar_class"
+
 #policy actions 
 RDONOTHING = DO_NOTHING
 RFEEDBACK = GIVE_FEEDBACK
 RHINT = GIVE_HINT
 RHINT_FEEDBACK = GIVE_HINT_FEEDBACK
 RDIAGNOSE = DIAGNOSE
-RDOOVER = DOOVER
+RDOOVER = "doover"
 
