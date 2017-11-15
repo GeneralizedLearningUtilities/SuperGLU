@@ -86,18 +86,27 @@ public class RESTMessenger extends BaseService implements ResponseHandler<RESTMe
 		
 		if(contentTypeHeaders.length > 0)
 		{
-			//Header contentType = 
-			//if()
-		
-			InputStream contentStream = response.getEntity().getContent();	
-			String contentAsString = new BufferedReader(new InputStreamReader(contentStream)).lines().collect(Collectors.joining("\n"));
+			Header contentType = contentTypeHeaders[0];
 			
-			RESTMessage result = this.messages.remove();
-			result.setPayload(SerializationConvenience.makeNative(contentAsString, SerializationFormatEnum.JSON_STANDARD_FORMAT));
+			if(contentType.getValue().contains("json"))
+			{
 			
-			this.sendMessage(result);
-			
-			return result;
+				InputStream contentStream = response.getEntity().getContent();	
+				String contentAsString = new BufferedReader(new InputStreamReader(contentStream)).lines().collect(Collectors.joining("\n"));
+				
+				RESTMessage result = this.messages.remove();
+				result.setPayload(SerializationConvenience.makeNative(contentAsString, SerializationFormatEnum.JSON_STANDARD_FORMAT));
+				
+				this.sendMessage(result);
+				
+				return result;
+			}
+			else
+			{
+				RESTMessage result = this.messages.remove();
+				this.sendMessage(result);
+				return result;
+			}
 		}
 		else
 		{
