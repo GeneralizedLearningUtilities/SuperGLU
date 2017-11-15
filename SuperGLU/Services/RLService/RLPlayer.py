@@ -198,17 +198,17 @@ class RLServiceMessaging(BaseService):
     def init_local_context(self):
 
         self.state = "NOT AAR"
-        self.num_response = None
-        self.num_correct_response = None
-        self.num_incorrect_response = None
-        self.num_mixed_response = None
+        self.num_response = 0
+        self.num_correct_response = 0
+        self.num_incorrect_response = 0
+        self.num_mixed_response = 0
         self.start = None
         self.end = None
-        self.time_taken = None
-        self.sum_time_taken = None
-        self.sum_time_correct = None
-        self.sum_time_mixed = None
-        self.sum_time_incorrect = None
+        self.time_taken = 0
+        self.sum_time_taken = 0
+        self.sum_time_correct = 0
+        self.sum_time_mixed = 0
+        self.sum_time_incorrect = 0
 
         self.decision_index = 0
         self.AAR_item_offset = -1
@@ -554,12 +554,13 @@ class RLServiceMessaging(BaseService):
                     self.time_taken = (datetime.strptime(self.end, frmt) - datetime.strptime(self.start, frmt)).seconds
                 else:
                     logstr = logstr + "ERROR: decision end seen, but not beginning\n"
+                    self.time_taken = 0
                 
                 #get counts and averages
-                self.num_response = 1 if self.num_response is None else self.num_response + 1
+                self.num_response = self.num_response + 1
                 tutoring_state[NUMBER_OF_RESPONSE] = calScoreClass(int(self.num_response)) 
                 
-                self.sum_time_taken = self.time_taken if self.sum_time_taken is None else self.sum_time_taken + self.time_taken
+                self.sum_time_taken = self.sum_time_taken + self.time_taken
                 tutoring_state[RESPONSE_TIME] = calTimeClass(ceil(self.time_taken))
                 self.dynamic_state[self.decision_index][RESPONSE_TIME] = tutoring_state[RESPONSE_TIME]
                 tutoring_state[AVG_RESPONSE_TIME] = calTimeClass(ceil(self.sum_time_taken/self.num_response))
@@ -568,10 +569,10 @@ class RLServiceMessaging(BaseService):
                 if msg.getResult() == INCORRECT:
                     tutoring_state[QUALITY_ANSWER] = RINCORRECT
                     
-                    self.num_incorrect_response = 1 if self.num_incorrect_response is None else self.num_incorrect_response + 1
+                    self.num_incorrect_response = self.num_incorrect_response + 1
                     tutoring_state[NUMBER_OF_INCORRECT] = calScoreClass(int(self.num_incorrect_response)) 
                     
-                    self.sum_time_incorrect = self.time_taken if self.sum_time_incorrect is None else self.sum_time_incorrect + self.time_taken
+                    self.sum_time_incorrect = self.sum_time_incorrect + self.time_taken
                     tutoring_state[AVG_RESPONSE_TIME_INCORRECT] = calTimeClass(ceil(self.sum_time_incorrect/self.num_incorrect_response))
 
                     self.dynamic_state[self.decision_index][QUALITY_ANSWER] = RINCORRECT
@@ -582,10 +583,10 @@ class RLServiceMessaging(BaseService):
                 elif msg.getResult() == MIXED:
                     tutoring_state[QUALITY_ANSWER] = RMIXED
                     
-                    self.num_mixed_response = 1 if self.num_mixed_response is None else self.num_mixed_response + 1
+                    self.num_mixed_response = self.num_mixed_response + 1
                     tutoring_state[NUMBER_OF_MIXED] = calScoreClass(int(self.num_mixed_response))
                     
-                    self.sum_time_mixed = self.time_taken if self.sum_time_mixed is None else self.sum_time_mixed + self.time_taken
+                    self.sum_time_mixed = self.sum_time_mixed + self.time_taken
                     tutoring_state[AVG_RESPONSE_TIME_MIXED] = calTimeClass(ceil(self.sum_time_mixed/self.num_mixed_response))
 
                     self.dynamic_state[self.decision_index][QUALITY_ANSWER] = RMIXED
@@ -596,10 +597,10 @@ class RLServiceMessaging(BaseService):
                 elif msg.getResult() == CORRECT:
                     tutoring_state[QUALITY_ANSWER] = RCORRECT 
                     
-                    self.num_correct_response = 1 if self.num_correct_response is None else self.num_correct_response + 1
+                    self.num_correct_response = self.num_correct_response + 1
                     tutoring_state[NUMBER_OF_CORRECT] = calScoreClass(int(self.num_correct_response))
                     
-                    self.sum_time_correct = self.time_taken if self.sum_time_correct is None else self.sum_time_correct + self.time_taken
+                    self.sum_time_correct = self.sum_time_correct + self.time_taken
                     tutoring_state[AVG_RESPONSE_TIME_CORRECT] = calTimeClass(ceil(self.sum_time_correct/self.num_correct_response))
                     
                     self.dynamic_state[self.decision_index][QUALITY_ANSWER] = RCORRECT
@@ -613,7 +614,7 @@ class RLServiceMessaging(BaseService):
                 tutoring_state[RESP_QUALITY_AFTER_RESPONSE] = self.quality_state[(tutoring_state[QUALITY_ANSWER], tutoring_state[AFTER_USERRESPONSE_STATE])]
 
                 #get score
-                scr = tutoring_state[NUMBER_OF_CORRECT] + (0.5 * tutoring_state[NUMBER_OF_MIXED]) 
+                scr = self.num_correct_response + (0.5 * self.num_mixed_response) 
                 tutoring_state[SCORE] = calScoreClass(ceil(float(scr)))
 
                 self.decision_index = self.decision_index + 1
