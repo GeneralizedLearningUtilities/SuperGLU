@@ -84,6 +84,8 @@ public class RESTMessenger extends BaseService implements ResponseHandler<RESTMe
 		
 		Header[] contentTypeHeaders = response.getHeaders("content-type");
 		
+		RESTMessage result = null;
+		
 		if(contentTypeHeaders.length > 0)
 		{
 			Header contentType = contentTypeHeaders[0];
@@ -94,26 +96,26 @@ public class RESTMessenger extends BaseService implements ResponseHandler<RESTMe
 				InputStream contentStream = response.getEntity().getContent();	
 				String contentAsString = new BufferedReader(new InputStreamReader(contentStream)).lines().collect(Collectors.joining("\n"));
 				
-				RESTMessage result = this.messages.remove();
+				result = this.messages.remove();
 				result.setPayload(SerializationConvenience.makeNative(contentAsString, SerializationFormatEnum.JSON_STANDARD_FORMAT));
 				
 				this.sendMessage(result);
 				
-				return result;
 			}
 			else
 			{
-				RESTMessage result = this.messages.remove();
+				result = this.messages.remove();
 				this.sendMessage(result);
-				return result;
 			}
 		}
 		else
 		{
-			RESTMessage result = this.messages.remove();
+			result = this.messages.remove();
 			this.sendMessage(result);
-			return result;
 		}
+		
+		
+		return result;
 	
 	}
 	
