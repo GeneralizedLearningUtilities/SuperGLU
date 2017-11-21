@@ -12,8 +12,12 @@ module.exports = function (config) {
             }
         },
         files: [
-            'nn.js',
-            'nn.test.js'
+            'src/nn.js',
+            'src/nn.test.js',
+            'src/util/zet.js',
+            'src/util/zet.test.js',
+            'src/util/serialization.js',
+            'src/util/serialization.test.js'
         ],
         plugins: [
             'karma-chrome-launcher',
@@ -30,8 +34,12 @@ module.exports = function (config) {
         autoWatch: false,
 
         preprocessors: {
-            'nn.js': ['webpack'],
-            'nn.test.js': ['webpack'],
+            'src/nn.js': ['webpack'],
+            'src/nn.test.js': ['webpack'],
+            'src/util/zet.js': ['webpack'],
+            'src/util/zet.test.js': ['webpack'],
+            'src/util/serialization.js': ['webpack'],
+            'src/util/serialization.test.js': ['webpack']
         },
 
         webpack: webpackConfig,

@@ -2,7 +2,7 @@ const path = require('path')
 const webpack = require('webpack')
 
 module.exports = {
-    // context: path.resolve('.'),
+    context: path.resolve('src'),
     entry: {
         app: './nn'
     },
@@ -19,9 +19,9 @@ module.exports = {
                 loader: "babel-loader",
 
                 // Skip any files outside of your project's `src` directory
-                // include: [
-                //     path.resolve(__dirname, "src"),
-                // ],
+                include: [
+                    path.resolve(__dirname, "src"),
+                ],
 
                 exclude: [
                     path.resolve(__dirname, "node_modules"),
