@@ -119,7 +119,7 @@ public class XMLActWrapped extends SuperGlu_Serializable implements DataConverte
 
         String resultAsString=  result.asXML();
         
-        return input + " " + resultAsString;
+        return "Brad all 0" + " " + resultAsString;
     }
 
     @Override

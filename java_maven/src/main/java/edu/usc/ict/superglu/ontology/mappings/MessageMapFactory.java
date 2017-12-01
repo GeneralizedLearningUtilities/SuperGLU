@@ -536,7 +536,7 @@ public class MessageMapFactory {
 
         List<DataConverter> storageConverterList = new ArrayList<>();
         storageConverterList.add(new XMLActWrapped("speech"));
-        storageConverterList.add(buildVRExpressStorageDataConverter(3));
+        //storageConverterList.add(buildVRExpressStorageDataConverter(3));
 
         DataConverter storageConverter = new CompoundConverter(storageConverterList);
 
@@ -565,7 +565,7 @@ public class MessageMapFactory {
 
         List<DataConverter> storageConverterList = new ArrayList<>();
         storageConverterList.add(new XMLActWrapped("speech"));
-        storageConverterList.add(buildVRExpressStorageDataConverter(3));
+       // storageConverterList.add(buildVRExpressStorageDataConverter(3));
 
         DataConverter storageConverter = new CompoundConverter(storageConverterList);
 

@@ -63,7 +63,7 @@ public class StringToList extends SuperGlu_Serializable implements DataConverter
     public Object convert(Object input, Object context) {
         String inputAsString = (String) input;
 
-        String[] tokenizedString = inputAsString.split(this.delimiter);
+        String[] tokenizedString = inputAsString.split(this.delimiter, 4);
 
         List<String> result = new ArrayList<>();
 
