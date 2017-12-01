@@ -450,7 +450,7 @@ public class MessageMapFactory {
 
         NestedAtomic header = new NestedAtomic(String.class, GIFTMessage.HEADER_KEY);
         List<Pair<FieldData, Object>> templateDataList = new ArrayList<>();
-        templateDataList.add(new Pair<FieldData, Object>(header, "DisplayGuidanceTutorRequest"));
+        templateDataList.add(new Pair<FieldData, Object>(header, "DisplayContentTutorRequest"));
 
         List<Pair<Class<?>, String>> payloadPath = new ArrayList<>();
 
@@ -496,7 +496,7 @@ public class MessageMapFactory {
         List<Pair<Class<?>, String>> payloadPath = new ArrayList<>();
 
         payloadPath.add(new Pair<Class<?>, String>(StorageToken.class, GIFTMessage.PAYLOAD_KEY));
-        payloadPath.add(new Pair<Class<?>, String>(String.class, "Text"));
+        payloadPath.add(new Pair<Class<?>, String>(String.class, "Guidance"));
 
         NestedAtomic payload = new NestedAtomic(payloadPath);
 
@@ -517,7 +517,7 @@ public class MessageMapFactory {
 
     protected static MessageMap buildDisplayFeedbackTutorRequestToSuperGLU() {
 
-        MessageType inMsgType = new MessageType("DisplayGuidanceTutorRequest", 1.0f, 1.0f, buildGIFTDisplayFeedbackTutorRequestTemplate(), GIFTMessage.class.getSimpleName());
+        MessageType inMsgType = new MessageType("DisplayContentTutorRequest", 1.0f, 1.0f, buildGIFTDisplayFeedbackTutorRequestTemplate(), GIFTMessage.class.getSimpleName());
         MessageType outMsgType = new MessageType("GiveFeedback", 1.0f, 1.0f, buildSuperGLUGiveFeedbackMessageTemplate(), Message.class.getSimpleName());
         MessageMap map = new MessageMap(inMsgType, outMsgType, buildFieldMapsForDisplayFeedbackTutorRequestToGiveFeedback());
 
@@ -543,7 +543,7 @@ public class MessageMapFactory {
         NestedSubAtomic utterance = new NestedSubAtomic(indices, storageConverter, buildVRExpressRetrievalDataConverter(3));
 
         List<Pair<FieldData, Object>> templateData = new ArrayList<>();
-        templateData.add(new Pair<FieldData, Object>(speaker, "Rachel"));
+        templateData.add(new Pair<FieldData, Object>(speaker, "Brad"));
         templateData.add(new Pair<FieldData, Object>(audience, "all"));
         templateData.add(new Pair<FieldData, Object>(number, "0"));
         templateData.add(new Pair<FieldData, Object>(utterance, "<speech></speech>"));

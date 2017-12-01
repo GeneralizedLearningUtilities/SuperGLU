@@ -3,9 +3,19 @@ package edu.usc.ict.superglu.ontology.converters;
 import edu.usc.ict.superglu.util.SuperGlu_Serializable;
 import edu.usc.ict.superglu.util.SerializationConvenience;
 import edu.usc.ict.superglu.util.StorageToken;
+
+import java.io.IOException;
+import java.io.StringBufferInputStream;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
 import org.dom4j.Document;
 import org.dom4j.DocumentFactory;
 import org.dom4j.Element;
+import org.w3c.dom.html.HTMLDocument;
+import org.xml.sax.SAXException;
 
 /**
  * This converter will wrap a field partial in an xml element with the specified name
@@ -63,7 +73,7 @@ public class XMLActWrapped extends SuperGlu_Serializable implements DataConverte
         Element actElement = docFactory.createElement("act");
 
         Element participantElement = docFactory.createElement("participant");
-        participantElement.addAttribute("id", "Rachel");
+        participantElement.addAttribute("id", "Brad");
         participantElement.addAttribute("role", "actor");
         actElement.add(participantElement);
 
@@ -94,14 +104,22 @@ public class XMLActWrapped extends SuperGlu_Serializable implements DataConverte
         speechElement.addAttribute("id", "sp1");
         speechElement.addAttribute("ref", "DummyID");
         speechElement.addAttribute("type", "application/ssml+xml");
-        speechElement.addText((String) input);
+        
+        String nohtml = ((String)context).replaceAll("\\<.*?>","");
+        System.out.println(nohtml);
+        
+        speechElement.addText(nohtml);
         bmlElement.add(speechElement);
 
+       
+        
         actElement.add(bmlElement);
 
         result.add(actElement);
 
-        return result.asXML();
+        String resultAsString=  result.asXML();
+        
+        return input + " " + resultAsString;
     }
 
     @Override
