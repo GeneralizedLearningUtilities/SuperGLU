@@ -6,15 +6,15 @@ import org.junit.Test;
 public class XMLActWrappedTest
 {
 
-    @Test
+	@Test
     public void testConvert()
     {
 	DataConverter converter = new XMLActWrapped("Speech");
-	Object result = converter.convert("testString", null);
+	Object result = converter.convert("testString", "penguins");
 	
 	result.toString();
 	
-	Assert.assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<act><participant id=\"Rachel\" role=\"actor\"/><fml><turn start=\"take\" end=\"give\"/><affect type=\"netural\" target=\"addressee\"/><culture type=\"neutral\"/><personality type=\"neutral\"/></fml><bml><speech id=\"sp1\" ref=\"DummyID\" type=\"application/ssml+xml\">testString</speech></bml></act>", result.toString());
+	Assert.assertEquals("Brad all 0 <?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<act><participant id=\"Brad\" role=\"actor\"/><fml><turn start=\"take\" end=\"give\"/><affect type=\"netural\" target=\"addressee\"/><culture type=\"neutral\"/><personality type=\"neutral\"/></fml><bml><speech id=\"sp1\" ref=\"DummyID\" type=\"application/ssml+xml\">penguins</speech></bml></act>", result.toString());
     }
 
 }
