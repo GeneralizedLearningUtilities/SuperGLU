@@ -34,6 +34,8 @@ public class BaseMessagingNode {
 
 	public static final String ORIGINATING_SERVICE_ID_KEY = "originatingServiceId";
 	public static final String SESSION_KEY = "sessionId";
+	
+	protected static final boolean USE_BLACK_WHITE_LIST = false;
 
 	public BaseMessagingNode(String anId, Predicate<BaseMessage> conditions, Collection<BaseMessagingNode> nodes,
 			List<ExternalMessagingHandler> handlers, List<BlackWhiteListEntry> blackList,
@@ -75,19 +77,23 @@ public class BaseMessagingNode {
 	protected boolean acceptIncomingMessge(BaseMessage msg) {
 		boolean result = true;
 
-		// black list takes priority of white list.
-		for (BlackWhiteListEntry entry : this.whiteList) {
-			if (entry.evaluateMessage(msg)) {
-				result = true;
-				break;
+		if (USE_BLACK_WHITE_LIST) {
+			// black list takes priority of white list.
+			for (BlackWhiteListEntry entry : this.whiteList) {
+				if (entry.evaluateMessage(msg)) {
+					result = true;
+					break;
+				}
 			}
-		}
 
-		for (BlackWhiteListEntry entry : this.blackList) {
-			if (entry.evaluateMessage(msg)) {
-				log.info(this.id + " recieved a blacklisted message: " + SerializationConvenience.serializeObject(msg, SerializationFormatEnum.JSON_FORMAT) + "| message will be ignored");
-				result = false;
-				break;
+			for (BlackWhiteListEntry entry : this.blackList) {
+				if (entry.evaluateMessage(msg)) {
+					log.info(this.id + " recieved a blacklisted message: "
+							+ SerializationConvenience.serializeObject(msg, SerializationFormatEnum.JSON_FORMAT)
+							+ "| message will be ignored");
+					result = false;
+					break;
+				}
 			}
 		}
 

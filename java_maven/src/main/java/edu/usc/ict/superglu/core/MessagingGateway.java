@@ -153,6 +153,9 @@ public class MessagingGateway extends BaseMessagingNode {
 
 	protected boolean isMessageOnGatewayExternalBlackList(BaseMessage msg)
 	{
+		if(!USE_BLACK_WHITE_LIST)
+			return false;
+		
 		List<BlackWhiteListEntry> externalEntries = this.gatewayBlackList.getOrDefault(GatewayBlackWhiteListConfiguration.EXTERNAL_DESTINATIONS, null);
 		boolean result = isMessageOnDestinationList(externalEntries, msg);
 		List<BlackWhiteListEntry> allEntries = this.gatewayBlackList.getOrDefault(GatewayBlackWhiteListConfiguration.ALL_DESTINATIONS, null);
@@ -164,6 +167,9 @@ public class MessagingGateway extends BaseMessagingNode {
 	
 	protected boolean isMessageOnGatewayExternalWhiteList(BaseMessage msg)
 	{
+		if(!USE_BLACK_WHITE_LIST)
+			return true;
+		
 		if(this.gatewayWhiteList.isEmpty())
 			return true;
 		
