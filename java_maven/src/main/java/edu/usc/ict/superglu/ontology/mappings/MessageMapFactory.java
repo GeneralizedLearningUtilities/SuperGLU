@@ -505,7 +505,7 @@ public class MessageMapFactory {
         //DataConverter converter = new XMLActWrapped("speech");
         //NestedSubAtomic result = new NestedSubAtomic(indices, build, 0);
 
-        NestedAtomic result = new NestedAtomic(indices);
+        NestedAtomic result = new NestedSubAtomic(indices, new RemoveHTMLTags(), new RemoveHTMLTags());
 
         FieldMapOneToOne map = new FieldMapOneToOne(payload, result);
 
