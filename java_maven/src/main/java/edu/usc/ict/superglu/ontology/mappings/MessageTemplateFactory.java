@@ -9,7 +9,8 @@ import edu.usc.ict.superglu.util.StorageToken;
 /**
  * This class is responsible for converting a storage token into a message template.
  * 
- * It will recursively go through all the fields and construct a 
+ * It will go through all the fields and construct the appropriate FieldData object
+ * for it.  If a field is a storage token, then it will also recursively go through it as well. 
  * @author auerbach
  *
  */
