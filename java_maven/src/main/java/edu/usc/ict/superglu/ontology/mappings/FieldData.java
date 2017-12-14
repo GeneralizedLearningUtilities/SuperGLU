@@ -25,4 +25,10 @@ public interface FieldData {
      * @param data
      */
     public void storeData(StorageToken msg, Object data);
+    
+    
+    /**
+     * This function will return the name of the specified field
+     */
+    public String getFieldName();
 }

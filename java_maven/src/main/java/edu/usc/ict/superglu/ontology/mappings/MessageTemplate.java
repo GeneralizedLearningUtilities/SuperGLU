@@ -62,6 +62,25 @@ public class MessageTemplate extends SuperGlu_Serializable {
         return result;
 
     }
+    
+    
+    /**
+     * 
+     * @param fieldName the simple name of the requested field.
+     * @return the FieldData object if it exists.  Return null otherwise
+     */
+	public FieldData getFieldData(String fieldName) {
+		FieldData result = null;
+
+		for (Pair<FieldData, Object> currentField : this.defaultFieldData) {
+			if (currentField.getFirst().getFieldName().equals(fieldName)) {
+				result = currentField.getFirst();
+				break;
+			}
+		}
+
+		return result;
+	}
 
     // Equality Operations
     @Override

@@ -266,4 +266,10 @@ public class NestedAtomic extends SuperGlu_Serializable implements FieldData {
         }
     }
 
+	@Override
+	public String getFieldName() {
+		Pair<Class<?>, String> lastPair = this.path.get(this.path.size() - 1);
+		return lastPair.getSecond();
+	}
+
 }

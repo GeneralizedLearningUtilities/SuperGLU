@@ -117,4 +117,9 @@ public class SimpleFieldData extends SuperGlu_Serializable implements FieldData 
         msg.setItem(fieldData, dataAsStorageToken);
     }
 
+	@Override
+	public String getFieldName() {
+		return fieldData;
+	}
+
 }

@@ -37,4 +37,5 @@ public class ServiceLauncherTest {
         launcher.launchAndConnectAllServices(configurations);
         launcher.stopService("socketIOGateway");
     }
+    
 }
