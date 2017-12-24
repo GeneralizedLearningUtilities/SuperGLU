@@ -2212,15 +2212,15 @@
         }, {"./keys": 22, after: 23, "arraybuffer.slice": 24, "base64-arraybuffer": 25, blob: 26, utf8: 27}],
         22: [function (_dereq_, module, exports) {
             module.exports = Object.keys || function keys(obj) {
-                var arr = [];
-                var has = Object.prototype.hasOwnProperty;
-                for (var i in obj) {
-                    if (has.call(obj, i)) {
-                        arr.push(i)
+                    var arr = [];
+                    var has = Object.prototype.hasOwnProperty;
+                    for (var i in obj) {
+                        if (has.call(obj, i)) {
+                            arr.push(i)
+                        }
                     }
+                    return arr
                 }
-                return arr
-            }
         }, {}],
         23: [function (_dereq_, module, exports) {
             module.exports = after;
@@ -2654,8 +2654,8 @@
         }, {isarray: 33}],
         33: [function (_dereq_, module, exports) {
             module.exports = Array.isArray || function (arr) {
-                return Object.prototype.toString.call(arr) == "[object Array]"
-            }
+                    return Object.prototype.toString.call(arr) == "[object Array]"
+                }
         }, {}],
         34: [function (_dereq_, module, exports) {
             var global = _dereq_("global");
@@ -2683,14 +2683,14 @@
         37: [function (_dereq_, module, exports) {
             var has = Object.prototype.hasOwnProperty;
             exports.keys = Object.keys || function (obj) {
-                var keys = [];
-                for (var key in obj) {
-                    if (has.call(obj, key)) {
-                        keys.push(key)
+                    var keys = [];
+                    for (var key in obj) {
+                        if (has.call(obj, key)) {
+                            keys.push(key)
+                        }
                     }
-                }
-                return keys
-            };
+                    return keys
+                };
             exports.values = function (obj) {
                 var vals = [];
                 for (var key in obj) {
