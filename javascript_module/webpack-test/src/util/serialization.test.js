@@ -2,8 +2,9 @@
 const Zet = require('./zet')
 const Serialization = require('./serialization')
 const StorageToken = require('./storage_token')
+const Serializable = Serialization.Serializable;
 
-var TestClass = Zet.declare({
+let TestClass = Zet.declare({
     superclass: Serialization.Serializable,
     CLASS_ID: 'TestClass',
     defineBody: function (self) {
@@ -23,7 +24,7 @@ var TestClass = Zet.declare({
     }
 })
 
-var TestClass2 = Zet.declare({
+let TestClass2 = Zet.declare({
     superclass: Serialization.Serializable,
     CLASS_ID: 'TestClass2',
     defineBody: function (self) {
@@ -80,5 +81,25 @@ describe("Test", () => {
         expect(aTestObj.eq(rTestObj)).to.be.true
         expect(aTestObj2.eq(rTestObj2)).to.be.true
         expect(rTestObj2.eq(rTestObj)).to.be.false
+    })
+})
+
+describe("Test 2", () => {
+    //1. Object -> Token -> Serializable String
+    let obj1 = new Serializable();
+    let token1 = Serialization.tokenizeObject(obj1);
+    token1._data["name"] = "LIDA";
+    token1._data["version"] = "1.2.0";
+    token1._data["status"] = "test";
+    let str1 = Serialization.makeSerialized(token1);
+
+    //2. Serializable String -> Token -> Object
+    let token2 = Serialization.makeNative(str1);
+    let obj2 = Serialization.untokenizeObject(token2);
+    it("Token Equals", () => {
+        expect(token1.eq(token2)).to.be.true
+    })
+    it("Object Equals", () => {
+        expect(obj1.eq(obj2)).to.be.true
     })
 })

@@ -2,6 +2,10 @@ const Zet = require('./zet')
 const TokenRWFormat = require('./token_rw_format')
 const StorageToken = require('./storage_token')
 
+const MAP_STRING = "map",
+    LIST_STRING = 'list'
+
+
 module.exports = Zet.declare({        //JSONRWFormat
     superclass: TokenRWFormat,
     CLASS_ID: 'JSONRWFormat',

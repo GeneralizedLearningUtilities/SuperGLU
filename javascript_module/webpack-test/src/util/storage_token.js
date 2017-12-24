@@ -153,7 +153,7 @@ module.exports = Zet.declare({
         // -- ##Comparison
         /** Equality operator **/
         self.eq = function eq(other) {
-            return (typeof(self) == typeof(other)) && (self._data == other._data)
+            return (typeof(self) == typeof(other)) && (JSON.stringify(self._data) == JSON.stringify(other._data))
         }
 
         /** Not equal operator **/

@@ -4,7 +4,7 @@ var webpackConfig = require('./webpack.config.babel');
 module.exports = function (config) {
     config.set({
         // browsers: ['IE_no_addons', 'Chrome'],
-        browsers: ['Chrome','Firefox'],
+        browsers: ['Chrome', 'Firefox'],
         customLaunchers: {
             IE_no_addons: {
                 base: 'IE',
@@ -46,7 +46,7 @@ module.exports = function (config) {
         webpackMiddleware: {
             noInfo: true
         },
-        singleRun: true,
+        singleRun: false,
         concurrency: Infinity,
     });
 };
