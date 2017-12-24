@@ -3,8 +3,8 @@ var webpackConfig = require('./webpack.config.babel');
 
 module.exports = function (config) {
     config.set({
-        browsers: ['IE_no_addons', 'Chrome'],
-        // browsers: ['Chrome'],
+        // browsers: ['IE_no_addons', 'Chrome'],
+        browsers: ['Chrome','Firefox'],
         customLaunchers: {
             IE_no_addons: {
                 base: 'IE',

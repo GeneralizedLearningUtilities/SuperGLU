@@ -50,14 +50,9 @@ var aTestObj2 = TestClass2("AAA")
 var aTestObjNull = TestClass(null)
 var aTestObjUndef = TestClass(undefined)
 
-function print(s) {
-    console.log(s)
-}
-
 var st = serializableObj.saveToToken()
 var t1 = aTestObj.saveToToken()
 var t2 = aTestObj2.saveToToken()
-var rSerializableObj = Serialization.createFromToken(st)
 var rSerializableObj = Serialization.createFromToken(st)
 var rTestObj = Serialization.createFromToken(t1)
 var rTestObj2 = Serialization.createFromToken(t2)
@@ -69,7 +64,11 @@ describe("Test", () => {
         expect(Serialization.makeSerialized(st)).to.not.be.empty
         expect(Serialization.makeSerialized(t1)).to.not.be.empty
         expect(Serialization.makeSerialized(t2)).to.not.be.empty
+        expect(Serialization.makeSerialized(aTestObjNull.saveToToken())).to.not.be.empty
+        expect(Serialization.makeSerialized(aTestObjUndef.saveToToken())).to.not.be.empty
         expect(StorageToken.isInstance(st)).to.be.true
+        expect(StorageToken.isInstance(t1)).to.be.true
+        expect(StorageToken.isInstance(t2)).to.be.true
     })
     it("CLASS_ID", () => {
         expect(rSerializableObj.CLASS_ID).to.equal("Serializable")
