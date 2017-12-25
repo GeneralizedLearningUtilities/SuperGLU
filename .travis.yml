@@ -29,7 +29,7 @@ matrix:
         - cd javascript_module
         - cd webpack-test
         - npm install
-      script: webpack
+      script: npm run build
 
 notifications:
   email:
