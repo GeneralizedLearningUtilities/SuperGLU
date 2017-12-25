@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="assets/css/login.css">
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.2.6/jquery.min.js"></script>
-    <script src="../dist/superglu-all.js"></script>
+    <script src="../webpack-test/dist/superglu-all.js"></script>
 
     <script type="text/javascript">
         // A really stupid function for grabbing URL Query params
@@ -110,10 +110,8 @@
     };
 
     function init() {
-        var SIMPLE_ACTIVITY_SERVICE,                // Test service to send messages to the parent about an activity
-            GATEWAY_SERVICE,                        // Gateway service for relaying messages in this frame
+        var GATEWAY_SERVICE,                        // Gateway service for relaying messages in this frame
             PARENT_POSTING_STUB,                    // Stub that represents the parent frame's messaging gateway
-            HEARTBEAT_SERVICE,                      // Heartbeat service, to generate a steady heartbeat
             FRAME_NAME = "ChildLogin",              // A name to call this frame, for reporting purposes and postMessage
             PARENT_NAME = "GIFTMessageRelay",       // A name to call the parent frame, for reporting purposes and postMessage
             LOADED_VERB = "Loaded",                 // A Message verb for the "Loaded" message, which indicates that the activity loaded right
@@ -158,7 +156,7 @@
                     //         easy ways to add the same metadata to every single message sent from a given gateway.  Timestamps
                     //         are already added automatically to every message, so no worries on those.
 
-                    var msg = SuperGLU.Messaging.Message(actor, COMPLETED_VERB, itemId, score, Messaging.INFORM_ACT, context);
+                    var msg = SuperGLU.Messaging.Message(actor, COMPLETED_VERB, itemId, score, SuperGLU.Messaging.INFORM_ACT, context);
                     self.sendMessage(msg);
                     console.log(msg.getVerb() + " by " + msg.getActor());
                     alert("Sent completed message with score : " + score);

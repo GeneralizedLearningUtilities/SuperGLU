@@ -6,7 +6,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     <meta http-equiv="X-UA-Compatible" content="IE=EDGE"/>
 
-    <script src="../dist/superglu-all.js?three"></script>
+    <script src="../webpack-test/dist/superglu-all.js?three"></script>
 
     <script type="text/javascript">
         // A really stupid function for grabbing URL Query params
@@ -106,7 +106,7 @@
                         //         easy ways to add the same metadata to every single message sent from a given gateway.  Timestamps
                         //         are already added automatically to every message, so no worries on those.
 
-                        var msg = SuperGLU.Messaging.Message(actor, COMPLETED_VERB, itemId, score, Messaging.INFORM_ACT, context);
+                        var msg = SuperGLU.Messaging.Message(actor, COMPLETED_VERB, itemId, score, SuperGLU.Messaging.INFORM_ACT, context);
                         self.sendMessage(msg);
                         console.log(msg.getVerb() + " by " + msg.getActor());
                         alert("Sent completed message with score : " + score);

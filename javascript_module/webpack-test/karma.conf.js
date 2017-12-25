@@ -12,8 +12,6 @@ module.exports = function (config) {
             }
         },
         files: [
-            'src/nn.js',
-            'src/nn.test.js',
             'src/util/zet.js',
             'src/util/zet.test.js',
             'src/util/serialization.js',
@@ -34,8 +32,6 @@ module.exports = function (config) {
         autoWatch: false,
 
         preprocessors: {
-            'src/nn.js': ['webpack'],
-            'src/nn.test.js': ['webpack'],
             'src/util/zet.js': ['webpack'],
             'src/util/zet.test.js': ['webpack'],
             'src/util/serialization.js': ['webpack'],
@@ -46,7 +42,7 @@ module.exports = function (config) {
         webpackMiddleware: {
             noInfo: true
         },
-        singleRun: false,
+        singleRun: true,        //change it to false, and it'll run in watch mode - running tests whenever changes are saved
         concurrency: Infinity,
     });
 };

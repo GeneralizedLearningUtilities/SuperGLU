@@ -4,6 +4,10 @@
 
 `npm install`
  
-- Run tests using the following command
+- Run tests on Chrome, Firefox & IE using the following command
 
 `npm run test`
+
+- Build the distributable js file, superglu-all.js, within dist directory using the following command
+ 
+`npm run build`

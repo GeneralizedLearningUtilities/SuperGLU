@@ -1,7 +1,11 @@
-const Zet = require('../util/zet')
-const Serializable = require('../util/serializable')
-const tokenizeObject = tokenizeObject
-const untokenizeObject = untokenizeObject
+const Zet = require('../util/zet'),
+    Serialization = require('../util/serialization'),
+    Serializable = Serialization.serializable,
+    tokenizeObject = Serialization.tokenizeObject,
+    untokenizeObject = Serialization.untokenizeObject,
+    Messaging = require('../core/messaging'),
+    SUPERGLU_VERSION = require('../reference-data').version
+
 
 module.exports = Zet.declare({
     superclass: Serializable,
@@ -37,7 +41,7 @@ module.exports = Zet.declare({
                 result = null
             }
             if (typeof speechAct === "undefined") {
-                speechAct = INFORM_ACT
+                speechAct = Messaging.INFORM_ACT
             }
             if (typeof context === "undefined") {
                 context = {}
@@ -55,11 +59,11 @@ module.exports = Zet.declare({
                 self.updateTimestamp()
             }
             // Fill in version keys
-            if (!(MESSAGE_VERSION_KEY in context)) {
-                context[MESSAGE_VERSION_KEY] = VERSION
+            if (!(Messaging.MESSAGE_VERSION_KEY in context)) {
+                context[Messaging.MESSAGE_VERSION_KEY] = Messaging.VERSION
             }
-            if (!(SUPERGLU_VERSION_KEY in context)) {
-                context[SUPERGLU_VERSION_KEY] = SUPERGLU_VERSION
+            if (!(Messaging.SUPERGLU_VERSION_KEY in context)) {
+                context[Messaging.SUPERGLU_VERSION_KEY] = SUPERGLU_VERSION
             }
             self._context = context
         }

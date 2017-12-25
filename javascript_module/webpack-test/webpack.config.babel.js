@@ -4,11 +4,11 @@ const webpack = require('webpack')
 module.exports = {
     context: path.resolve('src'),
     entry: {
-        app: './nn'
+        app: './super-glu'
     },
     output: {
         path: path.resolve('dist'),
-        filename: 'bundle.js',
+        filename: 'superglu-all.js',
         publicPath: '/dist/'
     },
     // debug: true,

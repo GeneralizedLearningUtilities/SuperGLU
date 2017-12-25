@@ -6,7 +6,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     <meta http-equiv="X-UA-Compatible" content="IE=EDGE"/>
 
-    <script src="../dist/superglu-all.js?five"></script>
+    <script src="../webpack-test/dist/superglu-all.js?five"></script>
 
     <script type="text/javascript">
         // Set a window name
@@ -88,7 +88,7 @@
             var oldReceiveMsg = TEST_SERVICE.receiveMessage;
             TEST_SERVICE.receiveMessage = function (msg) {
                 oldReceiveMsg(msg);
-                if ((msg.getSpeechAct() == Messaging.INFORM_ACT) &&
+                if ((msg.getSpeechAct() == SuperGLU.Messaging.INFORM_ACT) &&
                     (msg.getVerb() == COMPLETED_VERB)) {
                     console.log("HEY!");
                     document.getElementById("AnElement").innerHTML = "The activity is complete!<br><br>" +
@@ -100,9 +100,9 @@
                     // Note: Relying entirely on receiving a "Loaded" message is
                     //       perilous, since the child might finish loading before
                     //       the parent (and, in fact, might even be likely to).
-                } else if ((msg.getSpeechAct() == Messaging.INFORM_ACT) &&
+                } else if ((msg.getSpeechAct() == SuperGLU.Messaging.INFORM_ACT) &&
                     ((msg.getVerb() == LOADED_VERB) ||
-                        (msg.getVerb() == Heartbeat_Service.HEARTBEAT_VERB))) {
+                        (msg.getVerb() == SuperGLU.Heartbeat_Service.HEARTBEAT_VERB))) {
                     IS_CHILD_LOADED = true;
                 }
             };

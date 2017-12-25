@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="assets/css/login.css">
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.2.6/jquery.min.js"></script>
-    <script src="../dist/superglu-all.js?six"></script>
+    <script src="../webpack-test/dist/superglu-all.js?six"></script>
 
     <script type="text/javascript">
         // A really stupid function for grabbing URL Query params
@@ -156,7 +156,7 @@
                     //         easy ways to add the same metadata to every single message sent from a given gateway.  Timestamps
                     //         are already added automatically to every message, so no worries on those.
 
-                    var msg = SuperGLU.Messaging.Message(actor, COMPLETED_VERB, itemId, score, Messaging.INFORM_ACT, context);
+                    var msg = SuperGLU.Messaging.Message(actor, COMPLETED_VERB, itemId, score, SuperGLU.Messaging.INFORM_ACT, context);
                     self.sendMessage(msg);
                     console.log(msg.getVerb() + " by " + msg.getActor());
                     alert("Sent completed message with score : " + score);
