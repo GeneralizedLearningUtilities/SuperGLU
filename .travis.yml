@@ -25,6 +25,8 @@ matrix:
       script: mvn clean package -DskipTests=true
 
     - language: node_js
+      node_js:
+        - "8"
       before_script:
         - cd javascript_module
         - cd webpack-test
