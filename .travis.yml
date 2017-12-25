@@ -27,9 +27,9 @@ matrix:
     - language: node_js
       before_script:
         - cd javascript_module
+        - cd webpack-test
         - npm install
-        - npm install -g gulp-cli
-      script: gulp
+      script: webpack
 
 notifications:
   email:
