@@ -18,21 +18,23 @@ const Zet = require('./util/zet'),
     Messaging = require('./core/messaging'),
     Messaging_Gateway = require('./core/messaging-gateway'),
     ReferenceData = require('./reference-data'),
-    Heartbeat_Service = require('./services/orchestration/heartbeat-service')
+    Heartbeat_Service = require('./services/orchestration/heartbeat-service'),
+    StandardITSLoggingService = require('./services/logging/standard-its-logging')
 
 window.ReferenceData = ReferenceData
-var namespace = window.SuperGLU = window.SuperGLU || {};
-namespace.version = "0.1.9";
+var namespace = window.SuperGLU = window.SuperGLU || {}
+namespace.version = "0.1.9"
 
 // Core API Modules
 namespace.Zet = window.Zet = Zet
-namespace.Serialization = Serialization;
-namespace.Messaging = Messaging;
+namespace.Serialization = Serialization
+namespace.Messaging = Messaging
 namespace.Messaging.Message = Message
-namespace.Messaging_Gateway = Messaging_Gateway;
-namespace.VERBS = {};
-namespace.CONTEXT_KEYS = {};
+namespace.Messaging_Gateway = Messaging_Gateway
+namespace.VERBS = {}
+namespace.CONTEXT_KEYS = {}
 namespace.ReferenceData = ReferenceData
 namespace.Heartbeat_Service = Heartbeat_Service
+namespace.StandardITSLoggingService = StandardITSLoggingService
 
-module.exports = namespace;
+module.exports = namespace

@@ -13,8 +13,6 @@
  **/
 
 const Zet = require('../../util/zet'),
-    Serialization = require('../../util/serialization'),
-    Messaging = require('../../core/messaging'),
     Messaging_Gateway = require('../../core/messaging-gateway'),
     Message = require('../../core/message')
 var namespace = {};

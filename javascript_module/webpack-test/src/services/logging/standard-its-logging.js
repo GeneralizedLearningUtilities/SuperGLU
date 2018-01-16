@@ -17,22 +17,13 @@
     2. relevance: This is typically optional (defaults to 1), and represents the degree to which some knowledge or skill was assessed by a given activity. This paramter should be provided when a skill was not partially measured (relevance=0) or if confidence was uncertain (relevance above 0 but less than 1).
 **/
 
-if (typeof SuperGLU === "undefined"){
-    var SuperGLU = {};
-    if (typeof window === "undefined") {
-        var window = this;
-    }
-    window.SuperGLU = SuperGLU;
-}
+const Zet = require('../../util/zet'),
+    Serialization = require('../../util/serialization'),
+    Messaging = require('../../core/messaging'),
+    Messaging_Gateway = require('../../core/messaging-gateway'),
+    Message = require('../../core/message');
 
-(function(namespace, undefined) {
-// External Modules
-var Zet = SuperGLU.Zet,
-    Serialization = SuperGLU.Serialization,
-    Messaging = SuperGLU.Messaging,
-    Messaging_Gateway = SuperGLU.Messaging_Gateway,
-// External Classes
-    Message = SuperGLU.Messaging.Message;
+var namespace = {};
 
 // Operational Verbs
 var LOADED_VERB = "Loaded";
@@ -92,8 +83,9 @@ var UNKNOWN_PREFIX = 'Unknown',
     NEGATIVE_HELP_TYPE = 'Negative';
  
 /** ITS Logging service, for sending learning-relevant messages **/
-Zet.declare('StandardITSLoggingService', {
+var StandardITSLoggingService = Zet.declare({
     superclass : Messaging_Gateway.BaseService,
+    CLASS_ID:'StandardITSLoggingService',
     defineBody : function(self){
 		// Public Properties
 
@@ -671,6 +663,4 @@ namespace.NEGATIVE_HELP_TYPE = NEGATIVE_HELP_TYPE;
 
 // Classes
 namespace.StandardITSLoggingService = StandardITSLoggingService;
-
-SuperGLU.Standard_ITS_Logging = namespace;
-})(window.Standard_ITS_Logging = window.Standard_ITS_Logging || {});
+module.exports = namespace;
