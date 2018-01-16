@@ -67,7 +67,6 @@ $RECYCLE.BIN/
 #------------------------------
 # Media: Images      
 #------------------------------
-*.jpg
 *.jpeg
 *.png
 *.gif
@@ -459,5 +458,6 @@ App_Data/*.ldf
 logfile.csv
 env
 
-javascript_module/node_modules
+**/node_modules/
+javascript_module/**/dist/
 /target/
