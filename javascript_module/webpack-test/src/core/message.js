@@ -6,7 +6,6 @@ const Zet = require('../util/zet'),
     Messaging = require('../core/messaging'),
     SUPERGLU_VERSION = require('../reference-data').version
 
-
 module.exports = Zet.declare({
     superclass: Serializable,
     CLASS_ID: 'Message',

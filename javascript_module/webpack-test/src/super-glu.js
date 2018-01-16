@@ -19,7 +19,9 @@ const Zet = require('./util/zet'),
     Messaging_Gateway = require('./core/messaging-gateway'),
     ReferenceData = require('./reference-data'),
     Heartbeat_Service = require('./services/orchestration/heartbeat-service'),
-    StandardITSLoggingService = require('./services/logging/standard-its-logging')
+    StandardITSLoggingService = require('./services/logging/standard-its-logging'),
+    LearningTask = require('./services/studentmodel/learning-task'),
+    SerializableAssistmentsItem = require('./services/studentmodel/serializable-assistments-item')
 
 window.ReferenceData = ReferenceData
 var namespace = window.SuperGLU = window.SuperGLU || {}
@@ -36,5 +38,7 @@ namespace.CONTEXT_KEYS = {}
 namespace.ReferenceData = ReferenceData
 namespace.Heartbeat_Service = Heartbeat_Service
 namespace.StandardITSLoggingService = StandardITSLoggingService
+namespace.LearningTask = LearningTask
+namespace.SerializableAssistmentsItem = SerializableAssistmentsItem
 
 module.exports = namespace

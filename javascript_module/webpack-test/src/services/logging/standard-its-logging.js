@@ -70,7 +70,7 @@ var USER_ID_KEY = 'userId',                             // Unique identifier for
                                                         // Intended to help to compare different user or system behavior in a comparable task state.
 	CLASSROOM_ID_KEY = 'classroomId',					// Unique ID for the classroom
     ACTIVITY_TYPE_KEY = 'activityType',                 // Type of activity being performed
-    TOPIC_ID_KEY = 'topicId'                            // Topic ID for the current activity 
+    TOPIC_ID_KEY = 'topicId',                           // Topic ID for the current activity
     KC_RELEVANCE_KEY = 'KCRelevance',                   // Knowledge component relevance
     NUM_OBSERVATIONS_KEY = 'numberOfObservations',      // Number of observations for some behavior that is measured
     HELP_TYPE_KEY = 'helpType',                         // Type of the help provided (e.g., Positive, Negative, neutral)
