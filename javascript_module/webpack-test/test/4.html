@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="assets/css/login.css">
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.2.6/jquery.min.js"></script>
-    <script src="../webpack-test/dist/superglu-all.js"></script>
+    <script src="../dist/superglu-all.js?four"></script>
 
     <script type="text/javascript">
         // A really stupid function for grabbing URL Query params
@@ -109,11 +109,12 @@
         return false;
     };
 
+
     function init() {
         var GATEWAY_SERVICE,                        // Gateway service for relaying messages in this frame
             PARENT_POSTING_STUB,                    // Stub that represents the parent frame's messaging gateway
-            FRAME_NAME = "ChildLogin",              // A name to call this frame, for reporting purposes and postMessage
-            PARENT_NAME = "GIFTMessageRelay",       // A name to call the parent frame, for reporting purposes and postMessage
+            FRAME_NAME = "four",              // A name to call this frame, for reporting purposes and postMessage
+            PARENT_NAME = "five",       // A name to call the parent frame, for reporting purposes and postMessage
             LOADED_VERB = "Loaded",                 // A Message verb for the "Loaded" message, which indicates that the activity loaded right
             HEARTBEAT_NAME = "ChildHeartbeat",      // A Message verb for the heartbeat this frame looks for
             COMPLETED_VERB = "Completed",           // A Message verb for a "Completed" message, which occurs when the activity is done
@@ -184,6 +185,7 @@
             null, gatewayScope);
         HEARTBEAT_SERVICE.start();
 
+        // Function to run after loading the window
         var oldOnload = window.onload;
         window.onload = function () {
             if (oldOnload != null) {

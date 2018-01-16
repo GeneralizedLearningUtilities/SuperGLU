@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="assets/css/login.css">
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.2.6/jquery.min.js"></script>
-    <script src="../webpack-test/dist/superglu-all.js?four"></script>
+    <script src="../dist/superglu-all.js?six"></script>
 
     <script type="text/javascript">
         // A really stupid function for grabbing URL Query params
@@ -105,18 +105,17 @@
 
     var onClickTheOnlyButton = function (score) {
         SIMPLE_ACTIVITY_SERVICE.sendCompletedMessage(score);
-        HEARTBEAT_SERVICE.stop();
+//        HEARTBEAT_SERVICE.stop();
         return false;
     };
-
 
     function init() {
         var GATEWAY_SERVICE,                        // Gateway service for relaying messages in this frame
             PARENT_POSTING_STUB,                    // Stub that represents the parent frame's messaging gateway
-            FRAME_NAME = "four",              // A name to call this frame, for reporting purposes and postMessage
-            PARENT_NAME = "five",       // A name to call the parent frame, for reporting purposes and postMessage
+            FRAME_NAME = "six",              // A name to call this frame, for reporting purposes and postMessage
+            PARENT_NAME = "three",       // A name to call the parent frame, for reporting purposes and postMessage
             LOADED_VERB = "Loaded",                 // A Message verb for the "Loaded" message, which indicates that the activity loaded right
-            HEARTBEAT_NAME = "ChildHeartbeat",      // A Message verb for the heartbeat this frame looks for
+//            HEARTBEAT_NAME = "ChildHeartbeat",      // A Message verb for the heartbeat this frame looks for
             COMPLETED_VERB = "Completed",           // A Message verb for a "Completed" message, which occurs when the activity is done
             AVOIDED_VERB = "Avoided";
 
@@ -175,15 +174,18 @@
         gatewayScope[ReferenceData.REFERENCE_IMPLEMENTATION_VERSION_KEY] = ReferenceData.version;
         gatewayScope[ReferenceData.USER_AGENT_KEY] = navigator.userAgent;
         SIMPLE_ACTIVITY_SERVICE = SimpleActivityService("ChildTestService");
-        HEARTBEAT_SERVICE = SuperGLU.Heartbeat_Service.HeartbeatService(null, HEARTBEAT_NAME, 30);
+//        HEARTBEAT_SERVICE = SuperGLU.Heartbeat_Service.HeartbeatService(null, HEARTBEAT_NAME, 30);
         PARENT_POSTING_STUB = SuperGLU.Messaging_Gateway.PostMessageGatewayStub(PARENT_NAME, null, null, window.parent);
 
         /** Create a gateway as: GatewayId, Child Nodes (Gateways/Services/Stubs), Parent Gateway, Scope added to each message**/
         GATEWAY_SERVICE = SuperGLU.Messaging_Gateway.PostMessageGateway(FRAME_NAME,
-            [SIMPLE_ACTIVITY_SERVICE, HEARTBEAT_SERVICE, PARENT_POSTING_STUB],
+            [SIMPLE_ACTIVITY_SERVICE,
+//                HEARTBEAT_SERVICE,
+                PARENT_POSTING_STUB],
             [PARENT_POSTING_STUB],
             null, gatewayScope);
-        HEARTBEAT_SERVICE.start();
+//        HEARTBEAT_SERVICE.start();
+
 
         // Function to run after loading the window
         var oldOnload = window.onload;

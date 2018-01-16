@@ -17,7 +17,7 @@ const Zet = require('./util/zet'),
     Message = require('./core/message'),
     Messaging = require('./core/messaging'),
     Messaging_Gateway = require('./core/messaging-gateway'),
-    ReferenceData = require('./reference-data')
+    ReferenceData = require('./reference-data'),
     Heartbeat_Service = require('./services/orchestration/heartbeat-service')
 
 window.ReferenceData = ReferenceData
