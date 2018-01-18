@@ -81,9 +81,12 @@ public class ServiceLauncher {
         }
     }
 
-    public ServiceConfigurationCollection readConfigurationFromFile(String fileName) {
+    public ServiceConfigurationCollection readConfigurationFromFile(String fileName, String defaultFileName) {
         String fileAsString = this.fileToString(fileName);
 
+        if(fileAsString == null)
+        	fileAsString = this.fileToString(defaultFileName);
+        
         ServiceConfigurationCollection result = (ServiceConfigurationCollection) SerializationConvenience.nativeizeObject(fileAsString,
                 SerializationFormatEnum.JSON_STANDARD_FORMAT);
 
@@ -141,6 +144,15 @@ public class ServiceLauncher {
             // finally remove it from the list of services
             this.services.remove(serviceName);
         }
+    }
+    
+    
+    public void stopAllServices()
+    {
+    	for(String serviceName : this.services.keySet())
+    	{
+    		stopService(serviceName);
+    	}
     }
 
 }

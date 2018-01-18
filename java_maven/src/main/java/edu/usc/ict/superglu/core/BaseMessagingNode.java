@@ -35,7 +35,7 @@ public class BaseMessagingNode {
 	public static final String ORIGINATING_SERVICE_ID_KEY = "originatingServiceId";
 	public static final String SESSION_KEY = "sessionId";
 	
-	protected static final boolean USE_BLACK_WHITE_LIST = false;
+	protected static final boolean USE_BLACK_WHITE_LIST = true;
 
 	public BaseMessagingNode(String anId, Predicate<BaseMessage> conditions, Collection<BaseMessagingNode> nodes,
 			List<ExternalMessagingHandler> handlers, List<BlackWhiteListEntry> blackList,
