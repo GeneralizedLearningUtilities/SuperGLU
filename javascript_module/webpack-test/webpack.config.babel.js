@@ -4,7 +4,7 @@ const webpack = require('webpack')
 
 module.exports = env => {
     const buildCore = env && env.core || false
-    console.log("Building Core : ",buildCore)
+    console.log("Building core : ",buildCore)
     return {
         context: path.resolve('src'),
         entry: {

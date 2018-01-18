@@ -9,6 +9,12 @@ Adding unit tests and porting additional functionality from original closed-sour
 Requires:
 
 Technically Optional, But Important:
-- rhino.js: For unit testing of JS from inside Python unit tests.
-- buster.js: For JS, by JS Unit Testing
 - lxml: At least if you want xml stuff to work
+
+## Development
+
+### Java Module
+The corresponding code can be found within java_module directory. The java builds are powered by Maven 3.
+
+### Javascript Module
+The corresponding code can be found within javascript_module directory. Instructions on how to build & test the module, can be found [here](javascript_module/webpack-test/readme.md).
