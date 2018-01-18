@@ -8,6 +8,10 @@
 
 `npm run test`
 
-- Build the distributable js file, superglu-all.js, within dist directory using the following command
+- There are two distributable files, superglu-core.js contains only SuperGLU but superglu-standard.js contains additional services 
+namely Heartbeat_Service, StandardITSLoggingService, LearningTask and SerializableAssistmentsItem
+    - Both the files superglu-core.js and superglu-standard.js are created within dist directory using the following commands respectively
  
-`npm run build`
+`npm run build-core`
+
+`npm run build-standard`

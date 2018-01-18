@@ -22,7 +22,8 @@
   },
   "scripts": {
     "dev": "node ./node_modules/webpack-dev-server/bin/webpack-dev-server.js",
-    "build": "webpack",
+    "build-standard": "webpack",
+    "build-core": "webpack --env.core",
     "start": "webpack-dev-server",
     "test": "karma start --auto-watch"
   }

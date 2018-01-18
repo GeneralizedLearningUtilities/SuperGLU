@@ -4,13 +4,6 @@
  Package: SuperGLU (Generalized Learning Utilities)
  Author: Benjamin Nye
  License: APL 2.0
-
- Requires:
- - Util\uuid.js
- - Util\zet.js
- - Util\serializable.js
- - Core\messaging.js
- - Core\messaging-gateways.js
  **/
 const Zet = require('./util/zet'),
     Serialization = require('./util/serialization'),
@@ -36,6 +29,7 @@ namespace.Messaging_Gateway = Messaging_Gateway
 namespace.VERBS = {}
 namespace.CONTEXT_KEYS = {}
 namespace.ReferenceData = ReferenceData
+// Services
 namespace.Heartbeat_Service = Heartbeat_Service
 namespace.StandardITSLoggingService = StandardITSLoggingService
 namespace.LearningTask = LearningTask

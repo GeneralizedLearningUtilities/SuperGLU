@@ -1,35 +1,40 @@
 const path = require('path')
 const webpack = require('webpack')
 
-module.exports = {
-    context: path.resolve('src'),
-    entry: {
-        app: './super-glu'
-    },
-    output: {
-        path: path.resolve('dist'),
-        filename: 'superglu-all.js',
-        publicPath: '/dist/'
-    },
-    // debug: true,
-    devtool: 'source-map',
-    module: {
-        loaders: [
-            {
-                loader: "babel-loader",
 
-                // Skip any files outside of your project's `src` directory
-                include: [
-                    path.resolve(__dirname, "src"),
-                ],
+module.exports = env => {
+    const buildCore = env && env.core || false
+    console.log("Building Core : ",buildCore)
+    return {
+        context: path.resolve('src'),
+        entry: {
+            app: buildCore ? './superglu-core-main' : './superglu-standard-main'
+        },
+        output: {
+            path: path.resolve('dist'),
+            filename: buildCore ? 'superglu-core.js' : 'superglu-standard.js',
+            publicPath: '/dist/'
+        },
+        // debug: true,
+        devtool: 'source-map',
+        module: {
+            loaders: [
+                {
+                    loader: "babel-loader",
 
-                exclude: [
-                    path.resolve(__dirname, "node_modules"),
-                ],
+                    // Skip any files outside of your project's `src` directory
+                    include: [
+                        path.resolve(__dirname, "src"),
+                    ],
 
-                // Only run `.js` and `.jsx` files through Babel
-                test: /\.jsx?$/
-            },
-        ]
+                    exclude: [
+                        path.resolve(__dirname, "node_modules"),
+                    ],
+
+                    // Only run `.js` and `.jsx` files through Babel
+                    test: /\.jsx?$/
+                },
+            ]
+        }
     }
 }
