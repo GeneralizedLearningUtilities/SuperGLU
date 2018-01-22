@@ -6,6 +6,8 @@ node_js:
 matrix:
   include:
     - language: python
+      before_deploy:
+        cd python_module
       deploy:
         provider: pypi
         user: benjamid
@@ -14,6 +16,8 @@ matrix:
         on:
           tags: true
           branch: master
+      after_deploy:
+        cd ..
       script:
           touch Readme.md
 
@@ -36,3 +40,4 @@ matrix:
 notifications:
   email:
     - nsurana@usc.edu
+    - auerbach@ict.usc.edu
