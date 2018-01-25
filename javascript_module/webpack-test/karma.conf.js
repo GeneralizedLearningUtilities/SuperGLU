@@ -1,5 +1,5 @@
-var webpackConfig = require('./webpack.config.babel');
-// webpackConfig.entry = {};
+var webpackConfig = require('./webpack.config.babel')();
+webpackConfig.entry = function(){return {}};
 
 module.exports = function (config) {
     config.set({
@@ -28,9 +28,8 @@ module.exports = function (config) {
         frameworks: ['mocha', 'chai'],
         port: 9876,
         colors: false,
-        logLevel: config.LOG_INFO,
+        logLevel: config.LOG_DEBUG,
         autoWatch: false,
-
         preprocessors: {
             'src/util/zet.js': ['webpack'],
             'src/util/zet.test.js': ['webpack'],
