@@ -15,6 +15,7 @@ const Zet = require('./util/zet'),
     StandardITSLoggingService = require('./services/logging/standard-its-logging'),
     LearningTask = require('./services/studentmodel/learning-task'),
     SerializableAssistmentsItem = require('./services/studentmodel/serializable-assistments-item')
+    ,UserDataServiceInterface = require('./services/authentication/User_Service_Client')
 
 window.ReferenceData = ReferenceData
 var namespace = window.SuperGLU = window.SuperGLU || {}
@@ -34,5 +35,6 @@ namespace.Heartbeat_Service = Heartbeat_Service
 namespace.StandardITSLoggingService = StandardITSLoggingService
 namespace.LearningTask = LearningTask
 namespace.SerializableAssistmentsItem = SerializableAssistmentsItem
+namespace.User_Service_Client = {UserDataServiceInterface:UserDataServiceInterface}
 
 module.exports = namespace

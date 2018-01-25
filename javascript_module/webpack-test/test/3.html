@@ -6,7 +6,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     <meta http-equiv="X-UA-Compatible" content="IE=EDGE"/>
 
-    <script src="../dist/superglu-all.js?three"></script>
+    <script src="../dist/superglu-standard.js?three"></script>
 
     <script type="text/javascript">
         // A really stupid function for grabbing URL Query params
@@ -222,7 +222,7 @@
 
 <button id="removeFrame" onclick="removeFrameSix()">Remove Frame Six</button>
 <script>
-    var removeFrameSix = () => {
+    var removeFrameSix = function(){
         document.getElementById('six').remove();
     }
 </script>
