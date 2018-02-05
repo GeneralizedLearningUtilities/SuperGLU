@@ -1,9 +1,9 @@
 var Zet = require('./zet')
-var Serializable = require('./serializable')
+var Serializable = require('./serialization').Serializable
 
 module.exports = Zet.declare({
     superclass: Serializable,
-    CLASS_ID:'NamedSerializable',
+    CLASS_ID: 'NamedSerializable',
     defineBody: function (self) {
         // Constructor Function
         self.NAME_KEY = NAME_KEY

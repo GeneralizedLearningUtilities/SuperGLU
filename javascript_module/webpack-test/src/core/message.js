@@ -1,10 +1,19 @@
+'use strict'
 const Zet = require('../util/zet'),
     Serialization = require('../util/serialization'),
-    Serializable = Serialization.serializable,
+    Serializable = Serialization.Serializable,
     tokenizeObject = Serialization.tokenizeObject,
     untokenizeObject = Serialization.untokenizeObject,
     Messaging = require('../core/messaging'),
     SUPERGLU_VERSION = require('../reference-data').version
+
+const ACTOR_KEY = Messaging.ACTOR_KEY
+    , VERB_KEY = Messaging.VERB_KEY
+    , OBJECT_KEY = Messaging.OBJECT_KEY
+    , RESULT_KEY = Messaging.RESULT_KEY
+    , SPEECH_ACT_KEY = Messaging.SPEECH_ACT_KEY
+    , TIMESTAMP_KEY = Messaging.TIMESTAMP_KEY
+    , CONTEXT_KEY = Messaging.CONTEXT_KEY
 
 module.exports = Zet.declare({
     superclass: Serializable,

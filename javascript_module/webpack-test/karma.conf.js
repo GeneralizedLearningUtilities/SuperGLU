@@ -1,5 +1,7 @@
-var webpackConfig = require('./webpack.config.babel')();
-webpackConfig.entry = function(){return {}};
+var webpackConfig = require('./webpack.config.babel')()
+webpackConfig.entry = function () {
+    return {}
+}
 
 module.exports = function (config) {
     config.set({
@@ -12,10 +14,12 @@ module.exports = function (config) {
             }
         },
         files: [
-            'src/util/zet.js',
-            'src/util/zet.test.js',
-            'src/util/serialization.js',
-            'src/util/serialization.test.js'
+            'src/util/zet.js'
+            , 'src/util/zet.test.js'
+            , 'src/util/serialization.js'
+            , 'src/util/serialization.test.js'
+            , 'src/services/storage/local-storage-service.js'
+            , 'src/services/storage/local-storage-service.test.js'
         ],
         plugins: [
             'karma-chrome-launcher',
@@ -31,17 +35,19 @@ module.exports = function (config) {
         logLevel: config.LOG_DEBUG,
         autoWatch: false,
         preprocessors: {
-            'src/util/zet.js': ['webpack'],
-            'src/util/zet.test.js': ['webpack'],
-            'src/util/serialization.js': ['webpack'],
-            'src/util/serialization.test.js': ['webpack']
+            'src/util/zet.js': ['webpack']
+            , 'src/util/zet.test.js': ['webpack']
+            , 'src/util/serialization.js': ['webpack']
+            , 'src/util/serialization.test.js': ['webpack']
+            , 'src/services/storage/local-storage-service.js': ['webpack']
+            , 'src/services/storage/local-storage-service.test.js': ['webpack']
         },
 
         webpack: webpackConfig,
         webpackMiddleware: {
             noInfo: true
         },
-        singleRun: true,        //change it to false, and it'll run in watch mode - running tests whenever changes are saved
+        singleRun: false,        //change it to false, and it'll run in watch mode - running tests whenever changes are saved
         concurrency: Infinity,
-    });
-};
+    })
+}

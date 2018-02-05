@@ -14,18 +14,24 @@ var ZetTestClass = Zet.declare({
     }
 })
 var ZetTestClass2 = Zet.declare({
-    superclass : null,
+    superclass: null,
     CLASS_ID: "ZetTestClass2_OVERRIDE",
     defineBody: function (self) {
         // Constructor Function
         self.construct = function construct(id) {
             self.myId = id
         }
+        self.getSomething = function () {
+            return "ZetTestClass returns something"
+        }
     }
 })
 var ZetTestClass3 = Zet.declare({
     superclass: ZetTestClass2,
     defineBody: function (self) {
+        self.getUnique = function () {
+            return "ZetTestClass3 returns unique"
+        }
     }
 })
 
@@ -93,5 +99,13 @@ describe('ZetTests', () => {
         expect(ZetTestClass2.CLASS_ID === 'ZetTestClass2_OVERRIDE').to.be.true
         expect(z.CLASS_ID === null).to.be.true
         expect(ZetTestClass3.CLASS_ID === null).to.be.true
+    })
+
+    it('testOverridden functions', () => {
+        let a = ZetTestClass3()
+        expect(a.getUnique).to.be.ok
+        expect(a.getSomething).to.be.ok
+        expect(a.getUnique()==="ZetTestClass3 returns unique").to.be.true;
+        expect(a.getSomething()==="ZetTestClass returns something").to.be.true;
     })
 })

@@ -40,7 +40,7 @@ const Zet = require('../util/zet'),
 
 var namespace = {}
 var CATCH_BAD_MESSAGES = false,
-    SESSION_ID_KEY = 'sessionId';
+    SESSION_ID_KEY = 'sessionId'
 
 /** The base class for a messaging node (either a Gateway or a Service) **/
 var BaseMessagingNode = Zet.declare({
@@ -58,15 +58,15 @@ var BaseMessagingNode = Zet.declare({
          @type gateways: list of MessagingGateway object
          **/
         self.construct = function construct(id, nodes) {
-            self.inherited(construct, [id]);
+            self.inherited(construct, [id])
             if (nodes == null) {
-                nodes = [];
+                nodes = []
             }
-            self._nodes = {};
-            self._requests = {};
-            self._uuid = UUID.genV4();
-            self.addNodes(nodes);
-        };
+            self._nodes = {}
+            self._requests = {}
+            self._uuid = UUID.genV4()
+            self.addNodes(nodes)
+        }
 
         /** Receive a message. When a message is received, two things should occur:
          1. Any service-specific processing
@@ -76,14 +76,14 @@ var BaseMessagingNode = Zet.declare({
         self.receiveMessage = function receiveMessage(msg) {
             // Processing to handle a received message
             //console.log(self._id + " received MSG: "+ self.messageToString(msg));
-            self._triggerRequests(msg);
-        };
+            self._triggerRequests(msg)
+        }
 
         /** Send a message to connected nodes, which will dispatch it (if any gateways exist). **/
         self.sendMessage = function sendMessage(msg) {
             //console.log(self._id + " sent MSG: "+ self.messageToString(msg));
-            self._distributeMessage(self._nodes, msg);
-        };
+            self._distributeMessage(self._nodes, msg)
+        }
 
         /** Handle an arriving message from some source.
          Services other than gateways should generally not need to change this.
@@ -91,62 +91,62 @@ var BaseMessagingNode = Zet.declare({
          @param senderId: The id string for the sender of this message.
          **/
         self.handleMessage = function handleMessage(msg, senderId) {
-            self.receiveMessage(msg);
-        };
+            self.receiveMessage(msg)
+        }
 
         /** Sends a message each of 'nodes', except excluded nodes (e.g., original sender) **/
         self._distributeMessage = function _distributeMessage(nodes, msg, excludeIds) {
-            var nodeId, node, condition;
+            var nodeId, node, condition
             if (excludeIds == null) {
-                excludeIds = [];
+                excludeIds = []
             }
             for (nodeId in nodes) {
-                condition = nodes[nodeId].condition;
-                node = nodes[nodeId].node;
+                condition = nodes[nodeId].condition
+                node = nodes[nodeId].node
                 if ((excludeIds.indexOf(nodeId) < 0) &&
                     (condition == null || condition(msg))) {
-                    self._transmitMessage(node, msg, self.getId());
+                    self._transmitMessage(node, msg, self.getId())
                 }
             }
-        };
+        }
 
         /** Transmit the message to another node **/
         self._transmitMessage = function _transmitMessage(node, msg, senderId) {
-            node.handleMessage(msg, senderId);
-        };
+            node.handleMessage(msg, senderId)
+        }
 
         // Manage Connected Nodes
 
         /** Get all connected nodes for the gateway **/
         self.getNodes = function getNodes() {
             return Object.keys(self._nodes).map(function (key) {
-                return self._nodes[key].node;
-            });
-        };
+                return self._nodes[key].node
+            })
+        }
 
         /** Connect nodes to this node **/
         self.addNodes = function addNodes(nodes) {
-            var i;
+            var i
             if (nodes == null) {
-                nodes = [];
+                nodes = []
             }
             for (i = 0; i < nodes.length; i++) {
-                nodes[i].onBindToNode(self);
-                self.onBindToNode(nodes[i]);
+                nodes[i].onBindToNode(self)
+                self.onBindToNode(nodes[i])
             }
-        };
+        }
 
         /** Remove the given connected nodes. If nodes=null, remove all. **/
         self.removeNodes = function removeNodes(nodes) {
-            var i;
+            var i
             if (nodes == null) {
-                nodes = self.getNodes();
+                nodes = self.getNodes()
             }
             for (i = 0; i < nodes.length; i++) {
-                nodes[i].onUnbindToNode(self);
-                self.onUnbindToNode(nodes[i]);
+                nodes[i].onUnbindToNode(self)
+                self.onUnbindToNode(nodes[i])
             }
-        };
+        }
 
         /** Register the node and signatures of messages that the node is interested in **/
         self.onBindToNode = function onBindToNode(node) {
@@ -154,16 +154,16 @@ var BaseMessagingNode = Zet.declare({
                 self._nodes[node.getId()] = {
                     'node': node,
                     'conditions': node.getMessageConditions()
-                };
+                }
             }
-        };
+        }
 
         /** This removes this node from a connected node (if any) **/
         self.onUnbindToNode = function onUnbindToNode(node) {
             if (node.getId() in self._nodes) {
-                delete self._nodes[node.getId()];
+                delete self._nodes[node.getId()]
             }
-        };
+        }
 
         /** Get a list of conditions functions that determine if a gateway should
          relay a message to this node (can be propagated across gateways to filter
@@ -172,39 +172,39 @@ var BaseMessagingNode = Zet.declare({
         self.getMessageConditions = function getMessageConditions() {
             /** Function to check if this node is interested in this message type */
             return function () {
-                return true;
-            };
-        };
+                return true
+            }
+        }
 
         /** Get the conditions for sending a message to a node **/
         self.getNodeMessageConditions = function getNodeMessageConditions(nodeId) {
             if (nodeId in self._nodes) {
-                return self._nodes[nodeId].conditions;
+                return self._nodes[nodeId].conditions
             } else {
                 return function () {
-                    return true;
-                };
+                    return true
+                }
             }
-        };
+        }
 
         /** Update the conditions for sending a message to a node **/
         self.updateNodeMessageConditions = function updateNodeMessageConditions(nodeId, conditions) {
             if (nodeId in self._nodes) {
-                self._nodes[nodeId] = [self._nodes[nodeId].node, conditions];
+                self._nodes[nodeId] = [self._nodes[nodeId].node, conditions]
             }
-        };
+        }
 
         // Request Management
 
         /** Internal function to get all pending request messages **/
         self._getRequests = function _getRequests() {
-            var key, reqs;
-            reqs = [];
+            var key, reqs
+            reqs = []
             for (key in self._requests) {
-                reqs.push(self._requests[key][0]);
+                reqs.push(self._requests[key][0])
             }
-            return reqs;
-        };
+            return reqs
+        }
 
         /** Add a request to the queue, to respond to at some point
          @param msg: The message that was sent that needs a reply.
@@ -213,19 +213,19 @@ var BaseMessagingNode = Zet.declare({
          **/
         self._addRequest = function _addRequest(msg, callback) {
             if (callback != null) {
-                self._requests[msg.getId()] = [msg.clone(), callback];
+                self._requests[msg.getId()] = [msg.clone(), callback]
             }
-        };
+        }
 
         /** Make a request, which is added to the queue and then sent off to connected services
          @param msg: The message that was sent that needs a reply.
          @param callback: A function to call when the message is received, as f(newMsg, requestMsg)
          **/
         self._makeRequest = function _makeRequest(msg, callback) {
-            self._addRequest(msg, callback);
-            self.sendMessage(msg);
+            self._addRequest(msg, callback)
+            self.sendMessage(msg)
             //console.log("SENT REQUEST:" + Serialization.makeSerialized(Serialization.tokenizeObject(msg)));
-        };
+        }
 
         /** Trigger any requests that are waiting for a given message. A
          request is filled when the conversation ID on the message matches
@@ -234,33 +234,33 @@ var BaseMessagingNode = Zet.declare({
          @param msg: Received message to compare against requests.
          **/
         self._triggerRequests = function _triggerRequests(msg) {
-            var key, convoId, oldMsg, callback;
+            var key, convoId, oldMsg, callback
             //console.log("Heard REPLY:" + Serialization.makeSerialized(Serialization.tokenizeObject(msg)));
-            convoId = msg.getContextValue(Messaging.CONTEXT_CONVERSATION_ID_KEY, null);
+            convoId = msg.getContextValue(Messaging.CONTEXT_CONVERSATION_ID_KEY, null)
             //console.log("CONVO ID: " + convoId);
             //console.log(self._requests);
             if (convoId != null) {
                 // @TODO: This is a dict, so can check directly?
                 for (key in self._requests) {
                     if (key === convoId) {
-                        oldMsg = self._requests[key][0];
-                        callback = self._requests[key][1];
-                        callback(msg, oldMsg);
+                        oldMsg = self._requests[key][0]
+                        callback = self._requests[key][1]
+                        callback(msg, oldMsg)
                         // Remove from the requests, unless asked for a permanent feed
                         if (oldMsg.getSpeechAct() !== Messaging.REQUEST_WHENEVER_ACT) {
-                            delete self._requests[key];
+                            delete self._requests[key]
                         }
                     }
                 }
             }
-        };
+        }
 
         // Pack/Unpack Messages
 
         /** Convenience function to serialize a message **/
         self.messageToString = function messageToString(msg) {
-            return Serialization.makeSerialized(Serialization.tokenizeObject(msg));
-        };
+            return Serialization.makeSerialized(Serialization.tokenizeObject(msg))
+        }
 
         /** Convenience function to turn a serialized JSON message into a message
          If the message is invalid when unpacked, it is ignored.
@@ -268,19 +268,19 @@ var BaseMessagingNode = Zet.declare({
         self.stringToMessage = function stringToMessage(msg) {
             if (CATCH_BAD_MESSAGES) {
                 try {
-                    msg = Serialization.untokenizeObject(Serialization.makeNative(msg));
+                    msg = Serialization.untokenizeObject(Serialization.makeNative(msg))
                 } catch (err) {
                     // console.log("ERROR: Could not process message data received.  Received:");
                     // console.log(msg);
-                    msg = undefined;
+                    msg = undefined
                 }
             } else {
-                msg = Serialization.untokenizeObject(Serialization.makeNative(msg));
+                msg = Serialization.untokenizeObject(Serialization.makeNative(msg))
             }
-            return msg;
-        };
+            return msg
+        }
     }
-});
+})
 
 /** A messaging gateway base class, for relaying messages **/
 var MessagingGateway = Zet.declare({
@@ -298,41 +298,41 @@ var MessagingGateway = Zet.declare({
         self.construct = function construct(id, nodes, scope) {
             // Should check for cycles at some point
             if (scope == null) {
-                scope = {};
+                scope = {}
             }
-            self.inherited(construct, [id, nodes]);
-            self._scope = scope;
-        };
+            self.inherited(construct, [id, nodes])
+            self._scope = scope
+        }
 
         // Handle Incoming Messages
         /** Receive a message from a connected node and propogate it. **/
         self.handleMessage = function handleMessage(msg, senderId) {
-            self.receiveMessage(msg);
-            self._distributeMessage(self._nodes, msg, [senderId]);
-        };
+            self.receiveMessage(msg)
+            self._distributeMessage(self._nodes, msg, [senderId])
+        }
 
         // Relay Messages
 
         /** Distribute the message, after adding some gateway context data. **/
         self._distributeMessage = function _distributeMessage(nodes, msg, excludeIds) {
-            msg = self.addContextDataToMsg(msg);
-            self.inherited(_distributeMessage, [nodes, msg, excludeIds]);
-        };
+            msg = self.addContextDataToMsg(msg)
+            self.inherited(_distributeMessage, [nodes, msg, excludeIds])
+        }
 
         /** Add the additional context data in the Gateway scope, unless those
          keys already exist in the message's context object.
          **/
         self.addContextDataToMsg = function addContextDataToMsg(msg) {
-            var key;
+            var key
             for (key in self._scope) {
                 if (!(msg.hasContextValue(key))) {
-                    msg.setContextValue(key, self._scope[key]);
+                    msg.setContextValue(key, self._scope[key])
                 }
             }
-            return msg;
-        };
+            return msg
+        }
     }
-});
+})
 
 /** Messaging Gateway Node Stub for Cross-Domain Page Communication
  A stub gateway that is a placeholder for a PostMessage gateway in another frame.
@@ -345,7 +345,7 @@ var PostMessageGatewayStub = Zet.declare({
     superclass: BaseMessagingNode,
     defineBody: function (self) {
         // Private Properties
-        var ANY_ORIGIN = '*';
+        var ANY_ORIGIN = '*'
 
         // Public Properties
 
@@ -356,40 +356,40 @@ var PostMessageGatewayStub = Zet.declare({
          @param element: The HTML element (e.g., frame/iframe) that the stub represents. By default parent window.
          **/
         self.construct = function construct(id, gateway, origin, element) {
-            var nodes = null;
+            var nodes = null
             if (gateway != null) {
-                nodes = [gateway];
+                nodes = [gateway]
             }
-            self.inherited(construct, [id, nodes]);
+            self.inherited(construct, [id, nodes])
             if (origin == null) {
-                origin = ANY_ORIGIN;
+                origin = ANY_ORIGIN
             }
             if (element == null) {
-                element = parent;
+                element = parent
             }
             if (element === window) {
-                element = null;
+                element = null
             }
-            self._origin = origin;
-            self._element = element;
-            self._queue = [];
-        };
+            self._origin = origin
+            self._element = element
+            self._queue = []
+        }
 
         /** Get the origin, which is the frame location that is expected **/
         self.getOrigin = function getOrigin() {
-            return self._origin;
-        };
+            return self._origin
+        }
 
         /** Get the HTML element where messages would be sent **/
         self.getElement = function getElement() {
-            return self._element;
-        };
+            return self._element
+        }
 
         self.getQueue = function getQueue() {
-            return self._queue;
-        };
+            return self._queue
+        }
     }
-});
+})
 
 
 /** Messaging Gateway for Cross-Domain Page Communication
@@ -402,7 +402,7 @@ var PostMessageGateway = Zet.declare({
     CLASS_ID: 'PostMessageGateway',
     defineBody: function (self) {
         // Private Properties
-        var ANY_ORIGIN = '*';
+        var ANY_ORIGIN = '*'
 
         // Public Properties
 
@@ -414,79 +414,79 @@ var PostMessageGateway = Zet.declare({
          **/
         self.construct = function construct(id, nodes, origin, scope) {
             if (origin == null) {
-                origin = ANY_ORIGIN;
+                origin = ANY_ORIGIN
             }
-            self._origin = origin;
+            self._origin = origin
             // Get these ready before adding nodes in base constructor
-            self._postNodes = {};
-            self._validOrigins = {};
-            self._anyOriginValid = true;
-            self._registrationInterval = 0;
-            self._registry = {};
+            self._postNodes = {}
+            self._validOrigins = {}
+            self._anyOriginValid = true
+            self._registrationInterval = 0
+            self._registry = {}
             // Construct
-            self.inherited(construct, [id, nodes, scope]);
-            self.validatePostingHierarchy();
+            self.inherited(construct, [id, nodes, scope])
+            self.validatePostingHierarchy()
             if (window) {
-                self.bindToWindow(window);
+                self.bindToWindow(window)
             }
             if (nodes && nodes.length) {
                 nodes.forEach(function (t) {
                     if (PostMessageGatewayStub.isInstance(t) && t.getElement() === window.parent) {
-                        self.startRegistration(t);
-                        t._isActive = false;        //stub is inactive unless registered
+                        self.startRegistration(t)
+                        t._isActive = false        //stub is inactive unless registered
                     }
-                });
+                })
             }
-        };
+        }
 
         self.startRegistration = function (node) {
-            var senderId = self.getId();
-            var msg = Message(senderId, 'REGISTER', null, true);
+            var senderId = self.getId()
+            var msg = Message(senderId, 'REGISTER', null, true)
             var interval = setInterval(function () {
-                self._transmitPostMessage(node, msg, senderId);
-            }, 2000);
+                self._transmitPostMessage(node, msg, senderId)
+            }, 2000)
             self._registrationInterval = interval
-        };
+        }
 
         self.stopRegistration = function () {
-            clearInterval(self._registrationInterval);
-        };
+            clearInterval(self._registrationInterval)
+        }
 
         /** Get the origin for this window **/
         self.getOrigin = function getOrigin() {
-            return self._origin;
-        };
+            return self._origin
+        }
 
         /** Get a stub that is the equivalent to this gateway **/
         self.getStub = function getStub() {
-            return PostMessageGatewayStub(self._id, self._gateway, self._origin);
-        };
+            return PostMessageGatewayStub(self._id, self._gateway, self._origin)
+        }
 
         /** Validates that no additional PostMessageGateway nodes are connected
          and in the same frame. Valid neighbors can have no PostMessageGateway nodes,
          and only the parent OR the children can be of the PostMessageGatewayStub class
          **/
         self.validatePostingHierarchy = function validatePostingHierarchy() {
-            var key;
+            var key
             for (key in self._nodes) {
                 if (PostMessageGateway.isInstance(self._nodes[key])) {
-                    throw TypeError("Error: Cannot directly connect PostMessageGateways");
+                    throw TypeError("Error: Cannot directly connect PostMessageGateways")
                 }
             }
             // @TODO: Check for cycles in the posting hierarchy
-        };
+        }
 
         /** Register the node and signatures of messages that the node is interested in **/
         self.onBindToNode = function onBindToNode(node) {
-            self.inherited(onBindToNode, [node]);
-            self._onAttachNode(node);
-        };
+            self.inherited(onBindToNode, [node])
+            self._onAttachNode(node)
+        }
 
         /** This removes this node from a connected node (if any) **/
         self.onUnbindToNode = function onUnbindToNode(node) {
-            self._onDetachNode(node);
-            self.inherited(onUnbindToNode, [node]);
-        };
+            self._onDetachNode(node)
+            self.inherited(onUnbindToNode, [node])
+        }
 
         /** When attaching nodes, adds any origins of PostMessageGatewayStubs
          to an allowed list of valid origins for HTML5 postMessages.
@@ -498,16 +498,16 @@ var PostMessageGateway = Zet.declare({
             if (PostMessageGatewayStub.isInstance(node) &&
                 (!(node.getId() in self._postNodes))) {
                 if (self._validOrigins[node.getOrigin()] == null) {
-                    self._validOrigins[node.getOrigin()] = 1;
+                    self._validOrigins[node.getOrigin()] = 1
                 } else {
-                    self._validOrigins[node.getOrigin()] += 1;
+                    self._validOrigins[node.getOrigin()] += 1
                 }
                 if (node.getOrigin() === ANY_ORIGIN) {
-                    self._anyOriginValid = true;
+                    self._anyOriginValid = true
                 }
-                self._postNodes[node.getId()] = node;
+                self._postNodes[node.getId()] = node
             }
-        };
+        }
 
         /** When detaching nodes, clears any origins of PostMessageGatewayStubs
          from an allowed list of valid origins for HTML5 postMessages.
@@ -517,27 +517,27 @@ var PostMessageGateway = Zet.declare({
         self._onDetachNode = function _onDetachNode(node) {
             if (PostMessageGatewayStub.isInstance(node) &&
                 (node.getId() in self._postNodes)) {
-                self._validOrigins[node.getOrigin()] += -1;
+                self._validOrigins[node.getOrigin()] += -1
                 if (self._validOrigins[node.getOrigin()] === 0) {
-                    delete self._validOrigins[node.getOrigin()];
+                    delete self._validOrigins[node.getOrigin()]
                     if (!(ANY_ORIGIN in self._validOrigins)) {
-                        self._anyOriginValid = false;
+                        self._anyOriginValid = false
                     }
                 }
-                delete self._postNodes[node.getId()];
+                delete self._postNodes[node.getId()]
             }
-        };
+        }
 
         /** Bind the HTML5 event listener for HTML5 postMessage **/
         self.bindToWindow = function bindToWindow(aWindow) {
-            var eventMethod, eventer, messageEvent;
-            eventMethod = aWindow.addEventListener ? "addEventListener" : "attachEvent";
-            eventer = aWindow[eventMethod];
-            messageEvent = eventMethod == "attachEvent" ? "onmessage" : "message";
+            var eventMethod, eventer, messageEvent
+            eventMethod = aWindow.addEventListener ? "addEventListener" : "attachEvent"
+            eventer = aWindow[eventMethod]
+            messageEvent = eventMethod == "attachEvent" ? "onmessage" : "message"
             eventer(messageEvent, function (event) {
-                self._receivePostMessage(event);
-            });
-        };
+                self._receivePostMessage(event)
+            })
+        }
 
         // Messaging
 
@@ -548,34 +548,34 @@ var PostMessageGateway = Zet.declare({
         self._transmitMessage = function _transmitMessage(node, msg, senderId) {
             if (PostMessageGatewayStub.isInstance(node)) {
                 if (node._isActive) {
-                    self._processPostMessageQueue(node);
-                    self._transmitPostMessage(node, msg, senderId);
+                    self._processPostMessageQueue(node)
+                    self._transmitPostMessage(node, msg, senderId)
                 } else {
                     node.getQueue().push({
                         msg: msg,
                         senderId: senderId
-                    });
+                    })
                 }
             } else {
-                node.handleMessage(msg, senderId);
+                node.handleMessage(msg, senderId)
             }
-        };
+        }
 
         self._processPostMessageQueue = function (stub) {
             stub.getQueue().forEach(function (o) {
-                self._transmitPostMessage(stub, o.msg, o.senderId);
-            });
-            stub.getQueue().splice(0, stub.getQueue().length);
-        };
+                self._transmitPostMessage(stub, o.msg, o.senderId)
+            })
+            stub.getQueue().splice(0, stub.getQueue().length)
+        }
 
         // HTML5 PostMessage Commands
         self._transmitPostMessage = function _transmitPostMessage(node, msg, senderId) {
             if (node._stubId) {
-                msg.setObject(msg.getObject() == null ? {} : msg.getObject());
-                msg.getObject()["stubId"] = node._stubId;
+                msg.setObject(msg.getObject() == null ? {} : msg.getObject())
+                msg.getObject()["stubId"] = node._stubId
             }
 
-            var postMsg, element;
+            var postMsg, element
             postMsg = JSON.stringify({
                 'SuperGLU': true,
                 'msgType': 'SuperGLU',
@@ -583,80 +583,80 @@ var PostMessageGateway = Zet.declare({
                 'senderId': senderId,
                 'targetId': node.getId(),
                 'msg': self.messageToString(msg)
-            });
-            element = node.getElement();
+            })
+            element = node.getElement()
             if (element != null) {
                 // console.log(JSON.parse(postMsg).senderId + " POSTED UP " + self.messageToString(msg));
-                element.postMessage(postMsg, node.getOrigin());
+                element.postMessage(postMsg, node.getOrigin())
             }
-        };
+        }
 
         self._receivePostMessage = function _receivePostMessage(event) {
-            var senderId, message, targetId;
+            var senderId, message, targetId
             //console.log(self._id + " RECEIVED POST " + JSON.parse(event.data));
             if (self.isValidOrigin(event.origin)) {
                 try {
-                    message = JSON.parse(event.data);
+                    message = JSON.parse(event.data)
                 } catch (err) {
                     // console.log("Post Message Gateway did not understand: " + event.data);
-                    return;
+                    return
                 }
-                senderId = message.senderId;
-                targetId = message.targetId;
-                message = self.stringToMessage(message.msg);
+                senderId = message.senderId
+                targetId = message.targetId
+                message = self.stringToMessage(message.msg)
                 // console.log(message);
-                if (Messaging.Message.isInstance(message) &
+                if (Message.isInstance(message) &
                     (targetId === self.getId()) &&
                     message.getVerb() === 'REGISTER'
                 ) {
-                    var obj = message.getObject() || {};
-                    var node = null;
-                    var verb = 'REGISTERED';
-                    var stubId = UUID.genV4().toString();
+                    var obj = message.getObject() || {}
+                    var node = null
+                    var verb = 'REGISTERED'
+                    var stubId = UUID.genV4().toString()
                     if (obj.stubId) {
-                        stubId = obj.stubId;
-                        node = self._registry[stubId];
+                        stubId = obj.stubId
+                        node = self._registry[stubId]
                     } else {
-                        node = PostMessageGatewayStub(senderId, null, null, event.source);
-                        self._registry[stubId] = node;
-                        self.addNodes([node]);
+                        node = PostMessageGatewayStub(senderId, null, null, event.source)
+                        self._registry[stubId] = node
+                        self.addNodes([node])
                     }
-                    var msg = Message(self.getId(), verb, {stubId: stubId}, true);
-                    self._transmitPostMessage(node, msg, self.getId());
-                } else if (Messaging.Message.isInstance(message) &
+                    var msg = Message(self.getId(), verb, {stubId: stubId}, true)
+                    self._transmitPostMessage(node, msg, self.getId())
+                } else if (Message.isInstance(message) &
                     (targetId === self.getId()) &&
                     message.getVerb() === 'REGISTERED'
                 ) {
-                    var nodes = self.getNodes();
+                    var nodes = self.getNodes()
                     nodes.forEach(function (node) {
                         if (PostMessageGatewayStub.isInstance(node) && node.getElement() === window.parent) {
-                            self.stopRegistration();
-                            node._isActive = true;        //stub is inactive unless registered
-                            self._stubId = message.getObject().stubId;
-                            self._processPostMessageQueue(node);
+                            self.stopRegistration()
+                            node._isActive = true        //stub is inactive unless registered
+                            self._stubId = message.getObject().stubId
+                            self._processPostMessageQueue(node)
                         }
-                    });
+                    })
                 }
-                else if (Messaging.Message.isInstance(message) &
+                else if (Message.isInstance(message) &
                     (targetId === self.getId()) &&
                     (senderId in self._postNodes)) {
                     if (PostMessageGatewayStub.isInstance(self._postNodes[senderId])) {
-                        self._postNodes[senderId]._isActive = true;
+                        self._postNodes[senderId]._isActive = true
                     }
-                    self.handleMessage(message, senderId);
+                    self.handleMessage(message, senderId)
                 }
             }
-        };
+        }
 
         self.isValidOrigin = function isValidOrigin(url) {
             if (self._anyOriginValid) {
-                return true;
+                return true
             } else {
-                return url in self._validOrigins;
+                return url in self._validOrigins
             }
-        };
+        }
     }
-});
+})
 
 
 var HTTPMessagingGateway = Zet.declare({
@@ -674,67 +674,67 @@ var HTTPMessagingGateway = Zet.declare({
                 'flashsocket',
                 'htmlfile',
                 'xhr-polling',
-                'jsonp-polling'];
+                'jsonp-polling']
         // Set Socket.IO Allowed Transports
 
 
         self.construct = function construct(id, nodes, url, sessionId, scope) {
-            self.inherited(construct, [id, nodes, scope]);      // Classifier not used here, as messages are exact responses.
+            self.inherited(construct, [id, nodes, scope])      // Classifier not used here, as messages are exact responses.
             if (url == null) {
-                url = null;
+                url = null
             }
             if (sessionId == null) {
-                sessionId = UUID.genV4().toString();
+                sessionId = UUID.genV4().toString()
             }
-            self._url = url;
-            self._socket = io.connect(self._url + MESSAGING_NAMESPACE);
-            self._isConnected = false;
-            self._sessionId = sessionId;
-            self._socket.on('message', self.receiveWebsocketMessage);
-        };
+            self._url = url
+            self._socket = io.connect(self._url + MESSAGING_NAMESPACE)
+            self._isConnected = false
+            self._sessionId = sessionId
+            self._socket.on('message', self.receiveWebsocketMessage)
+        }
 
         self.bindToConnectEvent = function bindToConnectEvent(funct) {
-            self._socket.on('connect', funct);
-        };
+            self._socket.on('connect', funct)
+        }
 
         self.bindToCloseEvent = function bindToCloseEvent(funct) {
-            self._socket.on('disconnect', funct);
-        };
+            self._socket.on('disconnect', funct)
+        }
 
         self.addSessionData = function addSessionData(msg) {
-            msg.setContextValue(SESSION_ID_KEY, self._sessionId);
-            return msg;
-        };
+            msg.setContextValue(SESSION_ID_KEY, self._sessionId)
+            return msg
+        }
 
         /** Distribute the message, after adding some gateway context data. **/
         self._distributeMessage = function _distributeMessage(nodes, msg, excludeIds, noSocket) {
-            msg = self.addContextDataToMsg(msg);
+            msg = self.addContextDataToMsg(msg)
             if (noSocket !== true && self._url != null) {
-                msg = self.addSessionData(msg);
-                self.sendWebsocketMessage(msg);
+                msg = self.addSessionData(msg)
+                self.sendWebsocketMessage(msg)
             }
-            self.inherited(_distributeMessage, [nodes, msg, excludeIds]);
-        };
+            self.inherited(_distributeMessage, [nodes, msg, excludeIds])
+        }
 
         self.sendWebsocketMessage = function sendWebsocketMessage(msg) {
-            msg = self.messageToString(msg);
-            self._socket.emit('message', {data: msg, sessionId: self._sessionId});
-        };
+            msg = self.messageToString(msg)
+            self._socket.emit('message', {data: msg, sessionId: self._sessionId})
+        }
 
         self.receiveWebsocketMessage = function receiveWebsocketMessage(msg) {
-            var sessionId;
-            sessionId = msg.sessionId;
-            msg = msg.data;
-            msg = self.stringToMessage(msg);
+            var sessionId
+            sessionId = msg.sessionId
+            msg = msg.data
+            msg = self.stringToMessage(msg)
             // console.log("GOT THIS:" + sessionId);
             // console.log("Real Sess: " + self._sessionId);
-            if (Messaging.Message.isInstance(msg) &&
+            if (Message.isInstance(msg) &&
                 (sessionId == null || sessionId == self._sessionId)) {
-                self._distributeMessage(self._nodes, msg, [], true);
+                self._distributeMessage(self._nodes, msg, [], true)
             }
-        };
+        }
     }
-});
+})
 
 
 var BaseService = Zet.declare({
@@ -745,36 +745,36 @@ var BaseService = Zet.declare({
         // Public Properties
 
         self.construct = function construct(id, gateway) {
-            var nodes = null;
+            var nodes = null
             if (gateway != null) {
-                nodes = [gateway];
+                nodes = [gateway]
             }
-            self.inherited(construct, [id, nodes]);
-        };
+            self.inherited(construct, [id, nodes])
+        }
 
         /** Connect nodes to this node.
          Only one node (a gateway) should be connected to a service.
          **/
         self.addNodes = function addNodes(nodes) {
             if (nodes.length + self.getNodes().length <= 1) {
-                self.inherited(addNodes, [nodes]);
+                self.inherited(addNodes, [nodes])
             } else {
-                console.log("Error: Attempted to add more than one node to a service. Service must only take a single gateway node. Service was: " + self.getId());
+                console.log("Error: Attempted to add more than one node to a service. Service must only take a single gateway node. Service was: " + self.getId())
             }
-        };
+        }
 
         /** Bind nodes to this node.
          Only one node (a gateway) should be connected to a service.
          **/
         self.onBindToNode = function onBindToNode(node) {
             if (self.getNodes().length === 0) {
-                self.inherited(onBindToNode, [node]);
+                self.inherited(onBindToNode, [node])
             } else {
-                console.log("Error: Attempted to bind more than one node to a service. Service must only take a single gateway node.");
+                console.log("Error: Attempted to bind more than one node to a service. Service must only take a single gateway node.")
             }
-        };
+        }
     }
-});
+})
 
 var TestService = Zet.declare({
     // Base class for messaging gateways
@@ -783,55 +783,53 @@ var TestService = Zet.declare({
     defineBody: function (self) {
         // Public Properties
         self.receiveMessage = function receiveMessage(msg) {
-            console.log("TEST SERVICE " + self.getId() + " GOT: \n" + self.messageToString(msg));
-            self.inherited(receiveMessage, [msg]);
-        };
+            console.log("TEST SERVICE " + self.getId() + " GOT: \n" + self.messageToString(msg))
+            self.inherited(receiveMessage, [msg])
+        }
 
         self.sendTestString = function sendTestString(aStr) {
-            console.log("Test Service is Sending: " + aStr);
-            self.sendMessage(Messaging.Message("TestService", "Sent Test", "To Server", aStr));
-        };
+            console.log("Test Service is Sending: " + aStr)
+            self.sendMessage(Message("TestService", "Sent Test", "To Server", aStr))
+        }
 
         self.sendTestMessage = function sendTestMessage(actor, verb, object, result, speechAct, context, addGatewayContext) {
-            var msg;
+            var msg
             if (context == null) {
-                context = {};
+                context = {}
             }
             if (addGatewayContext == null) {
-                addGatewayContext = true;
+                addGatewayContext = true
             }
-            msg = Messaging.Message(actor, verb, object, result, speechAct, context);
-            console.log(msg);
+            msg = Message(actor, verb, object, result, speechAct, context)
             if ((self._gateway != null) && (addGatewayContext)) {
-                msg = self._gateway.addContextDataToMsg(msg);
+                msg = self._gateway.addContextDataToMsg(msg)
             }
-            self.sendMessage(msg);
-        };
+            self.sendMessage(msg)
+        }
 
         self.sendTestRequest = function sendTestRequest(callback, actor, verb, object, result, speechAct, context, addGatewayContext) {
-            var msg;
+            var msg
             if (context == null) {
-                context = {};
+                context = {}
             }
             if (addGatewayContext == null) {
-                addGatewayContext = true;
+                addGatewayContext = true
             }
-            msg = Messaging.Message(actor, verb, object, result, speechAct, context);
-            console.log(msg);
+            msg = Message(actor, verb, object, result, speechAct, context)
             if ((self._gateway != null) && (addGatewayContext)) {
-                msg = self._gateway.addContextDataToMsg(msg);
+                msg = self._gateway.addContextDataToMsg(msg)
             }
-            self._makeRequest(msg, callback);
-        };
+            self._makeRequest(msg, callback)
+        }
     }
-});
+})
 
-namespace.SESSION_ID_KEY = SESSION_ID_KEY;
-namespace.BaseService = BaseService;
-namespace.MessagingGateway = MessagingGateway;
-namespace.PostMessageGatewayStub = PostMessageGatewayStub;
-namespace.PostMessageGateway = PostMessageGateway;
-namespace.HTTPMessagingGateway = HTTPMessagingGateway;
-namespace.TestService = TestService;
+namespace.SESSION_ID_KEY = SESSION_ID_KEY
+namespace.BaseService = BaseService
+namespace.MessagingGateway = MessagingGateway
+namespace.PostMessageGatewayStub = PostMessageGatewayStub
+namespace.PostMessageGateway = PostMessageGateway
+namespace.HTTPMessagingGateway = HTTPMessagingGateway
+namespace.TestService = TestService
 
-module.exports = namespace;
+module.exports = namespace
