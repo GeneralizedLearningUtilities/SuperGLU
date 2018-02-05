@@ -42,12 +42,11 @@ module.exports = function (config) {
             , 'src/services/storage/local-storage-service.js': ['webpack']
             , 'src/services/storage/local-storage-service.test.js': ['webpack']
         },
-
         webpack: webpackConfig,
         webpackMiddleware: {
             noInfo: true
         },
-        singleRun: false,        //change it to false, and it'll run in watch mode - running tests whenever changes are saved
+        singleRun: true,        //change it to false, and it'll run in watch mode - running tests whenever changes are saved
         concurrency: Infinity,
     })
 }

@@ -44,8 +44,6 @@ describe("Local Storage Unit Tests", function () {
         }
         client.addDataValue(callback, "Big", "Ben")
         setTimeout(function () {
-            console.log("Result : ")
-            console.log(result)
             expect(result).to.be.ok        //truthy value
             done()
         }, TIMEOUT_PERIOD)
