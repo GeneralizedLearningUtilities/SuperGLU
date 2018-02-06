@@ -33,7 +33,6 @@ matrix:
         - "8"
       before_script:
         - cd javascript_module
-        - cd webpack-test
         - npm install
       script: npm run build-core && npm run build-standard
 
