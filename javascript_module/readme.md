@@ -1,6 +1,6 @@
 # Setup
 
-- Install node libraries. Execute the following command within `webpack-test` directory
+- Install node libraries. Execute the following command within `javascript_module` directory
 
 `npm install`
  

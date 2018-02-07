@@ -14,8 +14,12 @@ Technically Optional, But Important:
 ## Development
 
 ### Java Module
-The corresponding code can be found within java_module directory. The java build is powered by Apache Maven.
+The corresponding code can be found within java_module directory. The java build is powered by Apache Maven 
+and instructions can be found [here](java_module/readme.md)
 
 ### Javascript Module
 The corresponding code can be found within javascript_module directory. Instructions on how to build & test the module, 
-can be found [here](javascript_module/webpack-test/readme.md). The javascript build is powered by Webpack.
+can be found [here](javascript_module/readme.md). The javascript build is powered by Webpack.
+
+### Python Module
+The corresponding code can be found within python_module directory.
