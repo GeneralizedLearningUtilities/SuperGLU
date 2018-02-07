@@ -14,8 +14,8 @@ Technically Optional, But Important:
 ## Development
 
 ### Java Module
-The corresponding code can be found within java_module directory. The java build is powered by Apache Maven 
-and instructions can be found [here](java_module/readme.md)
+The corresponding code can be found within java_maven directory. The java build is powered by Apache Maven 
+and instructions can be found [here](java_maven/readme.md)
 
 ### Javascript Module
 The corresponding code can be found within javascript_module directory. Instructions on how to build & test the module, 
