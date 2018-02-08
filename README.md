@@ -1,6 +1,11 @@
 # SuperGLU
 
-![](https://api.travis-ci.org/GeneralizedLearningUtilities/SuperGLU.svg?branch=master)
+Python ![](https://travis-matrix-badges.herokuapp.com/repos/GeneralizedLearningUtilities/SuperGLU/branches/master/1)
+
+Java ![](https://travis-matrix-badges.herokuapp.com/repos/GeneralizedLearningUtilities/SuperGLU/branches/master/2)
+
+Javascript ![](https://travis-matrix-badges.herokuapp.com/repos/GeneralizedLearningUtilities/SuperGLU/branches/master/3)
+
 [![GitHub license](https://img.shields.io/github/license/GeneralizedLearningUtilities/SuperGLU.svg)](https://github.com/GeneralizedLearningUtilities/SuperGLU)
 
 Main Generalized Learning Utilities (GLU) library for communicating data between different learning technologies and intelligent systems.
