@@ -81,8 +81,7 @@ public class GIFTVHumanBridge extends MessagingGateway {
             if (convertedMessage != null && convertedMessage instanceof GIFTMessage) {
                 sendMessage(convertedMessage);
             }
-
-            startVHuman((VHMessage) msg);
+            
         } else if (msg instanceof Message) {
 
             if (((Message) msg).getResult() instanceof Integer) {
@@ -100,21 +99,5 @@ public class GIFTVHumanBridge extends MessagingGateway {
         }
         
         return true;
-    }
-
-    // Special code to handle the startup of the virtual human
-    private void startVHuman(VHMessage vhMessage) {
-        Runtime rt = Runtime.getRuntime();
-
-        try {
-            if (vhMessage.getFirstWord().equals("vrComponent") && vhMessage.getBody().equals("nvb parser")) {
-                rt.exec("cmd /c start /D ..\\VHuman\\gift\\ 02a-launch-unity-house.bat");
-            }
-            if (vhMessage.getFirstWord().equals("vrSpeech") && vhMessage.getBody().equals("interp user0001 1 1.0 normal THEREMIN NOSFERATU THERMOCOUPLE PATRONUS"))
-                rt.exec("cmd /c start /D ..\\VHuman\\gift\\ 03b-spawn-brad.bat");
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
     }
 }
