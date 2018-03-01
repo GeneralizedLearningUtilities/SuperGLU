@@ -1,0 +1,231 @@
+body {
+   position: relative;
+   font-family: 'PT Sans', sans-serif;
+}
+
+h1 {
+   font-family: 'Zilla Slab', sans-serif;
+   color: white;
+   font-weight: 200;
+   position:relative;
+   margin: 0 auto;
+   left: 50%;
+   transform: translateX(-50%);
+   background-color: black;
+   width: 100%;
+}
+
+.popup-scroll {
+    position: relative;
+    top: 10px;
+    left:60px;
+    display: inline-block;
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    display:inline-block;
+    color:#444;
+    border:1px solid #CCC;
+    background:#DDD;
+    box-shadow: 0 0 5px -1px rgba(0,0,0,0.2);
+    cursor:pointer;
+    vertical-align:middle;
+    max-width: 100px;
+    padding: 5px;
+    text-align: center;
+
+}
+
+/* The actual popup */
+.popup-scroll .popuptext {
+    visibility: hidden;
+    width: 400px;
+    height: 500px;
+    background-color: #555;
+    color: #fff;
+    border-radius: 6px;
+    padding: 8px 0;
+    position: absolute;
+    z-index: 1;
+    bottom: -525px;
+    /*left: 50%;*/
+    right: 0px;
+    margin-left: -80px;
+    overflow:auto;
+}
+
+/* Popup arrow */
+.popup-scroll .popuptext::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: #555 transparent transparent transparent;
+}
+
+/* Toggle this class - hide and show the popup */
+.popup-scroll .show {
+    visibility: visible;
+    -webkit-animation: fadeIn 1s;
+    animation: fadeIn 1s;
+}
+
+/* Add animation (fade in the popup) */
+@-webkit-keyframes fadeIn {
+    from {opacity: 0;}
+    to {opacity: 1;}
+}
+
+@keyframes fadeIn {
+    from {opacity: 0;}
+    to {opacity:1 ;}
+}
+
+#container {
+ width: 1300px;
+ height: 800px;
+ margin: auto;
+ top: 250px;
+ float:left;
+  }
+
+#jsontext {
+   width: 200px;
+   border-radius: 2px;
+   height: 260px;
+}
+
+#addNodeMenu {
+   padding: 10px;
+   background-color: lightgrey;
+}
+
+#rightContainer {
+   top: 5px;
+   left: 15px;
+   width: 325px;
+   overflow: scroll;
+   float:left;
+}
+
+#addNodeButton {
+  height:35px;
+  width:125px;
+  position:absolute;
+  bottom:125px;
+  left: 975px;
+}
+
+#deleteNodeButton {
+  height:35px;
+  width:125px;
+  position:absolute;
+  bottom:125px;
+  left: 1105px;
+}
+
+#updateConnection{
+  height:45px;
+  width:135px;
+  position:absolute;
+  left: 70px;
+}
+
+#fileContainer{
+    float:left;
+    width: 100px;
+}​
+
+#jsoneditor {
+  width: 100px;
+  height: 100px;
+}
+
+.fileUpload {
+    position: relative;
+    overflow: hidden;
+    margin: 10px;
+}
+.fileUpload input.upload {
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin: 0;
+    padding: 0;
+    font-size: 20px;
+    cursor: pointer;
+    opacity: 0;
+    filter: alpha(opacity=0);
+}
+
+.btn {
+  background-color: #F0AD4E;
+  height:20px;
+  width:75px;
+  display: inline-block;
+  padding: 6px 12px;
+  margin-bottom: 0;
+  font-size: 14px;
+  font-weight: normal;
+  line-height: 1.42857143;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: middle;
+  -ms-touch-action: manipulation;
+  touch-action: manipulation;
+  cursor: pointer;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  background-image: none;
+  border: 1px solid transparent;
+  border-radius: 4px;
+}
+
+#otherType:disabled {
+    background: lightgrey;
+}
+
+#dropdownsub{
+  height:35px;
+  width:125px;
+  margin-left:80px;
+}
+
+.tooltip {
+    position: relative;
+    display: inline-block;
+    border-bottom: 1px dotted black;
+}
+
+.tooltip .tooltiptext {
+    visibility: hidden;
+    width: 120px;
+    background-color: black;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px 0;
+
+    /* Position the tooltip */
+    position: absolute;
+    z-index: 1;
+}
+
+.tooltip:hover .tooltiptext {
+    visibility: visible;
+}
+
+.selectTooltip {
+   position: absolute;
+   z-index: 2;
+   background: #fff;
+   border: 1px solid #d3d3d3;
+   padding: 3px;
+}

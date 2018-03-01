@@ -3,7 +3,7 @@
 METHOD add(str), adds a string to the set object.
 METHOD contains(str), checks for string key in set object.
 METHOD remove(str), removes string key and value from set object.
-METHOD values(), iterates and adds 
+METHOD values(), iterates and adds
 
 */
 

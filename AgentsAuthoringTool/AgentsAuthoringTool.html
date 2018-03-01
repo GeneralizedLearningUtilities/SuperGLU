@@ -1,0 +1,91 @@
+<html>
+   <head>
+      <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+      <link type="text/css" rel="stylesheet" href="AgentsAuthoringTool.css">
+      <link type="text/css" rel="stylesheet" href="jsoneditor/dist/jsoneditor.min.css">
+
+   <!--   Libraries: sigma (for graph layouting), heap (for deciding the order of the gateway/services, jQuery, stringSet, jsoneditor-->
+      <script src="sigma.min.js"></script>
+      <script src="jsoneditor/dist/jsoneditor.min.js"></script>
+      <script type="text/javascript" src="heapFunctions.js"></script>
+      <script type="text/javascript" src="default.json"></script>
+       <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+      <script type="text/javascript" src="stringSet.js"></script>
+       <link href="https://fonts.googleapis.com/css?family=PT+Sans|Zilla+Slab+Highlight|Zilla+Slab" rel="stylesheet">
+   </head>
+
+   <style type="text/css">
+     #jsoneditor {
+       width: 300px;
+       height: 300px;
+     }
+   </style>
+
+   <body>
+     <div id="wrapper">
+       <div id="rightContainer">
+         <div class="fileUpload btn btn-primary">
+           <span>OPEN</span>
+           <input type="file" class="upload" id="files" name="files[]" />
+        </div>
+      </br></br>
+        Input File: <input id = "configInputFileName" type = "text" placeholder="Filename" value = "">
+         <div class="fileUpload btn btn-primary" onclick= "writeJsonToFile();">
+           <span>SAVE</span>
+        </div>
+      </br></br>
+        Output File: <input id = "configFileName" type = "text" placeholder="Filename" value = "">
+        <div id="Downloadable"></div>
+
+        <p id="instructText"><font size="5"><b>NODE EDITOR</b></font></p>
+
+         <div id="addNodeMenu">
+            <br>
+            Node ID: <input type="textbox" id='idName'></input>
+            <br><br>
+            Select GATEWAY/SERVICE TYPE:
+            <select id="gatewayType" size="4" class="multiSelect">
+               <option value="" selected></option>
+               <option value="ActiveMQTopicMessagingGateway">ActiveMQTopicMessagingGateway</option>
+               <option value="SocketIOGateway">SocketIOGateway</option>
+               <option value="Service">Service</option>
+               <option value="GIFTVHumanBridge">GIFTVHumanBridge</option>
+            </select>
+            <br><br>
+            OTHER TYPE  : <input id="otherType" type="textbox" value=""></input>
+            <br><br>
+            Nodes:
+            <table id="nodeTable"></table>
+            <button onclick="addNodeRow()">Add Nodes</button>
+            <br><br>
+            Params:
+            <table id="paramTable"></table>
+            <button onclick="addParamRow()">Add Params</button>
+            <br><br>
+            <input type="button" size="35" value="UPDATE" id="dropdownsub" onclick="updateJsonForm();"></input>
+         </div>
+        <div id="connections">
+          <p id="instructText"><font size="5"><b>CONNECTIONS</b></font></p>
+          <div id="jsoneditor"></div>
+        </br>
+          <button id="updateConnection" type="button" onclick="uponTableChange();">UPDATE CONNECTIONS</button>
+        </div>
+      <br><br>
+   </div>
+     <div id="container"></div>
+
+     <div id="NodeButtons">
+       <button id="addNodeButton" type="button" onclick="addDummyNode();">Add Node</button>
+       <button id="deleteNodeButton" type="button" onclick="deleteNode();">Delete Node</button>
+     </div>
+     <div id="fileContainer">
+
+   <div class="popup-scroll" onclick="showRawJson();">SHOW JSON
+     <span class="popuptext" id="myPopup"></span>
+  </div>
+     </div>
+   </div>​
+   <script type="text/javascript" src="layoutAgentsGraph.js"></script>
+
+   </body>
+</html>
