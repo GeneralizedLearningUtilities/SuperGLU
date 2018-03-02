@@ -1,5 +1,6 @@
 var jsonValue;
 var fileConfig;
+var initialJson;
 var hasCycles = false;
 var nodeTempData;
 var counter = 0;
@@ -135,10 +136,10 @@ function handleFileSelect(evt){
       {
           return function()
           {
-              fileConfig = reader.result; //setting the config json
-              var lines = fileConfig.split('\n');
-              document.getElementById('myPopup').innerHTML= "<pre>"+ fileConfig +"</pre>";
-              uponClick(fileConfig);  //draw graph once JSON is set
+              initialJson = reader.result; //setting the config json
+              var lines = initialJson.split('\n');
+              document.getElementById('myPopup').innerHTML= "<pre>"+ initialJson +"</pre>";
+              uponClick(initialJson);  //draw graph once JSON is set
           }
       })(reader);
       reader.readAsText(f);
@@ -151,26 +152,30 @@ function handleFileSelect(evt){
   -> sets Json in the Connection table
   -> calls the drawgraph function.
 **/
-function uponClick(fileConfig) {
-    var jsonValue = JSON.parse(fileConfig);
-    jsonValue = mergeTableAndConfig(jsonValue);
+function uponClick(initialJson) {
+    var jsonValue = JSON.parse(initialJson);
+    var fileJsonValue = JSON.parse(fileConfig);
+    jsonValue = mergeTableAndConfig(jsonValue, fileJsonValue);
     jsonValue = modifyJson(jsonValue); //removes elements not required for the graphical representation
     modifyForTable(jsonValue); //requires only ID and Nodes
     editor.set(tableJson);
+    document.getElementById('myPopup').innerHTML= "<pre>"+ JSON.stringify(jsonValue, null, 2) +"</pre>";
     drawgraph(s, jsonValue);
 }
 
 /*
   Iterates over json in Connections table and adds diff nodes to the config JSON
 */
-function mergeTableAndConfig(jsonObj){
+function mergeTableAndConfig(jsonObj, fileJsonObj){
   for (var key in jsonObj) {
     if (jsonObj.hasOwnProperty(key) && key == "serviceConfigurations") {
-      for ( var childKey in tableJson ) {
-      if(! jsonObj[key].hasOwnProperty(childKey)){
-      jsonObj[key][childKey] = {}
-      jsonObj[key][childKey].id  = childKey;
-      jsonObj[key][childKey].nodes = tableJson[childKey];
+      for ( var childKey in fileJsonObj ) {
+        if (fileJsonObj.hasOwnProperty(key) && key == "serviceConfigurations") {
+          for ( var eachChildKey in fileJsonObj[childKey] ) {
+            if(! jsonObj[key].hasOwnProperty(eachChildKey)){
+            jsonObj[key][eachChildKey] = fileJsonObj[childKey][eachChildKey]
+           }
+         }
        }
      }
    }
@@ -522,15 +527,6 @@ function makeJSONReady(){
 **/
 s.bind('clickNode',onClick);
 
-/**
-function onclickyo(event){
-  console.log(event.data);
-}
-
-function testing(event){
-  console.log(event.data);
-}
-**/
 /**
 FUNCTION onClick, triggers when the Node binding function has an event:
   It displays the editable fields of a Node and provides
