@@ -6,12 +6,72 @@ from datetime import datetime
 #from dateutil import parser
 from SuperGLU.Core.FIPA.SpeechActs import INFORM_ACT, SPEECH_ACT_SET
 from SuperGLU.Util.Serialization import Serializable, tokenizeObject, untokenizeObject, makeSerialized, StorageToken, makeNative
+from edu.usc.ict.superglu.core import BaseMessage
 
 
+class BaseMessage(Serializable):
+    """
+    **
+     * This class is a superclass for all system messages that are sent and received
+     *
+     * @author auerbach
+     */
+    """
+    CONTEXT_KEY = "context"
 
 
+    def __init__(self, context=None, anId=None):
+        super(BaseMessage, self).__init__(anId)
+        if context is None: context = {}
+     
+    
+    def __eq__(self, other):
+        return (isinstance(other, BaseMessage) and
+                self._context == other._context)  
+        
+    def __ne__(self, other):
+        return not self.__eq__(other) 
+    
+    def isEquivalent(self, other):
+       return (isinstance(other, BaseMessage) and
+                self._context == other._context)   
+    
+    
+    # Serialization
+    #---------------------------------------------
+    def saveToToken(self):
+        token = super(BaseMessage, self).saveToToken()
+        if len(self._context) > 0:
+            token[self.CONTEXT_KEY] = dict([(tokenizeObject(key), tokenizeObject(value))
+                                             for key, value in list(self._context.items())])
+        return token
+    
+    def initializeFromToken(self, token, context=None):
+        super(BaseMessage, self).initializeFromToken(token, context)
+        self._context = untokenizeObject(token.get(self.CONTEXT_KEY, {}))
+        
+    # Accessors to Custom Context Data
+    #-------------------------------------
+    def hasContextValue(self, key):
+        return key in self._context
+        
+    def getContext(self):
+        return self._context
 
-class Message(Serializable):
+    def getContextKeys(self):
+        return list(self._context.keys())
+
+    def getContextValue(self, key, default=None):
+        return self._context.get(key, default)
+    
+    def setContextValue(self, key, value):
+        self._context[key] = value
+
+    def delContextValue(self, key):
+        del self._context[key]
+
+
+class Message(BaseMessage):
     """
     A message class, for passing data between components.  Messages with special
     meaning or messages intended to fit specific specifications should subclass
@@ -26,7 +86,6 @@ class Message(Serializable):
     RESULT_KEY = "result"
     SPEECH_ACT_KEY = "speechAct"
     TIMESTAMP_KEY = "timestamp"
-    CONTEXT_KEY = "context"
 
     # Special Context Keys
     AUTHORIZATION_KEY = "authorization"
@@ -73,14 +132,13 @@ class Message(Serializable):
         @type anId: str
         """
         super(Message, self).__init__(anId)
-        if context is None: context = {}
+        
         self.validateSpeechAct(speechAct)
         self._actor = actor
         self._verb = verb
         self._object = obj
         self._result = result
         self._speechAct = speechAct
-        self._context = context
         self._timestamp = timestamp
 
     # Accessors for Standard Message Data
@@ -129,26 +187,7 @@ class Message(Serializable):
     def updateTimestamp(self):
         self._timestamp = datetime.now().isoformat()
 
-    # Accessors to Custom Context Data
-    #-------------------------------------
-    def hasContextValue(self, key):
-        return key in self._context
-        
-    def getContext(self):
-        return self._context
-
-    def getContextKeys(self):
-        return list(self._context.keys())
-
-    def getContextValue(self, key, default=None):
-        return self._context.get(key, default)
-    
-    def setContextValue(self, key, value):
-        self._context[key] = value
-
-    def delContextValue(self, key):
-        del self._context[key]
-
+   
     # Operators
     #--------------------------------------
     def __hash__(self):
@@ -160,21 +199,20 @@ class Message(Serializable):
                 hash(self._object) ^ hash(self._result) ^ hash(self._speechAct) ^ hash(self._timestamp))
     
     def __eq__(self, other):
-        return (isinstance(other, Message) and
+        return (isinstance(other, Message) and super(Message, self).__eq__(other) and
                 self._id == other._id and self._actor == other._actor and 
                 self._verb == other._verb and self._object == other._object and
                 self._result == other._result and self._speechAct == other._speechAct and
-                self._timestamp == other._timestamp and self._context == other._context)
+                self._timestamp == other._timestamp)
 
-    def __ne__(self, other):
-        return not self.__eq__(other)
+
 
     def isEquivalent(self, other):
-        return (isinstance(other, Message) and
+        return (isinstance(other, Message) and super(Message, self).isEquivaltent(other) and
                 self._actor == other._actor and 
                 self._verb == other._verb and self._object == other._object and
                 self._result == other._result and self._speechAct == other._speechAct and
-                self._timestamp == other._timestamp and self._context == other._context)
+                self._timestamp == other._timestamp)
 
     # Conversion to Standards-Based Messages
     #---------------------------------------------
@@ -239,9 +277,6 @@ class Message(Serializable):
             token[self.SPEECH_ACT_KEY] = tokenizeObject(self._speechAct)
         if self._timestamp is not None:
             token[self.TIMESTAMP_KEY] = tokenizeObject(self._timestamp)
-        if len(self._context) > 0:
-            token[self.CONTEXT_KEY] = dict([(tokenizeObject(key), tokenizeObject(value))
-                                             for key, value in list(self._context.items())])
         return token
 
     def initializeFromToken(self, token, context=None):
@@ -252,4 +287,4 @@ class Message(Serializable):
         self._result = untokenizeObject(token.get(self.RESULT_KEY, None))
         self._speechAct = untokenizeObject(token.get(self.SPEECH_ACT_KEY, None))
         self._timestamp = untokenizeObject(token.get(self.TIMESTAMP_KEY, None))
-        self._context = untokenizeObject(token.get(self.CONTEXT_KEY, {}))
+        
