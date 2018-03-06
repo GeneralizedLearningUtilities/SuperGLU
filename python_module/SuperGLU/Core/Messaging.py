@@ -23,6 +23,7 @@ class BaseMessage(Serializable):
     def __init__(self, context=None, anId=None):
         super(BaseMessage, self).__init__(anId)
         if context is None: context = {}
+        self._context = context
      
     
     def __eq__(self, other):
@@ -70,6 +71,87 @@ class BaseMessage(Serializable):
     def delContextValue(self, key):
         del self._context[key]
 
+
+
+class GIFTMessage(BaseMessage):
+    """
+     /**
+     * generic wrapper for a GIFT message
+     *
+     * @author auerbach
+     */
+     """
+     
+     
+    HEADER_KEY = "header"
+    PAYLOAD_KEY = "payload"
+     
+    def __init__(self, header=None, payload=None,  context=None, anId=None):
+        super(GIFTMessage, self).__init__(context, anId)
+        self._header = header
+        self._payload = payload
+     
+    def saveToToken(self):
+        token = super(GIFTMessage, self).saveToToken()
+        if self._header is not None:
+            token[self.HEADER_KEY] = tokenizeObject(self._header)
+        if self._payload is not None:
+            token[self.PAYLOAD_KEY] = self._payload #payload is already a storage token
+        return token
+
+    def initializeFromToken(self, token, context=None):
+        super(GIFTMessage, self).initializeFromToken(token, context)
+        self._header = untokenizeObject(token.get(self.HEADER_KEY, None))
+        self._payload = token.get(self.PAYLOAD_KEY, None)
+        
+        
+    def getHeader(self):
+        return self._header
+    
+    def getPayload(self):
+        return self._payload
+
+
+
+class VHMessage(Base):
+    """
+    /**
+     * Generic wrapper for a VH message.
+     *
+     * @author auerbach
+     */
+    """
+    FIRST_WORD_KEY = "firstWord"
+    VERSION_KEY = "version"
+    BODY_KEY = "body"
+    
+    
+    def __init__(self, firstWord=None, body=None, version=None,  context=None, anId=None):
+        super(VHMessage, self).__init__(context, anId)
+        self._firstWord = firstWord 
+        self._version = version
+        self._body = body
+     
+    def saveToToken(self):
+        token = super(VHMessage, self).saveToToken()
+        if self._firstWord is not None:
+            token[self.FIRST_WORD_KEY] = tokenizeObject(self._firstWord)
+        if self._body is not None:
+            token[self.BODY_KEY] = tokenizeObject(self._body) #payload is already a storage token
+        return token
+
+    def initializeFromToken(self, token, context=None):
+        super(VHMessage, self).initializeFromToken(token, context)
+        self._firstWord = untokenizeObject(token.get(self.FIRST_WORD_KEY, None))
+        self._body = untokenizeObject(token.get(self.BODY_KEY, None))
+        
+        
+    def getFirstWord(self):
+        return self._firstWord
+    
+    def getBody(self):
+        return self._body
+    
 
 class Message(BaseMessage):
     """
