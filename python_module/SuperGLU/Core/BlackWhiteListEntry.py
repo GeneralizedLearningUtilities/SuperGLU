@@ -73,6 +73,8 @@ class BlackWhiteListEntry(Serializable):
         if self._version is not None:
             token[VERSION_KEY] = tokenizeObject(self._version)
             
+        return token
+            
             
     def evaluateMessageType(self, msg):
         if self._messageType == self.GIFT_MESSAGE_TYPE:
@@ -123,3 +125,48 @@ class BlackWhiteListEntry(Serializable):
         
         return True
         
+        
+        
+
+class GatewayBlackWhiteListConfiguration(Serializable):
+    
+    ALL_DESTINATIONS = "all"
+    EXTERNAL_DESTINATIONS = "external"
+    
+    CONFIG_KEY = "config"
+    
+    
+    def __init__(self, configDictionary = {}):
+        super(GatewayBlackWhiteListConfiguration, self).__init__()
+        self._configDictionary = configDictionary
+        
+    def addMessage(self, destination, message):
+        if destination not in self._configDictionary:
+            self._configDictionary[destination] = []
+        
+        messageList = self._configDictionary[destination]
+        messageList.append(message)
+        self._configDictionary[destination] = messageList
+        
+    
+    def getMessageList(self, destination):
+        return self._configDictionary[destination]
+    
+
+    def getKeys(self):
+        return self._configDictionary.keys()
+    
+    
+    
+    def initializeFromToken(self, token, context=None):
+        super(GatewayBlackWhiteListConfiguration, self).initializeFromToken(token, context)
+        self._configDictionary = untokenizeObject(token.get(self.CONFIG_KEY, {}))
+        
+        
+    def saveToToken(self):
+        token = super(GatewayBlackWhiteListConfiguration, self).saveToToken()
+        
+        if self._configDictionary is not None:
+            token[self.CONFIG_KEY] = tokenizeObject(self._configDictionary)
+            
+        return token
