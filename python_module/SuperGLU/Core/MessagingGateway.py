@@ -12,6 +12,7 @@ import datetime
 import stomp
 import urllib
 from edu.usc.ict.superglu.core.blackwhitelist import BlackWhiteListEntry
+from edu.usc.ict.superglu.core.config import GatewayBlackWhiteListConfiguration
 
 CATCH_BAD_MESSAGES = False
 SESSION_KEY = 'sessionId'
@@ -139,6 +140,9 @@ class MessagingGateway(BaseMessagingNode):
         self._nodes = {}
         self._scope = scope
         self.addNodes(nodes)
+        #TODO: read in from service configuration when it's ready
+        self._gatewayBlackList = {}
+        self._gatewayWhiteList = {}
 
     # Receive Messages
     def receiveMessage(self, msg):
@@ -167,8 +171,9 @@ class MessagingGateway(BaseMessagingNode):
         for nodeId in nodes:
             condition = nodes[nodeId][0]
             node = nodes[nodeId][1]
-            if ((nodeId != senderId) and ((condition  is None) or condition(msg))):
-                node.receiveMessage(msg)
+            if not self.isMessageOnGatewayBlackList(node, msg) and self.isMessageOnGatewayWhiteList(node, msg):
+                if ((nodeId != senderId) and ((condition  is None) or condition(msg))):
+                    node.receiveMessage(msg)
 
     # Manage Child Nodes
     def addNodes(self, nodes):
@@ -192,10 +197,49 @@ class MessagingGateway(BaseMessagingNode):
         for key in self._scope:
             if not msg.hasContextValue(key):
                 msg.setContextValue(key, self._scope[key]);
-                    
+                
+                
+    def isMessageOnDestinationList(self, entries, msg):
+        if entries is not None:
+            for entry in entries:
+                if entry.evaluateMessage(msg):
+                    return True
+        
+        return False
 
+    def isMessageOnGatewayBlackList(self, destination, msg):
+        destinationId = destination.getId()
+        entries = self._gatewayBlackList[destinationId]
+        result = self.isMessageOnDestinationList(entries, msg)
+        allDestinationEntries = self._gatewayBlackList[GatewayBlackWhiteListConfiguration.ALL_DESTINATIONS]
+        result = result or self.isMessageOnDestinationList(allDestinationEntries, msg)
+        return result
+    
+    def isMessageOnGatewayWhiteList(self, destination, msg):
+        destinationId = destination.getId()
+        entries = self._gatewayWhiteList[destinationId]
+        result = self.isMessageOnDestinationList(entries, msg)
+        allDestinationEntries = self._gatewayWhiteList[GatewayBlackWhiteListConfiguration.ALL_DESTINATIONS]
+        result = result or self.isMessageOnDestinationList(allDestinationEntries, msg)
+        return result
 
-
+    def isMessageOnGatewayExternalWhiteList(self, msg):
+        if not USE_BLACK_WHITE_LIST:
+            return False
+        externalEntries = self._gatewayWhiteList[GatewayBlackWhiteListConfiguration.EXTERNAL_DESTINATIONS]
+        result = self.isMessageOnDestinationList(externalEntries, msg)
+        allDestinationEntries = self._gatewayWhiteList[GatewayBlackWhiteListConfiguration.ALL_DESTINATIONS]
+        result = result or self.isMessageOnDestinationList(allDestinationEntries, msg)
+        return result;
+    
+    def isMessageOnGatewayExternalBlackList(self, msg):
+        if not USE_BLACK_WHITE_LIST:
+            return False
+        externalEntries = self._gatewayBlackList[GatewayBlackWhiteListConfiguration.EXTERNAL_DESTINATIONS]
+        result = self.isMessageOnDestinationList(externalEntries, msg)
+        allDestinationEntries = self._gatewayBlackList[GatewayBlackWhiteListConfiguration.ALL_DESTINATIONS]
+        result = result or self.isMessageOnDestinationList(allDestinationEntries, msg)
+        return result;
 
 class ActiveMQTopicMessagingGateway(MessagingGateway):
     
@@ -267,13 +311,19 @@ class ActiveMQTopicMessagingGateway(MessagingGateway):
              
     
     def sendMessage(self, msg):
-        MessagingGateway.sendMessage(self, msg)
-        if self.m_connection is None:
-            return False
-        msgAsString = serializeObject(msg)
-        headers = {self.MESSAGE_SYSTEM_NAME : self.SUPERGLU}
         
-        self.m_connection.send(destination=self.TOPIC_LABEL + self.m_scope, body=msgAsString, headers=headers, content_type="text/plain")
+        if self.isMessageOnGatewayExternalBlackList(msg):
+            return
+        
+        if self.isMessageOnGatewayExternalWhiteList(msg):
+        
+            MessagingGateway.sendMessage(self, msg)
+            if self.m_connection is None:
+                return False
+            msgAsString = serializeObject(msg)
+            headers = {self.MESSAGE_SYSTEM_NAME : self.SUPERGLU}
+            
+            self.m_connection.send(destination=self.TOPIC_LABEL + self.m_scope, body=msgAsString, headers=headers, content_type="text/plain")
         return True
         
     
@@ -314,15 +364,20 @@ class HTTPMessagingGateway(MessagingGateway):
 
     def queueAJAXMessage(self, msg):
         #logWarning("QUEUE MSG", msg.saveToSerialized())
-        try:
-            sessionId = msg.getContextValue(SESSION_KEY, None)
-            sid = msg.getContextValue("sid", None)
-            msg = serializeObject(msg)
-            self._messages.put((sid, sessionId, msg))
-            print ("AJAX message queued")
-        except Exception as err:
-            print("AJAX message failed to queue")
-            logError(err, stack=traceback.format_exc())
+        
+        if self.isMessageOnGatewayExternalBlackList(msg):
+            return
+        
+        if self.isMessageOnGatewayExternalWhiteList(msg):
+            try:
+                sessionId = msg.getContextValue(SESSION_KEY, None)
+                sid = msg.getContextValue("sid", None)
+                msg = serializeObject(msg)
+                self._messages.put((sid, sessionId, msg))
+                print ("AJAX message queued")
+            except Exception as err:
+                print("AJAX message failed to queue")
+                logError(err, stack=traceback.format_exc())
 
     def dequeueAJAXMessage(self):
         return self._messages.get()
