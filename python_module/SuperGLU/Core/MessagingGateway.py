@@ -11,22 +11,50 @@ from SuperGLU.Util.Serialization import (Serializable, serializeObject,
 import datetime
 import stomp
 import urllib
+from edu.usc.ict.superglu.core.blackwhitelist import BlackWhiteListEntry
 
 CATCH_BAD_MESSAGES = False
 SESSION_KEY = 'sessionId'
 ORIGINATING_SERVICE_ID_KEY = 'originatingServiceId'
+USE_BLACK_WHITE_LIST = True
 
 class BaseMessagingNode(Serializable):
     """ Base class for messaging """
 
-    def __init__(self, anId=None, gateway=None, authenticator=None):
+    def __init__(self, anId=None, gateway=None, authenticator=None, blackList=[], whiteList=[]):
         super(BaseMessagingNode, self).__init__(anId)
         self._gateway = gateway
         self._authenticator = authenticator
         if gateway is not None:
             self.bindToGateway(gateway)
         self._requests = {}
+        
+        #don't allow null values for the black and white list
+        #not sure if this is necessary but it won't hurt
+        if blackList is None:
+            blackList = []
+        
+        if whiteList is None:
+            whiteList = []
+            
+        self._blackList = blackList
+        self._whiteList = whiteList
 
+    def acceptIncomingMessage(self, msg):
+        result = True
+        
+        if USE_BLACK_WHITE_LIST:
+            for entry in self._whiteList:
+                if entry.evaluateMessage(msg):
+                    result = True
+                    break
+                
+            for entry in self._blackList:
+                if entry.evaluateMessage(msg):
+                    result = False
+                    break
+        return result
+    
     def sendMessage(self, msg):
         print("%s sending %s"%(self.__class__.__name__, msg))
         if self._gateway is not None:
@@ -34,6 +62,8 @@ class BaseMessagingNode(Serializable):
             self._gateway.dispatchMessage(msg, self.getId())
 
     def receiveMessage(self, msg):
+        if not self.acceptIncomingMessage(msg):
+            return
         self._triggerRequests(msg)
 
     def bindToGateway(self, gateway):
