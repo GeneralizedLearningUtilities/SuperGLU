@@ -1,17 +1,16 @@
-var jsonValue;
-var fileConfig;
-var initialJson;
+var fileConfig; //stores final JSON to write to file
+var initialConfigJson; //stores data from the config file uploaded
 var hasCycles = false;
-var nodeTempData;
-var counter = 0;
+var nodeTempData; //stores data of selected node
+var counter = 0;  //keeps total node count to add corresponding dummy node
 
 //to display only the gateway/service name on the tool
 var gatewayMapping = {"SocketIOGateway" : "edu.usc.ict.superglu.core.SocketIOGateway",
         "ActiveMQTopicMessagingGateway" : "edu.usc.ict.superglu.core.ActiveMQTopicMessagingGateway", "GIFTVHumanBridge" :
-        "edu.usc.ict.superglu.vhuman.GIFTVHumanBridge", "Service" : "edu.usc.ict.superglu.core.Service" };
+        "edu.usc.ict.superglu.vhuman.GIFTVHumanBridge", "RestGateway" : "edu.usc.ict.superglu.core.RestGateway", "PostService" : "edu.usc.ict.superglu.core.PostService" };
 
 //to display service and gateway as different colored nodes
-var typeMapping = {"SocketIOGateway": "gateway", "ActiveMQTopicMessagingGateway": "gateway", "GIFTVHumanBridge": "service", "Others": "service"}
+var typeMapping = {"SocketIOGateway": "gateway", "ActiveMQTopicMessagingGateway": "gateway", "RestGateway" : "gatewat", "GIFTVHumanBridge": "service", "PostService" : "service", "Others": "service"}
 
 var extraJsonVariable = {}; //to store other JSON variables which are not necessary for graphical representation
 var tableJson; //to store the Table Connection JSON which is a subset of the Config Json
@@ -38,9 +37,10 @@ var s = new sigma({
 **/
 $(document).ready(function() {
 
-   var mydata = JSON.parse(data);
-   fileConfig = JSON.stringify(mydata[0]);
+   var defaultData = JSON.parse(data); //initializes with default json
+   fileConfig = JSON.stringify(defaultData[0]);
    var jsonValue = JSON.parse(fileConfig);
+   //modifies json for the Connections table and sets the table
    modifyForTable(jsonValue);
    drawConnectionsTable();
 
@@ -101,6 +101,7 @@ function modifyForTable(jsonObj){
   }
 }
 
+//Draws the Connections table and sets the JSON
 function drawConnectionsTable(){
   var container = document.getElementById('jsoneditor');
 
@@ -120,6 +121,7 @@ function drawConnectionsTable(){
 /**
 FUNCTION handleFileSelect, triggers when a file is selected
   It fetches a HTML element to display the contents of the JSON file
+  Calls draw function to draw the graph
 */
 document.getElementById('files').addEventListener('change', handleFileSelect, false);
 function handleFileSelect(evt){
@@ -136,10 +138,10 @@ function handleFileSelect(evt){
       {
           return function()
           {
-              initialJson = reader.result; //setting the config json
-              var lines = initialJson.split('\n');
-              document.getElementById('myPopup').innerHTML= "<pre>"+ initialJson +"</pre>";
-              uponClick(initialJson);  //draw graph once JSON is set
+              initialConfigJson = reader.result; //setting the config json
+              var lines = initialConfigJson.split('\n');
+              //document.getElementById('myPopup').innerHTML= "<pre>"+ initialConfigJson +"</pre>";
+              uponClick(initialConfigJson);  //draw graph once JSON is set
           }
       })(reader);
       reader.readAsText(f);
@@ -152,18 +154,19 @@ function handleFileSelect(evt){
   -> sets Json in the Connection table
   -> calls the drawgraph function.
 **/
-function uponClick(initialJson) {
-    var jsonValue = JSON.parse(initialJson);
+function uponClick(initialConfigJson) {
+    var intialjsonValue = JSON.parse(initialConfigJson);
     var fileJsonValue = JSON.parse(fileConfig);
-    jsonValue = mergeTableAndConfig(jsonValue, fileJsonValue);
+    jsonValue = mergeTableAndConfig(intialjsonValue, fileJsonValue);
     jsonValue = modifyJson(jsonValue); //removes elements not required for the graphical representation
     modifyForTable(jsonValue); //requires only ID and Nodes
     editor.set(tableJson);
-    document.getElementById('myPopup').innerHTML= "<pre>"+ JSON.stringify(jsonValue, null, 2) +"</pre>";
     drawgraph(s, jsonValue);
 }
 
 /*
+  FUNCTION mergeTableAndConfig, to merge the config loaded and nodes added using the tool
+  Parameters: -> jsonObj = json loaded from file -> fileJsonObj = json created by adding nodes
   Iterates over json in Connections table and adds diff nodes to the config JSON
 */
 function mergeTableAndConfig(jsonObj, fileJsonObj){
@@ -172,7 +175,7 @@ function mergeTableAndConfig(jsonObj, fileJsonObj){
       for ( var childKey in fileJsonObj ) {
         if (fileJsonObj.hasOwnProperty(key) && key == "serviceConfigurations") {
           for ( var eachChildKey in fileJsonObj[childKey] ) {
-            if(! jsonObj[key].hasOwnProperty(eachChildKey)){
+            if(! jsonObj[key].hasOwnProperty(eachChildKey) && fileJsonObj[childKey][eachChildKey]. id != null){
             jsonObj[key][eachChildKey] = fileJsonObj[childKey][eachChildKey]
            }
          }
@@ -183,7 +186,7 @@ function mergeTableAndConfig(jsonObj, fileJsonObj){
  return jsonObj;
 }
 
-//To store extra attributes in a variable which are not required for graphical representation
+//To store extra attributes in a variable which are not required for graphical representation to add it later when writing to a file
 function modifyJson(jsonObj){
   for (var key in jsonObj) {
     if (jsonObj.hasOwnProperty(key) && key == "serviceConfigurations") {
@@ -192,8 +195,8 @@ function modifyJson(jsonObj){
           continue
         }
         else{
-          extraJsonVariable[childKey] = jsonObj[key][childKey]
-          delete jsonObj[key][childKey]
+          extraJsonVariable[childKey] = jsonObj[key][childKey]  //add only nodes which do not have id to the extra attribute variable
+          delete jsonObj[key][childKey] //delete from the final json for drawing the graph
         }
       }
     }
@@ -203,28 +206,18 @@ function modifyJson(jsonObj){
 }
 
 /**
-  This function is to merge and add a dummy node to the graph
-  **/
-  /**
-   FUNCTION addNode, adds Nodes to the provided json by calling the merge function
-    based on the given values.
-  **/
+   FUNCTION addDummyNode, add a dummy Node to the provided json by calling the addDummyElement function
+    Sets connection table for dummy node to be editable
+**/
 function addDummyNode(){
-      jsonValue = addDummyElement(JSON.parse(fileConfig));
+      var jsonValue = addDummyElement(JSON.parse(fileConfig));
       modifyForTable(jsonValue);
       editor.set(tableJson)
       fileConfig = JSON.stringify(jsonValue);
       drawgraph(s, jsonValue);
 }
 
-/**
-FUNCTION merge, triggers when a new Node is added
-  It fetches the provided JSON object and iterates to specific location
-    to add the new Nodes and updates the JSON raw display area
- */
-/**
-  This merge function is to merge and create a dummy entry in the JSON
-  **/
+//Adds dummy node with default values which are later editable.
 function addDummyElement(jsonObj){
   for ( var key in jsonObj){
     if (jsonObj.hasOwnProperty(key) && key == "serviceConfigurations") {
@@ -233,21 +226,15 @@ function addDummyElement(jsonObj){
       jsonObj[key][tempName] = { "classId": "ServiceConfiguration", "id": tempName, "nodes": []};
     }
   }
-   //document.getElementById('fileContainer').innerHTML= "<pre>"+JSON.stringify(jsonObj, null, 2)+"</pre>";
    return jsonObj;
 }
 
 /**
 FUNCTION deleteNodes, deletes from
-  1) Node from the graph
-  2) JSON object
-  3) Raw JSON display
+  1) Node from the graph 2) JSON object 3) Connections table
 **/
 function deleteNode(){
-
   try{
-    if(fileConfig){
-      //console.log(fileConfig);
       var jsonValue = JSON.parse(fileConfig);
       if(nodeTempData){
       var id = nodeTempData.node.id;
@@ -274,15 +261,9 @@ function deleteNode(){
         window.alert("Please select a node");
       }
       fileConfig = JSON.stringify(jsonValue);
-      //console.log(jsonValue);
       s.refresh();
+      nodeTempData = null
       drawgraph(s, jsonValue);
-      document.getElementById('myPopup').innerHTML= "<pre>"+JSON.stringify(jsonValue, null, 2)+"</pre>";
-      clearEditables();
-      }
-    else{
-      window.alert("Please add a JSON file and continue");
-      }
     }
   catch(err){
     window.alert("Please select a node");
@@ -290,20 +271,21 @@ function deleteNode(){
 }
 
 /**
-  Function to Update the nodes and its connections when update connections button is clicked
-
+  Function to Update the nodes and its connections when update connections button is clicked and draw the graph
 **/
 function uponTableChange(){
   var jsonValue = JSON.parse(fileConfig);
+
+  //modifications to delete/add news nodes to the final JSON from the Connection table nodes
   var modifiedTableJsonValue = modifyTableJson(editor.get());
   var modifiedJsonValue = modifyFromTableJson(jsonValue, modifiedTableJsonValue);
+
   drawgraph(s, modifiedJsonValue);
   editor.set(modifiedTableJsonValue);
-  fileConfig = JSON.stringify(modifiedJsonValue);
-  document.getElementById('myPopup').innerHTML= "<pre>"+JSON.stringify(modifiedJsonValue, null, 2)+"</pre>";  //to populate raw Json display area
+  fileConfig = JSON.stringify(modifiedJsonValue); //store back the modified value in fileConfig as string
 }
 
-//Pre-Processing of the Connections json to remove redundant edges from all Nodes
+//Pre-Processing of the Connections json to remove redundant edges from all Nodes to make further modifications easier
 function modifyTableJson(jsonObj){
   var nodes = []  //keep check of existent nodes for easy edge deletion
   for ( var childKey in jsonObj){
@@ -370,8 +352,8 @@ function drawgraph(s, jsonObj) {
 
       //The priority mapping.
       var weights = { 'edu.usc.ict.superglu.core.ActiveMQTopicMessagingGateway' : 1,
-      'edu.usc.ict.superglu.core.SocketIOGateway': 2, Main:3, HTML:4, PostMsg:5,
-       Service:6, 'edu.usc.ict.superglu.vhuman.GIFTVHumanBridge':7, 'Others':8};
+      'edu.usc.ict.superglu.core.SocketIOGateway': 2, 'edu.usc.ict.superglu.core.RestGateway' : 3, 'edu.usc.ict.superglu.vhuman.GIFTVHumanBridge':4,
+          'edu.usc.ict.superglu.core.PostService' : 5, 'Others':6};
 
       //Creating a heap with a custom comparator based on the priority weights above.
       var heap = new Heap(function cmp(a, b) {
@@ -391,7 +373,6 @@ function drawgraph(s, jsonObj) {
       /**Iterating through the gateways, we add default properties to convert the string
          representation of the node into a node object that we push to the heap.
       */
-
       var ObjCounter = 0
       for (var key in jsonObj) {
         if (jsonObj.hasOwnProperty(key) && key == "serviceConfigurations") {
@@ -409,6 +390,7 @@ function drawgraph(s, jsonObj) {
         }
       }
 
+      //adds coordinates and node color to node and adds it to the graph
       var topNodeFlag = true;
       var topNode = "";
       var colors = {gateway:"#000000", service:"#FF0000", other:"#000000"}
@@ -434,10 +416,10 @@ function drawgraph(s, jsonObj) {
          tempNode.color = colors[nodeType];
          s.graph.addNode(tempNode);
          seenArray[tempNode.id] = tempNode;
-   }//);
+   }
 
    var edge = 0;
-
+   //adds all edges between nodes
    for (var key in jsonObj) {
      if (jsonObj.hasOwnProperty(key) && key == "serviceConfigurations") {
      for ( var childKey in jsonObj[key] ) {
@@ -462,6 +444,7 @@ function drawgraph(s, jsonObj) {
    s.refresh();
    }
 
+   //to check if its a acyclic graph or not to throw a warning
    function checkCycles(node, seenArray, seenStrings) {
       for (var index in node.nodes) {
             var childNodeName = node.nodes[index];
@@ -480,7 +463,7 @@ function drawgraph(s, jsonObj) {
 /**
 FUNCTION writeJsonToFile, creates a NEW Json file with
   al the new added Nodes and edges. Provides a link to download the file
-  Doesn't allow if cycle found in the graph.
+  Throws warning if cycle is present in the graph
 */
 function writeJsonToFile(){
      if(hasCycles == true)
@@ -499,7 +482,8 @@ function writeJsonToFile(){
 
 /**
 FUNCTION makeJSONReady, updates the JSON objects by removing the
-  unnecessary elements like priority weights, graph coordinates etc
+  unnecessary elements like priority weights, graph coordinates etc and
+    adds all the extra variables before writing to a file
 */
 function makeJSONReady(){
   var jsonValue = JSON.parse(fileConfig);
@@ -529,15 +513,18 @@ s.bind('clickNode',onClick);
 
 /**
 FUNCTION onClick, triggers when the Node binding function has an event:
-  It displays the editable fields of a Node and provides
-    option to Edit or Delete a Node
+  It displays the values of the editable fields of a Node and provides
+    option to Edit or Delete the Node selected
 **/
 function onClick(event){
-  clearEditables();
+  clearEditables(); //clears the previous data to show the selected node data
   nodeTempData = event.data;
+
+  //to add ID
   nodeTempData.node["tempID"] = event.data.node.id;
   document.getElementById("idName").value = event.data.node.id;
 
+  //to add type
   var otherTypeGrey = false
   if ( event.data.node.type){
   var typeVariable = event.data.node.type.split('.');
@@ -552,6 +539,7 @@ function onClick(event){
   document.getElementById("otherType").disabled = otherTypeGrey;
   }
 
+  //to add nodes in a row wise fashion
   var nodeEdges = event.data.node.nodes;
   var nodeTable = document.getElementById("nodeTable");
   for ( i = 0; i < nodeEdges.length ; i++){
@@ -572,7 +560,7 @@ function onClick(event){
     nodeTable.appendChild(tr)
     }
 
-  //Params
+  //to add Params in a row wise fashion
   if ( event.data.node.params){
   var nodeParams = event.data.node.params;
   var nodeTable = document.getElementById("paramTable");
@@ -615,25 +603,25 @@ function clearEditables(){
 }
 
 /**
-FUNCTION updateJsonForm, updates:
+FUNCTION updateJsonForm, updates from the editable fields for:
   1) Node in the graph
   2) JSON object
-  3) Raw JSON display
+  3) Connection table
 **/
 function updateJsonForm(){
    var jsonValue = JSON.parse(fileConfig);
-   var x = document.getElementById("gateWayForm");
+
    for (var key in jsonValue) {
      if (jsonValue.hasOwnProperty(key) && key == "serviceConfigurations") {
      for ( var childKey in jsonValue[key] ) {
        if ( childKey == nodeTempData.node.tempID ){
-         jsonValue[key][childKey].id = document.getElementById("idName").value;
+         jsonValue[key][childKey].id = document.getElementById("idName").value; //updates ID
          nodeEdges = []
          var nodeTable = document.getElementById("nodeTable");
           for (var i = 0, row; row = nodeTable.rows[i]; i++) {
               nodeEdges.push(nodeTable.rows[i].cells[0].children[0].value);
           }
-          jsonValue[key][childKey].nodes = nodeEdges;
+          jsonValue[key][childKey].nodes = nodeEdges; //updates edges
          var gatewayType = document.getElementById("gatewayType");
          var otherType = document.getElementById('otherType').value;
 
@@ -644,7 +632,7 @@ function updateJsonForm(){
            jsonValue[key][childKey].type = otherType
          }
 
-         //Params
+         //to update params
          paramValues = {}
          var nodeTable = document.getElementById("paramTable");
           for (var i = 0, row; row = paramTable.rows[i]; i++) {
@@ -665,25 +653,24 @@ function updateJsonForm(){
             delete jsonValue[key][nodeTempData.node.tempID];
           }
        }
+       else{
+         for ( var i = 0; i < jsonValue[key][childKey].nodes.length; i++){
+            if (jsonValue[key][childKey].nodes[i] == nodeTempData.node.tempID)
+              jsonValue[key][childKey].nodes[i] = document.getElementById("idName").value
+         }
+       }
      }
    }
  }
  modifyForTable(jsonValue);
  editor.set(tableJson)
  fileConfig = JSON.stringify(jsonValue);
- document.getElementById('myPopup').innerHTML= "<pre>"+JSON.stringify(jsonValue, null, 2)+"</pre>";
  drawgraph(s, jsonValue);
+ nodeTempData = null
  clearEditables();
- //var x = document.getElementById("gateWayForm").remove();
 }
 
-// When the user clicks on show json, open the popup
-function showRawJson() {
-    var popup = document.getElementById("myPopup");
-    popup.classList.toggle("show");
-}
-
-//Add new row with text input when Add Nodes button is clicked
+//Add new row with text input and delete button when Add Nodes button is clicked
 function addNodeRow(){
   var table = document.getElementById('nodeTable');
   var tr = document.createElement('tr');
@@ -708,7 +695,7 @@ function deleteNodeRow(r){
   document.getElementById("nodeTable").deleteRow(i);
 }
 
-//Add new row with two text input when Add Param button is clicked
+//Add new row with two text input and delete button when Add Param button is clicked
 function addParamRow(){
   var table = document.getElementById('paramTable');
   var tr = document.createElement('tr');

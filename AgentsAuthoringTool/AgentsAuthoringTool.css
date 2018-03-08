@@ -15,66 +15,6 @@ h1 {
    width: 100%;
 }
 
-.popup-scroll {
-    position: relative;
-    top: 10px;
-    left:60px;
-    display: inline-block;
-    cursor: pointer;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-    display:inline-block;
-    color:#444;
-    border:1px solid #CCC;
-    background:#DDD;
-    box-shadow: 0 0 5px -1px rgba(0,0,0,0.2);
-    cursor:pointer;
-    vertical-align:middle;
-    max-width: 100px;
-    padding: 5px;
-    text-align: center;
-
-}
-
-/* The actual popup */
-.popup-scroll .popuptext {
-    visibility: hidden;
-    width: 400px;
-    height: 500px;
-    background-color: #555;
-    color: #fff;
-    border-radius: 6px;
-    padding: 8px 0;
-    position: absolute;
-    z-index: 1;
-    bottom: -525px;
-    /*left: 50%;*/
-    right: 0px;
-    margin-left: -80px;
-    overflow:auto;
-}
-
-/* Popup arrow */
-.popup-scroll .popuptext::after {
-    content: "";
-    position: absolute;
-    top: 100%;
-    left: 50%;
-    margin-left: -5px;
-    border-width: 5px;
-    border-style: solid;
-    border-color: #555 transparent transparent transparent;
-}
-
-/* Toggle this class - hide and show the popup */
-.popup-scroll .show {
-    visibility: visible;
-    -webkit-animation: fadeIn 1s;
-    animation: fadeIn 1s;
-}
-
 /* Add animation (fade in the popup) */
 @-webkit-keyframes fadeIn {
     from {opacity: 0;}
@@ -86,13 +26,19 @@ h1 {
     to {opacity:1 ;}
 }
 
+#leftContainer {
+   width: 20%;
+   overflow: scroll;
+   float:left;
+}
+
 #container {
- width: 1300px;
- height: 800px;
+ width: 80%;
+ left: 50.5%;
+ height: 85%;
  margin: auto;
- top: 250px;
  float:left;
-  }
+}
 
 #jsontext {
    width: 200px;
@@ -105,28 +51,21 @@ h1 {
    background-color: lightgrey;
 }
 
-#rightContainer {
-   top: 5px;
-   left: 15px;
-   width: 325px;
-   overflow: scroll;
-   float:left;
-}
 
 #addNodeButton {
   height:35px;
   width:125px;
   position:absolute;
-  bottom:125px;
-  left: 975px;
+  bottom: 7%;
+  left: 50%;
 }
 
 #deleteNodeButton {
   height:35px;
   width:125px;
   position:absolute;
-  bottom:125px;
-  left: 1105px;
+  bottom:7%;
+  left: 59%;
 }
 
 #updateConnection{
