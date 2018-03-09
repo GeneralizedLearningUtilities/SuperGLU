@@ -13,6 +13,7 @@ import stomp
 import urllib
 from edu.usc.ict.superglu.core.blackwhitelist import BlackWhiteListEntry
 from edu.usc.ict.superglu.core.config import GatewayBlackWhiteListConfiguration, ServiceConfiguration
+from edu.usc.ict.superglu.core import VHMessage, GIFTMessage
 
 CATCH_BAD_MESSAGES = False
 SESSION_KEY = 'sessionId'
@@ -256,6 +257,8 @@ class ActiveMQTopicMessagingGateway(MessagingGateway):
     SUPERGLU = "SUPERGLU_MSG";
     VHMSG = "VHMSG_MSG"; #Identifier for virtual human messages
     GIFT = "GIFT_MSG"; #Identifer for GIFT messages
+    
+    MESSAGE_TYPE = "MESSAGE_TYPE"
 
     
     
@@ -323,10 +326,19 @@ class ActiveMQTopicMessagingGateway(MessagingGateway):
             MessagingGateway.sendMessage(self, msg)
             if self.m_connection is None:
                 return False
-            msgAsString = serializeObject(msg)
-            headers = {self.MESSAGE_SYSTEM_NAME : self.SUPERGLU}
-            
-            self.m_connection.send(destination=self.TOPIC_LABEL + self.m_scope, body=msgAsString, headers=headers, content_type="text/plain")
+            if isinstance(msg, Message):
+                msgAsString = serializeObject(msg)
+                headers = {self.MESSAGE_SYSTEM_NAME : self.SUPERGLU, self.MESSAGE_TYPE : "SUPERGLU_MSG"}
+                self.m_connection.send(destination=self.TOPIC_LABEL + self.m_scope, body=msgAsString, headers=headers, content_type="text/plain")
+            elif isinstance(msg, VHMessage):
+                msgAsString = msg.getFirstWord() + " " + msg.getBody()
+                headers = {"ELVISH_SCOPE": "DEFAULT_SCOPE", "MESSAGE_PREFIX" : msg.getFirstWord(), "VHMSG_VERSION" : "1.0.0.0", "VHMSG" : "VHMSG" }
+                self.m_connection.send(destination=self.TOPIC_LABEL + self.m_scope, body=msgAsString, headers=headers, content_type="text/plain")
+            elif isinstance(msg, GIFTMessage):
+                msgAsString = serializeObject(msg.getPayload())
+                headers = {self.MESSAGE_TYPE : "GIFT_MSG", "Encoding" : 0}
+                self.m_connection.send(destination=self.TOPIC_LABEL + self.m_scope, body=msgAsString, headers=headers, content_type="text/plain")
+                
         return True
         
     
