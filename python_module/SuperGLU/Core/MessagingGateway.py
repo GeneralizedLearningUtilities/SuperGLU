@@ -12,7 +12,7 @@ import datetime
 import stomp
 import urllib
 from edu.usc.ict.superglu.core.blackwhitelist import BlackWhiteListEntry
-from edu.usc.ict.superglu.core.config import GatewayBlackWhiteListConfiguration
+from edu.usc.ict.superglu.core.config import GatewayBlackWhiteListConfiguration, ServiceConfiguration
 
 CATCH_BAD_MESSAGES = False
 SESSION_KEY = 'sessionId'
@@ -133,9 +133,12 @@ class BaseMessagingNode(Serializable):
 
 class MessagingGateway(BaseMessagingNode):
 
-    def __init__(self, anId=None, nodes=None, gateway=None, authenticator=None, scope=None):
+    def __init__(self, anId=None, nodes=None, gateway=None, authenticator=None, scope=None, serviceConfiguration=None):
         if scope is None: scope = {}
-        super(MessagingGateway, self).__init__(anId, gateway, authenticator)
+        if serviceConfiguration is not None:
+            super(MessagingGateway, self).__init__(anId, gateway, authenticator, serviceConfiguration.getBlackList(), serviceConfiguration.getWhiteList)
+        else:
+            super(MessagingGateway, self).__init__(anId, geteway, authenticator)
         if nodes is None: nodes = []
         self._nodes = {}
         self._scope = scope
