@@ -1,0 +1,60 @@
+{
+	"classId": "ServiceConfigurationCollection",
+	"serviceConfigurations": {
+		"socketIOGateway": {
+			"classId": "ServiceConfiguration",
+			"nodes": ["activeMQGateway",
+			"defaultBridge"],
+			"id": "socketIOGateway",
+			"whiteList": ["*.*.*"],
+			"blackList": [],
+			"type": "edu.usc.ict.superglu.core.SocketIOGateway",
+			"params": {
+				"gatewayBlackList": {
+					"classId": "GatewayBlackWhiteListConfiguration",
+					"id": "d22e5ad1-3c4d-4cdd-8f71-9efd5ed37693",
+					"config": {
+						"external": ["VHuman.*.*"],
+						"isMap": true
+					}
+				},
+				"socketIOConfig": 5333,
+				"isMap": true
+			}
+		},
+		"activeMQGateway": {
+			"classId": "ServiceConfiguration",
+			"nodes": ["socketIOGateway",
+			"defaultBridge"],
+			"id": "activeMQGateway",
+			"whiteList": ["*.*.*"],
+			"blackList": [],
+			"type": "edu.usc.ict.superglu.core.ActiveMQTopicMessagingGateway",
+			"params": {
+				"activeMQConfig": {
+					"brokerURL": "tcp:\/\/localhost:61617",
+					"classId": "ActiveMQTopicConfiguration",
+					"topic": [],
+					"id": "ActiveMQ"
+				},
+				"isMap": true
+			}
+		},
+		"defaultBridge": {
+			"classId": "ServiceConfiguration",
+			"nodes": ["activeMQGateway",
+			"socketIOGateway"],
+			"whiteList": ["*.*.*"],
+			"blackList": [],
+			"id": "defaultBridge",
+			"type": "edu.usc.ict.superglu.vhuman.GIFTVHumanBridge",
+			"params": {
+				"brokerPort": 61617,
+				"brokerHost": "localhost",
+				"isMap": true
+			}
+		},
+		"isMap": true
+	},
+	"id": "dcb91629-88a8-4f2d-8f21-8f616825eda2"
+}
