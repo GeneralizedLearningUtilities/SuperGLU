@@ -11,7 +11,7 @@ class ServiceConfiguration(Serializable):
     ACTIVEMQ_PARAM_KEY = "activeMQConfig";
     SOCKETIO_PARAM_KEY = "socketIOConfig";
     
-    def __init__(self,id = "", type = None, params = {}, nodes = [], blacklist = [], whitelist = [] ):
+    def __init__(self,id = None, type = None, params = {}, nodes = [], blacklist = [], whitelist = [] ):
         super(ServiceConfiguration, self).__init__(id)
         self.type = type
         self.params = params
@@ -104,4 +104,25 @@ class ServiceConfiguration(Serializable):
             module = getattr(module, eachComponenet)
         return module
         
+
+
+class ServiceConfigurationCollection(Serializable):
     
+    SERVICE_CONFIG_MAP_KEY = "serviceConfigurations"
+    
+    def __init__(self, anId = None, serviceConfigurations={}):
+        super(self, ServiceConfigurationCollection).__init__(anId)
+        self._serviceConfigurations = serviceConfigurations
+        
+    def saveToToken(self):
+        token = super(self, ServiceConfigurationCollection).saveToToken()
+        
+        if self._serviceConfigurations is not None:
+            token[self.SERVICE_CONFIG_MAP_KEY] = tokenizeObject(self._serviceConfigurations)
+    
+    def initializeFromToken(self, token, context=None):
+        super(self, ServiceConfigurationCollection).initializeFromToken(self, token, context=context)
+        self._serviceConfigurations = untokenizeObject(token.get(self.SERVICE_CONFIG_MAP_KEY, {}), context)
+        
+    def getServiceConfiguration(self, configurationName):
+        return self._serviceConfigurations[configurationName]
