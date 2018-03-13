@@ -498,19 +498,31 @@ function checkCycles(node, seenArray, seenStrings) {
  Throws warning if cycle is present in the graph
  */
 function writeJsonToFile() {
-    if (hasCycles == true)
+    if (hasCycles == true) {
         window.alert("Graph contains cycles");
-    makeJSONReady()
+    }
+    var fileData = makeJSONReady();
     var fileName = document.getElementById("configFileName").value;
-    var text = JSON.stringify(JSON.parse(fileConfig), null, "\t");
-    var blob = new Blob([text], {type: 'application/json'});
-    var x = document.getElementById("Downloadable");
-    var link = document.createElement("a");
-    link.download = fileName;
-    link.innerHTML = "Download File";
-    link.href = window.URL.createObjectURL(blob);
-    x.appendChild(link);
+    var text = JSON.stringify(fileData, null, "\t");
+    downloadFile(fileName, text);
 }
+
+function downloadFile(filename, data) {
+    "use strict"
+    var blob = new Blob([data], {type: 'application/json'});
+    if (window.navigator.msSaveOrOpenBlob) {
+        window.navigator.msSaveBlob(blob, filename);
+    }
+    else {
+        var elem = window.document.createElement('a');
+        elem.href = window.URL.createObjectURL(blob);
+        elem.download = filename;
+        document.body.appendChild(elem);
+        elem.click();
+        document.body.removeChild(elem);
+    }
+}
+
 
 /**
  FUNCTION makeJSONReady, updates the JSON objects by removing the
@@ -521,7 +533,7 @@ function makeJSONReady() {
     var jsonValue = JSON.parse(fileConfig);
     for (var key in jsonValue) {
         if (jsonValue.hasOwnProperty(key) && key == "serviceConfigurations") {
-            for (eachExtra in extraJsonVariable) {
+            for (var eachExtra in extraJsonVariable) {
                 jsonValue[key][eachExtra] = extraJsonVariable[eachExtra]
             }
             for (var childKey in jsonValue[key]) {
@@ -535,6 +547,7 @@ function makeJSONReady() {
         }
     }
     fileConfig = JSON.stringify(jsonValue);
+    return jsonValue;
 }
 
 /**

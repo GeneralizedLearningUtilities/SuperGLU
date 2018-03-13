@@ -52,15 +52,15 @@
 <div id="wrapper">
     <div id="leftContainer" class="split split-horizontal">
         <div class="fileUpload btn btn-primary">
-            <span>OPEN</span>
+            <span>Open</span>
             <input type="file" class="upload" id="files" name="files[]"/>
         </div>
         <input id="configInputFileName" type="hidden" placeholder="Filename" value="">
-        <div class="fileUpload btn btn-primary" onclick="writeJsonToFile();">
-            <span>SAVE</span>
-        </div>
+        <a class="fileUpload btn btn-primary" onclick="writeJsonToFile();">
+            <span>Download</span>
+        </a>
         <br><br>
-        Output File: <input id="configFileName" type="text" placeholder="Filename" value="">
+        Output File: <input id="configFileName" type="text" placeholder="Enter Filename" value="">
         <div id="Downloadable"></div>
 
         <h2><b>NODE EDITOR</b></h2>
@@ -68,8 +68,29 @@
         <div id="addNodeMenu">
             <br>
             Node ID:
-            <input type="textbox" id="idName"/>
+            <input type="textbox" id="idName">
             <br><br>
+            Select GATEWAY/SERVICE TYPE:
+            <select id="gatewayType" size="4" class="multiSelect">
+                <option value="" selected></option>
+                <option value="ActiveMQTopicMessagingGateway">ActiveMQTopicMessagingGateway</option>
+                <option value="SocketIOGateway">SocketIOGateway</option>
+                <option value="GIFTVHumanBridge">GIFTVHumanBridge</option>
+                <option value="RestGateway">RestGateway</option>
+                <option value="PostService">PostService</option>
+            </select>
+            <br><br>
+            OTHER TYPE : <input id="otherType" type="textbox" value="">
+            <br><br>
+            Nodes:
+            <table id="nodeTable"></table>
+            <button onclick="addNodeRow()">Add Nodes</button>
+            <br><br>
+            Params:
+            <table id="paramTable"></table>
+            <button onclick="addParamRow()">Add Params</button>
+            <br><br>
+            <input type="button" size="35" value="UPDATE" id="dropdownsub" onclick="updateJsonForm();">
         </div>
         <div id="connections">
             <h2><b>CONNECTIONS</b></h2>
