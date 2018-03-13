@@ -23,13 +23,18 @@ USE_BLACK_WHITE_LIST = True
 class BaseMessagingNode(Serializable):
     """ Base class for messaging """
 
-    def __init__(self, anId=None, gateway=None, authenticator=None, blackList=[], whiteList=[]):
+    def __init__(self, anId=None, gateway=None, authenticator=None, nodes=[], blackList=[], whiteList=[]):
         super(BaseMessagingNode, self).__init__(anId)
         self._gateway = gateway
         self._authenticator = authenticator
         if gateway is not None:
             self.bindToGateway(gateway)
         self._requests = {}
+        
+        if nodes is None: nodes = []
+        self._nodes = {}
+        
+        self.addNodes(nodes)
         
         #don't allow null values for the black and white list
         #not sure if this is necessary but it won't hurt
@@ -41,6 +46,24 @@ class BaseMessagingNode(Serializable):
             
         self._blackList = blackList
         self._whiteList = whiteList
+        
+        
+    # Manage Child Nodes
+    def addNodes(self, nodes):
+        for node in nodes:
+            node.bindToGateway(self)
+
+    def getNodes(self):
+        return [service for condition, service in list(self._nodes.values())]
+
+    def register(self, node):
+        """ Register the signatures of messages that the node is interested in """
+        self._nodes[node.getId()] = (node.getMessageConditions(), node)
+    
+    def unregister(self, node):
+        """ Take actions to remove the node from the list """
+        if node.getId() in self._nodes:
+            del self._nodes[node.getId()]
 
     def acceptIncomingMessage(self, msg):
         result = True
@@ -110,7 +133,7 @@ class BaseMessagingNode(Serializable):
         msg.setContextValue(Message.CONTEXT_CONVERSATION_ID_KEY, oldId)
         return msg
 
-   # Pack/Unpack Messages
+    # Pack/Unpack Messages
     def messageToString(self, msg):
         return serializeObject(msg)
     
@@ -137,13 +160,12 @@ class MessagingGateway(BaseMessagingNode):
     def __init__(self, anId=None, nodes=None, gateway=None, authenticator=None, scope=None, serviceConfiguration=None):
         if scope is None: scope = {}
         if serviceConfiguration is not None:
-            super(MessagingGateway, self).__init__(anId, gateway, authenticator, serviceConfiguration.getBlackList(), serviceConfiguration.getWhiteList)
+            super(MessagingGateway, self).__init__(anId, gateway, authenticator, nodes, serviceConfiguration.getBlackList(), serviceConfiguration.getWhiteList)
         else:
-            super(MessagingGateway, self).__init__(anId, geteway, authenticator)
-        if nodes is None: nodes = []
-        self._nodes = {}
+            super(MessagingGateway, self).__init__(anId, gateway, nodes, authenticator)
+        
         self._scope = scope
-        self.addNodes(nodes)
+        
         #TODO: read in from service configuration when it's ready
         self._gatewayBlackList = {}
         self._gatewayWhiteList = {}
@@ -178,23 +200,6 @@ class MessagingGateway(BaseMessagingNode):
             if not self.isMessageOnGatewayBlackList(node, msg) and self.isMessageOnGatewayWhiteList(node, msg):
                 if ((nodeId != senderId) and ((condition  is None) or condition(msg))):
                     node.receiveMessage(msg)
-
-    # Manage Child Nodes
-    def addNodes(self, nodes):
-        for node in nodes:
-            node.bindToGateway(self)
-
-    def getNodes(self):
-        return [service for condition, service in list(self._nodes.values())]
-
-    def register(self, node):
-        """ Register the signatures of messages that the node is interested in """
-        self._nodes[node.getId()] = (node.getMessageConditions(), node)
-    
-    def unregister(self, node):
-        """ Take actions to remove the node from the list """
-        if node.getId() in self._nodes:
-            del self._nodes[node.getId()]
 
     def addContextDataToMsg(self, msg):
         """ Add extra context to the message, if not present """

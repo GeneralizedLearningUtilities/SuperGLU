@@ -11,9 +11,9 @@ class ServiceConfiguration(Serializable):
     ACTIVEMQ_PARAM_KEY = "activeMQConfig";
     SOCKETIO_PARAM_KEY = "socketIOConfig";
     
-    def __init__(self,id = None, type = None, params = {}, nodes = [], blacklist = [], whitelist = [] ):
-        super(ServiceConfiguration, self).__init__(id)
-        self.type = type
+    def __init__(self,anId = None, tipe = None, params = {}, nodes = [], blacklist = [], whitelist = [] ):
+        super(ServiceConfiguration, self).__init__(anId)
+        self.type = tipe
         self.params = params
         self.nodes = nodes
         self.blacklist = blacklist
@@ -31,7 +31,7 @@ class ServiceConfiguration(Serializable):
         
         
         try:
-            self.type = getClass(token.get(self.TYPE_KEY))
+            self.type = self.getClass(token.get(self.TYPE_KEY))
         except:
             self.type = None
         
@@ -39,10 +39,10 @@ class ServiceConfiguration(Serializable):
         self.nodes = untokenizeObject(token.get(self.NODES_KEY, []))
         
         blackListAsString = untokenizeObject(token.get(self.BLACK_LIST_KEY, []))
-        self.blacklist = importBlackWhiteList(blackListAsString)
+        self.blacklist = self.importBlackWhiteList(blackListAsString)
         
         whitelistAsString = untokenizeObject(token.get(self.WHITE_LIST_KEY, []))
-        self.whitelist = importBlackWhiteList(whitelistAsString)
+        self.whitelist = self.importBlackWhiteList(whitelistAsString)
         
     def exportBlackWhiteList(self, listOfEntries):
         result = []
@@ -55,21 +55,21 @@ class ServiceConfiguration(Serializable):
         
         if self.type is not None:
             className = self.type.__name__
-            token[TYPE_KEY] = className
+            token[self.TYPE_KEY] = className
         
         if self.params is not None:
-            token[PARAMS_KEY] = tokenizeObject(self.params)
+            token[self.PARAMS_KEY] = tokenizeObject(self.params)
         
         if self.nodes is not None:
-            token[NODES_KEY] = tokenizeObject(self.nodes)
+            token[self.NODES_KEY] = tokenizeObject(self.nodes)
         
         if self.blacklist is not None:
-            blackListAsStrings = self.exportBlackWhiteList(blacklist)
-            token[BLACK_LIST_KEY] = tokenizeObject(blackListAsStrings)
+            blackListAsStrings = self.exportBlackWhiteList(self.blacklist)
+            token[self.BLACK_LIST_KEY] = tokenizeObject(blackListAsStrings)
             
         if self.whitelist is not None:
-            whiteListAsStrings = self.exportBlackWhiteList(whitelist)
-            token[WHITE_LIST_KEY] = tokenizeObject(whiteListAsStrings)
+            whiteListAsStrings = self.exportBlackWhiteList(self.whitelist)
+            token[self.WHITE_LIST_KEY] = tokenizeObject(whiteListAsStrings)
             
         return token
     
@@ -86,18 +86,18 @@ class ServiceConfiguration(Serializable):
         self.nodes = nodes
         
     def getWhiteList(self):
-        return whitelist
+        return self.whitelist
         
     def setWhiteList(self, whitelist):
         self.whitelist = whitelist
         
     def getBlackList(self):
-        return blacklist
+        return self.blacklist
         
     def setBlackList(self, blacklist):
         self.blacklist = blacklist
         
-    def getClass(classPath):
+    def getClass(self, classPath):
         pathComponents = classPath.split('.')
         module = __import__(pathComponents[0])
         for eachComponenet in pathComponents[1:]:
@@ -126,3 +126,6 @@ class ServiceConfigurationCollection(Serializable):
         
     def getServiceConfiguration(self, configurationName):
         return self._serviceConfigurations[configurationName]
+    
+    def getServiceConfigurationKeys(self):
+        return self._serviceConfigurations.keys()
