@@ -12,25 +12,50 @@
     <script type="text/javascript" src="default.js"></script>
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
     <script type="text/javascript" src="stringSet.js"></script>
-
-
     <style type="text/css">
         #jsoneditor {
-            width: 280px;
             height: 250px;
+        }
+
+        .split, .split-flex {
+            -webkit-box-sizing: border-box;
+            -moz-box-sizing: border-box;
+            box-sizing: border-box;
+
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        .gutter {
+            background-color: #eee;
+            background-repeat: no-repeat;
+            background-position: 50%;
+        }
+
+        .gutter.gutter-horizontal {
+            background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAeCAYAAADkftS9AAAAIklEQVQoU2M4c+bMfxAGAgYYmwGrIIiDjrELjpo5aiZeMwF+yNnOs5KSvgAAAABJRU5ErkJggg==');
+            cursor: ew-resize;
+        }
+
+        .gutter.gutter-vertical {
+            cursor: ns-resize;
+            background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAFAQMAAABo7865AAAABlBMVEVHcEzMzMzyAv2sAAAAAXRSTlMAQObYZgAAABBJREFUeF5jOAMEEAIEEFwAn3kMwcB6I2AAAAAASUVORK5CYII=');
+        }
+
+        .split.split-horizontal, .gutter.gutter-horizontal {
+            height: 100%;
+            float: left;
         }
     </style>
 </head>
-
 <body>
 <div id="wrapper">
-    <div id="leftContainer">
+    <div id="leftContainer" class="split split-horizontal">
         <div class="fileUpload btn btn-primary">
             <span>OPEN</span>
             <input type="file" class="upload" id="files" name="files[]"/>
         </div>
-        <br><br>
-        Input File: <input id="configInputFileName" type="text" placeholder="Filename" value="">
+        <input id="configInputFileName" type="hidden" placeholder="Filename" value="">
         <div class="fileUpload btn btn-primary" onclick="writeJsonToFile();">
             <span>SAVE</span>
         </div>
@@ -38,44 +63,23 @@
         Output File: <input id="configFileName" type="text" placeholder="Filename" value="">
         <div id="Downloadable"></div>
 
-        <p><font size="5"><b>NODE EDITOR</b></font></p>
+        <h2><b>NODE EDITOR</b></h2>
 
         <div id="addNodeMenu">
             <br>
             Node ID:
-            <input type="textbox" id="idName">
+            <input type="textbox" id="idName"/>
             <br><br>
-            Select GATEWAY/SERVICE TYPE:
-            <select id="gatewayType" size="4" class="multiSelect">
-                <option value="" selected></option>
-                <option value="ActiveMQTopicMessagingGateway">ActiveMQTopicMessagingGateway</option>
-                <option value="SocketIOGateway">SocketIOGateway</option>
-                <option value="GIFTVHumanBridge">GIFTVHumanBridge</option>
-                <option value="RestGateway">RestGateway</option>
-                <option value="PostService">PostService</option>
-            </select>
-            <br><br>
-            OTHER TYPE : <input id="otherType" type="textbox" value="">
-            <br><br>
-            Nodes:
-            <table id="nodeTable"></table>
-            <button onclick="addNodeRow()">Add Nodes</button>
-            <br><br>
-            Params:
-            <table id="paramTable"></table>
-            <button onclick="addParamRow()">Add Params</button>
-            <br><br>
-            <input type="button" size="35" value="UPDATE" id="dropdownsub" onclick="updateJsonForm();">
         </div>
         <div id="connections">
-            <p><font size="5"><b>CONNECTIONS</b></font></p>
+            <h2><b>CONNECTIONS</b></h2>
             <div id="jsoneditor"></div>
             <br>
             <button id="updateConnection" type="button" onclick="uponTableChange();">UPDATE CONNECTIONS</button>
         </div>
         <br><br>
     </div>
-    <div id="container">
+    <div id="rightContainer" class="split split-horizontal">
         <div id="NodeButtons">
             <button id="addNodeButton" type="button" onclick="addDummyNode();">Add Node</button>
             <button id="deleteNodeButton" type="button" onclick="deleteNode();">Delete Node</button>
@@ -83,7 +87,14 @@
     </div>
 </div>
 ​
+<script src="http://nathancahill.github.io/Split.js/split.js"></script>
+<script>
+    Split(['#leftContainer', '#rightContainer'], {
+        sizes: [25, 75],
+        gutterSize: 15,
+        minSize: 300
+    })
+</script>
 <script type="text/javascript" src="layoutAgentsGraph.js"></script>
-
 </body>
 </html>

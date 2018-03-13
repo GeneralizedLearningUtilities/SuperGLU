@@ -1,88 +1,98 @@
 body {
-   position: relative;
-   font-family: 'PT Sans', sans-serif;
+    /*position: relative;*/
+    font-family: 'PT Sans', sans-serif;
+    margin: 0;
 }
 
 h1 {
-   font-family: 'Zilla Slab', sans-serif;
-   color: white;
-   font-weight: 200;
-   position:relative;
-   margin: 0 auto;
-   left: 50%;
-   transform: translateX(-50%);
-   background-color: black;
-   width: 100%;
+    font-family: 'Zilla Slab', sans-serif;
+    color: white;
+    font-weight: 200;
+    position: relative;
+    margin: 0 auto;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: black;
+    width: 100%;
 }
 
 /* Add animation (fade in the popup) */
 @-webkit-keyframes fadeIn {
-    from {opacity: 0;}
-    to {opacity: 1;}
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
 }
 
 @keyframes fadeIn {
-    from {opacity: 0;}
-    to {opacity:1 ;}
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
 }
 
 #leftContainer {
-   width: 20%;
-   overflow: scroll;
-   float:left;
+    padding: 10px;
 }
 
-#container {
- width: 80%;
- left: 50.5%;
- height: 85%;
- margin: auto;
- float:left;
+#rightContainer {
+    height: 100%;
+}
+
+#wrapper {
+    height: 800px;
+    border: 1px solid lightgray;
+    margin: 10px;
+    /*padding: 10px;*/
 }
 
 #jsontext {
-   width: 200px;
-   border-radius: 2px;
-   height: 260px;
+    width: 200px;
+    border-radius: 2px;
+    height: 260px;
 }
 
 #addNodeMenu {
-   padding: 10px;
-   background-color: lightgrey;
+    padding: 10px;
+    background-color: lightgrey;
 }
 
-
 #addNodeButton {
-  height:35px;
-  width:125px;
-  position:absolute;
-  bottom: 7%;
-  left: 50%;
+    height: 35px;
+    width: 125px;
+    position: absolute;
+    bottom: 7%;
+    left: 50%;
 }
 
 #deleteNodeButton {
-  height:35px;
-  width:125px;
-  position:absolute;
-  bottom:7%;
-  left: 59%;
+    height: 35px;
+    width: 125px;
+    position: absolute;
+    bottom: 7%;
+    left: 59%;
 }
 
-#updateConnection{
-  height:45px;
-  width:135px;
-  position:absolute;
-  left: 70px;
+#updateConnection {
+    height: 45px;
+    width: 135px;
+    position: absolute;
+    left: 70px;
 }
 
-#fileContainer{
-    float:left;
+#fileContainer {
+    float: left;
     width: 100px;
-}​
+}
 
+​
 #jsoneditor {
-  width: 100px;
-  height: 100px;
+    width: 100px;
+    height: 100px;
 }
 
 .fileUpload {
@@ -90,6 +100,7 @@ h1 {
     overflow: hidden;
     margin: 10px;
 }
+
 .fileUpload input.upload {
     position: absolute;
     top: 0;
@@ -103,38 +114,38 @@ h1 {
 }
 
 .btn {
-  background-color: #F0AD4E;
-  height:20px;
-  width:75px;
-  display: inline-block;
-  padding: 6px 12px;
-  margin-bottom: 0;
-  font-size: 14px;
-  font-weight: normal;
-  line-height: 1.42857143;
-  text-align: center;
-  white-space: nowrap;
-  vertical-align: middle;
-  -ms-touch-action: manipulation;
-  touch-action: manipulation;
-  cursor: pointer;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
-  background-image: none;
-  border: 1px solid transparent;
-  border-radius: 4px;
+    background-color: #F0AD4E;
+    height: 20px;
+    width: 75px;
+    display: inline-block;
+    padding: 6px 12px;
+    margin-bottom: 0;
+    font-size: 14px;
+    font-weight: normal;
+    line-height: 1.42857143;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    -ms-touch-action: manipulation;
+    touch-action: manipulation;
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    background-image: none;
+    border: 1px solid transparent;
+    border-radius: 4px;
 }
 
 #otherType:disabled {
     background: lightgrey;
 }
 
-#dropdownsub{
-  height:35px;
-  width:125px;
-  margin-left:80px;
+#dropdownsub {
+    height: 35px;
+    width: 125px;
+    margin-left: 80px;
 }
 
 .tooltip {
@@ -162,9 +173,9 @@ h1 {
 }
 
 .selectTooltip {
-   position: absolute;
-   z-index: 2;
-   background: #fff;
-   border: 1px solid #d3d3d3;
-   padding: 3px;
+    position: absolute;
+    z-index: 2;
+    background: #fff;
+    border: 1px solid #d3d3d3;
+    padding: 3px;
 }
