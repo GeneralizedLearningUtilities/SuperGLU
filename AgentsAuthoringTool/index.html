@@ -3,6 +3,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
     <link href="https://fonts.googleapis.com/css?family=PT+Sans|Zilla+Slab+Highlight|Zilla+Slab" rel="stylesheet">
     <link type="text/css" rel="stylesheet" href="jsoneditor/dist/jsoneditor.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
     <link type="text/css" rel="stylesheet" href="main.css">
 
     <!--   Libraries: sigma (for graph layouting), heap (for deciding the order of the gateway/services, jQuery, stringSet, jsoneditor-->
@@ -51,18 +52,31 @@
 <body>
 <div id="wrapper">
     <div id="leftContainer" class="split split-horizontal">
-        <div class="fileUpload btn btn-primary">
-            <span>Open</span>
-            <input type="file" class="upload" id="files" name="files[]"/>
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="fileUpload btn btn-primary w100">
+                    <span>Open</span>
+                    <input type="file" class="upload" id="files" name="files[]"/>
+                    <input id="configInputFileName" type="hidden" placeholder="Filename" value="">
+                </div>
+            </div>
         </div>
-        <input id="configInputFileName" type="hidden" placeholder="Filename" value="">
-        <a class="fileUpload btn btn-primary" onclick="writeJsonToFile();">
-            <span>Download</span>
-        </a>
-        <br><br>
-        Output File: <input id="configFileName" type="text" placeholder="Enter Filename" value="">
-        <div id="Downloadable"></div>
+        <hr>
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="form-group">
+                    <label for="configFileName" class="control-label">Output File</label>
+                    <input id="configFileName" type="text" placeholder="Enter Filename" value="" class="form-control"/>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12">
+                <button class="fileUpload btn btn-primary w100" onclick="writeJsonToFile();">Download</button>
+            </div>
+        </div>
 
+        <hr>
         <h2><b>NODE EDITOR</b></h2>
 
         <div id="addNodeMenu">
@@ -84,36 +98,47 @@
             <br><br>
             Nodes:
             <table id="nodeTable"></table>
-            <button onclick="addNodeRow()">Add Nodes</button>
+            <button class="btn btn-sm btn-default" onclick="addNodeRow()">Add Nodes</button>
             <br><br>
             Params:
             <table id="paramTable"></table>
-            <button onclick="addParamRow()">Add Params</button>
+            <button class="btn btn-sm btn-default" onclick="addParamRow()">Add Params</button>
             <br><br>
-            <input type="button" size="35" value="UPDATE" id="dropdownsub" onclick="updateJsonForm();">
+            <button class="btn btn-default" id="dropdownsub" onclick="updateJsonForm()">UPDATE</button>
         </div>
+        <hr>
         <div id="connections">
             <h2><b>CONNECTIONS</b></h2>
             <div id="jsoneditor"></div>
             <br>
-            <button id="updateConnection" type="button" onclick="uponTableChange();">UPDATE CONNECTIONS</button>
+            <button class="btn btn-default" id="updateConnection" type="button" onclick="uponTableChange();">UPDATE
+                CONNECTIONS
+            </button>
         </div>
         <br><br>
     </div>
     <div id="rightContainer" class="split split-horizontal">
-        <div id="NodeButtons">
-            <button id="addNodeButton" type="button" onclick="addDummyNode();">Add Node</button>
-            <button id="deleteNodeButton" type="button" onclick="deleteNode();">Delete Node</button>
+        <div id="NodeButtons" class="row">
+            <div class="col-xs-6">
+                <button id="addNodeButton" type="button" class="btn btn-primary pull-right" onclick="addDummyNode();">
+                    Add Node
+                </button>
+            </div>
+            <div class="col-xs-6">
+                <button id="deleteNodeButton" type="button" class="btn btn-danger" onclick="deleteNode();">Delete Node
+                </button>
+            </div>
         </div>
+        <div id="canvasContainer"></div>
     </div>
 </div>
 ​
 <script src="http://nathancahill.github.io/Split.js/split.js"></script>
 <script>
     Split(['#leftContainer', '#rightContainer'], {
-        sizes: [25, 75],
+        sizes: [30, 70],
         gutterSize: 15,
-        minSize: 300
+        minSize: 325
     })
 </script>
 <script type="text/javascript" src="layoutAgentsGraph.js"></script>

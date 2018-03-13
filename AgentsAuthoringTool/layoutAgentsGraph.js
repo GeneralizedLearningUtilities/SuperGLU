@@ -32,7 +32,7 @@ var editor; //to set the Connection Table Json
  **/
 var s = new sigma({
     renderer: {
-        container: document.getElementById('rightContainer'),
+        container: document.getElementById('canvasContainer'),
         type: 'canvas',
     },
     settings: {

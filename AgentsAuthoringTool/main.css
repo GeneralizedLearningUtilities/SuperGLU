@@ -41,13 +41,18 @@ h1 {
 
 #rightContainer {
     height: 100%;
+    position: relative;
+}
+
+#canvasContainer {
+    height: calc(100% - 85px);
+    position: relative;
 }
 
 #wrapper {
     height: 800px;
     border: 1px solid lightgray;
     margin: 10px;
-    /*padding: 10px;*/
 }
 
 #jsontext {
@@ -61,42 +66,19 @@ h1 {
     background-color: lightgrey;
 }
 
-#addNodeButton {
-    height: 35px;
-    width: 125px;
-    position: absolute;
-    bottom: 7%;
-    left: 40%;
-}
-
-#deleteNodeButton {
-    height: 35px;
-    width: 125px;
-    position: absolute;
-    bottom: 7%;
-    left: 59%;
-}
-
-#updateConnection {
-    height: 45px;
-    width: 135px;
+#NodeButtons {
+    padding: 25px;
+    background: lightgrey;
 }
 
 #fileContainer {
     float: left;
     width: 100px;
 }
-
 ​
 #jsoneditor {
     width: 100px;
     height: 100px;
-}
-
-.fileUpload {
-    position: relative;
-    overflow: hidden;
-    margin: 10px;
 }
 
 .fileUpload input.upload {
@@ -109,31 +91,6 @@ h1 {
     cursor: pointer;
     opacity: 0;
     filter: alpha(opacity=0);
-}
-
-.btn {
-    background-color: #F0AD4E;
-    height: 20px;
-    width: 75px;
-    display: inline-block;
-    padding: 6px 12px;
-    margin-bottom: 0;
-    font-size: 14px;
-    font-weight: normal;
-    line-height: 1.42857143;
-    text-align: center;
-    white-space: nowrap;
-    vertical-align: middle;
-    -ms-touch-action: manipulation;
-    touch-action: manipulation;
-    cursor: pointer;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-    background-image: none;
-    border: 1px solid transparent;
-    border-radius: 4px;
 }
 
 #otherType:disabled {
@@ -176,4 +133,8 @@ h1 {
     background: #fff;
     border: 1px solid #d3d3d3;
     padding: 3px;
+}
+
+.w100 {
+    width: 100%;
 }
