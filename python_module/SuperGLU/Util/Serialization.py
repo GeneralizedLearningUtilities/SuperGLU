@@ -224,7 +224,7 @@ class Serializable(object, metaclass=SerializableFactoryMetaclass):
                 instance.initializeFromToken(token, context)
             else:
                 if onMissingClass is None:
-                    onMissingClass = self.defaultOnMissingClass
+                    onMissingClass = cls.defaultOnMissingClass
                 instance = onMissingClass(token)
         return instance
 

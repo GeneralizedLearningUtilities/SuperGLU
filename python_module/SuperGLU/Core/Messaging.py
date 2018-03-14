@@ -6,7 +6,6 @@ from datetime import datetime
 #from dateutil import parser
 from SuperGLU.Core.FIPA.SpeechActs import INFORM_ACT, SPEECH_ACT_SET
 from SuperGLU.Util.Serialization import Serializable, tokenizeObject, untokenizeObject, makeSerialized, StorageToken, makeNative
-from edu.usc.ict.superglu.core import BaseMessage
 
 
 class BaseMessage(Serializable):
@@ -113,7 +112,7 @@ class GIFTMessage(BaseMessage):
 
 
 
-class VHMessage(Base):
+class VHMessage(BaseMessage):
     """
     /**
      * Generic wrapper for a VH message.

@@ -11,9 +11,9 @@ from SuperGLU.Util.Serialization import (Serializable, serializeObject,
 import datetime
 import stomp
 import urllib
-from edu.usc.ict.superglu.core.blackwhitelist import BlackWhiteListEntry
-from edu.usc.ict.superglu.core.config import GatewayBlackWhiteListConfiguration, ServiceConfiguration
-from edu.usc.ict.superglu.core import VHMessage, GIFTMessage
+from SuperGLU.Core.BlackWhiteListEntry import BlackWhiteListEntry, GatewayBlackWhiteListConfiguration
+from SuperGLU.Core.ServiceConfiguration import  ServiceConfiguration
+from SuperGLU.Core.Messaging import VHMessage, GIFTMessage
 
 CATCH_BAD_MESSAGES = False
 SESSION_KEY = 'sessionId'

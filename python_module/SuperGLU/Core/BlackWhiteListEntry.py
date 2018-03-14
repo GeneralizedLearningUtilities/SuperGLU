@@ -7,7 +7,7 @@ from SuperGLU.Util.Serialization import Serializable, untokenizeObject, tokenize
  * 
  * @author auerbach
 """
-from edu.usc.ict.superglu.core import GIFTMessage, VHMessage
+from SuperGLU.Core.Messaging import GIFTMessage, VHMessage
 from SuperGLU.Core.Messaging import Message
 
 
@@ -65,13 +65,13 @@ class BlackWhiteListEntry(Serializable):
     def saveToToken(self):
         token = super(BlackWhiteListEntry, self).saveToToken()
         if self._messageName is not None:
-            token[MESSAGE_NAME_KEY] = tokenizeObject(self._messageName)
+            token[self.MESSAGE_NAME_KEY] = tokenizeObject(self._messageName)
             
         if self._messageType is not None:
-            token[MESSAGE_TYPE_KEY] = tokenizeObject(self._messageType)
+            token[self.MESSAGE_TYPE_KEY] = tokenizeObject(self._messageType)
             
         if self._version is not None:
-            token[VERSION_KEY] = tokenizeObject(self._version)
+            token[self.VERSION_KEY] = tokenizeObject(self._version)
             
         return token
             
@@ -86,19 +86,19 @@ class BlackWhiteListEntry(Serializable):
         if self._messageType == self.WILDCARD:
             return True
         
-        return false
+        return False
     
     def evaluateMessageVersion(self, msg):
         #for now just accept wildcards until all messages have versions.
         if self._version == self.WILDCARD:
             return True
         
-        return false
+        return False
     
     
     def evaluateMessageName(self, msg):
         if self._messageName == self.WILDCARD:
-            return true
+            return True
         
         if isinstance(msg, VHMessage):
             return self._messageName == msg.getFirstWord()

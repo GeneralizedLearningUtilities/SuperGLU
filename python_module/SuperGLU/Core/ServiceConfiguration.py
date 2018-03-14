@@ -1,5 +1,5 @@
 from SuperGLU.Util.Serialization import (Serializable, untokenizeObject, tokenizeObject)
-from edu.usc.ict.superglu.core.blackwhitelist import BlackWhiteListEntry
+from SuperGLU.Core.BlackWhiteListEntry import BlackWhiteListEntry
 
 class ServiceConfiguration(Serializable):
     
