@@ -80,42 +80,46 @@
         <h2><b>NODE EDITOR</b></h2>
 
         <div id="addNodeMenu">
-            <br>
-            Node ID:
-            <input type="textbox" id="idName">
-            <br><br>
-            Select GATEWAY/SERVICE TYPE:
-            <select id="gatewayType" size="4" class="multiSelect">
-                <option value="" selected></option>
-                <option value="ActiveMQTopicMessagingGateway">ActiveMQTopicMessagingGateway</option>
-                <option value="SocketIOGateway">SocketIOGateway</option>
-                <option value="GIFTVHumanBridge">GIFTVHumanBridge</option>
-                <option value="RestGateway">RestGateway</option>
-                <option value="PostService">PostService</option>
-            </select>
-            <br><br>
-            OTHER TYPE : <input id="otherType" type="textbox" value="">
-            <br><br>
-            Nodes:
-            <table id="nodeTable"></table>
-            <button class="btn btn-sm btn-default" onclick="addNodeRow()">Add Nodes</button>
-            <br><br>
-            Params:
-            <table id="paramTable"></table>
-            <button class="btn btn-sm btn-default" onclick="addParamRow()">Add Params</button>
-            <br><br>
-            <button class="btn btn-default" id="dropdownsub" onclick="updateJsonForm()">UPDATE</button>
+            <div class="form-group">
+                <label class="control-label" for="idName">Node Id</label>
+                <input type="text" id="idName" class="form-control">
+            </div>
+            <div class="form-group">
+                <label class="control-label" for="gatewayType">Select GATEWAY/SERVICE type</label>
+                <select id="gatewayType" size="4" class="multiSelect form-control">
+                    <option value="" selected></option>
+                    <option value="ActiveMQTopicMessagingGateway">ActiveMQTopicMessagingGateway</option>
+                    <option value="SocketIOGateway">SocketIOGateway</option>
+                    <option value="GIFTVHumanBridge">GIFTVHumanBridge</option>
+                    <option value="RestGateway">RestGateway</option>
+                    <option value="PostService">PostService</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="control-label" for="otherType">Other type</label>
+                <input id="otherType" type="text" value="" class="form-control"/>
+            </div>
+            <div class="form-group">
+                <label class="control-label">Nodes</label>
+                <table id="nodeTable"></table>
+                <button class="btn btn-sm btn-default" onclick="addNodeRow()">Add Nodes</button>
+            </div>
+            <div class="form-group">
+                <label class="control-label">Params</label>
+                <table id="paramTable"></table>
+                <button class="btn btn-sm btn-default" onclick="addParamRow()">Add Params</button>
+            </div>
+            <button class="btn btn-info w100" id="dropdownsub" onclick="updateJsonForm()">UPDATE</button>
         </div>
         <hr>
         <div id="connections">
             <h2><b>CONNECTIONS</b></h2>
             <div id="jsoneditor"></div>
             <br>
-            <button class="btn btn-default" id="updateConnection" type="button" onclick="uponTableChange();">UPDATE
+            <button class="btn btn-info w100" id="updateConnection" type="button" onclick="uponTableChange();">UPDATE
                 CONNECTIONS
             </button>
         </div>
-        <br><br>
     </div>
     <div id="rightContainer" class="split split-horizontal">
         <div id="NodeButtons" class="row">

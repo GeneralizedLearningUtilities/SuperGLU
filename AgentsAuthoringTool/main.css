@@ -75,6 +75,7 @@ h1 {
     float: left;
     width: 100px;
 }
+
 ​
 #jsoneditor {
     width: 100px;
@@ -95,12 +96,6 @@ h1 {
 
 #otherType:disabled {
     background: lightgrey;
-}
-
-#dropdownsub {
-    height: 35px;
-    width: 125px;
-    margin-left: 80px;
 }
 
 .tooltip {
@@ -137,4 +132,8 @@ h1 {
 
 .w100 {
     width: 100%;
+}
+
+.w130 {
+    width: 130px;
 }

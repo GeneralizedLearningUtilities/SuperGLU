@@ -47,7 +47,6 @@ var s = new sigma({
  Initializing default Json, default Connection table, default type Mapping
  **/
 $(document).ready(function () {
-
     var defaultData = JSON.parse(data); //initializes with default json
     fileConfig = JSON.stringify(defaultData[0]);
     var jsonValue = JSON.parse(fileConfig);
@@ -573,14 +572,15 @@ function onClick(event) {
     var otherTypeGrey = false
     if (event.data.node.type) {
         var typeVariable = event.data.node.type.split('.');
-        for (i = 0; i < document.getElementById("gatewayType").length; ++i) {
+        for (var i = 0; i < document.getElementById("gatewayType").length; ++i) {
             if (document.getElementById("gatewayType").options[i].value == typeVariable[typeVariable.length - 1]) {
                 document.getElementById("gatewayType").value == typeVariable[typeVariable.length - 1];
                 document.getElementById("gatewayType").options.selectedIndex = i;
                 otherTypeGrey = true
             }
         }
-        document.getElementById("otherType").value = event.data.node.type//.split('.').slice(-1).pop();
+        document.getElementById("otherType").value = event.data.node.type;
+        document.getElementById("otherType").setAttribute('title', event.data.node.type);
         document.getElementById("otherType").disabled = otherTypeGrey;
     }
 
@@ -588,51 +588,15 @@ function onClick(event) {
     var nodeEdges = event.data.node.nodes;
     var nodeTable = document.getElementById("nodeTable");
     for (i = 0; i < nodeEdges.length; i++) {
-        var tr = document.createElement('tr');
-        var td = document.createElement('td');
-        var input = document.createElement("input");
-        input.setAttribute("type", "text");
-        input.value = nodeEdges[i];
-        td.appendChild(input)
-        tr.appendChild(td)
-        var td = document.createElement('td');
-        var input = document.createElement("input");
-        input.setAttribute("type", "button");
-        input.onclick = deleteNodeRow;
-        input.value = "-";
-        td.appendChild(input)
-        tr.appendChild(td)
-        nodeTable.appendChild(tr)
+        addNodeRow(nodeEdges[i]);
     }
 
     //to add Params in a row wise fashion
     if (event.data.node.params) {
         var nodeParams = event.data.node.params;
-        var nodeTable = document.getElementById("paramTable");
+
         for (var key in nodeParams) {
-            var tr = document.createElement('tr');
-            var td = document.createElement('td');
-            var input = document.createElement("input");
-            input.setAttribute("type", "text");
-            input.style = "width:130px"
-            input.value = key;
-            td.appendChild(input)
-            tr.appendChild(td)
-            var td = document.createElement('td');
-            var input = document.createElement("input");
-            input.setAttribute("type", "text");
-            input.style = "width:130px"
-            input.value = JSON.stringify(nodeParams[key]);
-            td.appendChild(input)
-            tr.appendChild(td)
-            var td = document.createElement('td');
-            var input = document.createElement("input");
-            input.setAttribute("type", "button");
-            input.onclick = deleteParamRow;
-            input.value = "-";
-            td.appendChild(input)
-            tr.appendChild(td)
-            nodeTable.appendChild(tr)
+            addParamRow(key, JSON.stringify(nodeParams[key]));
         }
     }
 }
@@ -716,22 +680,27 @@ function updateJsonForm() {
 }
 
 //Add new row with text input and delete button when Add Nodes button is clicked
-function addNodeRow() {
+function addNodeRow(inputValue) {
     var table = document.getElementById('nodeTable');
     var tr = document.createElement('tr');
     var td = document.createElement('td');
     var input = document.createElement("input");
     input.setAttribute("type", "text");
-    td.appendChild(input)
-    tr.appendChild(td)
+    input.setAttribute("class", "form-control");
+    if (inputValue !== undefined) {
+        input.value = inputValue;
+    }
+    td.appendChild(input);
+    tr.appendChild(td);
     var td = document.createElement('td');
-    var input = document.createElement("input");
-    input.setAttribute("type", "button");
+    var input = document.createElement("button");
+    input.setAttribute("class", "btn btn-sm");
+    input.setAttribute("placeholder", "Node Id");
     input.onclick = deleteNodeRow;
-    input.value = "-";
-    td.appendChild(input)
-    tr.appendChild(td)
-    table.appendChild(tr)
+    input.innerHTML = "-";
+    td.appendChild(input);
+    tr.appendChild(td);
+    table.appendChild(tr);
 }
 
 //Delete row with selected row ID when Delete Node button is clicked
@@ -741,25 +710,29 @@ function deleteNodeRow(r) {
 }
 
 //Add new row with two text input and delete button when Add Param button is clicked
-function addParamRow() {
+function addParamRow(key, value) {
     var table = document.getElementById('paramTable');
     var tr = document.createElement('tr');
-    for (i = 0; i < 2; i++) {
+    for (var i = 0; i < 2; i++) {
         var td = document.createElement('td');
         var input = document.createElement("input");
         input.setAttribute("type", "text");
-        input.style = "width:130px"
-        td.appendChild(input)
-        tr.appendChild(td)
+        input.setAttribute("placeholder", i % 2 == 0 ? "key" : "value");
+        input.setAttribute("class", "form-control w130");
+        td.appendChild(input);
+        tr.appendChild(td);
+        if (key !== undefined) {
+            input.value = i % 2 == 0 ? key : value;
+        }
     }
     var td = document.createElement('td');
-    var input = document.createElement("input");
-    input.setAttribute("type", "button");
+    var input = document.createElement("button");
+    input.setAttribute("class", "btn btn-sm");
     input.onclick = deleteParamRow;
-    input.value = "-";
-    td.appendChild(input)
-    tr.appendChild(td)
-    table.appendChild(tr)
+    input.innerHTML = "-";
+    td.appendChild(input);
+    tr.appendChild(td);
+    table.appendChild(tr);
 }
 
 //Delete row with selected row ID when Delete Param button is clicked
