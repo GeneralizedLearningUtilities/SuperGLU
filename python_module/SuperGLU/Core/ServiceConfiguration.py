@@ -30,10 +30,7 @@ class ServiceConfiguration(Serializable):
         super(ServiceConfiguration, self).initializeFromToken(token, context)
         
         
-        try:
-            self.type = self.getClass(token.get(self.TYPE_KEY))
-        except:
-            self.type = None
+        self.type = untokenizeObject(token.get(self.TYPE_KEY), None)
         
         self.params = untokenizeObject(token.get(self.PARAMS_KEY, {}))
         self.nodes = untokenizeObject(token.get(self.NODES_KEY, []))
@@ -54,8 +51,7 @@ class ServiceConfiguration(Serializable):
         token = super(ServiceConfiguration, self).saveToToken()
         
         if self.type is not None:
-            className = self.type.__name__
-            token[self.TYPE_KEY] = className
+            token[self.TYPE_KEY] = tokenizeObject(self.type)
         
         if self.params is not None:
             token[self.PARAMS_KEY] = tokenizeObject(self.params)
@@ -103,6 +99,9 @@ class ServiceConfiguration(Serializable):
         for eachComponenet in pathComponents[1:]:
             module = getattr(module, eachComponenet)
         return module
+    
+    def getType(self):
+        return self.type
         
 
 

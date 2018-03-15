@@ -491,6 +491,7 @@ class JSONStandardRWFormat(TokenRWFormat):
                     nativizedKey = cls.makeNative(key)
                     nativizedValue = cls.makeNative(x[key])
                     result[nativizedKey] = nativizedValue
+                del result['isMap']
                 return result
             else:
                 nativizedData = {}

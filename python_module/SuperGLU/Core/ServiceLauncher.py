@@ -19,15 +19,18 @@ from SuperGLU.Util import Serialization
 
 class ServiceLauncher():
     
+    services = {}
     
     def launchAndConnectAllServices(self, serviceConfigurations):
-        for key in serviceConfigurations.getKeys():
-            serviceConfiguration = serviceConfigurations.getServiceConfiguration(key)
-            self.launchService(serviceConfiguration)
+        for key in serviceConfigurations.getServiceConfigurationKeys():
+            if key != "id":
+                serviceConfiguration = serviceConfigurations.getServiceConfiguration(key)
+                self.launchService(serviceConfiguration)
             
-        for key in serviceConfigurations.getKeys():
-            serviceConfiguration = serviceConfigurations.getServiceConfiguration(key)
-            self.connectService(serviceConfiguration)
+        for key in serviceConfigurations.getServiceConfigurationKeys():
+            if key != "id":
+                serviceConfiguration = serviceConfigurations.getServiceConfiguration(key)
+                self.connectService(serviceConfiguration)
         
     
     def launchService(self, serviceConfiguration):
@@ -43,22 +46,22 @@ class ServiceLauncher():
             moduleName = moduleName + splitName[ii]
             if ii < len(splitName) -2:
                 moduleName = moduleName + "."
-            ++ii
+            ii = ii + 1
         
         className = splitName[len(splitName) - 1]
         module = importlib.import_module(moduleName)
         serviceClass = getattr(module, className)
         service = serviceClass(serviceConfiguration)
-        self[serviceConfiguration.getId()] = service
+        self.services[serviceConfiguration.getId()] = service
         
         
     def connectService(self, serviceConfiguration):
-        if serviceConfiguration.getId() in self:
-            service = self[serviceConfiguration.getId()]
+        if serviceConfiguration.getId() in self.services:
+            service = self.services[serviceConfiguration.getId()]
         
             if service is not None:
                 for connectionId in serviceConfiguration.getNodes():
-                    connection = self[connectionId]
+                    connection = self.services[connectionId]
                     if connection is not None:
                         service.addNodes([connection])
                     
@@ -94,7 +97,7 @@ class ServiceLauncher():
                 serviceToStop.unregister(connection)
                 connection.unregister(serviceToStop)
             
-            del self[serviceName] 
+            del self.services[serviceName] 
     
     def stopAllServices(self):
         for serviceName in self.keys():
