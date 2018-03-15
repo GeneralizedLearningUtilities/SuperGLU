@@ -43,6 +43,7 @@ class InvalidTokenClassError(SerializationError): pass
 DEFAULT_BRIDGE_NAME = 'DefaultDBSerializable'
 
 JSON_FORMAT = 'json'
+JSON_STANDARD_FORMAT = 'json_standard'
 XML_FORMAT = 'xml'
 PICKLE_FORMAT = 'pickle'
 VALID_SERIAL_FORMATS = (JSON_FORMAT, PICKLE_FORMAT, XML_FORMAT)
@@ -69,6 +70,8 @@ def makeSerialized(storageToken, sFormat=JSON_FORMAT):
         return XMLRWFormat.serialize(storageToken)
     elif sFormat == PICKLE_FORMAT:
         return PickleRWFormat.serialize(storageToken)
+    elif sFormat == JSON_STANDARD_FORMAT(storageToken):
+        return JSONStandardRWFormat.serialize(storageToken)
     else:
         raise TypeError("No serialization format of type: %s"%(sFormat,))
 
@@ -80,6 +83,8 @@ def makeNative(string, sFormat=JSON_FORMAT):
         return XMLRWFormat.parse(string)
     elif sFormat == PICKLE_FORMAT:
         return PickleRWFormat.parse(string)
+    elif sFormat == JSON_STANDARD_FORMAT:
+        return JSONStandardRWFormat.parse(string)
     else:
         raise TypeError("No serialization format of type: %s"%(sFormat,))
 
@@ -397,6 +402,108 @@ class TokenRWFormat(object):
         """ Serialize python objects into a string form """
         raise NotImplementedError
 
+
+class JSONStandardRWFormat(TokenRWFormat):
+    
+    DECODER = json.JSONDecoder().decode
+    ENCODER = json.JSONEncoder().encode
+    
+    NAME_MAPPING = {'bool': bool,
+                    'unicode': str,
+                    'int' : int,
+                    'float' : float,
+                    'null': type(None),
+                    'tuple': tuple,
+                    'list': list,
+                    'map': dict,
+                    }
+    
+    TYPE_MAPPING = dict([(val, key) for key, val in NAME_MAPPING.items()])
+    RESERVED_CLASS_IDS = set(NAME_MAPPING.keys())
+    
+    @classmethod
+    def isNullOrPrimitive(cls, x):
+        if x is None:
+            return True
+        
+        if type(x) in cls.VALID_ATOMIC_VALUE_TYPES:
+            return True
+        
+        return False
+
+    
+    @classmethod
+    def parse(cls, string):
+        decoded =cls.DECODER(string)
+        return cls.makeNative(decoded)
+    
+    @classmethod
+    def serialize(cls, data):
+        """ Serialize python objects into a JSON string form """
+        serializable = cls.makeSerializable(data)
+        return cls.ENCODER(serializable)
+    
+    @classmethod
+    def makeSerializable(cls, x):
+        if x is None:
+            return x
+        xType = type(x)
+        
+        if xType in cls.VALID_ATOMIC_VALUE_TYPES:
+            return x
+        elif xType in cls.VALID_SEQUENCE_VALUE_TYPES:
+            sequenceData = []
+            for obj in x:
+                sequenceData.append(cls.makeSerializable(obj))
+            return sequenceData
+        elif xType in cls.VALID_MAPPING_VALUE_TYPES:
+            processedMap = {}
+            for key in x.keys():
+                processedMap[cls.makeSerializable(key)] = cls.makeSerializable(x[key])
+                processedMap['isMap'] = True
+            return processedMap
+        elif xType == StorageToken:
+            storageTokenChildren = {}
+            for key in x.keys():
+                value = x[key]
+                storageTokenChildren[key] = cls.makeSerializable(value)
+            return storageTokenChildren
+        
+        return
+    
+    @classmethod
+    def makeNative(cls, x):
+        if cls.isNullOrPrimitive(x):
+            return x
+        
+        xType = type(x)
+        
+        if xType in cls.VALID_SEQUENCE_VALUE_TYPES:
+            result = []
+            for item in x:
+                result.append(cls.makeNative(item))
+            return result
+        elif xType in cls.VALID_MAPPING_VALUE_TYPES:
+            result = {}
+            keys = x.keys()
+            if 'isMap' in x.keys():
+                for key in x:
+                    nativizedKey = cls.makeNative(key)
+                    nativizedValue = cls.makeNative(x[key])
+                    result[nativizedKey] = nativizedValue
+                return result
+            else:
+                nativizedData = {}
+                for key in x.keys():
+                    if cls.isNullOrPrimitive(x[key]):
+                        nativizedData[key] = x[key]
+                    else:
+                        nativizedData[key] = cls.makeNative(x[key])
+                
+                result = StorageToken(None, nativizedData[StorageToken.CLASS_ID_KEY], nativizedData)
+                return result
+            
+            
 # JSON Formatting: Use JSONEncoder/JSONDecoder
 class JSONRWFormat(TokenRWFormat):
     """ JSON Serialization Format Handler """

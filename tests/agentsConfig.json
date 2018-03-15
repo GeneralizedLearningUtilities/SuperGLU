@@ -1,0 +1,29 @@
+{
+	"classId": "ServiceConfigurationCollection",
+	"serviceConfigurations": {
+		"mockService1": {
+			"classId": "ServiceConfiguration",
+			"nodes": ["mockService2"],
+			"id": "mockService1",
+			"whiteList": ["*.*.*"],
+			"blackList": [],
+			"type": "SuperGLU.Core.Tests.ServiceLauncherTest.MockService1",
+			"params": {
+				"isMap": true
+			}
+		},
+        "mockService2": {
+			"classId": "ServiceConfiguration",
+			"nodes": ["mockService2"],
+			"id": "mockService2",
+			"whiteList": ["*.*.*"],
+			"blackList": [],
+			"type": "SuperGLU.Core.Tests.ServiceLauncherTest.MockService1",
+			"params": {
+				"isMap": true
+			}
+		},
+        "isMap": true,
+	"id": "dcb91629-88a8-4f2d-8f21-8f616825eda2"
+    }
+}

@@ -20,9 +20,8 @@ class ServiceLauncherTest(unittest.TestCase):
 
     def testReadFile(self):
         launcher = ServiceLauncher()
-        launcher.readConfigurationFromFile("tests/agentsConfig.json", None)
-
-
+        config = launcher.readConfigurationFromFile("tests/agentsConfig.json", None)
+        print (config)
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
     unittest.main()

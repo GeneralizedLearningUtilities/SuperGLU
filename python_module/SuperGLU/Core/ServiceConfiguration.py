@@ -19,15 +19,15 @@ class ServiceConfiguration(Serializable):
         self.blacklist = blacklist
         self.whitelist = whitelist
         
-    def importBlackkWhiteList(self, listOfStrings):
+    def importBlackWhiteList(self, listOfStrings):
         result = []
         for entryAsString in listOfStrings:
             entry = BlackWhiteListEntry(entryAsString)
             result.append(entry)
         return result
     
-    def initializeFromToken(self, token):
-        super(ServiceConfiguration, self).initiazlizeFromToken(token)
+    def initializeFromToken(self, token, context=None):
+        super(ServiceConfiguration, self).initializeFromToken(token, context)
         
         
         try:
@@ -111,17 +111,17 @@ class ServiceConfigurationCollection(Serializable):
     SERVICE_CONFIG_MAP_KEY = "serviceConfigurations"
     
     def __init__(self, anId = None, serviceConfigurations={}):
-        super(self, ServiceConfigurationCollection).__init__(anId)
+        super(ServiceConfigurationCollection, self).__init__(anId)
         self._serviceConfigurations = serviceConfigurations
         
     def saveToToken(self):
-        token = super(self, ServiceConfigurationCollection).saveToToken()
+        token = super(ServiceConfigurationCollection, self).saveToToken()
         
         if self._serviceConfigurations is not None:
             token[self.SERVICE_CONFIG_MAP_KEY] = tokenizeObject(self._serviceConfigurations)
     
     def initializeFromToken(self, token, context=None):
-        super(self, ServiceConfigurationCollection).initializeFromToken(self, token, context=context)
+        super(ServiceConfigurationCollection, self).initializeFromToken(token, context)
         self._serviceConfigurations = untokenizeObject(token.get(self.SERVICE_CONFIG_MAP_KEY, {}), context)
         
     def getServiceConfiguration(self, configurationName):

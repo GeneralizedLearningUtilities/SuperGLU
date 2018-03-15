@@ -13,6 +13,7 @@ Created on Mar 12, 2018
 '''
 import importlib
 from SuperGLU.Util.Serialization import nativizeObject
+from SuperGLU.Util import Serialization
 
 
 
@@ -82,7 +83,7 @@ class ServiceLauncher():
             fileAsString = self.fileToString(defaultFileName)
             
         
-        result = nativizeObject(fileAsString)
+        result = nativizeObject(fileAsString, None, Serialization.JSON_STANDARD_FORMAT)
         return result
     
     def stopService(self, serviceName):
