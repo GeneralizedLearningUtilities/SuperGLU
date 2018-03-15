@@ -119,6 +119,7 @@ class ServiceConfigurationCollection(Serializable):
         
         if self._serviceConfigurations is not None:
             token[self.SERVICE_CONFIG_MAP_KEY] = tokenizeObject(self._serviceConfigurations)
+        return token
     
     def initializeFromToken(self, token, context=None):
         super(ServiceConfigurationCollection, self).initializeFromToken(token, context)

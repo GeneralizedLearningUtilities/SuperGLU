@@ -70,7 +70,7 @@ def makeSerialized(storageToken, sFormat=JSON_FORMAT):
         return XMLRWFormat.serialize(storageToken)
     elif sFormat == PICKLE_FORMAT:
         return PickleRWFormat.serialize(storageToken)
-    elif sFormat == JSON_STANDARD_FORMAT(storageToken):
+    elif sFormat == JSON_STANDARD_FORMAT:
         return JSONStandardRWFormat.serialize(storageToken)
     else:
         raise TypeError("No serialization format of type: %s"%(sFormat,))
@@ -246,7 +246,7 @@ class Serializable(object, metaclass=SerializableFactoryMetaclass):
 
     @classmethod
     def _registerStorageBridge(cls, bridgeClass, bridgeName=DEFAULT_BRIDGE_NAME):
-         cls._STORAGE_BRIDGES[bridgeName] = bridgeClass
+        cls._STORAGE_BRIDGES[bridgeName] = bridgeClass
 
 
 class NamedSerializable(Serializable):
