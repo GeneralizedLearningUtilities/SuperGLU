@@ -5,10 +5,10 @@ Module for defining messages, which are used to communicate between services
 from datetime import datetime
 #from dateutil import parser
 from SuperGLU.Core.FIPA.SpeechActs import INFORM_ACT, SPEECH_ACT_SET
-from SuperGLU.Util.Serialization import Serializable, tokenizeObject, untokenizeObject, makeSerialized, StorageToken, makeNative
+from SuperGLU.Util.Serialization import SuperGlu_Serializable, tokenizeObject, untokenizeObject, makeSerialized, StorageToken, makeNative
 
 
-class BaseMessage(Serializable):
+class BaseMessage(SuperGlu_Serializable):
     """
     **
      * This class is a superclass for all system messages that are sent and received
@@ -23,20 +23,20 @@ class BaseMessage(Serializable):
         super(BaseMessage, self).__init__(anId)
         if context is None: context = {}
         self._context = context
-     
-    
+
+
     def __eq__(self, other):
         return (isinstance(other, BaseMessage) and
-                self._context == other._context)  
-        
+                self._context == other._context)
+
     def __ne__(self, other):
-        return not self.__eq__(other) 
-    
+        return not self.__eq__(other)
+
     def isEquivalent(self, other):
        return (isinstance(other, BaseMessage) and
-                self._context == other._context)   
-    
-    
+                self._context == other._context)
+
+
     # Serialization
     #---------------------------------------------
     def saveToToken(self):
@@ -45,16 +45,16 @@ class BaseMessage(Serializable):
             token[self.CONTEXT_KEY] = dict([(tokenizeObject(key), tokenizeObject(value))
                                              for key, value in list(self._context.items())])
         return token
-    
+
     def initializeFromToken(self, token, context=None):
         super(BaseMessage, self).initializeFromToken(token, context)
         self._context = untokenizeObject(token.get(self.CONTEXT_KEY, {}))
-        
+
     # Accessors to Custom Context Data
     #-------------------------------------
     def hasContextValue(self, key):
         return key in self._context
-        
+
     def getContext(self):
         return self._context
 
@@ -63,7 +63,7 @@ class BaseMessage(Serializable):
 
     def getContextValue(self, key, default=None):
         return self._context.get(key, default)
-    
+
     def setContextValue(self, key, value):
         self._context[key] = value
 
@@ -80,16 +80,16 @@ class GIFTMessage(BaseMessage):
      * @author auerbach
      */
      """
-     
-     
+
+
     HEADER_KEY = "header"
     PAYLOAD_KEY = "payload"
-     
+
     def __init__(self, header=None, payload=None,  context=None, anId=None):
         super(GIFTMessage, self).__init__(context, anId)
         self._header = header
         self._payload = payload
-     
+
     def saveToToken(self):
         token = super(GIFTMessage, self).saveToToken()
         if self._header is not None:
@@ -102,11 +102,11 @@ class GIFTMessage(BaseMessage):
         super(GIFTMessage, self).initializeFromToken(token, context)
         self._header = untokenizeObject(token.get(self.HEADER_KEY, None))
         self._payload = token.get(self.PAYLOAD_KEY, None)
-        
-        
+
+
     def getHeader(self):
         return self._header
-    
+
     def getPayload(self):
         return self._payload
 
@@ -123,14 +123,14 @@ class VHMessage(BaseMessage):
     FIRST_WORD_KEY = "firstWord"
     VERSION_KEY = "version"
     BODY_KEY = "body"
-    
-    
+
+
     def __init__(self, firstWord=None, body=None, version=None,  context=None, anId=None):
         super(VHMessage, self).__init__(context, anId)
-        self._firstWord = firstWord 
+        self._firstWord = firstWord
         self._version = version
         self._body = body
-     
+
     def saveToToken(self):
         token = super(VHMessage, self).saveToToken()
         if self._firstWord is not None:
@@ -143,14 +143,14 @@ class VHMessage(BaseMessage):
         super(VHMessage, self).initializeFromToken(token, context)
         self._firstWord = untokenizeObject(token.get(self.FIRST_WORD_KEY, None))
         self._body = untokenizeObject(token.get(self.BODY_KEY, None))
-        
-        
+
+
     def getFirstWord(self):
         return self._firstWord
-    
+
     def getBody(self):
         return self._body
-    
+
 
 class Message(BaseMessage):
     """
@@ -213,7 +213,7 @@ class Message(BaseMessage):
         @type anId: str
         """
         super(Message, self).__init__(anId)
-        
+
         self.validateSpeechAct(speechAct)
         self._actor = actor
         self._verb = verb
@@ -226,31 +226,31 @@ class Message(BaseMessage):
     #---------------------------------------------
     def getActor(self):
         return self._actor
-    
+
     def setActor(self, value):
         self._actor = value
 
     def getVerb(self):
         return self._verb
-    
+
     def setVerb(self, value):
         self._verb = value
 
     def getObject(self):
         return self._object
-    
+
     def setObject(self, value):
         self._object = value
 
     def getResult(self):
         return self._result
-    
+
     def setResult(self, value):
         self._result = value
 
     def getSpeechAct(self):
         return self._speechAct
-    
+
     def setSpeechAct(self, value):
         self.validateSpeechAct(value)
         self._speechAct = value
@@ -268,7 +268,7 @@ class Message(BaseMessage):
     def updateTimestamp(self):
         self._timestamp = datetime.now().isoformat()
 
-   
+
     # Operators
     #--------------------------------------
     def __hash__(self):
@@ -278,10 +278,10 @@ class Message(BaseMessage):
         """
         return (hash(Message) ^ hash(self._id) ^ hash(self._actor) ^ hash(self._verb) ^
                 hash(self._object) ^ hash(self._result) ^ hash(self._speechAct) ^ hash(self._timestamp))
-    
+
     def __eq__(self, other):
         return (isinstance(other, Message) and super(Message, self).__eq__(other) and
-                self._id == other._id and self._actor == other._actor and 
+                self._id == other._id and self._actor == other._actor and
                 self._verb == other._verb and self._object == other._object and
                 self._result == other._result and self._speechAct == other._speechAct and
                 self._timestamp == other._timestamp)
@@ -290,7 +290,7 @@ class Message(BaseMessage):
 
     def isEquivalent(self, other):
         return (isinstance(other, Message) and super(Message, self).isEquivaltent(other) and
-                self._actor == other._actor and 
+                self._actor == other._actor and
                 self._verb == other._verb and self._object == other._object and
                 self._result == other._result and self._speechAct == other._speechAct and
                 self._timestamp == other._timestamp)
@@ -305,7 +305,7 @@ class Message(BaseMessage):
         data = [makeSerialized(token.get(h, ''), sFormat) for h in headers]
         data += [makeSerialized(self.getContextValue(h,''), sFormat) for h in context]
         data += [makeSerialized(token.get(self.CONTEXT_KEY,{}), sFormat)]
-        return data 
+        return data
 
     #if something went wrong return false , otherwise return true and the data already in the self object
     @classmethod
@@ -327,7 +327,7 @@ class Message(BaseMessage):
         msg = cls()
         msg.initializeFromToken(token)
         return msg
-        
+
     def makeTinCanMessage(self, protocolData=None):
         """
         Create an xAPI-compliant (Tin Can API) version of this message
@@ -368,4 +368,3 @@ class Message(BaseMessage):
         self._result = untokenizeObject(token.get(self.RESULT_KEY, None))
         self._speechAct = untokenizeObject(token.get(self.SPEECH_ACT_KEY, None))
         self._timestamp = untokenizeObject(token.get(self.TIMESTAMP_KEY, None))
-        

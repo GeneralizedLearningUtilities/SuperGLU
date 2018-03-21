@@ -1,7 +1,7 @@
 import re
 import random
 from SuperGLU.Services.TextProcessing.Utilities.ASATSerialization import ASATSerializable
-from SuperGLU.Util.Serialization import NamedSerializable, Serializable, tokenizeObject, untokenizeObject
+from SuperGLU.Util.Serialization import NamedSerializable, SuperGlu_Serializable, tokenizeObject, untokenizeObject
 
 
 class BaseSpeechType(object):
@@ -24,9 +24,9 @@ class BaseSpeechType(object):
 
     def setUtteranceValue(self, value, speechType=None, language=None):
         raise NotImplementedError
-     
 
-class UtteranceContainer(BaseSpeechType, Serializable, ASATSerializable):
+
+class UtteranceContainer(BaseSpeechType, SuperGlu_Serializable, ASATSerializable):
     """ Representations of a certain verbal statement """
 
     DEFAULT_LANGUAGE = "EN-US"
@@ -99,7 +99,7 @@ class UtteranceContainer(BaseSpeechType, Serializable, ASATSerializable):
             return utterances[speechType]
         else:
             return None
-        
+
 
     def setUtteranceValue(self, value, speechType=None, language=None):
         if language is None:
@@ -179,16 +179,16 @@ class UtteranceType(UtteranceContainer):
         """
         super(UtteranceType, self).__init__(text=text, speech=speech, language=language, languageMap=languageMap)
         # CHECKME: add __eq__ or use UtteranceContainer's?
-        
+
     def __str__(self):
-        return '<text: ' + str(self._languageMap) + '>'        
+        return '<text: ' + str(self._languageMap) + '>'
 
 # TESTME: Added implementation to JS file, test!
 # TODO: add serialization tests
 class KeywordType(UtteranceContainer):
     """ A keyword or regular expression for matching purposes """
     TYPE_ORDERING = (UtteranceContainer.REGEX_TYPE, UtteranceContainer.TEXT_TYPE)
-    
+
     def __init__(self, text=None, regex=None, language=UtteranceContainer.DEFAULT_LANGUAGE, languageMap=None):
         """
         Initialize the keyword.  If text and regex values are given,
@@ -238,7 +238,7 @@ class ParameterizedUtteranceType(UtteranceType): # TODO add serialization tests?
     NATIVE_END_DELIMETER = '}'
     STORAGE_START_DELIMETER = NATIVE_START_DELIMETER
     STORAGE_END_DELIMETER = NATIVE_END_DELIMETER
-    
+
     def __init__(self, text=None, speech=None, language=UtteranceContainer.DEFAULT_LANGUAGE,
                  languageMap=None, parameterNames=None):
         """
@@ -277,7 +277,7 @@ class ParameterizedUtteranceType(UtteranceType): # TODO add serialization tests?
         self._parameterNames = untokenizeObject(token["parameterNames"])
 
 
-class SpeechActType(Serializable, ASATSerializable):
+class SpeechActType(SuperGlu_Serializable, ASATSerializable):
     """
     A speech act classifier using a set of keywords/regex
     Note: Complies with ASAT XSD
@@ -353,7 +353,7 @@ class SpeechCan(BaseSpeechType, NamedSerializable, ASATSerializable):
     A speech can which selects an utterance from a set of options
     Note: Complies with ASAT XSD
     """
-    
+
     def __init__(self, utterances=None, name=None, description=None):
         """
         Initialize the speech can.
@@ -380,7 +380,7 @@ class SpeechCan(BaseSpeechType, NamedSerializable, ASATSerializable):
 
     def __ne__(self, other):
         return not self.__eq__(other)
-    
+
     def __str__(self):
         return '<name: ' + self._name + ', description: ' + self._description + ', utterances: ' + str(self._utterances) + '>'
 
@@ -438,7 +438,7 @@ if __name__ == '__main__':
     dat = x.getASATData("UtteranceType")
     x.loadFromASATData(dat)
     y1 = UtteranceContainer.createFromASATData(dat)
-    
+
     xmlStr = x.outputASATDataStr("UtteranceType")
     x.loadFromASATDataStr(xmlStr)
     y2 = UtteranceContainer.createFromASATDataStr(xmlStr)

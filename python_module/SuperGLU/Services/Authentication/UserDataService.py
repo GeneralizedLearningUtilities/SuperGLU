@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
 
-from SuperGLU.Util.Serialization import Serializable, StorageToken, untokenizeObject
+from SuperGLU.Util.Serialization import SuperGlu_Serializable, StorageToken, untokenizeObject
 from SuperGLU.Util.SerializationDB import DBSerialized
 from SuperGLU.Core.FIPA.SpeechActs import (INFORM_ACT, REQUEST_ACT,
     NOT_UNDERSTOOD_ACT, CONFIRM_ACT, DISCONFIRM_ACT)
@@ -35,12 +35,12 @@ class UserDataService(BaseService):
 
     # Message format: ServiceName, Verb, (Key), (ReturnVal), Inform/Req,
     #                 Context: UserContext, (UserId/UserName)
-    
+
     def receiveMessage(self, msg):
         if msg.getActor() != UserDataService.USER_SERVICE_NAME:
             return
         #Find and call the action, w/ exceptions as error messages
-        action = self.mapMsg(msg)        
+        action = self.mapMsg(msg)
         try:
             response = action(msg)
             if response:
@@ -73,7 +73,7 @@ class UserDataService(BaseService):
 
     def defaultAction(self, msg):
         return None
-    
+
     def _findContext(self, msg, errorOnMissing=True):
         """Find and return the context matching the msg - throw an exception on error"""
         ctxId = msg.getContextValue(CONTEXT_USER_CONTEXT, None)
@@ -89,7 +89,7 @@ class UserDataService(BaseService):
     def hasContext(self, msg):
         ctx = self._findContext(msg, False)
         hasContext = ctx is not None
-        return self.makeResponse(msg, hasContext, INFORM_ACT) 
+        return self.makeResponse(msg, hasContext, INFORM_ACT)
 
     def makeContext(self, msg):
         ctxName = msg.getContextValue(CONTEXT_USER_CONTEXT, None)
@@ -108,9 +108,9 @@ class UserDataService(BaseService):
         elif not hasContext and ctx:
             # Disallow deleting contexts from here
             return self.makeResponse(msg, False, DISCONFIRM_ACT)
-        else: 
+        else:
             return self.makeResponse(msg, False, CONFIRM_ACT)
-    
+
     def readContext(self, msg):
         ctx = self._findContext(msg)
         #NOTE that we ONLY get the prefs that go with the context name
@@ -129,7 +129,7 @@ class UserDataService(BaseService):
                    'users': users,
                    'prefs': prefs}
         return self.makeResponse(msg, outData, INFORM_ACT)
-        
+
     def readContextKeys(self, msg):
         ctx = self._findContext(msg)
         userId = self.extractUserId(msg, False)
@@ -137,7 +137,7 @@ class UserDataService(BaseService):
             return self.makeResponse(msg, ctx.getPrefKeys(), INFORM_ACT)
         else:
             return self.readContextUserKeys(msg)
-    
+
     def readContextValue(self, msg):
         ctx = self._findContext(msg)
         userId = self.extractUserId(msg, False)
@@ -150,7 +150,7 @@ class UserDataService(BaseService):
             return self.makeResponse(msg, ctx.getPrefValue(key, ""), INFORM_ACT)
         else:
             return self.readContextUserVal(msg)
-    
+
     def writeContextValue(self, msg):
         ctx = self._findContext(msg)
         userId = self.extractUserId(msg, False)
@@ -164,7 +164,7 @@ class UserDataService(BaseService):
             return self.makeResponse(msg, True, CONFIRM_ACT)
         else:
             return self.writeContextUserVal(msg)
-    
+
     def readContextUser(self, msg):
         ctx = self._findContext(msg)
         userId = self.extractUserId(msg)
@@ -201,7 +201,7 @@ class UserDataService(BaseService):
             return False
         else:
             return True
-    
+
     def readContextUserKeys(self, msg):
         ctx = self._findContext(msg)
         userId = self.extractUserId(msg)
@@ -223,7 +223,7 @@ class UserDataService(BaseService):
             raise ProcessingExcept("No user context pref key found")
         userId = self.extractUserId(msg)
         if userId == '':
-            return self.makeResponse(msg, '', INFORM_ACT) #Anonymous  
+            return self.makeResponse(msg, '', INFORM_ACT) #Anonymous
         usr = UserData.read(userId)
         if not usr:
             ctxId = msg.getContextValue(CONTEXT_USER_CONTEXT, None)
@@ -263,25 +263,25 @@ class UserDataService(BaseService):
             resp = self.makeResponse(msg, None, INFORM_ACT)
             resp.setVerb("HOLLA BACK")
             return resp
-        
+
         #Special, hacky case: create an experiment context
         dt = datetime.now().isoformat()
-        
+
         #Look by ID and name (we're expecting name)
         ctx = UserContext.findContext("DemoExperiment")
         if not ctx:
             ctx = UserContext(name="DemoExperiment")
             ctx.setPrefValue("ContextCreated", dt)
-        
+
         ctx.setPrefValue("ContextUpdated", dt)
-        
+
         #Add all users (and set an experimental context variable for them)
         for user in UserData.objects():
             user.setPrefValue(ctx.getName(), "UserAdded", dt)
             user.save()
             ctx.addUser(user.getId())
         ctx.save()
-        
+
         resp = self.makeResponse(msg, None, INFORM_ACT)
         resp.setVerb("HOLLA BACK")
         resp.setSpeechAct(resp.getSpeechAct() + " => Created context " + ctx.getId())
@@ -292,15 +292,15 @@ class UserDataService(BaseService):
         useAuth = msg.getContextValue(CONTEXT_USER_AUTH_FALLBACK, True)
 
         # Remember our Core Server decorates messages with the current user
-        # Note that we default to '' (not None) for the anonymous user        
+        # Note that we default to '' (not None) for the anonymous user
         if not userId and useAuth:
             userId = msg.getContextValue(Message.AUTHENTICATION_KEY, '')
-        
+
         # Note that we allow empty string (anon current user)
         if userId is None and errorOnMissing:
             raise ProcessingExcept("No user ID specified")
         return userId
-    
+
     def makeResponse(self, request, value=None, speechAct=INFORM_ACT):
         oldId = request.getId()
         response = request.clone()
@@ -310,7 +310,7 @@ class UserDataService(BaseService):
             response.setResult(value)
         response.updateTimestamp()
         return response
-    
+
     def makeErrorResponse(self, request, errMsg):
         response = self.makeResponse(request, None, NOT_UNDERSTOOD_ACT)
         response.setContextValue(CONTEXT_ERROR, errMsg)

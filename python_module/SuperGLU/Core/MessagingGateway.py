@@ -6,7 +6,7 @@ from queue import Queue
 from SuperGLU.Core.FIPA.SpeechActs import REQUEST_WHENEVER_ACT
 from SuperGLU.Core.Messaging import Message
 from SuperGLU.Util.ErrorHandling import logError, logWarning
-from SuperGLU.Util.Serialization import (Serializable, serializeObject,
+from SuperGLU.Util.Serialization import (SuperGlu_Serializable, serializeObject,
                             nativizeObject)
 import datetime
 import stomp
@@ -20,7 +20,7 @@ SESSION_KEY = 'sessionId'
 ORIGINATING_SERVICE_ID_KEY = 'originatingServiceId'
 USE_BLACK_WHITE_LIST = True
 
-class BaseMessagingNode(Serializable):
+class BaseMessagingNode(SuperGlu_Serializable):
     """ Base class for messaging """
 
     def __init__(self, anId=None, gateway=None, authenticator=None, nodes=[], blackList=[], whiteList=[]):
@@ -30,24 +30,24 @@ class BaseMessagingNode(Serializable):
         if gateway is not None:
             self.bindToGateway(gateway)
         self._requests = {}
-        
+
         if nodes is None: nodes = []
         self._nodes = {}
-        
+
         self.addNodes(nodes)
-        
+
         #don't allow null values for the black and white list
         #not sure if this is necessary but it won't hurt
         if blackList is None:
             blackList = []
-        
+
         if whiteList is None:
             whiteList = []
-            
+
         self._blackList = blackList
         self._whiteList = whiteList
-        
-        
+
+
     # Manage Child Nodes
     def addNodes(self, nodes):
         for node in nodes:
@@ -59,7 +59,7 @@ class BaseMessagingNode(Serializable):
     def register(self, node):
         """ Register the signatures of messages that the node is interested in """
         self._nodes[node.getId()] = (node.getMessageConditions(), node)
-    
+
     def unregister(self, node):
         """ Take actions to remove the node from the list """
         if node.getId() in self._nodes:
@@ -67,19 +67,19 @@ class BaseMessagingNode(Serializable):
 
     def acceptIncomingMessage(self, msg):
         result = True
-        
+
         if USE_BLACK_WHITE_LIST:
             for entry in self._whiteList:
                 if entry.evaluateMessage(msg):
                     result = True
                     break
-                
+
             for entry in self._blackList:
                 if entry.evaluateMessage(msg):
                     result = False
                     break
         return result
-    
+
     def sendMessage(self, msg):
         print("%s sending %s"%(self.__class__.__name__, msg))
         if self._gateway is not None:
@@ -95,11 +95,11 @@ class BaseMessagingNode(Serializable):
         self.unbindToGateway()
         self._gateway = gateway
         self._gateway.register(self)
-    
+
     def unbindToGateway(self):
         if self._gateway is not None:
             self._gateway.unregister(self)
-    
+
     def getMessageConditions(self):
         """ Function to check if this node is interested in this message type """
         return None
@@ -114,7 +114,7 @@ class BaseMessagingNode(Serializable):
     def _makeRequest(self, msg, callback):
         self._addRequest(msg, callback)
         self.sendMessage(msg)
-    
+
     def _triggerRequests(self, msg):
         convoId = msg.getContextValue(Message.CONTEXT_CONVERSATION_ID_KEY, None)
         if convoId is not None and convoId in self._requests:
@@ -125,7 +125,7 @@ class BaseMessagingNode(Serializable):
             # Remove from the requests, unless asked for a permanent feed
             if oldMsg.getSpeechAct() != REQUEST_WHENEVER_ACT:
                 del self._requests[key]
-                
+
     def _createRequestReply(self, msg):
         oldId = msg.getId()
         msg = msg.clone()
@@ -136,7 +136,7 @@ class BaseMessagingNode(Serializable):
     # Pack/Unpack Messages
     def messageToString(self, msg):
         return serializeObject(msg)
-    
+
     def stringToMessage(self, msg):
         if (CATCH_BAD_MESSAGES):
             try:
@@ -163,9 +163,9 @@ class MessagingGateway(BaseMessagingNode):
             super(MessagingGateway, self).__init__(anId, gateway, authenticator, nodes, serviceConfiguration.getBlackList(), serviceConfiguration.getWhiteList)
         else:
             super(MessagingGateway, self).__init__(anId, gateway, nodes, authenticator)
-        
+
         self._scope = scope
-        
+
         #TODO: read in from service configuration when it's ready
         self._gatewayBlackList = {}
         self._gatewayWhiteList = {}
@@ -175,7 +175,7 @@ class MessagingGateway(BaseMessagingNode):
         """ When gateway receives a message, it distributes it to child nodes """
         super(MessagingGateway, self).receiveMessage(msg)
         self.distributeMessage(msg, None)
-    
+
     # Relay Messages
     def dispatchMessage(self, msg, senderId=None):
         """ Send a message from a child node to parent and sibling nodes """
@@ -187,7 +187,7 @@ class MessagingGateway(BaseMessagingNode):
         logWarning("Message DISPATCH SENT: %s"%(msg,))
         self._distributeMessage(self._nodes, msg, senderId)
         logWarning("Message DISTRIBUTED: %s"%(msg,))
-    
+
     def distributeMessage(self, msg, senderId=None):
         """ Pass a message down all interested children (except sender) """
         self._distributeMessage(self._nodes, msg, senderId)
@@ -206,14 +206,14 @@ class MessagingGateway(BaseMessagingNode):
         for key in self._scope:
             if not msg.hasContextValue(key):
                 msg.setContextValue(key, self._scope[key]);
-                
-                
+
+
     def isMessageOnDestinationList(self, entries, msg):
         if entries is not None:
             for entry in entries:
                 if entry.evaluateMessage(msg):
                     return True
-        
+
         return False
 
     def isMessageOnGatewayBlackList(self, destination, msg):
@@ -223,7 +223,7 @@ class MessagingGateway(BaseMessagingNode):
         allDestinationEntries = self._gatewayBlackList[GatewayBlackWhiteListConfiguration.ALL_DESTINATIONS]
         result = result or self.isMessageOnDestinationList(allDestinationEntries, msg)
         return result
-    
+
     def isMessageOnGatewayWhiteList(self, destination, msg):
         destinationId = destination.getId()
         entries = self._gatewayWhiteList[destinationId]
@@ -240,7 +240,7 @@ class MessagingGateway(BaseMessagingNode):
         allDestinationEntries = self._gatewayWhiteList[GatewayBlackWhiteListConfiguration.ALL_DESTINATIONS]
         result = result or self.isMessageOnDestinationList(allDestinationEntries, msg)
         return result;
-    
+
     def isMessageOnGatewayExternalBlackList(self, msg):
         if not USE_BLACK_WHITE_LIST:
             return False
@@ -251,31 +251,31 @@ class MessagingGateway(BaseMessagingNode):
         return result;
 
 class ActiveMQTopicMessagingGateway(MessagingGateway):
-    
-    
+
+
     TOPIC_LABEL = "/topic/"
-    
+
     #This property defines to which system the activeMQ message belongs.
     MESSAGE_SYSTEM_NAME = "SYSTEM_NAME";
-    
+
     #this is the identifier for SUPERGLU messages
     SUPERGLU = "SUPERGLU_MSG";
     VHMSG = "VHMSG_MSG"; #Identifier for virtual human messages
     GIFT = "GIFT_MSG"; #Identifer for GIFT messages
-    
+
     MESSAGE_TYPE = "MESSAGE_TYPE"
 
-    
-    
+
+
     def __init__(self, anId=None, nodes=None, gateway=None, authenticator=None, scope=None, server = "localhost", port = "61613", AMQscope = "*"):
         super(ActiveMQTopicMessagingGateway, self).__init__(anId, nodes, gateway, authenticator, scope)
         self.m_port   = port
         self.m_AMQscope  = AMQscope
         self.m_server = server
-        
+
         self.openConnection()
-    
-    
+
+
     #returns boolean
     def openConnection(self):
         if self.m_isOpen:
@@ -288,29 +288,29 @@ class ActiveMQTopicMessagingGateway(MessagingGateway):
                     self.m_AMQscope = "*"
                 if self.m_port is None or self.m_port is '':
                     self.m_port = "61613"
-                    
+
                 self.m_connection = stomp.Connection10([(self.m_server, int(self.m_port))])
                 self.m_connection.set_listener('stomp_listener', self)
                 self.m_connection.start()
                 self.m_connection.connect()
                 self.m_connection.subscribe(self.TOPIC_LABEL + self.m_scope)
-        
+
                 self.m_isOpen = True
-                
+
                 return True
             except Exception:
                 print("Connection timed Out, waiting for ActiveMQ")
-    
-    
+
+
     def on_message(self, headers, msg):
         msg = urllib.parse.unquote(msg)
         msg = msg.replace("+", " ")
-        
+
         #Only handle superglu messages like this.  for the moment we will ignore other message types until the ontology broker is ready
         if self.MESSAGE_SYSTEM_NAME in headers:
             if headers[self.MESSAGE_SYSTEM_NAME] == self.SUPERGLU:
-            
-                try: 
+
+                try:
                     msg = nativizeObject(msg)
                     if isinstance(msg, Message):
                         if self._gateway is not None:
@@ -319,15 +319,15 @@ class ActiveMQTopicMessagingGateway(MessagingGateway):
                 except Exception as err:
                     print("ActiveMQ message was unable to be parsed")
                     logError(err, stack=traceback.format_exc())
-             
-    
+
+
     def sendMessage(self, msg):
-        
+
         if self.isMessageOnGatewayExternalBlackList(msg):
             return
-        
+
         if self.isMessageOnGatewayExternalWhiteList(msg):
-        
+
             MessagingGateway.sendMessage(self, msg)
             if self.m_connection is None:
                 return False
@@ -343,16 +343,16 @@ class ActiveMQTopicMessagingGateway(MessagingGateway):
                 msgAsString = serializeObject(msg.getPayload())
                 headers = {self.MESSAGE_TYPE : "GIFT_MSG", "Encoding" : 0}
                 self.m_connection.send(destination=self.TOPIC_LABEL + self.m_scope, body=msgAsString, headers=headers, content_type="text/plain")
-                
-        return True
-        
-    
-    #receiving messages is handled by the on_message function, so we don't need to override the receiveMessage function 
-        
-    
 
-            
-            
+        return True
+
+
+    #receiving messages is handled by the on_message function, so we don't need to override the receiveMessage function
+
+
+
+
+
 class HTTPMessagingGateway(MessagingGateway):
     MESSAGES_KEY = 'message'
     DATA_KEY = 'data'
@@ -384,10 +384,10 @@ class HTTPMessagingGateway(MessagingGateway):
 
     def queueAJAXMessage(self, msg):
         #logWarning("QUEUE MSG", msg.saveToSerialized())
-        
+
         if self.isMessageOnGatewayExternalBlackList(msg):
             return
-        
+
         if self.isMessageOnGatewayExternalWhiteList(msg):
             try:
                 sessionId = msg.getContextValue(SESSION_KEY, None)
@@ -407,7 +407,7 @@ class HTTPMessagingGateway(MessagingGateway):
         if self.DATA_KEY in msg:
             sessionId = msg.get(SESSION_KEY, None)
             #if sessionId is not None and len(self._socketioModule.rooms()) == 0:
-            self._socketio.server.enter_room(sid, sessionId, self.MESSAGES_NAMESPACE)             
+            self._socketio.server.enter_room(sid, sessionId, self.MESSAGES_NAMESPACE)
             # Wrap in a try/except
             msg = self.stringToMessage(msg[self.DATA_KEY])
             msg.setContextValue("sid", sid)
@@ -433,7 +433,7 @@ class HTTPMessagingGateway(MessagingGateway):
                     self._socketio.emit(msgKey, {dataKey: msg, sessionKey: sessionId}, namespace=messagesNS, room=sessionId)
                 else:
                     logWarning("Could not find room %s (Message was: %s)"%(sessionId, msg))
-                
+
 
 class BaseService(BaseMessagingNode):
     pass
@@ -442,16 +442,16 @@ class TestService(BaseService):
 
     def receiveMessage(self, msg):
         logWarning("TEST SERVICE GOT: \n", self.messageToString(msg))
-        
+
         default = "{{missing}}"
-        
+
         authKey = msg.getContextValue(Message.AUTHENTICATION_KEY, default)
         logWarning(" ===> authN:[%s], authZ:[%s], ShouldBeBlank:[%s] <=== " % (
             authKey,
             msg.getContextValue(Message.AUTHORIZATION_KEY, default),
             msg.getContextValue('BE-BLANK', default),
         ))
-        
+
         if authKey:
             try:
                 from AWS_Core_Services.Authentication.UserData import UserData
@@ -462,8 +462,8 @@ class TestService(BaseService):
                     logWarning("USER IN MESSAGE: {{{NONE}}}")
             except:
                 pass
-            
-        
+
+
         super(TestService, self).receiveMessage(msg)
 
     def sendTestString(self, aStr):

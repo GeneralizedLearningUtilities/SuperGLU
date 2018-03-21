@@ -15,7 +15,7 @@ The following objects are included:
     * ReadWriteChecking: class decorator for unittest.TestCase's that adds
       two helpful asserts for unit testing Serializable's that are decorated
       with DBSerialized
-    
+
 Basic usage would include start configuration and decorating classes
 with DBSerialized.  On startup you would configure the wrapper you
 wanted and then configure the wrapper factory.  For instance, if you
@@ -23,38 +23,38 @@ were to use the MongoDB wrapper:
 
     MONGO_URI = "mongodb://127.0.0.1:27017/mydb"
     SerializableMongoWrapper.configureConnection(MONGO_URI)
-    
+
     def makeMongo(collection):
         return SerializableMongoWrapper(collection)
-    
+
     SerializableDBWrapper.setWrapperFactory(makeMongo)
 
 Then you can decorate Serializable classes and use the helper methods:
 
     @DBSerialized("Entities")
-    class MyEntity(Serializable):
+    class MyEntity(SuperGlu_Serializable):
         def __init__(self, value=None):
             super(MyEntity, self).__init__()
             self._value = value;
-        
+
         def initializeFromToken(self, token, context=None):
             super(MyEntity, self).initializeFromToken(token, context)
             self._value = token.__getitem__('value', True, None)
-        
+
         def saveToToken(self):
             token = super(MyEntity, self).saveToToken()
             token['value'] = self._value
             return token
-    
+
     #Create
     x = MyEntity('x')
     x.save()
-    
+
     #Read/Update
     y = MyEntity.read(x.getId())
     y._value = 'y'
     y.save()
-    
+
     #Iterate
     for i in MyEntity.objects():
         print i.getId(), i._value
@@ -90,7 +90,7 @@ from SuperGLU.Util.Serialization import (
     nativizeObject,
     makeSerialized,
     makeNative,
-    Serializable,
+    SuperGlu_Serializable,
 )
 
 from SuperGLU.Util.Attr import get_prop
@@ -115,19 +115,19 @@ class SerializableDBWrapper(object):
     _find, _save, getKeys, and getObjects.  Unless otherwise specified,
     objects returned from the database will be nativized (i.e. not in
     the DB format or in StorageToken form
-    
+
     This class is also the home of the wrapper factory used by classes
     decorated with the DBSerialized decorator.  It will be called lazily,
     but it needs to be set before using any of the methods supplied by
     the decorator.  IMPORTANT: currently it can only be set once at
     startup.  In-flight reconfiguration is not currently supported """
-    
+
     WRAPPER_FACTORY = None
-    
+
     @classmethod
     def setWrapperFactory(cls, aCallable):
         cls.WRAPPER_FACTORY = staticmethod(aCallable)
-    
+
     def __init__(self, connection, collection=DEFAULT_SERIALIZABLES_COLLECTION):
         self._connection = connection
         self._collectionName = collection
@@ -161,7 +161,7 @@ class SerializableDBWrapper(object):
         """ Find and return a single object
         @param key the key to be used for locating the object in the DB """
         raise NotImplementedError
-    
+
     def _save(self, obj):
         """ Persist a single object to the database.  Note that implementers
         are probably going to want to call tokenizeObject on obj relatively
@@ -177,7 +177,7 @@ class SerializableDBWrapper(object):
         function will be called for you automatically.
         @param a class that implements Serializable"""
         raise NotImplementedError
-    
+
     def _listIndexes(self, cls):
         """ Helper to examine the given class and identifying all index
         names.  Note that the meaning of the name is probably a field in
@@ -190,23 +190,23 @@ class SerializableDBWrapper(object):
 
 class SerializableMongoWrapper(SerializableDBWrapper):
     """ Concrete implmentation of SerializableDBWrapper for using MongoDB
-    as the datastore (via pymongo). 
-    
+    as the datastore (via pymongo).
+
     Please note that SerializableMongoWrapper.configureConnection should
     be called with the correct MongoDB URI as specified by
     http://api.mongodb.org/java/current/com/mongodb/MongoURI.html"""
-    
+
     #Per the pymongo docs, we should use the same MongoClient (which
     #has concurrency support and connection pooling)
     CLIENT = None
-    
+
     @classmethod
     def configureConnection(cls, uri):
         if uri:
             SerializableMongoWrapper.CLIENT = MongoClient(uri)
         else:
             SerializableMongoWrapper.CLIENT = None
-    
+
     def __init__(self, collection=DEFAULT_SERIALIZABLES_COLLECTION):
         """ Note that the class method SerializableMongoWrapper.configureConnection
         should be called before creating an instance of this wrapper
@@ -214,7 +214,7 @@ class SerializableMongoWrapper(SerializableDBWrapper):
         super(SerializableMongoWrapper, self).__init__(self.CLIENT, collection)
         self._db = self._connection.get_default_database()
         self._collection = self._db[self._collectionName]
-    
+
     def getKeys(self, **kwrdQuery):
         if kwrdQuery:
             query = kwrdQuery
@@ -234,13 +234,13 @@ class SerializableMongoWrapper(SerializableDBWrapper):
         work is removing anything added as part of the _save routine """
         if not dbobj:
             return None
-        
+
         #Remove mods done in _save... including the index names we add
         #as top-level properties.  Basically, remove everything but the
         #classId key:
         if MONGO_ID_KEY in dbobj:
             del dbobj[MONGO_ID_KEY]
-        
+
         classId = dbobj.get(CLASS_ID_KEY, None)
         if classId:
             del dbobj[CLASS_ID_KEY]
@@ -248,7 +248,7 @@ class SerializableMongoWrapper(SerializableDBWrapper):
             keys.remove(classId) #the actual class id - not the literal
             for k in keys:
                 del dbobj[k]
-        
+
         js = json.dumps(dbobj)
         return nativizeObject(js)
 
@@ -256,16 +256,16 @@ class SerializableMongoWrapper(SerializableDBWrapper):
         """Each string in the class variable INDEXES will be treated as
         an index field name and will be stored as a top-level property
         in Mongo DB.  Indexes are checked by calling ensure_index.  Note
-        that the property values are extracted from the object via 
+        that the property values are extracted from the object via
         Util.Attr.get_prop so you have options for naming.  Finally, the
         index names id, _id, and classId are automatically removed from
         the index list, but _id and classId will always be indexed."""
-        
+
         #Note that we force indexing on classId - because we add
         #it for all objects
         for key in list(self._listIndexes(cls)) + [CLASS_ID_KEY]:
             self._collection.ensure_index(key)
-    
+
     #Override - we return a set instead of a list (no dups!) with our
     #disallowed index names removed.
     def _listIndexes(self, cls):
@@ -275,7 +275,7 @@ class SerializableMongoWrapper(SerializableDBWrapper):
     def _find(self, key):
         dbobj = self._collection.find_one({MONGO_ID_KEY : key})
         return self.nativizeReadObject(dbobj)
-    
+
     def _save(self, obj):
         if obj.getId() is None:
             obj.updateId()
@@ -284,13 +284,13 @@ class SerializableMongoWrapper(SerializableDBWrapper):
         dbobj = json.loads(js)
         dbobj[MONGO_ID_KEY] = token.getId()
         dbobj[CLASS_ID_KEY] = token.getClassId()
-        
+
         #Set index values - note that we use the original object and
         #not the token
         idxList = self._listIndexes(obj.__class__)
         for indexName in idxList:
             dbobj[indexName] = get_prop(obj, indexName)
-        
+
         self._collection.update({MONGO_ID_KEY: dbobj[MONGO_ID_KEY]}, dbobj, upsert=True)
 
 
@@ -315,7 +315,7 @@ def _lazyWrapper(cls):
     if not cls._dbWrapper:
         global _lazyWrapperClasses
         _lazyWrapperClasses.add(cls)
-        
+
         cls._dbWrapper = SerializableDBWrapper.WRAPPER_FACTORY(*cls._dbFactoryArgs)
         try:
             cls._dbWrapper.checkIndexes(cls)
@@ -352,28 +352,28 @@ def DBSerialized(*factoryArgs):
     """ Decorates a Serializable class. The decorated class gets an instance
     method save and the classmethods read, objects, and keys. These four
     methods correspond to the SerializableMongoWrapper methods save, read,
-    getObjects, and getKeys respectively.  
-    
+    getObjects, and getKeys respectively.
+
     NOTE that the collection used is optional, but that means that the
     decorator is parameterized. If you wish to use the default collection
     (which is the class ID of the decorated Serializable), then you must
     append empty parentheses to your class def's decorator:
-        
+
         #MySerial().save() will save to a collection name MySerial in the
         #database connected to via the factory-generated wrapper created
         #by the factory passed to SerializableDBWrapper.setWrapperFactory
         #on startup
         @DBSerialized()
-        class MySerial(Serializable):
+        class MySerial(SuperGlu_Serializable):
             ...
-    
+
     Note that if the class supports indexing (has the class level variable
     INDEXES), then wrapper.checkIndexes will be called when init happens
     """
-    def decorator(aClass):       
-        if not issubclass(aClass, Serializable):
+    def decorator(aClass):
+        if not issubclass(aClass, SuperGlu_Serializable):
             raise NotImplementedError("%s is not a subclass of Serializable" % aClass)
-        
+
         #Hacky cheat - if they don't specify a collection, we'll use the
         #class ID as the collection name - note that we are relying on
         #the fact that the Mongo factory has single argument and that it
@@ -381,7 +381,7 @@ def DBSerialized(*factoryArgs):
         realArgs = factoryArgs
         if aClass.CLASS_ID and not factoryArgs:
             realArgs = [aClass.CLASS_ID]
-        
+
         aClass._dbWrapper = None
         aClass._dbFactoryArgs = tuple(realArgs)
         aClass._lazyWrapper = classmethod(_lazyWrapper)
@@ -389,7 +389,7 @@ def DBSerialized(*factoryArgs):
         aClass.read = classmethod(_read)
         aClass.objects = classmethod(_objects)
         aClass.keys = classmethod(_keys)
-        
+
         return aClass
     return decorator
 
@@ -409,17 +409,17 @@ def _assertReadWrite(self, obj):
 def ReadWriteChecking(aClass):
     """Decorates a class descending from unittest.TestCase.  It provides
     two new assertions:
-    
+
       * assertSerialEquals(self, obj1, obj2) checks the two specified
         Serializable instances for equality AND that their tokeninzed states
         are equal as well. Note that this will work with any Serializable,
         not just classes decorated with DBSerialized
-     
+
       * assertReadWrite(self, obj) checks that the specified instance of
         a Serializable equals a copy made by saving the instances and then
         reading it back.  Note that this requires that the object be a
         Serializable AND be decorated by DBSerialized
-     
+
     Please see AWS_Core_Services/Tests/AuthUser_UnitTests.py for an
     example of usage
     """
@@ -428,7 +428,7 @@ def ReadWriteChecking(aClass):
 
     if not issubclass(aClass, unittest.TestCase):
         raise NotImplementedError("%s is not a subclass of unittest.TestCase" % str(aClass))
-    
+
     aClass.assertSerialEquals = _assertSerialEquals
     aClass.assertReadWrite = _assertReadWrite
     return aClass

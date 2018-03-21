@@ -2,7 +2,7 @@ import hashlib
 from datetime import datetime
 from icalendar import Calendar
 from gludb.simple import DBObject, Field, Index
-from SuperGLU.Util.Serialization import Serializable, tokenizeObject, untokenizeObject, makeSerialized
+from SuperGLU.Util.Serialization import SuperGlu_Serializable, tokenizeObject, untokenizeObject, makeSerialized
 from SuperGLU.Services.QueryService.Queries import getKCsForAGivenUserAndTask, getAllHintsForSingleUserAndTask, getAllFeedbackForSingleUserAndTask
 from SuperGLU.Util.ErrorHandling import logInfo
 from SuperGLU.Util.SerializationGLUDB import DBSerializable, GLUDB_BRIDGE_NAME
@@ -23,13 +23,13 @@ def initDerivedDataTables():
     DBClass.ensure_table()
     DBStudentModel.ensure_table()
     DBClassModel.ensure_table()
-    DBStudentAlias.ensure_table()   
+    DBStudentAlias.ensure_table()
     DBKCTaskAssociations.ensure_table()
     DBAssistmentsItem.ensure_table()
     DBClasssAlias.ensure_table()
     DBLoggedMessage.ensure_table()
     DBCalendarData.ensure_table()
-    
+
 
 @DBObject(table_name="Systems")
 class DBSystem(object):
@@ -45,10 +45,10 @@ class DBSystem(object):
     taskListURL       = Field('')
     deliveryURL       = Field('')
     authenticationURL = Field('')
-    
+
     #Non-persistant fields
     taskCache = []
-    
+
     def __repr__(self):
         return self.uuid + "|" + str(self.ids) + "|" + self.name + "|" + str(self.contactEmails) + "|" + self.description + "|" + str(self.metadata) + "|" + str(self.tasks) + "|" + self.baseURL + "|" + self.authoringURL + "|" + self.taskListURL + "|" + self.deliveryURL + "|" + self.authenticationURL
 
@@ -56,7 +56,7 @@ class DBSystem(object):
         if not useCachedValue:
             self.taskCache = [DBTask.find_by_index("taskIdIndex", x)  for x in self.tasks]
         return self.taskCache
-    
+
     def addTasks(self, newTask):
         if newTask is None:
             return #don't bother adding null values
@@ -66,8 +66,8 @@ class DBSystem(object):
         self.tasks.append(newTask.id)
 
 
-class SerializableAssistmentsItem(Serializable):
-    
+class SerializableAssistmentsItem(SuperGlu_Serializable):
+
     #Keys
     ITEM_ID_KEY = 'itemId'
     PROBLEM_SET_ID_KEY = 'problemSetId'
@@ -106,7 +106,7 @@ class SerializableAssistmentsItem(Serializable):
         if self._assignments is not None:
             token[self.ASSIGNMENTS_KEY] = tokenizeObject(self._assignments)
         return token
-    
+
     def initializeFromToken(self, token, context=None):
         super(SerializableAssistmentsItem, self).initializeFromToken(token, context)
         self._assignmentNumber = untokenizeObject(token.get(self.ASSIGNMENT_NUMBER_KEY, None), context)
@@ -120,47 +120,47 @@ class SerializableAssistmentsItem(Serializable):
 
 @DBObject(table_name="AssistmentsAssignmentItems")
 class DBAssistmentsItem(DBSerializable):
-    
+
     BRIDGE_NAME = GLUDB_BRIDGE_NAME
     SOURCE_CLASS = SerializableAssistmentsItem
-    
+
     _itemId = Field('')
     _problemSetId = Field('')
     _problemSetName = Field('')
     _assignments = Field(list) #list of tuples containing id, name, baseURL
-    
-    
+
+
     @Index
     def itemIdIndex(self):
         return self._itemId
-    
+
     def create(self, serializableDBAssismentsAssignment = None):
         if serializableDBAssismentsAssignment is not None:
             self._itemId = serializableDBAssismentsAssignment._itemId
             self._problemSetId = serializableDBAssismentsAssignment._problemSetId
             self._problemSetName = serializableDBAssismentsAssignment._problemSetName
             self._assignments = serializableDBAssismentsAssignment._assignments
-            
+
         return self
-    
-    
+
+
     def __repr__(self):
         return self._itemId + "|||" + self._problemSetId + "|||" + self._problemSetName + "|||" + str(self._assignments)
-        
+
     def toSerializable(self):
         result = SerializableAssistmentsItem()
-        
+
         result._itemId = self._itemId
         result._problemSetId = self._problemSetId
         result._problemSetName = self._problemSetName
-        result._assignments = self._assignments 
-        
+        result._assignments = self._assignments
+
         return result
-    
+
     def saveToDB(self):
         self.save()
 
-class LearningTask(Serializable):
+class LearningTask(SuperGlu_Serializable):
 
     # Main Keys
     TASK_ID_KEY = "taskId"
@@ -193,7 +193,7 @@ class LearningTask(Serializable):
         self._baseURL = baseURL
         self._assistmentsItem = assistmentsItem
         self._canBeRecommendedIndividually = canRecommendIndividually
-    
+
     def saveToToken(self):
         token = super(LearningTask, self).saveToToken()
         if self._taskId is not None:
@@ -219,7 +219,7 @@ class LearningTask(Serializable):
         if self._canBeRecommendedIndividually is not None:
             token[self.CAN_BE_RECOMMENDED_INDIVIDUALLY_KEY] = tokenizeObject(self._canBeRecommendedIndividually)
         return token
-    
+
     def initializeFromToken(self, token, context=None):
         super(LearningTask, self).initializeFromToken(token, context)
         self._taskId = untokenizeObject(token.get(self.TASK_ID_KEY, None), context)
@@ -233,7 +233,7 @@ class LearningTask(Serializable):
         self._baseURL = untokenizeObject(token.get(self.BASE_URL_KEY, None), context)
         self._assistmentsItem = untokenizeObject(token.get(self.ASSISTMENTS_ITEM_KEY, None), context)
         self._canBeRecommendedIndividually = untokenizeObject(token.get(self.CAN_BE_RECOMMENDED_INDIVIDUALLY_KEY, True), context)
-    
+
     def toDB(self):
         result = DBTask()
         result.system = self._system
@@ -248,7 +248,7 @@ class LearningTask(Serializable):
         result.description = self._description
         result.canBeRecommendedIndividually = self._canBeRecommendedIndividually
         return result
-    
+
     def initializeFromDBTask(self, dbTask):
         self._taskId = dbTask.taskId
         self._aliasIds = dbTask.ids
@@ -270,8 +270,8 @@ class LearningTask(Serializable):
         return "taskId:{0}|ids:{1}|subtasks:{2}|name:{3}|kcs:{4}|baseURL:{5}|assistmentItem:{6}|description:{7}|individualRecommend:{8}|displayName:{9}".format(
             self._taskId, self._aliasIds, self._subtasks, self._name, self._kcs, self._baseURL,
             self._assistmentsItem, self._description, self._canBeRecommendedIndividually, self._displayName)
-                 
-                     
+
+
 @DBObject(table_name="Tasks")
 class DBTask(DBSerializable):
     ids  = Field(list)
@@ -285,12 +285,12 @@ class DBTask(DBSerializable):
     assistmentsItemId = Field('')
     description = Field('')
     canBeRecommendedIndividually = Field(True)
-    
+
     assistmentsItemCache = None
-    
+
     BRIDGE_NAME = GLUDB_BRIDGE_NAME
     SOURCE_CLASS = LearningTask
-    
+
     def create(self, serializableDBTask = None):
         logInfo("found DBTask constructor", 5)
         if serializableDBTask is not None:
@@ -311,35 +311,35 @@ class DBTask(DBSerializable):
             self.description = serializableDBTask._description
             self.canBeRecommendedIndividually = serializableDBTask._canBeRecommendedIndividually
         return self
-    
+
     def getAssistementsItem(self, useCachedValue=False):
         if not useCachedValue:
             logInfo("assistmentItemId={0}".format(self.assistmentsItemId), 6)
             if self.assistmentsItemId is not None:
                 return DBAssistmentsItem.find_one(self.assistmentsItemId)
-            else: 
+            else:
                 return None
         else:
             return self.assistmentsItemCache
-    
+
     def __repr__(self):
         return str(self.ids) + "|" + self.name + "|" + str(self.kcs) + "|" + self.baseURL
-    
+
     @Index
     def nameIndex(self):
         return self.name
-    
+
     @Index
     def taskIdIndex(self):
         return self.taskId
-    
+
     def toSerializable(self):
         if self.assistmentsItemCache is None:
-            self.assistmentsItemCache = self.getAssistementsItem(True)   
+            self.assistmentsItemCache = self.getAssistementsItem(True)
         result = LearningTask()
         result.initializeFromDBTask(self)
         return result
-    
+
     def saveToDB(self):
         existingTasksWithSameName = DBTask.find_by_index('nameIndex', self.name)
         existingTask = None
@@ -347,7 +347,7 @@ class DBTask(DBSerializable):
         for possibleExistingTask in existingTasksWithSameName:
             if self.ids == possibleExistingTask.ids:
                 existingTask = possibleExistingTask
-        
+
         if existingTask is None:
             logInfo("task with name {0} does not yet exist".format(self.name), 3)
             if self.assistmentsItemCache:
@@ -361,7 +361,7 @@ class DBTask(DBSerializable):
                 alias.kc = kc
                 alias.taskId = self.id
                 alias.save()
-                
+
         else:
             logInfo("task with name {0} already exists, overwriting".format(self.name), 3)
             existingTask.name = self.name
@@ -371,7 +371,7 @@ class DBTask(DBSerializable):
             existingTask.baseURL = self.baseURL
             existingTask.description = self.description
             existingTask.canBeRecommendedIndividually = self.canBeRecommendedIndividually
-            
+
             self.assistmentsItemCache.id = existingTask.assistmentsItemId
             existingTask.assistmentsItemCache = self.assistmentsItemCache
             if existingTask.assistmentsItemCache:
@@ -380,31 +380,31 @@ class DBTask(DBSerializable):
             logInfo("assistmentsItemcacheValue3 = {0}".format(existingTask.assistmentsItemCache), 6)
             logInfo("assistmentsItemId = {0}".format(existingTask.assistmentsItemId), 6)
             existingTask.save()
-            
+
         return self.id
-    
+
 
 @DBObject(table_name="KC_TaskAssociations")
 class DBKCTaskAssociations(object):
     kc = Field('')
     taskId = Field('')
-    
+
     @Index
     def kcIndex(self):
         return self.kc
-    
+
     @Index
     def taskIdIndex(self):
         return self.taskId
-        
 
-class SerializableTopic(Serializable):
+
+class SerializableTopic(SuperGlu_Serializable):
     # Main Keys
     TOPIC_ID_KEY = "topicId"
     TOPIC_DESCRIPTION_KEY = "topicDescription"
     KC_LIST_KEY = "kcList"
     RESOURCE_LIST_KEY = "resourceList"
-    
+
     topicId = ''
     description = ''
     kcList       = []
@@ -412,20 +412,20 @@ class SerializableTopic(Serializable):
 
     def __init__(self, topicId = None, description=None,  kcList = None, resourceList = None, anId=None):
         super(SerializableTopic, self).__init__(anId)
-        
+
         if topicId == None:
             topicId = ''
         if kcList == None:
             kcList = []
         if resourceList == None:
             resourceList = []
-        
+
         self.topicId = topicId
         self.kcList = kcList
         self.description = description
         self.resourceList = resourceList
-        
-    
+
+
     def saveToToken(self):
         token = super(SerializableTopic, self).saveToToken()
         if self.topicId is not None:
@@ -437,15 +437,15 @@ class SerializableTopic(Serializable):
         if self.resourceList is not None:
             token[self.RESOURCE_LIST_KEY] = tokenizeObject(self.resourceList)
         return token
-    
+
     def initializeFromToken(self, token, context=None):
         super(SerializableTopic, self).initializeFromToken(token, context)
         self.description = untokenizeObject(token.get(self.TOPIC_DESCRIPTION_KEY, None))
         self.topicId = untokenizeObject(token.get(self.TOPIC_ID_KEY, None), context)
         self.kcList = untokenizeObject(token.get(self.KC_LIST_KEY, []), context)
         self.resourceList = untokenizeObject(token.get(self.RESOURCE_LIST_KEY, []))
-    
-    
+
+
     def toDB(self):
         result = DBTopic()
         result.topicId = self.topicId
@@ -453,25 +453,25 @@ class SerializableTopic(Serializable):
         result.description = self.description
         result.resourceList = self.resourceList
         return result
-    
+
     def initializeFromDBTopic(self, dbTopic):
         self.topicId = dbTopic.topicId
         self.kcList = dbTopic.kcList
         self.description = dbTopic.description
         self.resourceList = dbTopic.resourceList
-        
-        
+
+
 @DBObject(table_name="Topics")
 class DBTopic(DBSerializable):
-    
+
     BRIDGE_NAME = GLUDB_BRIDGE_NAME
     SOURCE_CLASS = SerializableTopic
-    
+
     topicId      = Field('')
     description  = Field('')
     kcList       = Field(list)
     resourceList = Field(list)
-    
+
     def create(self, serializableTopic = None):
         if serializableTopic is not None:
             self.kcList = serializableTopic.kcList
@@ -479,26 +479,26 @@ class DBTopic(DBSerializable):
             self.topicId = serializableTopic.topicId
             self.description = serializableTopic.description
         return self
-    
-    
+
+
     @Index
     def topicIdIndex(self):
         return self.topicId
-    
+
     def toSerializable(self):
         result = SerializableTopic()
         result.initializeFromDBTask(self)
         return result
-    
+
     def saveToDB(self):
         self.save()
-    
+
     def __repr__(self):
         return str(self.kcList) + "|" + str(self.resourceList)
 
 
-class SerializableSession(Serializable):
-    
+class SerializableSession(SuperGlu_Serializable):
+
     SESSION_ID_KEY = "sessionId"
     STUDENTS_KEY = "students"
     SYSTEM_KEY = "system"
@@ -514,7 +514,7 @@ class SerializableSession(Serializable):
     MESSAGE_IDS_KEY = "messageIds"
     SOURCE_DATA_N_KEY = "sourceDataN"
     SOURCE_DATA_HASH_KEY = "sourceDataHash"
-    
+
     def __init__(self, sessionId = None, students=[],  system = None, task = None, assignmentNumber=0, startTime = None, duration = None, endCondition = None,
                    performance={}, classroomId=None, hints=[], feedback=[], messageIds = [], sourceDataN = -1, sourceDataHash = -1):
         super(SerializableSession, self).__init__(sessionId)
@@ -533,7 +533,7 @@ class SerializableSession(Serializable):
         self.messageIds = messageIds
         self.sourceDataN = sourceDataN
         self.sourceDataHash = sourceDataHash
-        
+
     def saveToToken(self):
         token = super(SerializableSession, self).saveToToken()
         if self.sessionId is not None:
@@ -567,7 +567,7 @@ class SerializableSession(Serializable):
         if self.sourceDataHash is not None:
             token[self.SOURCE_DATA_HASH_KEY] = tokenizeObject(self.sourceDataHash)
         return token
-    
+
     def initializeFromToken(self, token, context=None):
         super(SerializableSession, self).initializeFromToken(token, context)
         self.sessionId = untokenizeObject(token.get(self.SESSION_ID_KEY, None))
@@ -585,7 +585,7 @@ class SerializableSession(Serializable):
         self.messageIds = untokenizeObject(token.get(self.MESSAGE_IDS_KEY, []), context)
         self.sourceDataN = untokenizeObject(token.get(self.SOURCE_DATA_N_KEY, None), context)
         self.sourceDataHash = untokenizeObject(token.get(self.SOURCE_DATA_HASH_KEY, None), context)
-    
+
     def toDB(self):
         result = DBSession()
         result.sessionId = self.sessionId
@@ -605,16 +605,16 @@ class SerializableSession(Serializable):
         result.sourceDataN = self.sourceDataN
         result.sourceDataHash = self.sourceDataHash
         return result
-    
+
     def initializeFromDBSession(self, dbSession):
         self.sessionId = dbSession.sessionId
         self.students = dbSession.students
         self.assignmentNumber = dbSession.assignmentNumber
-        
-        dbTaskList = DBTask.find_by_index("taskIdIndex", dbSession.task)  
+
+        dbTaskList = DBTask.find_by_index("taskIdIndex", dbSession.task)
         if len(dbTaskList) > 0:
             self.task = dbTaskList[0].toSerializable()
-                
+
         self.startTime = dbSession.startTime
         self.duration = dbSession.duration
         self.endCondition = dbSession.endCondition
@@ -625,7 +625,7 @@ class SerializableSession(Serializable):
         self.messageIds = dbSession.messageIds
         self.sourceDataN = dbSession.sourceDataN
         self.sourceDataHash = dbSession.sourceDataHash
-    
+
 
 
 @DBObject(table_name="Sessions")
@@ -645,14 +645,14 @@ class DBSession(DBSerializable):
     messageIds     = Field(list)
     sourceDataN    = Field(-1)
     sourceDataHash = Field(-1)
-    
+
     BRIDGE_NAME = GLUDB_BRIDGE_NAME
     SOURCE_CLASS = SerializableSession
-    
+
     #Non-persistent Fields
     studentCache = []
     taskCache = None
-    
+
     def create(self, serializableSession = None):
         if serializableSession is not None:
             self.sessionId = serializableSession.sessionId
@@ -671,62 +671,62 @@ class DBSession(DBSerializable):
             self.sourceDataN = serializableSession.sourceDataN
             self.sourceDataHash = serializableSession.sourceDataHash
         return self
-    
+
     #keeping this method here as an example of how to query based on UUID
     @classmethod
     def getSessionFromUUID(self, sessionId):
         return DBSession.find_one(sessionId)
-    
+
     @Index
     def SessionIdIndex(self):
         return self.sessionId
-    
-    
+
+
     def getTask(self, useCachedValue = False):
         if self.task is None or self.task == '':
             return None
-        
+
         if not useCachedValue:
             listOfValues = DBTask.find_by_index("taskIdIndex", self.task)
             if len(listOfValues) > 0:
                 self.taskCache = listOfValues[0]
         return self.taskCache
-    
+
     def getStudents(self, useCachedValue = False):
         if not useCachedValue:
             self.studentCache = [DBStudent.find_one(x) for x in self.students]
         return self.studentCache
-    
+
     #takes a DBStudent object as an argument
     def addStudent(self, newStudent):
         if newStudent is None:
             return
-        
+
         if newStudent.id in self.students:
             return
-        
+
         if newStudent.id is None:
             newStudent.save()
-            
+
         self.studentCache.append(newStudent)
-        self.students.append(newStudent.id)        
-    
+        self.students.append(newStudent.id)
+
     def setStartTime(self, sTime):
         self.startTime = sTime.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
-        
+
     def getStartTime(self):
         if(self.startTime != ''):
             return datetime.strptime(self.startTime, '%Y-%m-%dT%H:%M:%S.%fZ')
-            
+
         return None
-        
+
     def getPerformance(self, useCachedValue = False):
         if not useCachedValue:
             self.performance = dict()
-            
+
             if self.task is None or self.startTime is None:
                 return self.performance
-            
+
             for currentDBStudent in self.students:
                 self.performance[currentDBStudent] = dict()
                 kcList = getKCsForAGivenUserAndTask(currentDBStudent, self.task, self.startTime, False)
@@ -734,46 +734,46 @@ class DBSession(DBSerializable):
                     self.performance[currentDBStudent][kcMessage.object] = kcMessage.result
                     if kcMessage.id not in self.messageIds:
                         self.messageIds.append(kcMessage.id)
-        
+
         return self.performance
-        
+
     def getHints(self, useCachedValue = False):
         if not useCachedValue:
             self.hints = list()
-            
+
             if self.task is None or self.startTime is None:
                 return self.hints
-                
+
             for currentDBStudent in self.students:
                 studentHints = getAllHintsForSingleUserAndTask(currentDBStudent, self.task, self.startTime, False)
-                for currentHint in studentHints:         
+                for currentHint in studentHints:
                     self.hints.append(currentHint)
                     if currentHint.id not in self.messageIds:
                         self.messageIds.append(currentHint)
         return self.hints
-            
+
     def getFeedback(self, useCachedValue = False):
         if not useCachedValue:
             self.feedback = list()
-            
+
             if self.task is None or self.startTime is None:
                 return self.feedback
-                
+
             for currentDBStudent in self.students:
                 studentFeedback = getAllFeedbackForSingleUserAndTask(currentDBStudent, self.task, self.startTime, False)
-                for currentFeedback in studentFeedback:         
+                for currentFeedback in studentFeedback:
                     self.feedback.append(currentFeedback)
                     if currentFeedback.id not in self.messageIds:
                         self.messageIds.append(currentFeedback)
         return self.feedback
-            
-            
+
+
     def getSourceDataN(self, useCachedValue = False):
         if not useCachedValue:
             self.sourceDataN = len(self.messageIds)
         return self.sourceDataN
-        
-    
+
+
     def getSourceDataHash(self, useCachedValue = False):
         if not useCachedValue:
             uuidsAsString = ''.join(self.messageIds)
@@ -786,21 +786,21 @@ class DBSession(DBSerializable):
         result.initializeFromDBSession(self)
         return result
 
-class SerializableStudent(Serializable):
-    
+class SerializableStudent(SuperGlu_Serializable):
+
     STUDENT_ID_KEY = "studentId"
     SESSIONS_KEY = "sessions"
     OAUTH_IDS_KEY = "oAuthIds"
     STUDENT_MODELS_KEY = "studentModels"
     KC_GOALS_KEY = "kcGoals"
-     
+
     studentId       = None
     sessions      = []
     oAuthIds        = {}
     studentModels = {}
     kcGoals         = {}
-    
-    
+
+
     def saveToToken(self):
         token = super(SerializableStudent, self).saveToToken()
         if self.studentId is not None:
@@ -810,11 +810,11 @@ class SerializableStudent(Serializable):
         if self.oAuthIds is not {}:
             token[self.OAUTH_IDS_KEY] = tokenizeObject(self.oAuthIds)
         if self.studentModelIds is not {}:
-            token[self.STUDENT_MODELS_KEY] = tokenizeObject(self.studentModels) 
+            token[self.STUDENT_MODELS_KEY] = tokenizeObject(self.studentModels)
         if self.kcGoals is not {}:
             token[self.KC_GOALS_KEY] = tokenizeObject(self.kcGoals)
         return token
-    
+
     def initializeFromToken(self, token, context=None):
         super(SerializableStudent, self).initializeFromToken(token, context)
         self.studentId = untokenizeObject(token.get(self.STUDENT_ID_KEY, None))
@@ -822,7 +822,7 @@ class SerializableStudent(Serializable):
         self.oAuthIds = untokenizeObject(token.get(self.OAUTH_IDS_KEY,{}), context)
         self.studentModels = untokenizeObject(token.get(self.STUDENT_MODELS_KEY, {}), context)
         self.kcGoals = untokenizeObject(token.get(self.KC_GOALS_KEY, {}))
-    
+
     def toDB(self):
         result = DBStudent()
         result.studentId = self.studentId
@@ -831,94 +831,94 @@ class SerializableStudent(Serializable):
         result.studentModelIds = [x.id for x in self.studentModels]
         result.kcGoals = self.kcGoals
         return result
-    
+
     def initializeFromDBTask(self, dbStudent):
         self.studentId = dbStudent.studentId
         self.sessions = [x.toSerializable() for x in dbStudent.getSessions(False)]
         self.oAuthIds = dbStudent.oAuthIds
         self.studentModelIds = dbStudent.getStudentModels()
-        self.kcGoals = dbStudent.kcGoals    
-    
-    
-            
+        self.kcGoals = dbStudent.kcGoals
+
+
+
 
 @DBObject(table_name="Students")
 class DBStudent (object):
-    
+
     BRIDGE_NAME = GLUDB_BRIDGE_NAME
     SOURCE_CLASS = SerializableStudent
-    
+
     studentId       = Field('')
     sessionIds      = Field(list)
     oAuthIds        = Field(dict)
     studentModelIds = Field(dict)
     kcGoals         = Field(dict)
-    
+
     #non-persistant fields
     sessionCache = []
     # One per each subclass of student model allowed
     studentModelCache = {}
-    
+
     @Index
     def StudentIdIndex(self):
         return self.studentId
-    
+
     def getSessions(self, useCachedValue = False):
         if not useCachedValue:
             self.sessionCache = [DBSession.find_one(x) for x in self.sessionIds]
         return self.sessionCache
-               
+
     def addSession(self, newSession):
         if newSession is None:
             return
-        
+
         if newSession.sessionId in self.sessionIds:
             return
-        
+
         if newSession.id is None or newSession.id is '':
             newSession.save()
         self.sessionCache.append(newSession)
         self.sessionIds.append(newSession.sessionId)
         self.save()
-            
+
     def getStudentModels(self, useCachedValue = False):
         if not useCachedValue:
             self.studentModelCache = {x:DBStudentModel.find_one(self.studentModelIds[x]) for x in self.studentModelIds.keys()}
         return self.studentModelCache
-        
+
     def addStudentModel(self, newStudentModel):
         logInfo("Entering DBStudent.addStudentModel", 5)
         if newStudentModel is None:
             return
         if newStudentModel.id is None or newStudentModel.id is '':
             newStudentModel.save()
-        
+
         self.studentModelCache[newStudentModel.id] = newStudentModel
         if self.studentModelIds is None or isinstance(self.studentModelIds, list):
             self.studentModelIds = {}
         self.studentModelIds[newStudentModel.__class__.__name__] = newStudentModel.id
         self.save()
-        
-        
+
+
     def toSerializable(self):
         result = SerializableStudent()
         result.initializeFromDBTask(self)
         return result
-        
-        
+
+
 @DBObject(table_name="StudentAliases")
 class DBStudentAlias (object):
     trueId = Field('')
     alias  = Field('')
-    
+
     @Index
     def AliasIndex(self):
         return self.alias
-    
+
     def getStudent(self):
         student = DBStudent.find_one(self.trueId)
         return student
-        
+
 
 
 
@@ -931,16 +931,16 @@ class DBClass (object):
     topics   = Field(list)
     kcs      = Field(list)
     #TODO: Add schedule
-    
+
     #Non-persistent Fields
     studentCache = []
     topicsCache = []
-    
+
     def getStudents(self, useCachedValue = False):
         if not useCachedValue:
             self.studentCache = [DBStudent.find_one(x) for x in self.students]
         return self.studentCache
-    
+
     def addStudent(self, newStudent):
         if newStudent is None:
             return
@@ -948,12 +948,12 @@ class DBClass (object):
             newStudent.save()
         self.studentCache.append(newStudent)
         self.students.append(newStudent.id)
-    
+
     def getTopics(self, useCachedValue = False):
         if not useCachedValue:
             self.topicsCache = [DBTopic.find_one(x) for x in self.topics]
         return self.topicsCache
-    
+
     def addTopic(self, newTopic):
         if newTopic is None:
             return
@@ -961,32 +961,32 @@ class DBClass (object):
             newTopic.save()
         self.topicsCache.append(newTopic)
         self.topics.append(newTopic.id)
-        
+
 
 @DBObject(table_name="ClassAliases")
 class DBClasssAlias:
     trueId = Field('')
     alias  = Field('')
-    
+
     @Index
     def Alias2Index(self):
         return self.alias
-    
+
     def getClass(self):
         clazz = DBClass.find_one(self.trueId)
         return clazz
 
 
-class SerializableStudentModel(Serializable):
+class SerializableStudentModel(SuperGlu_Serializable):
     # Main Keys
     STUDENT_ID_KEY = "studentId"
     KC_MASTERY_KEY = "kcMastery"
 
-    
+
     _studentId = None
     _kcMastery = {}
-    
-    
+
+
     def saveToToken(self):
         token = super(SerializableStudentModel, self).saveToToken()
         if self._studentId is not None:
@@ -994,39 +994,39 @@ class SerializableStudentModel(Serializable):
         if self._kcMastery is not None:
             token[self.KC_MASTERY_KEY] = tokenizeObject(self._kcMastery)
         return token
-    
+
     def initializeFromToken(self, token, context=None):
         super(SerializableStudentModel, self).initializeFromToken(token, context)
         self._studentId = untokenizeObject(token.get(self.STUDENT_ID_KEY, None))
         self._kcMastery = untokenizeObject(token.get(self.KC_MASTERY_KEY, {}))
-    
+
     def toDB(self):
         result = DBStudentModel()
         result.studentId = self._studentId
         result.kcMastery = self._kcMastery
         return result
-    
+
     def initializeFromDBTask(self, dbTask):
         self._studentId = dbTask.studentId
         self._kcMastery = dbTask.kcMastery
 
 
-            
+
 @DBObject(table_name="StudentModels")
 class DBStudentModel (object):
-    
+
     BRIDGE_NAME = GLUDB_BRIDGE_NAME
     SOURCE_CLASS = SerializableStudentModel
-  
+
     studentId = Field('') #string
     kcMastery = Field(dict) #Dictionary<string, float>
-    
+
     studentCache = None #type:DBStudent
-    
+
     @Index
     def studentIdIndex(self):
         return self.studentId
-    
+
     def getStudent(self, useCachedValue= False):
         if self.studentId is not '':
             if not useCachedValue:
@@ -1034,12 +1034,12 @@ class DBStudentModel (object):
             return self.studentCache
         else:
             return None
-        
+
     def toSerializable(self):
         result = SerializableStudentModel()
         result.initializeFromDBTask(self)
         return result
-    
+
     def saveToDB(self):#TODO: test before using widely
         self.save()
 
@@ -1049,12 +1049,12 @@ class DBStudentModel (object):
 class DBClassModel(object):
     studentIds = Field(list)
     kcMastery  = Field(dict)
-    
+
     def getStudents(self, useCachedValue = False):
         if not useCachedValue:
             self.studentCache = [DBStudent.find_one(x) for x in self.students]
         return self.studentCache
-    
+
 
 #Owner Type enum:
 CLASS_OWNER_TYPE = "class"
@@ -1065,35 +1065,35 @@ PUBLIC_PERMISSION = "public"
 MEMBERS_PERMISSION = "members"
 OWNER_ONLY_PERMISSION = "owner only"
 
-class SerializableCalendarData(Serializable):
-    
+class SerializableCalendarData(SuperGlu_Serializable):
+
     # Main Keys
     OWNER_ID_KEY = "ownerId"
     OWNER_TYPE_KEY = "ownerType"
     PERMISSIONS_KEY = "permissions"
     CALENDAR_DATA_KEY = "calendarData"
-    
-    
+
+
     #string
     ownerId = None
-    
+
     #string (values = {class, student})
     ownerType = None
-    
+
     #string
     accessPermissions = None
-    
+
     #ical string
     calendarData = None
-    
-    
+
+
     def getICalObject(self):
         return Calendar.from_ical(self.calendarData)
-    
-    
+
+
     def setICalObject(self, ical):
         self.calendarData = ical.to_ical()
-    
+
 
     def saveToToken(self):
         token = super(SerializableCalendarData, self).saveToToken()
@@ -1106,14 +1106,14 @@ class SerializableCalendarData(Serializable):
         if self.calendarData is not None:
             token[self.CALENDAR_DATA_KEY] = tokenizeObject(self.calendarData)
         return token
-    
+
     def initializeFromToken(self, token, context=None):
         super(SerializableCalendarData, self).initializeFromToken(token, context)
         self.ownerId = untokenizeObject(token.get(self.OWNER_ID_KEY, None))
         self.ownerType = untokenizeObject(token.get(self.OWNER_TYPE_KEY, None))
         self.calendarData = untokenizeObject(token.get(self.CALENDAR_DATA_KEY, None))
         self.accessPermissions = untokenizeObject(token.get(self.PERMISSIONS_KEY, None))
-        
+
     def toDB(self):
         result = DBCalendarData()
         result.ownerId = self.ownerId
@@ -1121,25 +1121,25 @@ class SerializableCalendarData(Serializable):
         result.calendarData = self.calendarData
         result.accessPermissions = self.accessPermissions
         return result
-    
+
     def initializeFromDBCalendarData(self, dbCalendarData):
         self.ownerId = dbCalendarData.ownerId
         self.ownerType = dbCalendarData.ownerType
         self.calendarData = dbCalendarData.calendarData
         self.accessPermissions = dbCalendarData.accessPermissions
-    
-    
+
+
 @DBObject(table_name="CalendarData")
 class DBCalendarData(object):
-    
+
     BRIDGE_NAME = GLUDB_BRIDGE_NAME
     SOURCE_CLASS = SerializableCalendarData
-    
+
     ownerId = Field('')
     ownerType = Field('')
     calendarData = Field('')
     accessPermissions = Field('')
-    
+
     #transactional storage (for the future)
     #list stores tuples containing (date, calendarData)
     #calendarHistory = Field(list)
@@ -1151,18 +1151,17 @@ class DBCalendarData(object):
         self.ownerType = ownerType
         self.accessPermissions = permissions
         self.calendarData = data
-    
+
     ####Place Index data here####
     @Index
     def ownerIdIndex(self):
         return self.ownerId
-    
-    
+
+
     def toSerializable(self):
         result = SerializableCalendarData()
         result.initializeFromDBCalendarData(self)
         return result
-    
+
     def saveToDB(self):#TODO: test before using widely
         self.save()
-

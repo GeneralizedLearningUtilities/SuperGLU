@@ -92,7 +92,7 @@ def makeNative(string, sFormat=JSON_FORMAT):
 #----------------------------------------------------------
 def tokenizeObject(obj):
     """ Generic function to tokenize an object """
-    if isinstance(obj, Serializable):
+    if isinstance(obj, SuperGlu_Serializable):
         return obj.saveToToken()
     elif isinstance(obj, TokenRWFormat.VALID_SEQUENCE_VALUE_TYPES):
         return type(obj)([tokenizeObject(x) for x in obj])
@@ -105,7 +105,7 @@ def tokenizeObject(obj):
 def untokenizeObject(obj, context=None):
     """ Generic function to create an object from a token """
     if isinstance(obj, StorageToken):
-        return Serializable.createFromToken(obj, context)
+        return SuperGlu_Serializable.createFromToken(obj, context)
     elif isinstance(obj, TokenRWFormat.VALID_SEQUENCE_VALUE_TYPES):
         return type(obj)([untokenizeObject(x, context) for x in obj])
     elif isinstance(obj, TokenRWFormat.VALID_MAPPING_VALUE_TYPES):
@@ -141,7 +141,7 @@ class SerializableFactoryMetaclass(abc.ABCMeta):
         if self.STORAGE_BRIDGES_KEY not in dct:
             dct[self.STORAGE_BRIDGES_KEY] = {}
         return super(SerializableFactoryMetaclass, self).__new__(self, name, bases, dct)
-    
+
     def __init__(self, name, bases, dct):
         super(SerializableFactoryMetaclass, self).__init__(name, bases, dct)
         self._FACTORY_MAP[dct[self.CLASS_ID_KEY]] = self
@@ -151,7 +151,7 @@ class SerializableFactoryMetaclass(abc.ABCMeta):
         return self._FACTORY_MAP.get(classId, None)
 
 
-class Serializable(object, metaclass=SerializableFactoryMetaclass):
+class SuperGlu_Serializable(object, metaclass=SerializableFactoryMetaclass):
     """
     A serializable object, that can be saved to token and opened from token
     """
@@ -249,7 +249,7 @@ class Serializable(object, metaclass=SerializableFactoryMetaclass):
         cls._STORAGE_BRIDGES[bridgeName] = bridgeClass
 
 
-class NamedSerializable(Serializable):
+class NamedSerializable(SuperGlu_Serializable):
     """ A serializable with a name """
     CLASS_ID = 'NamedSerializable'
     NAME_KEY = 'name'
@@ -326,7 +326,7 @@ class StorageToken(collections.MutableMapping):
     # Generic Accessors
     def __len__(self):
         return len(self._data)
-    
+
     def __contains__(self, key):
         return key in self._data
 
@@ -404,10 +404,10 @@ class TokenRWFormat(object):
 
 
 class JSONStandardRWFormat(TokenRWFormat):
-    
+
     DECODER = json.JSONDecoder().decode
     ENCODER = json.JSONEncoder().encode
-    
+
     NAME_MAPPING = {'bool': bool,
                     'unicode': str,
                     'int' : int,
@@ -417,38 +417,38 @@ class JSONStandardRWFormat(TokenRWFormat):
                     'list': list,
                     'map': dict,
                     }
-    
+
     TYPE_MAPPING = dict([(val, key) for key, val in NAME_MAPPING.items()])
     RESERVED_CLASS_IDS = set(NAME_MAPPING.keys())
-    
+
     @classmethod
     def isNullOrPrimitive(cls, x):
         if x is None:
             return True
-        
+
         if type(x) in cls.VALID_ATOMIC_VALUE_TYPES:
             return True
-        
+
         return False
 
-    
+
     @classmethod
     def parse(cls, string):
         decoded =cls.DECODER(string)
         return cls.makeNative(decoded)
-    
+
     @classmethod
     def serialize(cls, data):
         """ Serialize python objects into a JSON string form """
         serializable = cls.makeSerializable(data)
         return cls.ENCODER(serializable)
-    
+
     @classmethod
     def makeSerializable(cls, x):
         if x is None:
             return x
         xType = type(x)
-        
+
         if xType in cls.VALID_ATOMIC_VALUE_TYPES:
             return x
         elif xType in cls.VALID_SEQUENCE_VALUE_TYPES:
@@ -468,16 +468,16 @@ class JSONStandardRWFormat(TokenRWFormat):
                 value = x[key]
                 storageTokenChildren[key] = cls.makeSerializable(value)
             return storageTokenChildren
-        
+
         return
-    
+
     @classmethod
     def makeNative(cls, x):
         if cls.isNullOrPrimitive(x):
             return x
-        
+
         xType = type(x)
-        
+
         if xType in cls.VALID_SEQUENCE_VALUE_TYPES:
             result = []
             for item in x:
@@ -500,11 +500,11 @@ class JSONStandardRWFormat(TokenRWFormat):
                         nativizedData[key] = x[key]
                     else:
                         nativizedData[key] = cls.makeNative(x[key])
-                
+
                 result = StorageToken(None, nativizedData[StorageToken.CLASS_ID_KEY], nativizedData)
                 return result
-            
-            
+
+
 # JSON Formatting: Use JSONEncoder/JSONDecoder
 class JSONRWFormat(TokenRWFormat):
     """ JSON Serialization Format Handler """
@@ -541,15 +541,15 @@ class JSONRWFormat(TokenRWFormat):
         if xType in cls.VALID_ATOMIC_VALUE_TYPES:
             return x
         elif xType in cls.VALID_SEQUENCE_VALUE_TYPES:
-            return {cls.TYPE_MAPPING[xType] : 
+            return {cls.TYPE_MAPPING[xType] :
                         tuple([cls.makeSerializable(val) for val in x])}
         elif xType in cls.VALID_MAPPING_VALUE_TYPES:
-            return {cls.TYPE_MAPPING[xType] : 
+            return {cls.TYPE_MAPPING[xType] :
                         dict([(cls.makeSerializable(key),  cls.makeSerializable(val))
                                for key, val in x.items()])}
         elif xType == StorageToken:
             # Use the Factory Class Id as the type
-            return {x.getClassId() : 
+            return {x.getClassId() :
                         dict([(cls.makeSerializable(key),  cls.makeSerializable(val))
                                for key, val in x.items()])}
         else:
@@ -751,5 +751,3 @@ class PickleRWFormat(TokenRWFormat):
     @classmethod
     def serialize(cls, data):
         return cls.ENCODER(data)
-
-

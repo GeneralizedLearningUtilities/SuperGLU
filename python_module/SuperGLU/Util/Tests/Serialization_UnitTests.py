@@ -2,33 +2,33 @@ import unittest
 import uuid
 from SuperGLU.Util.Paths import getFileDir, getBasePath
 from SuperGLU.Util.JSInterpreter import executeJS
-from SuperGLU.Util.Serialization import (Serializable, StorageToken,
+from SuperGLU.Util.Serialization import (SuperGlu_Serializable, StorageToken,
     makeSerialized, makeNative, tokenizeObject, untokenizeObject,
     nativizeObject, serializeObject, VALID_SERIAL_FORMATS)
 
 class Serialization_Tests(unittest.TestCase):
-    TEST_CLASS = Serializable
-    
+    TEST_CLASS = SuperGlu_Serializable
+
     def setUp(self):
         self.jsdir = getFileDir(__file__)
 
     def test__init__(self):
         anId = uuid.uuid4()
         strId = str(anId)
-        self.assertIsInstance(Serializable(), Serializable)
-        self.assertIsInstance(Serializable(anId), Serializable)
-        self.assertIsInstance(Serializable(strId), Serializable)
+        self.assertIsInstance(SuperGlu_Serializable(), SuperGlu_Serializable)
+        self.assertIsInstance(SuperGlu_Serializable(anId), SuperGlu_Serializable)
+        self.assertIsInstance(SuperGlu_Serializable(strId), SuperGlu_Serializable)
 
     def makeSerializableObj(self):
         return self.TEST_CLASS()
-    
+
     def testSerializationToToken(self):
         instance = self.makeSerializableObj()
         token = instance.saveToToken()
 
     def testCreationFromToken(self):
         token = StorageToken(None, self.TEST_CLASS.CLASS_ID)
-        instance = Serializable.createFromToken(token)
+        instance = SuperGlu_Serializable.createFromToken(token)
 
     def testDataTransforms(self):
         st_1 = StorageToken(10, "TestProp", {"Prop11": 1, "Prop12": "Hello!"})
@@ -53,8 +53,8 @@ class Serialization_Tests(unittest.TestCase):
         sObj = executeJS("SerializableTestClass0.js", self.jsdir, getBasePath())
         token = makeNative(sObj)
         x = untokenizeObject(token)
-        self.assertIsInstance(x, Serializable)
-        self.assertEqual(type(x), Serializable)
+        self.assertIsInstance(x, SuperGlu_Serializable)
+        self.assertEqual(type(x), SuperGlu_Serializable)
 
     def testJSTranlation_JS_To_Python_SerializableSubclass1(self):
         sObj = executeJS("SerializableTestClass1.js", self.jsdir, getBasePath())
@@ -89,83 +89,83 @@ class Serialization_Tests(unittest.TestCase):
         self.assertIsNone(x._value)
 
 # Test Classes
-class TestClass(Serializable):
-    
+class TestClass(SuperGlu_Serializable):
+
     def __init__(self, value=None):
         super(TestClass, self).__init__()
         self._value = value;
-    
+
     def initializeFromToken(self, token, context=None):
         super(TestClass, self).initializeFromToken(token, context)
         self._value = token.__getitem__('value', True, None)
-    
+
     def saveToToken(self):
         token = super(TestClass, self).saveToToken()
         token['value'] = self._value
         return token
 
-class TestClass2(Serializable):
-    
+class TestClass2(SuperGlu_Serializable):
+
     def __init__(self, statement=None):
         super(TestClass2, self).__init__()
         self._statement = statement;
-    
+
     def initializeFromToken(self, token, context=None):
         super(TestClass2, self).initializeFromToken(token, context)
         self._statement = token['statement']
-    
+
     def saveToToken(self):
         token = super(TestClass2, self).saveToToken()
         token['statement'] = self._statement
         return token
 
-class TestProp(Serializable):
+class TestProp(SuperGlu_Serializable):
     def __init__(self, data=None):
         super(TestProp, self).__init__()
         if data is None:
             data = {}
         self._data = data
-        
+
     def saveToToken(self):
         token = super(TestProp, self).saveToToken()
         for name, val in self._data.iteritems():
             token[name] = tokenizeObject(val)
         return token
-        
+
     def initializeFromToken(self, token, context=None):
         super(TestProp, self).initializeFromToken(token, context)
         for name, val in token.iteritems():
             if name not in token.RESERVED_KEYS:
                 if isinstance(val, StorageToken):
-                    val = Serializable.createFromToken(val, context)
+                    val = SuperGlu_Serializable.createFromToken(val, context)
                 self._data[name] = val
-                
+
     def __eq__(self, obj):
         return (type(self) == type(obj) and
                 self._data == obj._data)
-    
-class TestClass3(Serializable):
-    
+
+class TestClass3(SuperGlu_Serializable):
+
     def __init__(self, data=None):
         super(TestClass3, self).__init__()
         if data is None:
             data = {}
         self._data = data
-        
+
     def saveToToken(self):
         token = super(TestClass3, self).saveToToken()
         for name, val in self._data.iteritems():
             token[name] = tokenizeObject(val)
         return token
-    
+
     def initializeFromToken(self, token, context=None):
         super(TestClass3, self).initializeFromToken(token, context)
         for name, val in token.iteritems():
             if name not in token.RESERVED_KEYS:
                 if isinstance(val, StorageToken):
-                    val = Serializable.createFromToken(val, context)
+                    val = SuperGlu_Serializable.createFromToken(val, context)
                 self._data[name] = val
-                
+
     def __eq__(self, obj):
         return (type(self) == type(obj) and
                 self._data == obj._data)

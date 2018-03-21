@@ -2,14 +2,14 @@
 import datetime
 import re
 from urllib.parse import urlparse
-from SuperGLU.Util.Serialization import Serializable
+from SuperGLU.Util.Serialization import SuperGlu_Serializable
 
-class ClassifierEngine(Serializable):
+class ClassifierEngine(SuperGlu_Serializable):
     """
     An engine for calculating the full set of classifications
     based on a starting set of classifications of interest.
     """
-    
+
     def __init__(self, classifiers=None, resolver=None):
         """
         Initialize the classification engine
@@ -63,9 +63,9 @@ class ClassifierEngine(Serializable):
                     self._trueSet.add(className)
                 self._evaluatedSet.add(className)
         return list(classes & self._trueSet)
-        
 
-class ClassifierSpecification(Serializable):
+
+class ClassifierSpecification(SuperGlu_Serializable):
     """
     A classifier that contains the requirements for a single
     classification.  However, the requirements for this
@@ -131,13 +131,13 @@ class ClassifierSpecification(Serializable):
 
 #--------------------------------
 # Classifier Conditions
-#--------------------------------     
-class ClassifierCondition(Serializable):
+#--------------------------------
+class ClassifierCondition(SuperGlu_Serializable):
     """ A condition for a classifier that evaluates to True/False"""
 
     def __eq__(self, other):
         return type(self) == type(other)
-    
+
     def __call__(self, instance, engine=None):
         """
         Check if a condition holds for this instance
@@ -158,7 +158,7 @@ class ClassifierCondition(Serializable):
         """
         return []
 
-    
+
 class AtomicClassifierCondition(ClassifierCondition):
     """
     A classifier that checks for a specific relationship or
@@ -180,12 +180,12 @@ class DataClassifierCondition(AtomicClassifierCondition):
 
 class ObjectClassifierCondition(AtomicClassifierCondition):
     """ A classification that depends on membership in other classes """
-    
+
     def __init__(self, propName=None, classes=None):
         super(ObjectClassifierCondition, self).__init__(propName)
         if classes is None: classes = tuple()
         self._classes = tuple(classes)
-        
+
     def getClasses(self):
         return list(self._classes)
 
@@ -197,7 +197,7 @@ class ObjectClassifierCondition(AtomicClassifierCondition):
 
 class CompositeClassifierCondition(ClassifierCondition):
     """ A condition that combines other conditions """
-    
+
     def __init__(self, conditions):
         super(CompositeClassifierCondition, self).__init__()
         self._conditions = tuple(conditions)
@@ -224,7 +224,7 @@ class InEnumeratedCondition(DataClassifierCondition):
 
     def __call__(self, instance, engine=None):
         return instance in self._elements
-    
+
 
 class NumericClassifierCondition(DataClassifierCondition):
     """ A classifier condition that checks if data is numeric """
@@ -235,7 +235,7 @@ class NumericClassifierCondition(DataClassifierCondition):
 
 class NumericRangeCondition(NumericClassifierCondition):
     """ Check if a number is in a particular range """
-    
+
     def __init__(self, propName=None, minVal=None, maxVal=None):
         super(NumericRangeCondition, self).__init__(propName)
         self._minVal = minVal
@@ -276,12 +276,12 @@ class SequenceClassifierCondition(DataClassifierCondition):
 
 class SequenceElementsCondition(SequenceClassifierCondition):
     """ A condition that checks each element """
-    
+
     def __init__(self, propName=None, conditions=None):
         super(SequenceElementsCondition, self).__init__(propName)
         if conditions is None: conditions = tuple()
         self._conditions = tuple(conditions)
-        
+
     def __call__(self, instance, engine=None):
         if not super(SequenceElementsCondition, self).__call__(instance):
             return False
@@ -301,7 +301,7 @@ class SequenceLengthCondition(SequenceClassifierCondition):
         super(SequenceLengthCondition, self).__init__(propName)
         self._minLen = minLen
         self._maxLen = maxLen
-    
+
     def __call__(self, instance, engine=None):
         if not super(SequenceLengthCondition, self).__call__(instance):
             return False
@@ -355,7 +355,7 @@ class ExistsInSetCondition(SequenceClassifierCondition):
 
     def __init__(self, propName=None, condition=None):
         super(ExistsInSetCondition, self).__init__(propName)
-        self._condition = condition 
+        self._condition = condition
 
     def __call__(self, instance, engine=None):
         if not super(ExistsInSetCondition, self).__call__(instance):
@@ -386,7 +386,7 @@ class AllInSetCondition(SequenceClassifierCondition):
 
 class NoneInSetCondition(SequenceClassifierCondition):
     """given a list of elements, none should satisfy the condition"""
-    
+
     def __init__(self, propName=None, condition=None):
         super(AllInSetCondition, self).__init__(propName)
         self._condition = condition
@@ -430,7 +430,7 @@ class StringCondition(SequenceClassifierCondition):
 
     def __init__(self, propName=None):
         super(StringCondition, self).__init__(propName)
-    
+
     def __call__(self, instance, engine=None):
         if not super(StringCondition, self).__call__(instance):
             return False
@@ -462,7 +462,7 @@ class IsValidURLCondition(StringCondition):
             return False
 
         ul = urlparse(self._url)
-        
+
         if self._strict:
             try:
                 assert all([ul.scheme, ul.netloc])
@@ -472,7 +472,7 @@ class IsValidURLCondition(StringCondition):
                 return False
         else:
 ##########To be determined####################################
-            return True 
+            return True
 
 
 # Map Matching (check if has __contains__, in addition to __iter__):
@@ -610,7 +610,7 @@ class MapValuesIntersectionCondition(MapClassifierCondition):
 
 class MapItemsCondition(MapClassifierCondition):
     """Validate every items"""
-    
+
     def __init__(self, propName=None, conditions=None):
         super(MapItemsCondition, self).__init__(propName)
         if conditions is None: conditions = tuple()
@@ -690,7 +690,7 @@ class DateRangeCondition(DateClassifierCondition):
 # Object Property Conditions
 #--------------------------------
 class IsMemberClassifierCondition(ObjectClassifierCondition):
-    """ A classification that checks for membership in another class """    
+    """ A classification that checks for membership in another class """
 
     def __init__(self, aClass):
         propName = "IsMember"
@@ -698,15 +698,15 @@ class IsMemberClassifierCondition(ObjectClassifierCondition):
 
     def __call__(self, instance, engine=None):
         return len(engine.getClassMemberships(instance, self._classes)) > 0
-    
+
 #-------------------------
 # Composite Conditions
 #-------------------------
 class NOTCondition(CompositeClassifierCondition):
-    
+
     def __init__(self, condition):
         super(NOTCondition, self).__init__([conditions])
-        
+
     def __call__(self, instance, engine=None):
         return not self._conditions[0](instance, engine)
 
@@ -725,5 +725,5 @@ class XORCondition(CompositeClassifierCondition):
     def __call__(self, instance, engine=None):
         ret = False
         for x in self._conditions:
-            ret^= x(instance, engine) 
+            ret^= x(instance, engine)
         return ret

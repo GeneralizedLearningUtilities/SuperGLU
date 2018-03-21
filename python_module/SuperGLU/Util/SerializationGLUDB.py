@@ -4,7 +4,7 @@ This module contains the generic code for translating json serializable objects 
 @author: auerbach
 '''
 import abc
-from SuperGLU.Util.Serialization import DEFAULT_BRIDGE_NAME, Serializable,\
+from SuperGLU.Util.Serialization import DEFAULT_BRIDGE_NAME, SuperGlu_Serializable,\
     serializeObject
 from gludb.simple import DBObject, Field, Index
 from SuperGLU.Util.ErrorHandling import logInfo
@@ -37,7 +37,7 @@ class DBSerializableFactoryMetaclass(abc.ABCMeta):
     def _getBridgeClass(self, sourceClass, bridgeName=DEFAULT_BRIDGE_NAME):
         """ Get a bridge class from the class factory. """
         return self._BRIDGE_MAP.get(sourceClass, {}).get(bridgeName, None)
-        
+
 
 
 class DBSerializable(object, metaclass=DBSerializableFactoryMetaclass):
@@ -46,55 +46,55 @@ class DBSerializable(object, metaclass=DBSerializableFactoryMetaclass):
     """
 
     BRIDGE_NAME = GLUDB_BRIDGE_NAME
-    SOURCE_CLASS = Serializable
-    
+    SOURCE_CLASS = SuperGlu_Serializable
+
     @classmethod
     def convert(cls, sourceObject):#TODO: Handle lists of serializable objects
         if isinstance(sourceObject, list):
             result = list()
             for obj in sourceObject:
-                if isinstance(obj, Serializable):
-                    
+                if isinstance(obj, SuperGlu_Serializable):
+
                     bridgeClass = obj.getStorageBridge(cls.BRIDGE_NAME)
                     resultPart = bridgeClass(obj)
                     resultPart.create(obj)
                     result.append(resultPart)
                 else:
                     result.append(obj)
-            
+
             return result
         else:
-            if isinstance(sourceObject, Serializable):
+            if isinstance(sourceObject, SuperGlu_Serializable):
                 bridgeClass = sourceObject.getStorageBridge(cls.BRIDGE_NAME)
                 result = bridgeClass(sourceObject)
                 result.create(sourceObject)
                 return result
             else:
                 return sourceObject
-    
+
     def saveToDB(self):
         raise NotImplementedError
-    
-    
+
+
 
 @DBObject(table_name="unknownJSON")
 class JSONtoDBSerializable(object):
     """
     If no other class is available just store the JSON to the database
     """
-    
+
     jsonString = Field('')
     classId    = Field('')
-    
+
     def create(self, serializableObject=None):
         if serializableObject is not None:
             self.jsonString = serializeObject(serializableObject)
             self.classId = serializableObject.getClassId()
-    
+
     @Index
     def classIdIndex(self):
         return self.classId
-    
-    
+
+
     def saveToDB(self):
         self.save()

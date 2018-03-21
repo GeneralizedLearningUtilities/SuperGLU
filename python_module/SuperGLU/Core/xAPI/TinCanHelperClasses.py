@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 from abc import abstractmethod
-from SuperGLU.Util.Serialization import Serializable
+from SuperGLU.Util.Serialization import SuperGlu_Serializable
 
-class TinCanBaseSerializable(Serializable):
+class TinCanBaseSerializable(SuperGlu_Serializable):
     """ Base class for tin can serializables """
 
     @abstractmethod
@@ -38,5 +38,3 @@ class TinCanLanguageMap(TinCanBaseSerializable):
 
     def setValue(self, key, value):
         self._map[key] = value
-    
-        

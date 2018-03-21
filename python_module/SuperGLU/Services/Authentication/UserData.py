@@ -2,13 +2,13 @@
 from datetime import datetime
 from logging import getLogger
 
-from SuperGLU.Util.Serialization import Serializable, StorageToken, untokenizeObject
+from SuperGLU.Util.Serialization import SuperGlu_Serializable, StorageToken, untokenizeObject
 from SuperGLU.Util.SerializationDB import DBSerialized
 
 LOGGER = getLogger(__name__)
 
 @DBSerialized()
-class UserContext(Serializable):
+class UserContext(SuperGlu_Serializable):
     """ A UserContext for things like experiment design. A context has a
     name, a dictionary of preference values, and a list of UserData keys.
     Since the user keys are UUID's they aren't terribly useful.  However,
@@ -16,15 +16,15 @@ class UserContext(Serializable):
     course, you're also free to call UserData.read with any single ID
     to read a user if necessary
     """
-    
+
     INDEXES = ["name", "users"]
-        
+
     # NOTE that we maintain the user list as a set internally, but
-    # present it as a list to the external world (and when saving) 
-    
+    # present it as a list to the external world (and when saving)
+
     def __init__(self, name=None, userIDList=None, prefs=None):
         super(UserContext, self).__init__()
-        
+
         self._name = str(name) if name else ''
         self._users = set(userIDList) if userIDList else set()
         self._prefs = dict(prefs) if prefs else {}
@@ -48,17 +48,17 @@ class UserContext(Serializable):
     @classmethod
     def getContextNames(cls):
         return [x.getName() for x in cls.objects()]
-    
+
     def getName(self):
         """Simple getter for UserContext Name"""
         return self._name
-    
+
     def getUsers(self):
         """ Simple getter for UserContext User ID's. Note that a copy of the
         list is returned to prevent modifying the UserContext's state
         """
         return sorted(self._users)
-    
+
     def addUser(self, userID):
         """ Add the specified user ID to the list of users. Duplicate
         keys are silently ignored.  Return True if user was added for
@@ -68,39 +68,39 @@ class UserContext(Serializable):
             return False
         self._users.add(userID)
         return True
-    
+
     def removeUser(self, userID):
         """Remove the specified user ID from the list of users. Missing
         keys are silently ignored"""
         if userID in self._users:
             self._users.remove(userID)
-    
+
     def readDBUsers(self):
         """Return a list of UserData instances matches the user ID we
         currently. Note that this IS a database hit"""
         if not self._users:
             return []
-        
+
         return UserData.objects(_id={'$in': list(self._users)})
-    
+
     def getPrefKeys(self):
         """Return the keys in the prefs (in a sorted list)"""
         return sorted(self._prefs.keys())
-    
+
     def getPrefValue(self, prefKey, defval=None):
         """Return the specified preference value by key. If the key is
         missing, the defval is returned"""
         return self._prefs.get(prefKey, defval)
-    
+
     def setPrefValue(self, prefKey, prefValue):
         """Set the given preference key to the given value"""
         self._prefs[prefKey] = prefValue
-    
+
     def popPrefValue(self, prefKey, defval=None):
         """Remove the specified key from the preference dictionary and
         return the delete value. If the key wasn't present then defval
         is returned."""
-        return self._prefs.pop(prefKey, defval)        
+        return self._prefs.pop(prefKey, defval)
 
     def saveToToken(self):
         token = super(UserContext, self).saveToToken()
@@ -117,17 +117,17 @@ class UserContext(Serializable):
 
 
 @DBSerialized()
-class UserData(Serializable):
+class UserData(SuperGlu_Serializable):
     """User Data as a serializable object.  Each object is keyed by
     a "standard" UUID, has a "regular" user ID, and contains the roles
     for the user (so this represents both authN and authZ data).  Note
     that we assume the user is authenticated via someone else's OAuth2
     service.
-    
+
     When someone logs in via some authsource, we get the user ID, user
     name, and email from that authsource.  We save (or update) that info
     per source.  We also index the user ID and email.
-    
+
     If we can't find the user, we create a new user and set that user's
     "real" or "top-level" user ID, user name, and email to the one we
     just got.
@@ -141,7 +141,7 @@ class UserData(Serializable):
             'service2': {'optA': 'Goodbye', 'optb': 'Cruel', 'optc': 'World'},
         }
     """
-    
+
     #This is for automatic indexing for us
     INDEXES = ["AllEmails", "AllUserIDs"]
 
@@ -189,11 +189,11 @@ class UserData(Serializable):
         list is made so that changes to the returned list aren't reflected
         in the object"""
         return sorted(self._roles)
-    
+
     def addRole(self, role):
         """Add the given role.  Duplicates are silently ignored"""
         self._roles.add(role)
-    
+
     def needRole(self, role):
         """Identical to addRole, but returns True if and only if the
         role wasn't already present."""
@@ -251,22 +251,22 @@ class UserData(Serializable):
         of the form (value, authsource)
         """
         vals = set()
-        
+
         allPrefs = self.getPrefs(UserData.PREFS_AUTH)
         for authsource, authPrefs in allPrefs.iteritems():
             for val in authPrefs.get(keyname, []):
                 vals.add((val, authsource))
-        
+
         return vals
-        
+
     def getAllEmails(self):
         """Return a list of all emails currently associated with this
         user.  Note that this is also indexed."""
-        #Drop the auth stuff for emails 
+        #Drop the auth stuff for emails
         emails = set([e for e,auth in self._getPrefsAuthSet("Emails")])
         emails.add(self.getEmail())
         return [e for e in sorted(emails) if e]
-    
+
     def getAllUserIDs(self):
         """Return a list of all user ID's currently associated with this
         user.  Note that this is also indexed."""
@@ -292,9 +292,9 @@ class UserData(Serializable):
         """
         if not testGuid:
             return False
-            
+
         def filt(s):
-            return str(s).lower().replace('-', '').strip()            
+            return str(s).lower().replace('-', '').strip()
         return filt(testGuid) == filt(cls.ALEKS_GUID)
 
     @classmethod
@@ -339,7 +339,7 @@ class UserData(Serializable):
         userData = cls.objects(AllUserIDs = ':'.join([authSource, userID]))
         if not userData and email:
             userData = cls.objects(AllEmails = email)
-        
+
         if not userData:
             LOGGER.debug("First login for %s" % userID)
             userData = UserData(userID, userName, email)
@@ -351,34 +351,34 @@ class UserData(Serializable):
                 userData.setUserName(userName)
             if email and not userData.getEmail():
                 userData.setEmail(email)
-        
+
         #Update stats for the user
         dt = datetime.now().isoformat()
         userData.setPrefValue(UserData.PREFS_STATS, "LastLoginTime", dt)
         userData.setPrefValue(UserData.PREFS_STATS, "LastLoginAuth", authSource)
         userData.setPrefValue(UserData.PREFS_STATS, "LastLoginID", userID)
         userData.setPrefValue(UserData.PREFS_STATS, "LastLoginEmail", email)
-        
+
         #Update all authsource information for this authsource on this
         #user. Remember that a single authsource's data is stored in a
         #dictionary stored under the pref key name PREFS_AUTH)
         authPrefs = userData.getPrefValue(UserData.PREFS_AUTH, authSource, {})
-        
+
         authPrefs["LastLogin"] = dt
         authPrefs["LastID"] = userID
         authPrefs["LastEmail"] = email
         authPrefs["UserName"] = userName
-        
+
         emails = set(authPrefs.get("Emails", []))
         emails.add(email)
         authPrefs["Emails"] = sorted(emails)
-        
+
         userids = set(authPrefs.get("UserIDs", []))
         userids.add(userID)
         authPrefs["UserIDs"] = sorted(userids)
-        
+
         userData.setPrefValue(UserData.PREFS_AUTH, authSource, authPrefs)
-        
+
         #Save updated data
         userData.save()
 
@@ -405,9 +405,9 @@ class UserData(Serializable):
         super(UserData, self).initializeFromToken(token, context)
 
         self.updateId(token.getId())
-        
+
         self._userID = token.get('userID', '')
-        
+
         #Anonymous users actually have a blank user ID, but USER_ANONYMOUS
         #for their Serializable and MongoDB id's
         if self._userID == UserData.USER_ANONYMOUS:

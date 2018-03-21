@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
-from SuperGLU.Core.FIPA.SpeechActs import (INFORM_ACT, INFORM_REF_ACT, 
+from SuperGLU.Core.FIPA.SpeechActs import (INFORM_ACT, INFORM_REF_ACT,
     CONFIRM_ACT, DISCONFIRM_ACT, REQUEST_ACT,)
 from SuperGLU.Core.Messaging import Message
 from SuperGLU.Core.MessagingGateway import BaseService
 from SuperGLU.Util.ErrorHandling import logError, logWarning, logInfo
-from SuperGLU.Util.Serialization import (Serializable, NamedSerializable,
+from SuperGLU.Util.Serialization import (SuperGlu_Serializable, NamedSerializable,
     nativizeObject, serializeObject, JSON_FORMAT)
 
 STORAGE_SERVICE_NAME = "StorageService"
-SERIALIZABLE_DATA_TYPE = "Serializable"
+SERIALIZABLE_DATA_TYPE = "SuperGlu_Serializable"
 
 VALUE_VERB = "Value"
 
@@ -40,7 +40,7 @@ class BaseStorageService(BaseService):
 
     def addBucket(self, name):
         raise NotImplementedError
-        
+
     def getBucketNames(self):
         raise NotImplementedError
 
@@ -61,9 +61,9 @@ class BaseStorageService(BaseService):
     def exportBucket(self, name):
         bucket = self.getBucket(name)
         return bucket.exportData()
-        
+
     def receiveMessage(self, msg):
-        # TODO: Restore bucket management 
+        # TODO: Restore bucket management
         #if ((msg.getActor() == STORAGE_SERVICE_NAME) and
         #    (msg.getContextValue(self.BUCKET_KEY, None) is not None) and
         #    (self.hasBucket(msg.getContextValue(self.BUCKET_KEY)))):
@@ -95,10 +95,10 @@ class BaseStorageService(BaseService):
             # Request: get some value(s)
             elif (msg.getSpeechAct() == REQUEST_ACT):
                 try:
-                    value = self.processStorageRequest(bucket, 
-                                                       msg.getVerb(), 
-                                                       msg.getObject(), 
-                                                       msg.getContextValue(self.TAGS_KEY, None), 
+                    value = self.processStorageRequest(bucket,
+                                                       msg.getVerb(),
+                                                       msg.getObject(),
+                                                       msg.getContextValue(self.TAGS_KEY, None),
                                                        msg.getContextValue(self.TYPE_KEY, None),
                                                        msg.getContextValue(self.NAME_KEY, None))
                     if msg.getVerb() == self.CONTAINS_VERB:
@@ -114,8 +114,8 @@ class BaseStorageService(BaseService):
             # Inform about the name of a value (rename)
             elif (msg.getSpeechAct() == INFORM_REF_ACT):
                 try:
-                    value = self.processStorageRename(bucket, 
-                                                      msg.getVerb(), 
+                    value = self.processStorageRename(bucket,
+                                                      msg.getVerb(),
                                                       msg.getObject(),
                                                       msg.getResult(),
                                                       msg.getContextValue(self.NAME_KEY, None))
@@ -129,20 +129,20 @@ class BaseStorageService(BaseService):
                 self.sendMessage(response)
             else:
                 logWarning("COULD NOT PROCESS (%s): %s"%(self.getId(), serializeObject(msg)))
-        
+
     def processStorageInform(self, bucket, verb, key=None, value=None,
                              tags=None, aType=None, allowCreate=None,
                              name=None, description=None, dataType=None):
         raise NotImplementedError
-    
+
     def processStorageRequest(self, bucket, verb, key=None,
                               tags=None, aType=None, name=None):
         logInfo("No handlers for REQUEST messages available", 5)
-       
+
 
     def getValue(self, bucket, key=None, name=None):
         raise NotImplementedError
-    
+
     def processStorageRename(self, bucket, verb, key, newName, name):
         if verb == self.HAS_ELEMENT_VERB:
             bucket.changeName(newName, key, name)
@@ -156,7 +156,7 @@ class BaseStorageService(BaseService):
         msg.setSpeechAct(CONFIRM_ACT)
         msg.setContextValue(Message.CONTEXT_CONVERSATION_ID_KEY, oldId)
         return msg
-    
+
     def makeDisconfirmMessage(self, msg):
         oldId = msg.getId()
         msg = msg.clone()
@@ -164,7 +164,7 @@ class BaseStorageService(BaseService):
         msg.setSpeechAct(DISCONFIRM_ACT)
         msg.setContextValue(Message.CONTEXT_CONVERSATION_ID_KEY, oldId)
         return msg
-    
+
     def makeRequestAnswerMessage(self, msg, result):
         oldId = msg.getId()
         msg = msg.clone()
@@ -198,17 +198,17 @@ class BaseStorageService(BaseService):
 
 
 """
-This is a legacy class that stores data by serializing it 
+This is a legacy class that stores data by serializing it
 """
 class SerializedStorage(BaseStorageService):
-    
-    
+
+
     def processStorageInform(self, bucket, verb, key=None, value=None,
                              tags=None, aType=None, allowCreate=None,
                              name=None, description=None, dataType=None):
         if verb == self.VALUE_VERB:
             logWarning("IS SETTING", value)
-            if isinstance(value, Serializable):
+            if isinstance(value, SuperGlu_Serializable):
                 logWarning("IS SERIALIZABLE")
                 dataType = SERIALIZABLE_DATA_TYPE
                 if key is None:
@@ -227,8 +227,8 @@ class SerializedStorage(BaseStorageService):
                                    dataType, True, allowCreate)
         elif verb == self.VOID_VERB:
             return bucket.delValue(key, name)
-        
-        
+
+
     def processStorageRequest(self, bucket, verb, key=None,
                           tags=None, aType=None, name=None):
         if verb == self.HAS_ELEMENT_VERB:
@@ -272,8 +272,8 @@ class SerializedStorage(BaseStorageService):
             return bucket.getLink(key, name)
         else:
             return False
-        
-        
+
+
     def getValue(self, bucket, key=None, name=None):
         if isinstance(bucket, basestring):
             bucket = self.getBucket(bucket)
