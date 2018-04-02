@@ -298,6 +298,7 @@ function deleteNode() {
     catch (err) {
         window.alert("Please select a node")
     }
+    showOverlay(true)
 }
 
 /**
