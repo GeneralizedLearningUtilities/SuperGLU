@@ -6,7 +6,7 @@ Java ![](https://travis-matrix-badges.herokuapp.com/repos/GeneralizedLearningUti
 
 Javascript ![](https://travis-matrix-badges.herokuapp.com/repos/GeneralizedLearningUtilities/SuperGLU/branches/master/3)
 
-[![GitHub license](https://img.shields.io/github/license/GeneralizedLearningUtilities/SuperGLU.svg)](https://github.com/GeneralizedLearningUtilities/SuperGLU)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 Main Generalized Learning Utilities (GLU) library for communicating data between different learning technologies and intelligent systems.
 
