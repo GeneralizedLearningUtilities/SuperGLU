@@ -559,12 +559,21 @@ function makeJSONReady() {
  **/
 s.bind('clickNode', onClick)
 
+function showOverlay(show) {
+    if (show) {
+        $("#addNodeMenuOverlay").show()
+    } else {
+        $("#addNodeMenuOverlay").hide()
+    }
+}
+
 /**
  FUNCTION onClick, triggers when the Node binding function has an event:
  It displays the values of the editable fields of a Node and provides
  option to Edit or Delete the Node selected
  **/
 function onClick(event) {
+    showOverlay(false)
     clearEditables() //clears the previous data to show the selected node data
     nodeTempData = event.data
 
@@ -629,7 +638,7 @@ function updateJsonForm() {
             for (var childKey in jsonValue[key]) {
                 if (childKey == nodeTempData.node.tempID) {
                     jsonValue[key][childKey].id = document.getElementById("idName").value //updates ID
-                    nodeEdges = []
+                    var nodeEdges = []
                     var nodeTable = document.getElementById("nodeTable")
                     for (var i = 0, row; row = nodeTable.rows[i]; i++) {
                         nodeEdges.push(nodeTable.rows[i].cells[0].children[0].value)
@@ -646,7 +655,7 @@ function updateJsonForm() {
                     }
 
                     //to update params
-                    paramValues = {}
+                    var paramValues = {}
                     var nodeTable = document.getElementById("paramTable")
                     for (var i = 0, row; row = paramTable.rows[i]; i++) {
                         var paramValue
@@ -681,6 +690,7 @@ function updateJsonForm() {
     drawgraph(s, jsonValue)
     nodeTempData = null
     clearEditables()
+    showOverlay(true)
 }
 
 //Add new row with text input and delete button when Add Nodes button is clicked
