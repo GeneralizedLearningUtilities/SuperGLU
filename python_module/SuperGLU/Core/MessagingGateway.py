@@ -85,12 +85,36 @@ class BaseMessagingNode(SuperGlu_Serializable):
         if self._gateway is not None:
             print("Actually sent it.")
             self._gateway.dispatchMessage(msg, self.getId())
+        
+           
+        self.distributeMessage(msg, msg.getContextValue(ORIGINATING_SERVICE_ID_KEY))
+        logWarning("Message DISTRIBUTED: %s"%(msg,))
 
     def receiveMessage(self, msg):
         if not self.acceptIncomingMessage(msg):
             return
         self._triggerRequests(msg)
+    
+    def distributeMessage(self, msg, senderId=None):
+        """ Pass a message down all interested children (except sender) """
+        self._distributeMessage(self._nodes, msg, senderId)
 
+    def _distributeMessage(self, nodes, msg, senderId=None):
+        """ Implement passing a message down all interested children (except sender) """
+        for nodeId in nodes:
+            condition = nodes[nodeId][0]
+            node = nodes[nodeId][1]
+            if not self.isMessageOnGatewayBlackList(node, msg) and self.isMessageOnGatewayWhiteList(node, msg):
+                if ((nodeId != senderId) and ((condition  is None) or condition(msg))):
+                    node.receiveMessage(msg)
+        
+    def isMessageOnGatewayBlackList(self, destination, msg):
+        return False
+    
+    def isMessageOnGatewayWhiteList(self, destination, msg):
+        return True
+    
+    
     def bindToGateway(self, gateway):
         self.unbindToGateway()
         self._gateway = gateway
@@ -162,7 +186,7 @@ class MessagingGateway(BaseMessagingNode):
         if serviceConfiguration is not None:
             super(MessagingGateway, self).__init__(anId, gateway, authenticator, nodes, serviceConfiguration.getBlackList(), serviceConfiguration.getWhiteList)
         else:
-            super(MessagingGateway, self).__init__(anId, gateway, nodes, authenticator)
+            super(MessagingGateway, self).__init__(anId, gateway, authenticator, nodes)
 
         self._scope = scope
 
@@ -174,7 +198,7 @@ class MessagingGateway(BaseMessagingNode):
     def receiveMessage(self, msg):
         """ When gateway receives a message, it distributes it to child nodes """
         super(MessagingGateway, self).receiveMessage(msg)
-        self.distributeMessage(msg, None)
+        self.distributeMessage(msg, self.getId())
 
     # Relay Messages
     def dispatchMessage(self, msg, senderId=None):
@@ -185,21 +209,7 @@ class MessagingGateway(BaseMessagingNode):
         logWarning(msg)
         self.sendMessage(msg)
         logWarning("Message DISPATCH SENT: %s"%(msg,))
-        self._distributeMessage(self._nodes, msg, senderId)
-        logWarning("Message DISTRIBUTED: %s"%(msg,))
-
-    def distributeMessage(self, msg, senderId=None):
-        """ Pass a message down all interested children (except sender) """
-        self._distributeMessage(self._nodes, msg, senderId)
-
-    def _distributeMessage(self, nodes, msg, senderId=None):
-        """ Implement passing a message down all interested children (except sender) """
-        for nodeId in nodes:
-            condition = nodes[nodeId][0]
-            node = nodes[nodeId][1]
-            if not self.isMessageOnGatewayBlackList(node, msg) and self.isMessageOnGatewayWhiteList(node, msg):
-                if ((nodeId != senderId) and ((condition  is None) or condition(msg))):
-                    node.receiveMessage(msg)
+       
 
     def addContextDataToMsg(self, msg):
         """ Add extra context to the message, if not present """
@@ -218,17 +228,21 @@ class MessagingGateway(BaseMessagingNode):
 
     def isMessageOnGatewayBlackList(self, destination, msg):
         destinationId = destination.getId()
-        entries = self._gatewayBlackList[destinationId]
+        entries = self._gatewayBlackList.get(destinationId, [])
         result = self.isMessageOnDestinationList(entries, msg)
-        allDestinationEntries = self._gatewayBlackList[GatewayBlackWhiteListConfiguration.ALL_DESTINATIONS]
+        allDestinationEntries = self._gatewayBlackList.get(GatewayBlackWhiteListConfiguration.ALL_DESTINATIONS, [])
         result = result or self.isMessageOnDestinationList(allDestinationEntries, msg)
         return result
 
     def isMessageOnGatewayWhiteList(self, destination, msg):
         destinationId = destination.getId()
-        entries = self._gatewayWhiteList[destinationId]
+        entries = self._gatewayWhiteList.get(destinationId, [])
+        
+        if entries == []:
+            return True
+        
         result = self.isMessageOnDestinationList(entries, msg)
-        allDestinationEntries = self._gatewayWhiteList[GatewayBlackWhiteListConfiguration.ALL_DESTINATIONS]
+        allDestinationEntries = self._gatewayWhiteList.get(GatewayBlackWhiteListConfiguration.ALL_DESTINATIONS, [])
         result = result or self.isMessageOnDestinationList(allDestinationEntries, msg)
         return result
 

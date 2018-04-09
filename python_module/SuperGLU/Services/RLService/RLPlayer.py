@@ -25,12 +25,13 @@ import sys
 import random as rand
 from datetime import datetime
 import csv,os
-from SuperGLU.Core.MessagingGateway import BaseService, BaseMessagingNode
+from SuperGLU.Core.MessagingGateway import BaseService, BaseMessagingNode, ORIGINATING_SERVICE_ID_KEY
 from SuperGLU.Util.ErrorHandling import logInfo, tryRaiseError
 #from SuperGLU.Services.LoggingService  import LoggingService  
 from SuperGLU.Services.RLService.Constants import *
 from math import ceil
 from SuperGLU.Util.Representation.Classes import Speech
+from SuperGLU.Core.FIPA.SpeechActs import INFORM_ACT
 
 # BEGIN initialization of global, module variables
 # These global variables are initialized the first time an import command references this module
@@ -702,6 +703,8 @@ class RLServiceMessaging(BaseService):
             reply_msg = self._createRequestReply(msg)
             reply_msg.setResult(action)
             reply_msg.setVerb(COACHING_ACTIONS)
+            reply_msg.setSpeechAct(INFORM_ACT)
+            reply_msg.setContextValue(ORIGINATING_SERVICE_ID_KEY, self.getId())
             
             if reply_msg is not None:
                 
