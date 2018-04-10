@@ -212,7 +212,7 @@ class Message(BaseMessage):
         @param anId: A unique ID (GUID) for the message, for later reference.
         @type anId: str
         """
-        super(Message, self).__init__(anId)
+        super(Message, self).__init__(context, anId)
 
         self.validateSpeechAct(speechAct)
         self._actor = actor
