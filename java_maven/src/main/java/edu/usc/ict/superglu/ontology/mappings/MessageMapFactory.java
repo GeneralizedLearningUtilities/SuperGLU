@@ -6,7 +6,7 @@ import edu.usc.ict.superglu.core.VHMessage;
 import edu.usc.ict.superglu.ontology.converters.*;
 import edu.usc.ict.superglu.util.Pair;
 import edu.usc.ict.superglu.util.StorageToken;
-import edu.usc.ict.superglu.vhuman.GIFTVHumanBridge;
+import edu.usc.ict.superglu.vhuman.GIFTVHumanMessagingGateway;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -86,21 +86,21 @@ public class MessageMapFactory {
         dsIDPath.add(new Pair<Class<?>, String>(String.class, "SessionId"));
         FieldData dsId = new NestedAtomic(dsIDPath);
 
-        templateData.add(new Pair<FieldData, Object>(dsId, GIFTVHumanBridge.GIFT_DOMAIN_SESSION_ID_KEY));
+        templateData.add(new Pair<FieldData, Object>(dsId, GIFTVHumanMessagingGateway.GIFT_DOMAIN_SESSION_ID_KEY));
 
         List<Pair<Class<?>, String>> userIDPath = new ArrayList<>();
         userIDPath.add(new Pair<Class<?>, String>(StorageToken.class, GIFTMessage.PAYLOAD_KEY));
         userIDPath.add(new Pair<Class<?>, String>(String.class, "UserId"));
         FieldData userId = new NestedAtomic(userIDPath);
 
-        templateData.add(new Pair<FieldData, Object>(userId, GIFTVHumanBridge.GIFT_USER_ID_KEY));
+        templateData.add(new Pair<FieldData, Object>(userId, GIFTVHumanMessagingGateway.GIFT_USER_ID_KEY));
 
         List<Pair<Class<?>, String>> userNamePath = new ArrayList<>();
         userNamePath.add(new Pair<Class<?>, String>(StorageToken.class, GIFTMessage.PAYLOAD_KEY));
         userNamePath.add(new Pair<Class<?>, String>(String.class, "userName"));
         FieldData userName = new NestedAtomic(userNamePath);
 
-        templateData.add(new Pair<FieldData, Object>(userName, GIFTVHumanBridge.GIFT_USER_NAME_KEY));
+        templateData.add(new Pair<FieldData, Object>(userName, GIFTVHumanMessagingGateway.GIFT_USER_NAME_KEY));
 
         return result;
     }
@@ -276,7 +276,7 @@ public class MessageMapFactory {
         dsIDPath.add(new Pair<Class<?>, String>(String.class, "SessionId"));
         FieldData dsId = new NestedAtomic(dsIDPath);
 
-        FieldMap domainSessionID = new FieldMapContextToOne(GIFTVHumanBridge.GIFT_DOMAIN_SESSION_ID_KEY, dsId);
+        FieldMap domainSessionID = new FieldMapContextToOne(GIFTVHumanMessagingGateway.GIFT_DOMAIN_SESSION_ID_KEY, dsId);
         result.add(domainSessionID);
 
         List<Pair<Class<?>, String>> userIDPath = new ArrayList<>();
@@ -284,7 +284,7 @@ public class MessageMapFactory {
         userIDPath.add(new Pair<Class<?>, String>(String.class, "UserId"));
         FieldData userId = new NestedAtomic(userIDPath);
 
-        FieldMap userIdMap = new FieldMapContextToOne(GIFTVHumanBridge.GIFT_USER_ID_KEY, userId);
+        FieldMap userIdMap = new FieldMapContextToOne(GIFTVHumanMessagingGateway.GIFT_USER_ID_KEY, userId);
         result.add(userIdMap);
 
         List<Pair<Class<?>, String>> userNamePath = new ArrayList<>();
@@ -292,7 +292,7 @@ public class MessageMapFactory {
         userNamePath.add(new Pair<Class<?>, String>(String.class, "userName"));
         FieldData userName = new NestedAtomic(userNamePath);
 
-        FieldMap userNameMap = new FieldMapContextToOne(GIFTVHumanBridge.GIFT_USER_NAME_KEY, userName);
+        FieldMap userNameMap = new FieldMapContextToOne(GIFTVHumanMessagingGateway.GIFT_USER_NAME_KEY, userName);
         result.add(userNameMap);
 
 

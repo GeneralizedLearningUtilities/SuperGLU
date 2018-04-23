@@ -10,15 +10,13 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.fasterxml.jackson.databind.deser.Deserializers.Base;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 
-public class MessagingGatewayTest {
+public class BaseMessagingGatewayTest {
 
 	class TestService extends BaseService
 	{
@@ -37,8 +35,8 @@ public class MessagingGatewayTest {
 		
 	}
 	
-	private MessagingGateway gateway;
-	private MessagingGateway receiver;
+	private BaseMessagingGateway gateway;
+	private BaseMessagingGateway receiver;
 	
 	private List<BaseMessage> testMessages;
 	
@@ -56,7 +54,7 @@ public class MessagingGatewayTest {
 	
 	@Before
 	public void setUp() throws Exception {
-		Predicate<BaseMessage> condition = MessagingGatewayTest::messageConditions;
+		Predicate<BaseMessage> condition = BaseMessagingGatewayTest::messageConditions;
 		List<BaseMessagingNode> nodes = new ArrayList<>();
 		Map<String, Object> scope = new HashMap<>();
 		scope.put("scope1","value1");
@@ -69,8 +67,8 @@ public class MessagingGatewayTest {
 		
 		ServiceConfiguration config = new ServiceConfiguration("mockConfiguration", null, new HashMap<>(), null, blackList, null);
 		
-		receiver = new MessagingGateway("Receiver", null, new ArrayList<>(), null, null, config);
-		gateway = new MessagingGateway("Sender", scope, nodes, condition, null, config);
+		receiver = new BaseMessagingGateway("Receiver", null, new ArrayList<>(), null, null, config);
+		gateway = new BaseMessagingGateway("Sender", scope, nodes, condition, null, config);
 		
 		mockService.addNode(gateway);
 		
@@ -153,11 +151,11 @@ public class MessagingGatewayTest {
 		GatewayBlackWhiteListConfiguration gateway1BlackList = new GatewayBlackWhiteListConfiguration(config);
 		
 		Map<String, Object> params = new HashMap<>();
-		params.put(MessagingGateway.GATEWAY_BLACKLIST_KEY, gateway1BlackList);
+		params.put(BaseMessagingGateway.GATEWAY_BLACKLIST_KEY, gateway1BlackList);
 
 		ServiceConfiguration serviceConfig = new ServiceConfiguration("config", null, params, null, null, null);
 		
-		MessagingGateway gateway1 = new MessagingGateway("gateway1", null, null, null, null, serviceConfig);
+		BaseMessagingGateway gateway1 = new BaseMessagingGateway("gateway1", null, null, null, null, serviceConfig);
 		
 		TestService service = new TestService("service1");
 		TestService service2 = new TestService("service2");
@@ -184,11 +182,11 @@ public class MessagingGatewayTest {
 		
 		
 		Map<String, Object> params = new HashMap<>();
-		params.put(MessagingGateway.GATEWAY_WHITELIST_KEY, gateway1WhiteList);
+		params.put(BaseMessagingGateway.GATEWAY_WHITELIST_KEY, gateway1WhiteList);
 
 		ServiceConfiguration serviceConfig = new ServiceConfiguration("config", null, params, null, null, null);
 		
-		MessagingGateway gateway1 = new MessagingGateway("gateway1", null, null, null, null, serviceConfig);
+		BaseMessagingGateway gateway1 = new BaseMessagingGateway("gateway1", null, null, null, null, serviceConfig);
 		
 		TestService service = new TestService("service1");
 		TestService service2 = new TestService("service2");

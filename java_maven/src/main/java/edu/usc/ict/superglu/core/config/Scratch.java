@@ -1,11 +1,11 @@
 package edu.usc.ict.superglu.core.config;
 
 import edu.usc.ict.superglu.core.ActiveMQTopicConfiguration;
-import edu.usc.ict.superglu.core.SocketIOGateway;
-import edu.usc.ict.superglu.core.MessagingGateway;
+import edu.usc.ict.superglu.core.SocketIOMessagingGateway;
+import edu.usc.ict.superglu.core.BaseMessagingGateway;
 import edu.usc.ict.superglu.util.SerializationConvenience;
 import edu.usc.ict.superglu.util.SerializationFormatEnum;
-import edu.usc.ict.superglu.vhuman.GIFTVHumanBridge;
+import edu.usc.ict.superglu.vhuman.GIFTVHumanMessagingGateway;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -32,7 +32,7 @@ public class Scratch {
 		vhumanMessages.add("VHuman.*.*");
 		amqGatewayBlackList.addMessage("external", "VHuman.*.*");
 		
-		amqParams.put(MessagingGateway.GATEWAY_BLACKLIST_KEY, amqGatewayBlackList);
+		amqParams.put(BaseMessagingGateway.GATEWAY_BLACKLIST_KEY, amqGatewayBlackList);
 		
 		String amqGatewayName = "activeMQGateway";
 		String socketIOGatewayName = "socketIOGateway";
@@ -53,18 +53,18 @@ public class Scratch {
 		socketIONodes.add(amqGatewayName);
 		socketIONodes.add(bridgeGatewayName);
 		
-		ServiceConfiguration socketIOGateway = new ServiceConfiguration(socketIOGatewayName, SocketIOGateway.class, socketIOParams, socketIONodes, new ArrayList<>(), new ArrayList<>());
+		ServiceConfiguration socketIOGateway = new ServiceConfiguration(socketIOGatewayName, SocketIOMessagingGateway.class, socketIOParams, socketIONodes, new ArrayList<>(), new ArrayList<>());
 		
 		
 		Map<String, Object> defaultBridgeParams = new HashMap<>();
-		defaultBridgeParams.put(GIFTVHumanBridge.BROKER_HOST_PARAM_KEY, "localhost");
-		defaultBridgeParams.put(GIFTVHumanBridge.BROKER_PORT_PARAM_KEY, 61617);
+		defaultBridgeParams.put(GIFTVHumanMessagingGateway.BROKER_HOST_PARAM_KEY, "localhost");
+		defaultBridgeParams.put(GIFTVHumanMessagingGateway.BROKER_PORT_PARAM_KEY, 61617);
 		
 		List<String> bridgeNodes = new ArrayList<>();
 		bridgeNodes.add(amqGatewayName);
 		bridgeNodes.add(socketIOGatewayName);
 		
-		ServiceConfiguration GiftVHumanBridge = new ServiceConfiguration("defaultBridge", GIFTVHumanBridge.class, defaultBridgeParams, bridgeNodes, new ArrayList<>(), new ArrayList<>());
+		ServiceConfiguration GiftVHumanBridge = new ServiceConfiguration("defaultBridge", GIFTVHumanMessagingGateway.class, defaultBridgeParams, bridgeNodes, new ArrayList<>(), new ArrayList<>());
 		
 		
 		Map<String, ServiceConfiguration> result = new HashMap<>();

@@ -135,8 +135,8 @@ public class ServiceLauncher {
             }
 
             // If it's a gateway make sure to shut it down properly
-            if (serviceToStop instanceof MessagingGateway) {
-                MessagingGateway gateway = (MessagingGateway) serviceToStop;
+            if (serviceToStop instanceof BaseMessagingGateway) {
+                BaseMessagingGateway gateway = (BaseMessagingGateway) serviceToStop;
 
                 gateway.disconnect();
             }
