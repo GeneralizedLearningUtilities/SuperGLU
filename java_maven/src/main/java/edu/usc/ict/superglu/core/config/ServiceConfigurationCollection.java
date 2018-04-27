@@ -13,17 +13,17 @@ import java.util.Map;
  * @author auerbach
  */
 
-public class GatewayConfigurationCollection extends SuperGlu_Serializable {
+public class ServiceConfigurationCollection extends SuperGlu_Serializable {
 
-    public static final String SERVICE_CONFIG_MAP_KEY = "gatewayConfigurations";
+    public static final String SERVICE_CONFIG_MAP_KEY = "serviceConfigurations";
 
-    private Map<String, GatewayConfiguration> serviceConfigurationMap;
+    private Map<String, ServiceConfiguration> serviceConfigurationMap;
 
-    public GatewayConfigurationCollection() {
+    public ServiceConfigurationCollection() {
         this.serviceConfigurationMap = new HashMap<>();
     }
 
-    public GatewayConfigurationCollection(Map<String, GatewayConfiguration> serviceConfigurationMap) {
+    public ServiceConfigurationCollection(Map<String, ServiceConfiguration> serviceConfigurationMap) {
         this.serviceConfigurationMap = serviceConfigurationMap;
     }
 
@@ -31,7 +31,7 @@ public class GatewayConfigurationCollection extends SuperGlu_Serializable {
     public void initializeFromToken(StorageToken token) {
         super.initializeFromToken(token);
 
-        this.serviceConfigurationMap = (Map<String, GatewayConfiguration>) SerializationConvenience.untokenizeObject(token.getItem(SERVICE_CONFIG_MAP_KEY, true, new HashMap<>()));
+        this.serviceConfigurationMap = (Map<String, ServiceConfiguration>) SerializationConvenience.untokenizeObject(token.getItem(SERVICE_CONFIG_MAP_KEY, true, new HashMap<>()));
     }
 
     @Override
@@ -44,11 +44,11 @@ public class GatewayConfigurationCollection extends SuperGlu_Serializable {
 
     }
 
-    public Map<String, GatewayConfiguration> getServiceConfigurationMap() {
+    public Map<String, ServiceConfiguration> getServiceConfigurationMap() {
         return serviceConfigurationMap;
     }
 
-    public void setServiceConfigurationMap(Map<String, GatewayConfiguration> serviceConfigurationMap) {
+    public void setServiceConfigurationMap(Map<String, ServiceConfiguration> serviceConfigurationMap) {
         this.serviceConfigurationMap = serviceConfigurationMap;
     }
 

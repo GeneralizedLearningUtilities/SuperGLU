@@ -3,7 +3,7 @@ package edu.usc.ict.superglu;
 import edu.usc.ict.superglu.core.*;
 import edu.usc.ict.superglu.core.blackwhitelist.BlackWhiteListEntry;
 import edu.usc.ict.superglu.core.config.GatewayBlackWhiteListConfiguration;
-import edu.usc.ict.superglu.core.config.GatewayConfiguration;
+import edu.usc.ict.superglu.core.config.ServiceConfiguration;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -65,7 +65,7 @@ public class BaseMessagingGatewayTest {
 		List<BlackWhiteListEntry> blackList = new ArrayList<>();
 		blackList.add(new BlackWhiteListEntry("VHuman.*.*"));
 		
-		GatewayConfiguration config = new GatewayConfiguration("mockConfiguration", null, new HashMap<>(), null, blackList, null);
+		ServiceConfiguration config = new ServiceConfiguration("mockConfiguration", null, new HashMap<>(), null, blackList, null);
 		
 		receiver = new BaseMessagingGateway("Receiver", null, new ArrayList<>(), null, null, config);
 		gateway = new BaseMessagingGateway("Sender", scope, nodes, condition, null, config);
@@ -153,7 +153,7 @@ public class BaseMessagingGatewayTest {
 		Map<String, Object> params = new HashMap<>();
 		params.put(BaseMessagingGateway.GATEWAY_BLACKLIST_KEY, gateway1BlackList);
 
-		GatewayConfiguration serviceConfig = new GatewayConfiguration("config", null, params, null, null, null);
+		ServiceConfiguration serviceConfig = new ServiceConfiguration("config", null, params, null, null, null);
 		
 		BaseMessagingGateway gateway1 = new BaseMessagingGateway("gateway1", null, null, null, null, serviceConfig);
 		
@@ -184,7 +184,7 @@ public class BaseMessagingGatewayTest {
 		Map<String, Object> params = new HashMap<>();
 		params.put(BaseMessagingGateway.GATEWAY_WHITELIST_KEY, gateway1WhiteList);
 
-		GatewayConfiguration serviceConfig = new GatewayConfiguration("config", null, params, null, null, null);
+		ServiceConfiguration serviceConfig = new ServiceConfiguration("config", null, params, null, null, null);
 		
 		BaseMessagingGateway gateway1 = new BaseMessagingGateway("gateway1", null, null, null, null, serviceConfig);
 		

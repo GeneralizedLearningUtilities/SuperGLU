@@ -18,7 +18,7 @@ import java.util.Map;
  * @author auerbach
  */
 
-public class GatewayConfiguration extends SuperGlu_Serializable {
+public class ServiceConfiguration extends SuperGlu_Serializable {
 
     private static final String TYPE_KEY = "type";
     private static final String PARAMS_KEY = "params";
@@ -39,7 +39,7 @@ public class GatewayConfiguration extends SuperGlu_Serializable {
     
     private List<BlackWhiteListEntry> blackList;
 
-    public GatewayConfiguration() {
+    public ServiceConfiguration() {
         super();
         this.type = null;
         this.params = new HashMap<>();
@@ -50,7 +50,7 @@ public class GatewayConfiguration extends SuperGlu_Serializable {
     }
 
 
-    public GatewayConfiguration(String ID, Class<?> type, Map<String, Object> params, List<String> nodes, List<BlackWhiteListEntry> blackList, List<BlackWhiteListEntry> whiteList) {
+    public ServiceConfiguration(String ID, Class<?> type, Map<String, Object> params, List<String> nodes, List<BlackWhiteListEntry> blackList, List<BlackWhiteListEntry> whiteList) {
         super(ID);
         this.type = type;
         this.params = params;

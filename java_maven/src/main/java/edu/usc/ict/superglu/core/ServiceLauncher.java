@@ -1,7 +1,7 @@
 package edu.usc.ict.superglu.core;
 
-import edu.usc.ict.superglu.core.config.GatewayConfiguration;
-import edu.usc.ict.superglu.core.config.GatewayConfigurationCollection;
+import edu.usc.ict.superglu.core.config.ServiceConfiguration;
+import edu.usc.ict.superglu.core.config.ServiceConfigurationCollection;
 import edu.usc.ict.superglu.util.SerializationConvenience;
 import edu.usc.ict.superglu.util.SerializationFormatEnum;
 
@@ -14,48 +14,48 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
 /**
- * This class is responsible for launching gateways based on a
- * GatewayConfiguration Object. It should also be used to shut down gateways
+ * This class is responsible for launching services based on a
+ * ServiceConfiguration Object. It should also be used to shut down services
  * once that functionality is implemented.
  * <p>
  * In order for a service to use this, it will need to implement a constructor
- * that takes a GatewayConfiguration object.
+ * that takes a ServiceConfiguration object.
  *
  * @author auerbach
  */
 
 public class ServiceLauncher {
 
-    private Map<String, BaseMessagingGateway> gateways;
+    private Map<String, BaseMessagingNode> services;
 
     public ServiceLauncher() {
-        gateways = new HashMap<>();
+        services = new HashMap<>();
     }
 
-    public void launchAndConnectAllServices(GatewayConfigurationCollection configs) {
+    public void launchAndConnectAllServices(ServiceConfigurationCollection configs) {
 
         for (String key : configs.getServiceConfigurationMap().keySet()) {
-            if (configs.getServiceConfigurationMap().get(key) instanceof GatewayConfiguration) {
-                GatewayConfiguration config = configs.getServiceConfigurationMap().get(key);
+            if (configs.getServiceConfigurationMap().get(key) instanceof ServiceConfiguration) {
+                ServiceConfiguration config = configs.getServiceConfigurationMap().get(key);
 
                 launchService(config);
             }
         }
 
         for (String key : configs.getServiceConfigurationMap().keySet()) {
-            if (configs.getServiceConfigurationMap().get(key) instanceof GatewayConfiguration) {
-                GatewayConfiguration config = configs.getServiceConfigurationMap().get(key);
+            if (configs.getServiceConfigurationMap().get(key) instanceof ServiceConfiguration) {
+                ServiceConfiguration config = configs.getServiceConfigurationMap().get(key);
                 connectService(config);
             }
         }
 
     }
 
-    public void launchService(GatewayConfiguration config) {
+    public void launchService(ServiceConfiguration config) {
         try {
-            Constructor<?> constructor = config.getType().getConstructor(GatewayConfiguration.class);
-            BaseMessagingGateway gateway = (BaseMessagingGateway) constructor.newInstance(config);
-            gateways.put(config.getId(), gateway);
+            Constructor<?> constructor = config.getType().getConstructor(ServiceConfiguration.class);
+            BaseMessagingNode service = (BaseMessagingNode) constructor.newInstance(config);
+            services.put(config.getId(), service);
         } catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException
                 | IllegalArgumentException | InvocationTargetException e) {
             e.printStackTrace();
@@ -67,27 +67,27 @@ public class ServiceLauncher {
         service.addToContext(key, context);
     }
 
-    public void connectService(GatewayConfiguration config) {
-        BaseMessagingGateway gateway = (BaseMessagingGateway) gateways.get(config.getId());
+    public void connectService(ServiceConfiguration config) {
+        BaseMessagingNode service = services.get(config.getId());
 
-        if (gateway != null) {
+        if (service != null) {
 
             for (String connectionId : config.getNodes()) {
-                BaseMessagingGateway connection = (BaseMessagingGateway) gateways.get(connectionId);
+                BaseMessagingNode connection = services.get(connectionId);
 
                 if (connection != null)
-                    gateway.addNode(connection);
+                    service.addNode(connection);
             }
         }
     }
 
-    public GatewayConfigurationCollection readConfigurationFromFile(String fileName, String defaultFileName) {
+    public ServiceConfigurationCollection readConfigurationFromFile(String fileName, String defaultFileName) {
         String fileAsString = this.fileToString(fileName);
 
-        if (fileAsString == null)
-            fileAsString = this.fileToString(defaultFileName);
-
-        GatewayConfigurationCollection result = (GatewayConfigurationCollection) SerializationConvenience.nativeizeObject(fileAsString,
+        if(fileAsString == null)
+        	fileAsString = this.fileToString(defaultFileName);
+        
+        ServiceConfigurationCollection result = (ServiceConfigurationCollection) SerializationConvenience.nativeizeObject(fileAsString,
                 SerializationFormatEnum.JSON_STANDARD_FORMAT);
 
         return result;
@@ -119,37 +119,40 @@ public class ServiceLauncher {
         return result;
     }
 
-    public Map<String, BaseMessagingGateway> getGateways() {
-        return this.gateways;
+    public Map<String, BaseMessagingNode> getServices() {
+        return this.services;
     }
 
-    public void stopService(String gatewayName) {
-        if (this.gateways.containsKey(gatewayName)) {
-            BaseMessagingGateway gatewayToStop = this.gateways.get(gatewayName);
+    public void stopService(String serviceName) {
+        if (this.services.containsKey(serviceName)) {
+            BaseMessagingNode serviceToStop = this.services.get(serviceName);
 
-            final List<BaseMessagingNode> connections = new ArrayList<BaseMessagingNode>(gatewayToStop.getNodes());
+            final List<BaseMessagingNode> connections = new ArrayList<>(serviceToStop.getNodes());
 
             for (BaseMessagingNode connection : connections) {
-                gatewayToStop.onUnbindToNode(connection);
+                serviceToStop.onUnbindToNode(connection);
+                connection.onUnbindToNode(serviceToStop);
             }
 
             // If it's a gateway make sure to shut it down properly
-            if (gatewayToStop instanceof BaseMessagingGateway) {
-                BaseMessagingGateway gateway = (BaseMessagingGateway) gatewayToStop;
+            if (serviceToStop instanceof BaseMessagingGateway) {
+                BaseMessagingGateway gateway = (BaseMessagingGateway) serviceToStop;
 
                 gateway.disconnect();
             }
 
-            // finally remove it from the list of gateways
-            this.gateways.remove(gatewayName);
+            // finally remove it from the list of services
+            this.services.remove(serviceName);
         }
     }
-
-
-    public void stopAllGateways() {
-        for (String serviceName : this.gateways.keySet()) {
-            stopService(serviceName);
-        }
+    
+    
+    public void stopAllServices()
+    {
+    	for(String serviceName : this.services.keySet())
+    	{
+    		stopService(serviceName);
+    	}
     }
 
 }

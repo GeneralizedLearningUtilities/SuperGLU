@@ -25,7 +25,7 @@ public class Scratch {
 		ActiveMQTopicConfiguration topicConfiguration = new ActiveMQTopicConfiguration("ActiveMQ", new ArrayList<>(), "tcp://localhost:61617");
 		
 		Map<String, Object> amqParams = new HashMap<String, Object>();
-		amqParams.put(GatewayConfiguration.ACTIVEMQ_PARAM_KEY, topicConfiguration);
+		amqParams.put(ServiceConfiguration.ACTIVEMQ_PARAM_KEY, topicConfiguration);
 		
 		GatewayBlackWhiteListConfiguration amqGatewayBlackList = new GatewayBlackWhiteListConfiguration();
 		List<String> vhumanMessages = new ArrayList<>();
@@ -43,17 +43,17 @@ public class Scratch {
 		amqNodes.add(socketIOGatewayName);
 		amqNodes.add(bridgeGatewayName);
 		
-		GatewayConfiguration activeMQGateway = new GatewayConfiguration(amqGatewayName, ActiveMQTopicConfiguration.class, amqParams, amqNodes, new ArrayList<>(), new ArrayList<>());
+		ServiceConfiguration activeMQGateway = new ServiceConfiguration(amqGatewayName, ActiveMQTopicConfiguration.class, amqParams, amqNodes, new ArrayList<>(), new ArrayList<>());
 		
 		
 		Map<String, Object> socketIOParams = new HashMap<>();
-		socketIOParams.put(GatewayConfiguration.SOCKETIO_PARAM_KEY, 5333);
+		socketIOParams.put(ServiceConfiguration.SOCKETIO_PARAM_KEY, 5333);
 		
 		List<String> socketIONodes = new ArrayList<>();
 		socketIONodes.add(amqGatewayName);
 		socketIONodes.add(bridgeGatewayName);
 		
-		GatewayConfiguration socketIOGateway = new GatewayConfiguration(socketIOGatewayName, SocketIOMessagingGateway.class, socketIOParams, socketIONodes, new ArrayList<>(), new ArrayList<>());
+		ServiceConfiguration socketIOGateway = new ServiceConfiguration(socketIOGatewayName, SocketIOMessagingGateway.class, socketIOParams, socketIONodes, new ArrayList<>(), new ArrayList<>());
 		
 		
 		Map<String, Object> defaultBridgeParams = new HashMap<>();
@@ -64,15 +64,15 @@ public class Scratch {
 		bridgeNodes.add(amqGatewayName);
 		bridgeNodes.add(socketIOGatewayName);
 		
-		GatewayConfiguration GiftVHumanBridge = new GatewayConfiguration("defaultBridge", GIFTVHumanMessagingGateway.class, defaultBridgeParams, bridgeNodes, new ArrayList<>(), new ArrayList<>());
+		ServiceConfiguration GiftVHumanBridge = new ServiceConfiguration("defaultBridge", GIFTVHumanMessagingGateway.class, defaultBridgeParams, bridgeNodes, new ArrayList<>(), new ArrayList<>());
 		
 		
-		Map<String, GatewayConfiguration> result = new HashMap<>();
+		Map<String, ServiceConfiguration> result = new HashMap<>();
 		result.put(activeMQGateway.getId(), activeMQGateway);
 		result.put(socketIOGateway.getId(), socketIOGateway);
 		result.put(GiftVHumanBridge.getId(), GiftVHumanBridge);
 
-		GatewayConfigurationCollection serviceConfigs = new GatewayConfigurationCollection(result);
+		ServiceConfigurationCollection serviceConfigs = new ServiceConfigurationCollection(result);
 		String json = SerializationConvenience.serializeObject(serviceConfigs, SerializationFormatEnum.JSON_STANDARD_FORMAT);
 		
 		System.out.println(json);

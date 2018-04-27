@@ -4,7 +4,7 @@ import com.corundumstudio.socketio.*;
 import com.corundumstudio.socketio.listener.DataListener;
 
 import edu.usc.ict.superglu.core.blackwhitelist.BlackWhiteListEntry;
-import edu.usc.ict.superglu.core.config.GatewayConfiguration;
+import edu.usc.ict.superglu.core.config.ServiceConfiguration;
 import edu.usc.ict.superglu.util.SerializationConvenience;
 import edu.usc.ict.superglu.util.SerializationFormatEnum;
 
@@ -44,13 +44,13 @@ public class SocketIOMessagingGateway extends BaseMessagingGateway implements Da
 		this.clients = new ConcurrentHashMap<>();
 	}
 
-	public SocketIOMessagingGateway(GatewayConfiguration serviceConfig) {
+	public SocketIOMessagingGateway(ServiceConfiguration serviceConfig) {
 		super(serviceConfig.getId(), null, null, null, null, serviceConfig);
 		log.debug("starting http messaging gateway");
 		try {
 			int socketIOPort = 5333;// Have a default port to fall back on.
-			if (serviceConfig.getParams().containsKey(GatewayConfiguration.SOCKETIO_PARAM_KEY))
-				socketIOPort = (int) serviceConfig.getParams().get(GatewayConfiguration.SOCKETIO_PARAM_KEY);
+			if (serviceConfig.getParams().containsKey(ServiceConfiguration.SOCKETIO_PARAM_KEY))
+				socketIOPort = (int) serviceConfig.getParams().get(ServiceConfiguration.SOCKETIO_PARAM_KEY);
 			Configuration socketConfig = new Configuration();
 			socketConfig.setPort(socketIOPort);
 			SocketIOServer socketIO = new SocketIOServer(socketConfig);
@@ -81,7 +81,7 @@ public class SocketIOMessagingGateway extends BaseMessagingGateway implements Da
 	public SocketIOMessagingGateway(String anId, Map<String, Object> scope, Collection<BaseMessagingNode> nodes,
 									Predicate<BaseMessage> conditions, List<ExternalMessagingHandler> handlers, SocketIOServer socketIO,
 									List<BlackWhiteListEntry> blackList, List<BlackWhiteListEntry> whiteList) {
-		super(anId, scope, nodes, conditions, handlers, new GatewayConfiguration());
+		super(anId, scope, nodes, conditions, handlers, new ServiceConfiguration());
 		this.socketIO = socketIO;
 		this.clients = new ConcurrentHashMap<>();
 

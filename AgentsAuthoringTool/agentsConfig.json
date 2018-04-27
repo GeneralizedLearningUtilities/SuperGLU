@@ -1,8 +1,8 @@
 {
-	"classId": "GatewayConfigurationCollection",
-	"gatewayConfigurations": {
+	"classId": "ServiceConfigurationCollection",
+	"serviceConfigurations": {
 		"socketIOGateway": {
-			"classId": "GatewayConfiguration",
+			"classId": "ServiceConfiguration",
 			"nodes": ["activeMQGateway",
 			"defaultBridge"],
 			"id": "socketIOGateway",
@@ -23,7 +23,7 @@
 			}
 		},
 		"activeMQGateway": {
-			"classId": "GatewayConfiguration",
+			"classId": "ServiceConfiguration",
 			"nodes": ["socketIOGateway",
 			"defaultBridge"],
 			"id": "activeMQGateway",
@@ -41,7 +41,7 @@
 			}
 		},
 		"defaultBridge": {
-			"classId": "GatewayConfiguration",
+			"classId": "ServiceConfiguration",
 			"nodes": ["activeMQGateway",
 			"socketIOGateway"],
 			"whiteList": ["*.*.*"],

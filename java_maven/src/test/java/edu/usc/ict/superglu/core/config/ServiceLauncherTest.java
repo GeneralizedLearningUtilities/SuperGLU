@@ -16,16 +16,16 @@ public class ServiceLauncherTest {
     @Test
     public void testLaunchAndConnectAllServices() {
         ServiceLauncher launcher = new ServiceLauncher();
-        GatewayConfigurationCollection configurations = launcher.readConfigurationFromFile(testResourceFullPath(CONFIG_FILE), testResourceFullPath(CONFIG_FILE));
+        ServiceConfigurationCollection configurations = launcher.readConfigurationFromFile(testResourceFullPath(CONFIG_FILE), testResourceFullPath(CONFIG_FILE));
         launcher.launchAndConnectAllServices(configurations);
-        Assert.assertEquals(3, launcher.getGateways().size());
+        Assert.assertEquals(3, launcher.getServices().size());
         launcher.stopService("socketIOGateway");
     }
 
     @Test
     public void testReadConfigurationFromFile() {
         ServiceLauncher launcher = new ServiceLauncher();
-        GatewayConfigurationCollection configurations = launcher.readConfigurationFromFile(testResourceFullPath(CONFIG_FILE), testResourceFullPath(CONFIG_FILE));
+        ServiceConfigurationCollection configurations = launcher.readConfigurationFromFile(testResourceFullPath(CONFIG_FILE), testResourceFullPath(CONFIG_FILE));
         Assert.assertEquals(3, configurations.getServiceConfigurationMap().size());
         Assert.assertNotNull(configurations.getServiceConfigurationMap().get("defaultBridge").getWhiteList());
     }
@@ -33,7 +33,7 @@ public class ServiceLauncherTest {
     @Test
     public void testShutdownActiveService() {
         ServiceLauncher launcher = new ServiceLauncher();
-        GatewayConfigurationCollection configurations = launcher.readConfigurationFromFile(testResourceFullPath(CONFIG_FILE), testResourceFullPath(CONFIG_FILE));
+        ServiceConfigurationCollection configurations = launcher.readConfigurationFromFile(testResourceFullPath(CONFIG_FILE), testResourceFullPath(CONFIG_FILE));
         launcher.launchAndConnectAllServices(configurations);
         launcher.stopService("socketIOGateway");
     }
