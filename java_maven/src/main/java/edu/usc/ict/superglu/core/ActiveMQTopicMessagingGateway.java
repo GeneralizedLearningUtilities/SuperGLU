@@ -22,6 +22,7 @@ import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.command.ActiveMQTopic;
 
 import edu.usc.ict.superglu.core.blackwhitelist.BlackWhiteListEntry;
+import edu.usc.ict.superglu.core.config.GatewayBlackWhiteListConfiguration;
 import edu.usc.ict.superglu.core.config.ServiceConfiguration;
 import edu.usc.ict.superglu.util.SerializationConvenience;
 import edu.usc.ict.superglu.util.SerializationFormatEnum;
@@ -37,7 +38,7 @@ import edu.usc.ict.superglu.util.tokenformat.JSONStandardRWFormat;
  *
  * @author auerbach
  */
-public class ActiveMQTopicMessagingGateway extends BaseMessagingGateway implements MessageListener {
+public class ActiveMQTopicMessagingGateway extends MessagingGateway implements MessageListener {
 
     protected MessageConsumer consumer;
     protected MessageProducer producer;

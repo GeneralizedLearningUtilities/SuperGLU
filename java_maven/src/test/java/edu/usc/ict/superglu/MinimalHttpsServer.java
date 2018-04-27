@@ -4,8 +4,8 @@ import com.corundumstudio.socketio.Configuration;
 import com.corundumstudio.socketio.SocketIOServer;
 import edu.usc.ict.superglu.core.BaseMessage;
 import edu.usc.ict.superglu.core.BaseMessagingNode;
-import edu.usc.ict.superglu.core.SocketIOMessagingGateway;
-import edu.usc.ict.superglu.core.BaseMessagingGateway;
+import edu.usc.ict.superglu.core.SocketIOGateway;
+import edu.usc.ict.superglu.core.MessagingGateway;
 import edu.usc.ict.superglu.util.SerializationConvenience;
 import edu.usc.ict.superglu.util.SerializationFormatEnum;
 
@@ -18,7 +18,7 @@ import java.util.function.Predicate;
  */
 
 public class MinimalHttpsServer extends BaseMessagingNode {
-    public MinimalHttpsServer(String anId, BaseMessagingGateway gateway, Predicate<BaseMessage> conditions) {
+    public MinimalHttpsServer(String anId, MessagingGateway gateway, Predicate<BaseMessage> conditions) {
         super(anId, conditions, null, null, null, null);
     }
 
@@ -46,7 +46,7 @@ public class MinimalHttpsServer extends BaseMessagingNode {
 
         SocketIOServer socketIO = new SocketIOServer(config);
 
-        BaseMessagingGateway gateway = new SocketIOMessagingGateway("socketIOGateway", null, null, null, null, socketIO, null, null);
+        MessagingGateway gateway = new SocketIOGateway("socketIOGateway", null, null, null, null, socketIO, null, null);
 
         MinimalHttpsServer server = new MinimalHttpsServer("server", gateway, null);
 

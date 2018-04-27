@@ -1,8 +1,10 @@
 package edu.usc.ict.superglu.vhuman;
 
 import edu.usc.ict.superglu.core.*;
+import edu.usc.ict.superglu.core.config.GatewayBlackWhiteListConfiguration;
 import edu.usc.ict.superglu.core.config.ServiceConfiguration;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 
 /**
@@ -13,7 +15,7 @@ import java.math.BigDecimal;
  * @author auerbach
  */
 
-public class GIFTVHumanMessagingGateway extends BaseMessagingGateway {
+public class GIFTVHumanBridge extends MessagingGateway {
 
     public static final String BROKER_HOST_PARAM_KEY = "brokerHost";
     public static final String BROKER_PORT_PARAM_KEY = "brokerPort";
@@ -22,7 +24,7 @@ public class GIFTVHumanMessagingGateway extends BaseMessagingGateway {
     public static final String GIFT_USER_NAME_KEY = "GIFTUserName";
     public static final String GIFT_USER_ID_KEY = "GIFTUserID";
 
-    public GIFTVHumanMessagingGateway(ServiceConfiguration config) {
+    public GIFTVHumanBridge(ServiceConfiguration config) {
         super(config.getId(), null, null, null, null, config);
 
         this.context.put(GIFT_DOMAIN_SESSION_ID_KEY, 0);
@@ -30,7 +32,7 @@ public class GIFTVHumanMessagingGateway extends BaseMessagingGateway {
         //	this.context.put(GIFT_DOMAIN_SESSION_ID_KEY, sessionID.intValue());
     }
 
-    public GIFTVHumanMessagingGateway(String brokerURL) {
+    public GIFTVHumanBridge(String brokerURL) {
         super("GIFT_VHUMAN_BRIDGE", null, null, null, null, new ServiceConfiguration());
     }
 

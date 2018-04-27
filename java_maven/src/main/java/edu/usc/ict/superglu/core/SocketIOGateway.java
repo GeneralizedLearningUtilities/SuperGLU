@@ -4,6 +4,7 @@ import com.corundumstudio.socketio.*;
 import com.corundumstudio.socketio.listener.DataListener;
 
 import edu.usc.ict.superglu.core.blackwhitelist.BlackWhiteListEntry;
+import edu.usc.ict.superglu.core.config.GatewayBlackWhiteListConfiguration;
 import edu.usc.ict.superglu.core.config.ServiceConfiguration;
 import edu.usc.ict.superglu.util.SerializationConvenience;
 import edu.usc.ict.superglu.util.SerializationFormatEnum;
@@ -20,7 +21,7 @@ import java.util.function.Predicate;
  *
  */
 
-public class SocketIOMessagingGateway extends BaseMessagingGateway implements DataListener<Map<String, String>> {
+public class SocketIOGateway extends MessagingGateway implements DataListener<Map<String, String>> {
 
 	/**
 	 * This is the object that handles the communication over the socket.
@@ -38,13 +39,13 @@ public class SocketIOMessagingGateway extends BaseMessagingGateway implements Da
 	public static final String MESSAGES_NAMESPACE = "/messaging";
 	public static final String SID_KEY = "sid";
 
-	public SocketIOMessagingGateway() {
+	public SocketIOGateway() {
 		super();
 		this.socketIO = new SocketIOServer(new Configuration());
 		this.clients = new ConcurrentHashMap<>();
 	}
 
-	public SocketIOMessagingGateway(ServiceConfiguration serviceConfig) {
+	public SocketIOGateway(ServiceConfiguration serviceConfig) {
 		super(serviceConfig.getId(), null, null, null, null, serviceConfig);
 		log.debug("starting http messaging gateway");
 		try {
@@ -78,9 +79,9 @@ public class SocketIOMessagingGateway extends BaseMessagingGateway implements Da
 		}
 	}
 
-	public SocketIOMessagingGateway(String anId, Map<String, Object> scope, Collection<BaseMessagingNode> nodes,
-									Predicate<BaseMessage> conditions, List<ExternalMessagingHandler> handlers, SocketIOServer socketIO,
-									List<BlackWhiteListEntry> blackList, List<BlackWhiteListEntry> whiteList) {
+	public SocketIOGateway(String anId, Map<String, Object> scope, Collection<BaseMessagingNode> nodes,
+			Predicate<BaseMessage> conditions, List<ExternalMessagingHandler> handlers, SocketIOServer socketIO,
+			List<BlackWhiteListEntry> blackList, List<BlackWhiteListEntry> whiteList) {
 		super(anId, scope, nodes, conditions, handlers, new ServiceConfiguration());
 		this.socketIO = socketIO;
 		this.clients = new ConcurrentHashMap<>();

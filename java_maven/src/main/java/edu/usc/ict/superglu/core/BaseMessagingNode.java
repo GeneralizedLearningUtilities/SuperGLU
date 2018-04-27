@@ -16,247 +16,327 @@ import java.util.function.Predicate;
  *
  * @author auerbach
  */
-public abstract class BaseMessagingNode {
+public class BaseMessagingNode {
 
-    protected Logger log = LoggerFactory.getLogger(this.getClass().getSimpleName());
+	protected Logger log = LoggerFactory.getLogger(this.getClass().getSimpleName());
 
-    protected String id;
-    protected Map<String, Pair<Message, Consumer<Message>>> requests;
-    protected Predicate<BaseMessage> conditions;
+	protected String id;
+	protected Map<String, Pair<Message, Consumer<Message>>> requests;
+	protected Predicate<BaseMessage> conditions;
+	protected Map<String, BaseMessagingNode> nodes;
+	protected List<ExternalMessagingHandler> handlers;
+	protected Map<String, Object> context;
 
-    protected List<ExternalMessagingHandler> handlers;
-    protected Map<String, Object> context;
+	protected List<BlackWhiteListEntry> blackList;
+	protected List<BlackWhiteListEntry> whiteList;
 
-    protected List<BlackWhiteListEntry> blackList;
-    protected List<BlackWhiteListEntry> whiteList;
+	private static boolean CATCH_BAD_MESSAGES = false;
 
-    private static boolean CATCH_BAD_MESSAGES = false;
+	public static final String ORIGINATING_SERVICE_ID_KEY = "originatingServiceId";
+	public static final String SESSION_KEY = "sessionId";
+	
+	protected static final boolean USE_BLACK_WHITE_LIST = true;
 
-    public static final String ORIGINATING_SERVICE_ID_KEY = "originatingServiceId";
-    public static final String SESSION_KEY = "sessionId";
+	public BaseMessagingNode(String anId, Predicate<BaseMessage> conditions, Collection<BaseMessagingNode> nodes,
+			List<ExternalMessagingHandler> handlers, List<BlackWhiteListEntry> blackList,
+			List<BlackWhiteListEntry> whiteList) {
+		this.nodes = new HashMap<>();
 
-    protected static final boolean USE_BLACK_WHITE_LIST = true;
+		if (anId == null)
+			this.id = UUID.randomUUID().toString();
+		else
+			this.id = anId;
 
-    public BaseMessagingNode(String anId, Predicate<BaseMessage> conditions,
-                             List<ExternalMessagingHandler> handlers, List<BlackWhiteListEntry> blackList,
-                             List<BlackWhiteListEntry> whiteList) {
-        if (anId == null)
-            this.id = UUID.randomUUID().toString();
-        else
-            this.id = anId;
+		this.requests = new HashMap<>();
 
-        if (conditions != null)
-            this.conditions = conditions;
+		if (conditions != null)
+			this.conditions = conditions;
 
-        this.requests = new HashMap<>();
+		this.requests = new HashMap<>();
 
-        if (handlers != null)
-            this.handlers = handlers;
-        else
-            this.handlers = new ArrayList<>();
+		this.addNodes(nodes);
 
-        this.context = new HashMap<>();
+		if (handlers != null)
+			this.handlers = handlers;
+		else
+			this.handlers = new ArrayList<>();
 
-        if (blackList != null)
-            this.blackList = blackList;
-        else
-            this.blackList = new ArrayList<>();
+		this.context = new HashMap<>();
 
-        if (whiteList != null)
-            this.whiteList = whiteList;
-        else
-            this.whiteList = new ArrayList<>();
-    }
+		if (blackList != null)
+			this.blackList = blackList;
+		else
+			this.blackList = new ArrayList<>();
 
-    protected boolean acceptIncomingMessage(BaseMessage msg) {
-        boolean result = true;
+		if (whiteList != null)
+			this.whiteList = whiteList;
+		else
+			this.whiteList = new ArrayList<>();
+	}
 
-        if (USE_BLACK_WHITE_LIST) {
-            // black list takes priority of white list.
-            for (BlackWhiteListEntry entry : this.whiteList) {
-                if (entry.evaluateMessage(msg)) {
-                    result = true;
-                    break;
-                }
-            }
+	protected boolean acceptIncomingMessge(BaseMessage msg) {
+		boolean result = true;
 
-            for (BlackWhiteListEntry entry : this.blackList) {
-                if (entry.evaluateMessage(msg)) {
-                    log.info(this.id + " recieved a blacklisted message: "
-                            + SerializationConvenience.serializeObject(msg, SerializationFormatEnum.JSON_FORMAT)
-                            + "| message will be ignored");
-                    result = false;
-                    break;
-                }
-            }
-        }
+		if (USE_BLACK_WHITE_LIST) {
+			// black list takes priority of white list.
+			for (BlackWhiteListEntry entry : this.whiteList) {
+				if (entry.evaluateMessage(msg)) {
+					result = true;
+					break;
+				}
+			}
 
-        return result;
-    }
+			for (BlackWhiteListEntry entry : this.blackList) {
+				if (entry.evaluateMessage(msg)) {
+					log.info(this.id + " recieved a blacklisted message: "
+							+ SerializationConvenience.serializeObject(msg, SerializationFormatEnum.JSON_FORMAT)
+							+ "| message will be ignored");
+					result = false;
+					break;
+				}
+			}
+		}
 
-    /**
-     * handler for receiving messages
-     *
-     * @param msg incoming message
-     * @return true if we should handle the message, false otherwise.
-     */
-    public boolean receiveMessage(BaseMessage msg) {
-        if (!acceptIncomingMessage(msg))
-            return false;
+		return result;
+	}
 
-        log.info(this.id + " received MSG:" + this.messageToString(msg));
+	/**
+	 * handler for receiving messages
+	 * 
+	 * @param msg
+	 *            incoming message
+	 * @return true if we should handle the message, false otherwise.
+	 */
+	public boolean receiveMessage(BaseMessage msg) {
+		if (!acceptIncomingMessge(msg))
+			return false;
 
-        if (msg instanceof Message)
-            this.triggerRequests((Message) msg);
+		log.info(this.id + " received MSG:" + this.messageToString(msg));
+		
+		if (msg instanceof Message)
+			this.triggerRequests((Message) msg);
 
-        for (ExternalMessagingHandler handler : this.handlers)
-            handler.handleMessage(msg);
+		for (ExternalMessagingHandler handler : this.handlers)
+			handler.handleMessage(msg);
 
-        return true;
-    }
+		return true;
+	}
 
-    public abstract void sendMessage(BaseMessage msg);
-//    {
-//        log.debug(this.id + " is sending " + this.messageToString(msg));
-//        String senderID = (String) msg.getContextValue(ORIGINATING_SERVICE_ID_KEY);
-//        this.distributeMessage(msg, senderID);
-//    }
+	public void sendMessage(BaseMessage msg) {
+		log.debug(this.id + " is sending " + this.messageToString(msg));
+		String senderID = (String) msg.getContextValue(ORIGINATING_SERVICE_ID_KEY);
+		this.distributeMessage(msg, senderID);
+	}
 
-    /**
-     * Handle an arriving message from some source. Services other than gateways
-     * should generally not need to change this.
-     *
-     * @param msg:      The message arriving
-     * @param senderId: The id string for the sender of this message.
-     **/
-    public void handleMessage(BaseMessage msg, String senderId) {
-        this.receiveMessage(msg);
-    }
+	/**
+	 * Handle an arriving message from some source. Services other than gateways
+	 * should generally not need to change this.
+	 *
+	 * @param msg:
+	 *            The message arriving
+	 * @param senderId:
+	 *            The id string for the sender of this message.
+	 **/
+	public void handleMessage(BaseMessage msg, String senderId) {
+		this.receiveMessage(msg);
+	}
 
-    protected boolean isMessageOnGatewayBlackList(BaseMessagingNode destination, BaseMessage msg) {
-        return false;
-    }
+	/**
+	 * """ Pass a message down all interested children (except sender) """
+	 *
+	 * @param msg
+	 * @param senderId
+	 * @return true if message is distributed, false if not.
+	 */
+	public void distributeMessage(BaseMessage msg, String senderId) {
+		this.distributeMessage_impl(this.nodes, msg, senderId);
+	}
+	
+	
+	protected boolean isMessageOnGatewayBlackList(BaseMessagingNode destination, BaseMessage msg)
+	{
+		return false;
+	}
+	
+	
+	protected boolean isMessageOnGatewayWhiteList(BaseMessagingNode destination, BaseMessage msg)
+	{
+		return true;
+	}
 
+	/**
+	 * Internal implementation of DistributeMessage ""
+	 * " Implement passing a message down all interested children (except sender) "
+	 * ""
+	 *
+	 * @param nodes
+	 * @param msg
+	 * @param senderId
+	 */
+	protected void distributeMessage_impl(Map<String, BaseMessagingNode> nodes, BaseMessage msg, String senderId) {
+		for (BaseMessagingNode node : nodes.values()) {
+			if(!isMessageOnGatewayBlackList(node, msg) && isMessageOnGatewayWhiteList(node, msg))
+				if (node.id != senderId && (node.getMessageConditions() == null || node.getMessageConditions().test(msg)))
+					node.receiveMessage(msg);
+		}
+	}
 
-    protected boolean isMessageOnGatewayWhiteList(BaseMessagingNode destination, BaseMessage msg) {
-        return true;
-    }
+	/**
+	 * Transmit the message to another node
+	 **/
+	protected void transmitMessage(BaseMessagingNode node, BaseMessage msg, String senderId) {
+		node.handleMessage(msg, senderId);
+	}
 
-    /**
-     * Transmit the message to another node
-     **/
-//    protected void transmitMessage(BaseMessagingNode node, BaseMessage msg, String senderId) {
-//        node.handleMessage(msg, senderId);
-//    }
+	// """ Function to check if this node is interested in this message type """
+	public Predicate<BaseMessage> getMessageConditions() {
+		return conditions;
+	}
 
-    // """ Function to check if this node is interested in this message type """
-    public Predicate<BaseMessage> getMessageConditions() {
-        return conditions;
-    }
+	/* handler management */
 
-    /* handler management */
+	public void addHandler(ExternalMessagingHandler handler) {
+		this.handlers.add(handler);
+	}
 
-    public void addHandler(ExternalMessagingHandler handler) {
-        this.handlers.add(handler);
-    }
+	/* Node Management */
 
-    protected Collection<Pair<Message, Consumer<Message>>> getRequests() {
-        return this.requests.values();
-    }
+	/**
+	 * Connect nodes to this node
+	 **/
+	public void addNodes(Collection<BaseMessagingNode> newNodes) {
+		if (newNodes != null) {
+			for (BaseMessagingNode node : newNodes) {
+				addNode(node);
+			}
+		}
+	}
 
-    protected void addRequest(Message msg, Consumer<Message> callback) {
-        if (callback != null) {
-            Message clone = (Message) msg.clone(false);
-            Pair<Message, Consumer<Message>> messageAndCallback = new Pair<Message, Consumer<Message>>(clone, callback);
+	public void addNode(BaseMessagingNode node) {
+		node.onBindToNode(this);
+		this.onBindToNode(node);
+	}
 
-            this.requests.put(msg.getId(), messageAndCallback);
-        }
-    }
+	public Collection<BaseMessagingNode> getNodes() {
+		return this.nodes.values();
+	}
 
-//    protected void makeRequest(Message msg, Consumer<Message> callback) {
-//        this.addRequest(msg, callback);
-//        this.sendMessage(msg);
-//    }
+	/**
+	 * Register the node and signatures of messages that the node is interested
+	 * in
+	 **/
+	public void onBindToNode(BaseMessagingNode node) {
+		if (!this.nodes.containsKey(node.getId())) {
+			this.nodes.put(node.getId(), node);
+		}
+	}
 
-    protected void triggerRequests(Message msg) {
-        String convoId = (String) msg.getContextValue(Message.CONTEXT_CONVERSATION_ID_KEY, null);
-        if (convoId != null && this.requests.containsKey(convoId)) {
-            String key = convoId;
-            Pair<Message, Consumer<Message>> value = this.requests.get(key);
-            Message oldMsg = value.getFirst();
-            Consumer<Message> callback = value.getSecond();
-            callback.accept(msg);
-            if (!oldMsg.getSpeechAct().equals(SpeechActEnum.REQUEST_WHENEVER_ACT))
-                this.requests.remove(key);
-        }
-    }
+	/**
+	 * This removes this node from a connected node (if any)
+	 **/
+	public void onUnbindToNode(BaseMessagingNode node) {
+		if (this.nodes.containsKey(node.getId())) {
+			this.nodes.remove(node.getId());
+		}
+	}
 
-    protected BaseMessage createRequestReply(BaseMessage msg) {
-        String oldId = msg.getId();
-        BaseMessage copy = (BaseMessage) msg.clone(true);
-        copy.setContextValue(Message.CONTEXT_CONVERSATION_ID_KEY, oldId);
-        return copy;
-    }
+	protected Collection<Pair<Message, Consumer<Message>>> getRequests() {
+		return this.requests.values();
+	}
 
-    // # Pack/Unpack Messages
-    public String messageToString(BaseMessage msg) {
-        return SerializationConvenience.serializeObject(msg, SerializationFormatEnum.JSON_FORMAT);
-    }
+	protected void addRequest(Message msg, Consumer<Message> callback) {
+		if (callback != null) {
+			Message clone = (Message) msg.clone(false);
+			Pair<Message, Consumer<Message>> messageAndCallback = new Pair<Message, Consumer<Message>>(clone, callback);
 
-    public BaseMessage stringToMessage(String msgAsString) {
-        BaseMessage result = null;
-        if (CATCH_BAD_MESSAGES) {
+			this.requests.put(msg.getId(), messageAndCallback);
+		}
+	}
 
-            try {
-                result = (Message) SerializationConvenience.nativeizeObject(msgAsString,
-                        SerializationFormatEnum.JSON_FORMAT);
-            } catch (Exception e) {
-                log.error("ERROR: could not process message data received.  Received: " + msgAsString);
-                log.error("Exception Caught:" + e.toString());
-            }
-        } else {
-            result = (BaseMessage) SerializationConvenience.nativeizeObject(msgAsString,
-                    SerializationFormatEnum.JSON_FORMAT);
-        }
+	protected void makeRequest(Message msg, Consumer<Message> callback) {
+		this.addRequest(msg, callback);
+		this.sendMessage(msg);
+	}
 
-        return result;
-    }
+	protected void triggerRequests(Message msg) {
+		String convoId = (String) msg.getContextValue(Message.CONTEXT_CONVERSATION_ID_KEY, null);
+		if (convoId != null && this.requests.containsKey(convoId)) {
+			String key = convoId;
+			Pair<Message, Consumer<Message>> value = this.requests.get(key);
+			Message oldMsg = value.getFirst();
+			Consumer<Message> callback = value.getSecond();
+			callback.accept(msg);
+			if (!oldMsg.getSpeechAct().equals(SpeechActEnum.REQUEST_WHENEVER_ACT))
+				this.requests.remove(key);
+		}
+	}
 
-    public List<String> messagesToStringList(List<BaseMessage> msgs) {
-        List<String> result = new ArrayList<>();
+	protected BaseMessage createRequestReply(BaseMessage msg) {
+		String oldId = msg.getId();
+		BaseMessage copy = (BaseMessage) msg.clone(true);
+		copy.setContextValue(Message.CONTEXT_CONVERSATION_ID_KEY, oldId);
+		return copy;
+	}
 
-        for (BaseMessage msg : msgs) {
-            result.add(messageToString(msg));
-        }
+	// # Pack/Unpack Messages
+	public String messageToString(BaseMessage msg) {
+		return SerializationConvenience.serializeObject(msg, SerializationFormatEnum.JSON_FORMAT);
+	}
 
-        return result;
-    }
+	public BaseMessage stringToMessage(String msgAsString) {
+		BaseMessage result = null;
+		if (CATCH_BAD_MESSAGES) {
 
-    public List<BaseMessage> stringListToMessages(List<String> strMsgs) {
-        List<BaseMessage> result = new ArrayList<>();
+			try {
+				result = (Message) SerializationConvenience.nativeizeObject(msgAsString,
+						SerializationFormatEnum.JSON_FORMAT);
+			} catch (Exception e) {
+				log.error("ERROR: could not process message data received.  Received: " + msgAsString);
+				log.error("Exception Caught:" + e.toString());
+			}
+		} else {
+			result = (BaseMessage) SerializationConvenience.nativeizeObject(msgAsString,
+					SerializationFormatEnum.JSON_FORMAT);
+		}
 
-        for (String strMsg : strMsgs) {
-            BaseMessage msg = this.stringToMessage(strMsg);
-            result.add(msg);
-        }
+		return result;
+	}
 
-        return result;
-    }
+	public List<String> messagesToStringList(List<BaseMessage> msgs) {
+		List<String> result = new ArrayList<>();
 
-    public String getId() {
-        return this.id;
-    }
+		for (BaseMessage msg : msgs) {
+			result.add(messageToString(msg));
+		}
 
-    public Map<String, Object> getContext() {
-        return context;
-    }
+		return result;
+	}
 
-    public void setContext(Map<String, Object> context) {
-        this.context = context;
-    }
+	public List<BaseMessage> stringListToMessages(List<String> strMsgs) {
+		List<BaseMessage> result = new ArrayList<>();
 
-    public void addToContext(String key, Object value) {
-        this.context.put(key, value);
-    }
+		for (String strMsg : strMsgs) {
+			BaseMessage msg = this.stringToMessage(strMsg);
+			result.add(msg);
+		}
+
+		return result;
+	}
+
+	public String getId() {
+		return this.id;
+	}
+
+	public Map<String, Object> getContext() {
+		return context;
+	}
+
+	public void setContext(Map<String, Object> context) {
+		this.context = context;
+	}
+
+	public void addToContext(String key, Object value) {
+		this.context.put(key, value);
+	}
 
 }
