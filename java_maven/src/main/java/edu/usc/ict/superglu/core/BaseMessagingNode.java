@@ -95,7 +95,9 @@ public abstract class BaseMessagingNode {
     }
 
     /**
-     * handler for receiving messages
+     * Handler for receiving messages.
+     * Would be extended by Services through super.receiveMessage()
+     * Checks if the msg received is allowed by blacklist/whitelist
      *
      * @param msg incoming message
      * @return true if we should handle the message, false otherwise.
@@ -115,28 +117,9 @@ public abstract class BaseMessagingNode {
         return true;
     }
 
-    public abstract void sendMessage(BaseMessage msg);
-//    {
-//        log.debug(this.id + " is sending " + this.messageToString(msg));
-//        String senderID = (String) msg.getContextValue(ORIGINATING_SERVICE_ID_KEY);
-//        this.distributeMessage(msg, senderID);
-//    }
-
-    /**
-     * Handle an arriving message from some source. Services other than gateways
-     * should generally not need to change this.
-     *
-     * @param msg:      The message arriving
-     * @param senderId: The id string for the sender of this message.
-     **/
-    public void handleMessage(BaseMessage msg, String senderId) {
-        this.receiveMessage(msg);
-    }
-
     protected boolean isMessageOnGatewayBlackList(BaseMessagingNode destination, BaseMessage msg) {
         return false;
     }
-
 
     protected boolean isMessageOnGatewayWhiteList(BaseMessagingNode destination, BaseMessage msg) {
         return true;

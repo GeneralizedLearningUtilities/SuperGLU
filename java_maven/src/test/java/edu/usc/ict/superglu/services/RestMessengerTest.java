@@ -1,7 +1,5 @@
 package edu.usc.ict.superglu.services;
 
-import static org.junit.Assert.*;
-
 import java.util.HashMap;
 
 import org.junit.Before;
@@ -13,13 +11,13 @@ import edu.usc.ict.superglu.core.RESTMessage;
 public class RestMessengerTest {
 
 	
-	public RESTMessenger messenger;
+	public RESTService messenger;
 	
 	
 	@Before
 	public void setup()
 	{
-		messenger = new RESTMessenger("messenger");
+		messenger = new RESTService("messenger");
 	}
 	
 	

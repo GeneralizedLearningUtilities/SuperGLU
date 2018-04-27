@@ -2,7 +2,7 @@ package edu.usc.ict.superglu.core;
 
 import edu.usc.ict.superglu.core.blackwhitelist.BlackWhiteListEntry;
 import edu.usc.ict.superglu.core.config.GatewayBlackWhiteListConfiguration;
-import edu.usc.ict.superglu.core.config.ServiceConfiguration;
+import edu.usc.ict.superglu.core.config.GatewayConfiguration;
 import edu.usc.ict.superglu.ontology.OntologyBroker;
 import edu.usc.ict.superglu.ontology.mappings.MessageMapFactory;
 import edu.usc.ict.superglu.ontology.mappings.MessageType;
@@ -35,13 +35,13 @@ public class BaseMessagingGateway extends BaseMessagingNode {
     protected Map<String, List<BlackWhiteListEntry>> gatewayWhiteList;
 
     public BaseMessagingGateway() {// Default constructor for ease of access
-        this(null, null, null, null, null, new ServiceConfiguration());
+        this(null, null, null, null, null, new GatewayConfiguration());
         ontologyBroker = new OntologyBroker(MessageMapFactory.buildMessageMaps(),
                 MessageMapFactory.buildDefaultMessageTemplates());
     }
 
     public BaseMessagingGateway(String anId, Map<String, Object> scope, Collection<BaseMessagingNode> nodes,
-                                Predicate<BaseMessage> conditions, List<ExternalMessagingHandler> handlers, ServiceConfiguration config) {
+                                Predicate<BaseMessage> conditions, List<ExternalMessagingHandler> handlers, GatewayConfiguration config) {
         super(anId, conditions, handlers, config.getBlackList(), config.getWhiteList());
         if (scope == null)
             this.scope = new HashMap<>();
@@ -92,12 +92,16 @@ public class BaseMessagingGateway extends BaseMessagingNode {
     }
 
     /**
-     * """ When gateway receives a message, it distributes it to child nodes """
+     * When gateway receives a message, it distributes it to child nodes
      */
     @Override
-    public void handleMessage(BaseMessage msg, String senderId) {
-        super.receiveMessage(msg);
-        this.distributeMessage(msg, senderId);
+    public boolean receiveMessage(BaseMessage msg) {
+        if (super.receiveMessage(msg)) {
+            String senderId = (String) msg.getContextValue(ORIGINATING_SERVICE_ID_KEY);
+            this.distributeMessage(msg, senderId);
+            return true;
+        }
+        return false;
     }
 
 
@@ -190,14 +194,6 @@ public class BaseMessagingGateway extends BaseMessagingNode {
                 if (node.id != senderId && (node.getMessageConditions() == null || node.getMessageConditions().test(msg)))
                     node.receiveMessage(msg);
         }
-    }
-
-
-    @Override
-    public void sendMessage(BaseMessage msg) {
-        log.debug(this.id + " is sending " + this.messageToString(msg));
-        String senderID = (String) msg.getContextValue(ORIGINATING_SERVICE_ID_KEY);
-        this.distributeMessage(msg, senderID);
     }
 
 

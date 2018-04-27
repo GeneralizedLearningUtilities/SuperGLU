@@ -18,11 +18,11 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.jms.TopicConnection;
 
+import edu.usc.ict.superglu.core.config.GatewayConfiguration;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.command.ActiveMQTopic;
 
 import edu.usc.ict.superglu.core.blackwhitelist.BlackWhiteListEntry;
-import edu.usc.ict.superglu.core.config.ServiceConfiguration;
 import edu.usc.ict.superglu.util.SerializationConvenience;
 import edu.usc.ict.superglu.util.SerializationFormatEnum;
 import edu.usc.ict.superglu.util.StorageToken;
@@ -100,14 +100,14 @@ public class ActiveMQTopicMessagingGateway extends BaseMessagingGateway implemen
         init(defaultConfig);
     }
 
-    public ActiveMQTopicMessagingGateway(ServiceConfiguration config) {
+    public ActiveMQTopicMessagingGateway(GatewayConfiguration config) {
         super(config.getId(), null, null, null, null, config);
         // Have a default configuration to fall back on.
         ActiveMQTopicConfiguration activeMQConfig = new ActiveMQTopicConfiguration();
 
-        if (config.getParams().containsKey(ServiceConfiguration.ACTIVEMQ_PARAM_KEY))
+        if (config.getParams().containsKey(GatewayConfiguration.ACTIVEMQ_PARAM_KEY))
             activeMQConfig = (ActiveMQTopicConfiguration) config.getParams()
-                    .get(ServiceConfiguration.ACTIVEMQ_PARAM_KEY);
+                    .get(GatewayConfiguration.ACTIVEMQ_PARAM_KEY);
 
         init(activeMQConfig);
     }
@@ -116,7 +116,7 @@ public class ActiveMQTopicMessagingGateway extends BaseMessagingGateway implemen
                                          Predicate<BaseMessage> conditions, List<ExternalMessagingHandler> handlers,
                                          List<BlackWhiteListEntry> blackList, List<BlackWhiteListEntry> whitelist,
                                          ActiveMQTopicConfiguration activeMQConfiguration) {
-        super(anId, scope, nodes, conditions, handlers, new ServiceConfiguration());
+        super(anId, scope, nodes, conditions, handlers, new GatewayConfiguration());
         init(activeMQConfiguration);
     }
 
@@ -130,81 +130,79 @@ public class ActiveMQTopicMessagingGateway extends BaseMessagingGateway implemen
             e.printStackTrace();
         }
     }
-    
 
-	public MessageProducer getOrCreateQueueProducer(String destination) {
-		MessageProducer result = null;
-		if (this.queueProducers.containsKey(destination)) {
-			result = this.queueProducers.get(destination);
-		} else {
-			Destination producerDestination;
-			try {
-				producerDestination = session.createQueue(pedagogicalQueueName);
-				result = session.createProducer(producerDestination);
-				
-				this.queueProducers.put(destination, result);
-			} catch (JMSException e) {
-				log.error("failed to connect to queue: " + destination, e);
-				throw new RuntimeException(e);
-			}
-			
-		}
-		
-		return result;
-	}
 
-    @Override
-    public void sendMessage(BaseMessage msg) {
-        super.sendMessage(msg);
-        
-        if(isMessageOnGatewayExternalBlackList(msg))
-        	return;
-        
-		if (isMessageOnGatewayExternalWhiteList(msg)) {
-			try {
-				if (msg instanceof Message) {
-					this.addContextDataToMsg(msg);
-					TextMessage activeMQMessage = session.createTextMessage(
-							SerializationConvenience.serializeObject(msg, SerializationFormatEnum.JSON_FORMAT));
-					activeMQMessage.setStringProperty(MESSAGETYPE, SUPERGLU);
-					producer.send(activeMQMessage);
-				} else if (msg instanceof GIFTMessage) {
-					String msgAsString = JSONStandardRWFormat.serialize(((GIFTMessage) msg).getPayload());
-					TextMessage activeMQMessage = session.createTextMessage(msgAsString);
-					activeMQMessage.setStringProperty(MESSAGETYPE, GIFT);
-					activeMQMessage.setByteProperty("Encoding", (byte) 0);
+    public MessageProducer getOrCreateQueueProducer(String destination) {
+        MessageProducer result = null;
+        if (this.queueProducers.containsKey(destination)) {
+            result = this.queueProducers.get(destination);
+        } else {
+            Destination producerDestination;
+            try {
+                producerDestination = session.createQueue(pedagogicalQueueName);
+                result = session.createProducer(producerDestination);
 
-					String destination = ((GIFTMessage) msg).getDestinationQueueName();
-					MessageProducer queueProducer = getOrCreateQueueProducer(destination);
+                this.queueProducers.put(destination, result);
+            } catch (JMSException e) {
+                log.error("failed to connect to queue: " + destination, e);
+                throw new RuntimeException(e);
+            }
 
-					queueProducer.send(activeMQMessage);
-				} else if (msg instanceof VHMessage) {
-					VHMessage vhMsg = (VHMessage) msg;
-					TextMessage activeMQMessage = session
-							.createTextMessage(vhMsg.getFirstWord() + " " + vhMsg.getBody());
-					activeMQMessage.setStringProperty(VHMSG, VHMSG);
-					activeMQMessage.setStringProperty("ELVISH_SCOPE", "DEFAULT_SCOPE");
-					activeMQMessage.setStringProperty("MESSAGE_PREFIX", vhMsg.getFirstWord());
-					activeMQMessage.setStringProperty("VHMSG_VERSION", "1.0.0.0");
+        }
 
-					vhProducer.send(activeMQMessage);
-				}
-			} catch (JMSException e) {
-				e.printStackTrace();
-				log.warn("Failed to Send Message to ActiveMQ:"
-						+ SerializationConvenience.serializeObject(msg, SerializationFormatEnum.JSON_FORMAT));
-			}
-		}
+        return result;
     }
 
     @Override
-    public boolean receiveMessage(BaseMessage msg) {
-        // We need to override this function so that we actually send messages
-        // from other services over activeMQ.
-        super.receiveMessage(msg);
-        this.sendMessage(msg);
-        return true;
+    public void distributeMessage(BaseMessage msg, String senderId) {
+        if (isMessageOnGatewayExternalBlackList(msg))
+            return;
+
+        if (isMessageOnGatewayExternalWhiteList(msg)) {
+            try {
+                if (msg instanceof Message) {
+                    this.addContextDataToMsg(msg);
+                    TextMessage activeMQMessage = session.createTextMessage(
+                            SerializationConvenience.serializeObject(msg, SerializationFormatEnum.JSON_FORMAT));
+                    activeMQMessage.setStringProperty(MESSAGETYPE, SUPERGLU);
+                    producer.send(activeMQMessage);
+                } else if (msg instanceof GIFTMessage) {
+                    String msgAsString = JSONStandardRWFormat.serialize(((GIFTMessage) msg).getPayload());
+                    TextMessage activeMQMessage = session.createTextMessage(msgAsString);
+                    activeMQMessage.setStringProperty(MESSAGETYPE, GIFT);
+                    activeMQMessage.setByteProperty("Encoding", (byte) 0);
+
+                    String destination = ((GIFTMessage) msg).getDestinationQueueName();
+                    MessageProducer queueProducer = getOrCreateQueueProducer(destination);
+
+                    queueProducer.send(activeMQMessage);
+                } else if (msg instanceof VHMessage) {
+                    VHMessage vhMsg = (VHMessage) msg;
+                    TextMessage activeMQMessage = session
+                            .createTextMessage(vhMsg.getFirstWord() + " " + vhMsg.getBody());
+                    activeMQMessage.setStringProperty(VHMSG, VHMSG);
+                    activeMQMessage.setStringProperty("ELVISH_SCOPE", "DEFAULT_SCOPE");
+                    activeMQMessage.setStringProperty("MESSAGE_PREFIX", vhMsg.getFirstWord());
+                    activeMQMessage.setStringProperty("VHMSG_VERSION", "1.0.0.0");
+
+                    vhProducer.send(activeMQMessage);
+                }
+            } catch (JMSException e) {
+                e.printStackTrace();
+                log.warn("Failed to Send Message to ActiveMQ:"
+                        + SerializationConvenience.serializeObject(msg, SerializationFormatEnum.JSON_FORMAT));
+            }
+        }
     }
+
+//    @Override
+//    public boolean receiveMessage(BaseMessage msg) {
+//         We need to override this function so that we actually send messages
+//         from other services over activeMQ.
+//        super.receiveMessage(msg);
+//        this.sendMessage(msg);
+//        return true;
+//    }
 
     /**
      * message handler for receiving all activeMQ messages Will filter out
@@ -272,9 +270,8 @@ public class ActiveMQTopicMessagingGateway extends BaseMessagingGateway implemen
             // re-process it.
             if (!msg.getContextValue(ORIGINATING_SERVICE_ID_KEY, "").equals(this.id)) {
                 super.receiveMessage(msg);
-                super.distributeMessage(msg, this.id);
+//                super.distributeMessage(msg, this.id);
             }
-
         } catch (Exception e) {
             // Don't crash if the message fails to be processed
             e.printStackTrace();
