@@ -13,6 +13,9 @@ import java.util.List;
 
 import static edu.usc.ict.superglu.core.Message.CONTEXT_CONVERSATION_ID_KEY;
 
+/**
+ * Scenario - A service sends a proposal, receiver replies accept & then the sender confirms the acceptance.
+ */
 public class ProposalPatternTest {
 
     private MessagingGateway gateway;
@@ -23,6 +26,7 @@ public class ProposalPatternTest {
     private String acceptedProposalConversationId;
     private String acceptedProposalServiceId;
     private String proposalReceiptConversationId, proposalReceiptServiceId;
+    private String confirmProposalConversationId, confirmProposalServiceId;
 
     class SampleSenderService extends BaseService {
 
@@ -74,6 +78,10 @@ public class ProposalPatternTest {
                     msg2.setContextValue(BaseMessagingNode.ORIGINATING_SERVICE_ID_KEY, this.getId());
                     msg2.setContextValue(CONTEXT_CONVERSATION_ID_KEY, conversationId);
                     this.sendMessage(msg2);
+                } else if (((Message) msg).getSpeechAct() == SpeechActEnum.CONFIRM_PROPOSAL_ACT) {
+                    String conversationId = (String) msg.getContextValue(Message.CONTEXT_CONVERSATION_ID_KEY);
+                    confirmProposalConversationId = conversationId;
+                    confirmProposalServiceId = (String) msg.getContextValue(BaseMessagingNode.ORIGINATING_SERVICE_ID_KEY);
                 }
             }
             System.out.println("============================================================================");
@@ -121,5 +129,8 @@ public class ProposalPatternTest {
 
         Assert.assertEquals("conversation_id_1", proposalReceiptConversationId);
         Assert.assertEquals("senderService", proposalReceiptServiceId);
+
+        Assert.assertEquals("conversation_id_1", confirmProposalConversationId);
+        Assert.assertEquals("senderService", confirmProposalServiceId);
     }
 }
