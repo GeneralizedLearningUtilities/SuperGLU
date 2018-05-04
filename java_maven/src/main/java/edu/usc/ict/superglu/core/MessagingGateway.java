@@ -23,233 +23,235 @@ import java.util.function.Predicate;
 
 public class MessagingGateway extends BaseMessagingNode {
 
-	public static final String GATEWAY_BLACKLIST_KEY = "gatewayBlackList";
-	public static final String GATEWAY_WHITELIST_KEY = "gatewayWhiteList";
+    public static final String GATEWAY_BLACKLIST_KEY = "gatewayBlackList";
+    public static final String GATEWAY_WHITELIST_KEY = "gatewayWhiteList";
 
-	private Map<String, Object> scope;
+    private Map<String, Object> scope;
 
-	private OntologyBroker ontologyBroker;
+    private OntologyBroker ontologyBroker;
 
-	protected Map<String, List<BlackWhiteListEntry>> gatewayBlackList;
-	
-	protected Map<String, List<BlackWhiteListEntry>> gatewayWhiteList;
+    protected Map<String, List<BlackWhiteListEntry>> gatewayBlackList;
 
-	public MessagingGateway() {// Default constructor for ease of access
-		this(null, null, null, null, null, new ServiceConfiguration());
-		ontologyBroker = new OntologyBroker(MessageMapFactory.buildMessageMaps(),
-				MessageMapFactory.buildDefaultMessageTemplates());
-	}
+    protected Map<String, List<BlackWhiteListEntry>> gatewayWhiteList;
 
-	public MessagingGateway(String anId, Map<String, Object> scope, Collection<BaseMessagingNode> nodes,
-			Predicate<BaseMessage> conditions, List<ExternalMessagingHandler> handlers, ServiceConfiguration config) {
-		super(anId, conditions, nodes, handlers, config.getBlackList(), config.getWhiteList());
-		if (scope == null)
-			this.scope = new HashMap<>();
-		else
-			this.scope = scope;
+    public MessagingGateway() {// Default constructor for ease of access
+        this(null, null, null, null, null, new ServiceConfiguration());
+        ontologyBroker = new OntologyBroker(MessageMapFactory.buildMessageMaps(),
+                MessageMapFactory.buildDefaultMessageTemplates());
+    }
 
-		this.scope.put(ORIGINATING_SERVICE_ID_KEY, this.id);
+    public MessagingGateway(String anId, Map<String, Object> scope, Collection<BaseMessagingNode> nodes,
+                            Predicate<BaseMessage> conditions, List<ExternalMessagingHandler> handlers, ServiceConfiguration config) {
+        super(anId, conditions, nodes, handlers, config.getBlackList(), config.getWhiteList());
+        if (scope == null)
+            this.scope = new HashMap<>();
+        else
+            this.scope = scope;
 
-		ontologyBroker = new OntologyBroker(MessageMapFactory.buildMessageMaps(),
-				MessageMapFactory.buildDefaultMessageTemplates());
-		
-		this.gatewayBlackList = buildGatewayBlackWhiteList((GatewayBlackWhiteListConfiguration) config.getParams().getOrDefault(GATEWAY_BLACKLIST_KEY, null));
-		this.gatewayWhiteList = buildGatewayBlackWhiteList((GatewayBlackWhiteListConfiguration) config.getParams().getOrDefault(GATEWAY_WHITELIST_KEY, null));
-	}
-	
-	
-	private Map<String, List<BlackWhiteListEntry>> buildGatewayBlackWhiteList(GatewayBlackWhiteListConfiguration config) {
-		
-		Map<String, List<BlackWhiteListEntry>> result = new HashMap<>();
-		
-		if(config == null)
-			return result;
-		
-		for (String destination : config.getKeys()) {
-			List<String> entriesAsString = config.getMessageList(destination);
+        this.scope.put(ORIGINATING_SERVICE_ID_KEY, this.id);
 
-			List<BlackWhiteListEntry> entries = new ArrayList<>();
+        ontologyBroker = new OntologyBroker(MessageMapFactory.buildMessageMaps(),
+                MessageMapFactory.buildDefaultMessageTemplates());
 
-			for (String entryAsString : entriesAsString) {
-				BlackWhiteListEntry entry = new BlackWhiteListEntry(entryAsString);
-				entries.add(entry);
-			}
+        this.gatewayBlackList = buildGatewayBlackWhiteList((GatewayBlackWhiteListConfiguration) config.getParams().getOrDefault(GATEWAY_BLACKLIST_KEY, null));
+        this.gatewayWhiteList = buildGatewayBlackWhiteList((GatewayBlackWhiteListConfiguration) config.getParams().getOrDefault(GATEWAY_WHITELIST_KEY, null));
+    }
 
-			result.put(destination, entries);
-		}
-		
-		return result;
-	}
-	
-	
 
-	/**
-	 * override this function to place disconnection code in here
-	 **/
-	public void disconnect() {
+    private Map<String, List<BlackWhiteListEntry>> buildGatewayBlackWhiteList(GatewayBlackWhiteListConfiguration config) {
 
-	}
+        Map<String, List<BlackWhiteListEntry>> result = new HashMap<>();
 
-	/**
-	 * """ When gateway receives a message, it distributes it to child nodes """
-	 */
-	@Override
-	public void handleMessage(BaseMessage msg, String senderId) {
-		super.receiveMessage(msg);
-		this.distributeMessage(msg, senderId);
-	}
-	
-	
-	protected boolean isMessageOnDestinationList(List<BlackWhiteListEntry> entries, BaseMessage msg)
-	{
-		if(entries != null)
-		{
-			for(BlackWhiteListEntry entry : entries)
-			{
-				if(entry.evaluateMessage(msg))
-					return true;
-			}
-		}
-		
-		return false;
-	}
-	
+        if (config == null)
+            return result;
 
-	@Override
-	protected boolean isMessageOnGatewayBlackList(BaseMessagingNode destination, BaseMessage msg) {
-		String destinationID = destination.getId();
-		List<BlackWhiteListEntry> entries = this.gatewayBlackList.getOrDefault(destinationID, null);
-		
-		boolean result = isMessageOnDestinationList(entries, msg);
-		
-		List<BlackWhiteListEntry> allDestinationEntries = this.gatewayBlackList.getOrDefault(GatewayBlackWhiteListConfiguration.ALL_DESTINATIONS, null);
-		
-		result = result || isMessageOnDestinationList(allDestinationEntries, msg);
-		
-		return result;
-	
-	}
-	
-	
-	@Override
-	protected boolean isMessageOnGatewayWhiteList(BaseMessagingNode destination, BaseMessage msg) {
-		
-		if(this.gatewayWhiteList.isEmpty())
-			return true;
-		
-		String destinationID = destination.getId();
-		List<BlackWhiteListEntry> entries = this.gatewayWhiteList.getOrDefault(destinationID, null);
-		
-		boolean result = isMessageOnDestinationList(entries, msg);
-		
-		List<BlackWhiteListEntry> allDestinationEntries = this.gatewayWhiteList.getOrDefault(GatewayBlackWhiteListConfiguration.ALL_DESTINATIONS, null);
-		
-		result = result || isMessageOnDestinationList(allDestinationEntries, msg);
-		
-		return result;
-		
-		
-	}
+        for (String destination : config.getKeys()) {
+            List<String> entriesAsString = config.getMessageList(destination);
 
-	protected boolean isMessageOnGatewayExternalBlackList(BaseMessage msg)
-	{
-		if(!USE_BLACK_WHITE_LIST)
-			return false;
-		
-		List<BlackWhiteListEntry> externalEntries = this.gatewayBlackList.getOrDefault(GatewayBlackWhiteListConfiguration.EXTERNAL_DESTINATIONS, null);
-		boolean result = isMessageOnDestinationList(externalEntries, msg);
-		List<BlackWhiteListEntry> allEntries = this.gatewayBlackList.getOrDefault(GatewayBlackWhiteListConfiguration.ALL_DESTINATIONS, null);
-		result = result || isMessageOnDestinationList(allEntries, msg);
-		
-		return result;
-	}
-	
-	
-	protected boolean isMessageOnGatewayExternalWhiteList(BaseMessage msg)
-	{
-		if(!USE_BLACK_WHITE_LIST)
-			return true;
-		
-		if(this.gatewayWhiteList.isEmpty())
-			return true;
-		
-		List<BlackWhiteListEntry> externalEntries = this.gatewayWhiteList.getOrDefault(GatewayBlackWhiteListConfiguration.EXTERNAL_DESTINATIONS, null);
-		boolean result = isMessageOnDestinationList(externalEntries, msg);
-		List<BlackWhiteListEntry> allEntries = this.gatewayWhiteList.getOrDefault(GatewayBlackWhiteListConfiguration.ALL_DESTINATIONS, null);
-		result = result || isMessageOnDestinationList(allEntries, msg);
-		
-		return result;
-	}
+            List<BlackWhiteListEntry> entries = new ArrayList<>();
 
-	/**
-	 * """ Send a message from a child node to parent and sibling nodes """
-	 *
-	 * @param msg
-	 *            Message to be sent
-	 * @param senderId
-	 *            Sender ID
-	 */
-	@Override
-	public void distributeMessage(BaseMessage msg, String senderId) {
-		this.addContextDataToMsg(msg);
-		super.distributeMessage(msg, senderId);
-	}
+            for (String entryAsString : entriesAsString) {
+                BlackWhiteListEntry entry = new BlackWhiteListEntry(entryAsString);
+                entries.add(entry);
+            }
 
-	/**
-	 * """ Register the signatures of messages that the node is interested in "
-	 * ""
-	 *
-	 * @param node
-	 */
-	public void register(BaseMessagingNode node) {
-		this.nodes.put(node.id, node);
-	}
+            result.put(destination, entries);
+        }
 
-	/**
-	 * """ Take actions to remove the node from the list """
-	 *
-	 * @param node
-	 */
-	public void unregister(BaseMessagingNode node) {
-		if (this.nodes.containsKey(node.id))
-			this.nodes.remove(node.id);
-	}
+        return result;
+    }
 
-	/**
-	 * """ Add extra context to the message, if not present """
-	 *
-	 * @param msg
-	 */
-	public void addContextDataToMsg(BaseMessage msg) {
-		for (String key : this.scope.keySet()) {
-			if (!msg.hasContextValue(key))
-				msg.setContextValue(key, this.scope.get(key));
-		}
-	}
 
-	/**
-	 * This function will process a non-SuperGLU message through the ontology
-	 * converter
-	 */
-	public BaseMessage convertMessages(BaseMessage incomingMessage, Class<?> destinationMessageType) {
-		String incomingMessageTypeAsString = incomingMessage.getClassId();
+    /**
+     * override this function to place disconnection code in here
+     **/
+    public void disconnect() {
 
-		String messageName = "";
+    }
 
-		if (incomingMessage instanceof Message)
-			messageName = ((Message) incomingMessage).getVerb();
-		else if (incomingMessage instanceof VHMessage)
-			messageName = ((VHMessage) incomingMessage).getFirstWord();
-		else if (incomingMessage instanceof GIFTMessage)
-			messageName = ((GIFTMessage) incomingMessage).getHeader();
+    /**
+     * """ When gateway receives a message, it distributes it to child nodes """
+     */
+    @Override
+    public void handleMessage(BaseMessage msg, String senderId) {
+        super.receiveMessage(msg);
+        this.distributeMessage(msg, senderId);
+    }
 
-		MessageType inMsgType = ontologyBroker.buildMessageType(incomingMessageTypeAsString, messageName, 1.0f, 1.0f);
-		MessageType outMsgType = ontologyBroker.buildMessageType(destinationMessageType.getSimpleName(), "", 1.0f,
-				1.0f);
+    @Override
+    public boolean receiveMessage(BaseMessage msg) {
+        String senderID = (String) msg.getContextValue(ORIGINATING_SERVICE_ID_KEY);
+        if (super.receiveMessage(msg) && senderID != null) {
+            this.distributeMessage(msg, senderID);
+            return true;
+        }
+        return false;
+    }
 
-		BaseMessage result = ontologyBroker.findPathAndConvertMessage(incomingMessage, inMsgType, outMsgType,
-				this.context, true);
 
-		return result;
-	}
+    protected boolean isMessageOnDestinationList(List<BlackWhiteListEntry> entries, BaseMessage msg) {
+        if (entries != null) {
+            for (BlackWhiteListEntry entry : entries) {
+                if (entry.evaluateMessage(msg))
+                    return true;
+            }
+        }
+
+        return false;
+    }
+
+
+    @Override
+    protected boolean isMessageOnGatewayBlackList(BaseMessagingNode destination, BaseMessage msg) {
+        String destinationID = destination.getId();
+        List<BlackWhiteListEntry> entries = this.gatewayBlackList.getOrDefault(destinationID, null);
+
+        boolean result = isMessageOnDestinationList(entries, msg);
+
+        List<BlackWhiteListEntry> allDestinationEntries = this.gatewayBlackList.getOrDefault(GatewayBlackWhiteListConfiguration.ALL_DESTINATIONS, null);
+
+        result = result || isMessageOnDestinationList(allDestinationEntries, msg);
+
+        return result;
+
+    }
+
+
+    @Override
+    protected boolean isMessageOnGatewayWhiteList(BaseMessagingNode destination, BaseMessage msg) {
+
+        if (this.gatewayWhiteList.isEmpty())
+            return true;
+
+        String destinationID = destination.getId();
+        List<BlackWhiteListEntry> entries = this.gatewayWhiteList.getOrDefault(destinationID, null);
+
+        boolean result = isMessageOnDestinationList(entries, msg);
+
+        List<BlackWhiteListEntry> allDestinationEntries = this.gatewayWhiteList.getOrDefault(GatewayBlackWhiteListConfiguration.ALL_DESTINATIONS, null);
+
+        result = result || isMessageOnDestinationList(allDestinationEntries, msg);
+
+        return result;
+
+
+    }
+
+    protected boolean isMessageOnGatewayExternalBlackList(BaseMessage msg) {
+        if (!USE_BLACK_WHITE_LIST)
+            return false;
+
+        List<BlackWhiteListEntry> externalEntries = this.gatewayBlackList.getOrDefault(GatewayBlackWhiteListConfiguration.EXTERNAL_DESTINATIONS, null);
+        boolean result = isMessageOnDestinationList(externalEntries, msg);
+        List<BlackWhiteListEntry> allEntries = this.gatewayBlackList.getOrDefault(GatewayBlackWhiteListConfiguration.ALL_DESTINATIONS, null);
+        result = result || isMessageOnDestinationList(allEntries, msg);
+
+        return result;
+    }
+
+
+    protected boolean isMessageOnGatewayExternalWhiteList(BaseMessage msg) {
+        if (!USE_BLACK_WHITE_LIST)
+            return true;
+
+        if (this.gatewayWhiteList.isEmpty())
+            return true;
+
+        List<BlackWhiteListEntry> externalEntries = this.gatewayWhiteList.getOrDefault(GatewayBlackWhiteListConfiguration.EXTERNAL_DESTINATIONS, null);
+        boolean result = isMessageOnDestinationList(externalEntries, msg);
+        List<BlackWhiteListEntry> allEntries = this.gatewayWhiteList.getOrDefault(GatewayBlackWhiteListConfiguration.ALL_DESTINATIONS, null);
+        result = result || isMessageOnDestinationList(allEntries, msg);
+
+        return result;
+    }
+
+    /**
+     * """ Send a message from a child node to parent and sibling nodes """
+     *
+     * @param msg      Message to be sent
+     * @param senderId Sender ID
+     */
+    @Override
+    public void distributeMessage(BaseMessage msg, String senderId) {
+        this.addContextDataToMsg(msg);
+        super.distributeMessage(msg, senderId);
+    }
+
+    /**
+     * """ Register the signatures of messages that the node is interested in "
+     * ""
+     *
+     * @param node
+     */
+    public void register(BaseMessagingNode node) {
+        this.nodes.put(node.id, node);
+    }
+
+    /**
+     * """ Take actions to remove the node from the list """
+     *
+     * @param node
+     */
+    public void unregister(BaseMessagingNode node) {
+        if (this.nodes.containsKey(node.id))
+            this.nodes.remove(node.id);
+    }
+
+    /**
+     * """ Add extra context to the message, if not present """
+     *
+     * @param msg
+     */
+    public void addContextDataToMsg(BaseMessage msg) {
+        for (String key : this.scope.keySet()) {
+            if (!msg.hasContextValue(key))
+                msg.setContextValue(key, this.scope.get(key));
+        }
+    }
+
+    /**
+     * This function will process a non-SuperGLU message through the ontology
+     * converter
+     */
+    public BaseMessage convertMessages(BaseMessage incomingMessage, Class<?> destinationMessageType) {
+        String incomingMessageTypeAsString = incomingMessage.getClassId();
+
+        String messageName = "";
+
+        if (incomingMessage instanceof Message)
+            messageName = ((Message) incomingMessage).getVerb();
+        else if (incomingMessage instanceof VHMessage)
+            messageName = ((VHMessage) incomingMessage).getFirstWord();
+        else if (incomingMessage instanceof GIFTMessage)
+            messageName = ((GIFTMessage) incomingMessage).getHeader();
+
+        MessageType inMsgType = ontologyBroker.buildMessageType(incomingMessageTypeAsString, messageName, 1.0f, 1.0f);
+        MessageType outMsgType = ontologyBroker.buildMessageType(destinationMessageType.getSimpleName(), "", 1.0f,
+                1.0f);
+
+        BaseMessage result = ontologyBroker.findPathAndConvertMessage(incomingMessage, inMsgType, outMsgType,
+                this.context, true);
+
+        return result;
+    }
 }
