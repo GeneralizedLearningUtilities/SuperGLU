@@ -3,6 +3,7 @@ package edu.usc.ict.superglu;
 import edu.usc.ict.superglu.core.*;
 import edu.usc.ict.superglu.core.config.ServiceConfiguration;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -19,10 +20,11 @@ public class ProposalPatternTest {
     private BaseService senderService;
     private BaseService receiverService;
 
-    class SampleSenderService extends BaseService {
+    private String acceptedProposalConversationId;
+    private String acceptedProposalServiceId;
+    private String proposalReceiptConversationId, proposalReceiptServiceId;
 
-        private String acceptedProposalConversationId;
-        private String acceptedProposalServiceId;
+    class SampleSenderService extends BaseService {
 
         public SampleSenderService(String id) {
             super(id, null);
@@ -51,7 +53,6 @@ public class ProposalPatternTest {
     }
 
     class SampleReceiverService extends BaseService {
-        private String proposalReceiptConversationId, proposalReceiptServiceId;
 
         public SampleReceiverService(String id) {
             super(id, null);
@@ -115,5 +116,10 @@ public class ProposalPatternTest {
         msg.setContextValue(BaseMessagingNode.ORIGINATING_SERVICE_ID_KEY, senderService.getId());
         msg.setContextValue(CONTEXT_CONVERSATION_ID_KEY, "conversation_id_1");
         senderService.sendMessage(msg);
+        Assert.assertEquals("conversation_id_1", acceptedProposalConversationId);
+        Assert.assertEquals("receiverService", acceptedProposalServiceId);
+
+        Assert.assertEquals("conversation_id_1", proposalReceiptConversationId);
+        Assert.assertEquals("senderService", proposalReceiptServiceId);
     }
 }
