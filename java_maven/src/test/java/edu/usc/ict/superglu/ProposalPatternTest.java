@@ -218,7 +218,7 @@ public class ProposalPatternTest {
         msg.setContextValue(CONTEXT_CONVERSATION_ID_KEY, "conversation_id_2");
         senderServiceTwo.sendMessage(msg);
 
-        TimeUnit.SECONDS.sleep(2);      //sleeping for 3 seconds
+        TimeUnit.SECONDS.sleep(2);      //sleeping for 2 seconds in order to receive all proposal acceptances
 
         Assert.assertEquals(1, receiverService.proposalsAccepted.size());
         Assert.assertEquals(1, receiverServiceTwo.proposalsAccepted.size());
