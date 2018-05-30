@@ -1,8 +1,9 @@
+import datetime
 import time
 from SuperGLU.Core.Messaging import Message
 from SuperGLU.Core.MessagingGateway import BaseService
 
-class BaseLearningLoggerService(BaseService):
+class BaseLearnLogger(BaseService):
 
     '''
     Initialize the standard ITS logger service
@@ -22,14 +23,17 @@ class BaseLearningLoggerService(BaseService):
         @type id: string
     '''
 
-    def __init__(gateway, userId, classroomId, taskId, url, activityType, context, id):
-        self._userId = userId;
-    	self._classroomId = classroomId;
-        self._taskId = taskId;
-        self._url = url;
-        self._activityType = activityType;
-        self._context = context;
+    def __init__(self, gateway, userId, name, classroomId, taskId, url, activityType, context, id):
+        self._gateway = gateway
+        self._userId = userId
+        self._name = name
+        self._classroomId = classroomId
+        self._taskId = taskId
+        self._url = url
+        self._activityType = activityType
+        self._context = context
         self._startTime = time.time()
+        self._id = id
 
     '''
     Calculate the duration so far
@@ -41,7 +45,7 @@ class BaseLearningLoggerService(BaseService):
         @rtype: float
     '''
 
-    def calcDuration(startTime, endTime):
+    def calcDuration(self, startTime=None, endTime=None):
         if startTime == None:
             startTime = self._startTime
         if endTime == None:
@@ -51,16 +55,20 @@ class BaseLearningLoggerService(BaseService):
             console.log("Warning: Calculated duration was less than zero.")
         return duration;
 
+    def getTimestamp(self):
+        timestamp = datetime.datetime.utcnow()
+        return timestamp
+
     '''
     Reset the start time for this service, for the purpose of calculating the duration
         @param startTime: The new default start time for the service.
         @type startTime: Date
     '''
 
-    def resetStartTime(startTime):
+    def resetStartTime(self, startTime):
         if startTime == None:
             startTime = time.time()
-        self._startTime = startTime;
+        self._startTime = startTime
 
     '''
     Reset the task ID for this service
@@ -68,43 +76,14 @@ class BaseLearningLoggerService(BaseService):
         @type taskId: uuid string
     '''
 
-    def resetTaskId(taskId):
-        self._taskId = taskId;
+    def resetTaskId(self, taskId):
+        self._taskId = taskId
 
-    '''
-    Add context to the message.  This adds the userId, taskId, classroomId,
-        activityType, and duration so far. It also adds any service context items,
-        followed by the parameter context. Context within the context parameter does
-        not override any existing message context.
-        @param msg: The original message to modify by adding context data.
-        @type msg: Messaging.Message
-        @param context: Dictionary of key-value items to add to the message context. Not used if keys already exist.
-        @type context: object
-        @return: Modified message in msg
-        @rtype: Messaging.Message
-    '''
+    def setContextValue(self, key, value):
+        self._context[key] = value
 
-    def addContext(msg, context):
-        msg.setContextValue(USER_ID_KEY, self._userId);
-        msg.setContextValue(TASK_ID_KEY, self._taskId);
-		msg.setContextValue(CLASSROOM_ID_KEY, self._classroomId);
-        msg.setContextValue(ACTIVITY_TYPE_KEY, self._activityType);
-        msg.setContextValue(DURATION_KEY, self.calcDuration());
-        for key in self._context:
-            if not msg.hasContextValue(key):
-                msg.setContextValue(key, self._context[key])
-        for key in context:
-            if not msg.hasContextValue(key):
-                msg.setContextValue(key, context[key])
-        return msg;
+    def hasContextValue(self, key):
+        return key in self._context
 
-    '''
-    Finalize any post-processing of the message and then send it
-        @param msg: Message to send
-        @type msg: Messaging.Message
-        @param context: Dictionary of key-value items to add to the message context. Not used if keys already exist.
-        @type context: object
-    '''
-    def sendLoggingMessage(msg, context):
-        msg = self.addContext(msg, context)
-        self.sendMessage(msg)
+    def hasContextValue(self, context, key):
+        return key in context
