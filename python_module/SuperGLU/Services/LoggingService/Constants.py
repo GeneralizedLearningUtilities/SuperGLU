@@ -2,6 +2,8 @@ LOADED_VERB = "Loaded"
 
 RECOMMENDED_TASKS_VERB = "RecommendedTasks"
 
+XAPI_LOG_VERB = "XAPILogStatement"
+
 # Task Performance Verbs
 COMPLETED_VERB = 'Completed'                       # Finished task, return result (e.g., score)
 COMPLETED_ALL_STEPS_VERB = 'CompletedAllSteps'     # Completed all steps (true/false/% steps completed)

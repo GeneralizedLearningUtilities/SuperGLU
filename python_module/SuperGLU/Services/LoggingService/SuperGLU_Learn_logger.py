@@ -24,8 +24,8 @@ class SuperGLULearnLogger(BaseLearnLogger):
         @type id: string
     '''
 
-    def __init__(self, gateway=None, userId=None, classroomId=None, taskId=None, url=None, activityType=None, context=None, id=None):
-        super(SuperGLULearnLogger, self).__init__(gateway, userId, classroomId, taskId, url, activityType, context, id)
+    def __init__(self, gateway=None, userId=None, classroomId=None, taskId=None, url=None, activityType=None, context=None, anId=None):
+        super(SuperGLULearnLogger, self).__init__(gateway, userId, classroomId, taskId, url, activityType, context, anId)
 
     '''Send the loaded message, for when the task is ready to start.
         Message Data: <frameName> | Loaded | <url> | true
@@ -34,7 +34,7 @@ class SuperGLULearnLogger(BaseLearnLogger):
     '''
 
     def sendLoadedTask(self, frameName):
-        msg = Message(frameName, LOADED_VERB, self._url, true)
+        msg = Message(frameName, LOADED_VERB, self._url, True)
         self.sendLoggingMessage(msg)
 
     '''
@@ -273,7 +273,7 @@ class SuperGLULearnLogger(BaseLearnLogger):
         @param supportLevel: Fraction of the total support given to the user during the task, in [0,1].
         @type supportLevel: float
     '''
-    def sendTaskSupport(supportLevel):
+    def sendTaskSupport(self, supportLevel):
         supportLevel = self.clampToUnitValue(supportLevel)
         msg = Message(self._userId, TASK_SUPPORT_VERB, self._taskId, supportLevel)
         self.sendLoggingMessage(msg)
@@ -304,7 +304,7 @@ class SuperGLULearnLogger(BaseLearnLogger):
     def sendWordsPerSecond(self, value, evidence, stepId):
             if value < 0:
                 value = 0
-            self._sendMetricMessage(WORDS_PER_SECOND_VERB, value, evidence, stepId, false)
+            self._sendMetricMessage(WORDS_PER_SECOND_VERB, value, evidence, stepId, False)
 
     '''
     Send the actions per second when user was expected to interact with the system
@@ -319,7 +319,7 @@ class SuperGLULearnLogger(BaseLearnLogger):
     def sendActionsPerSecond(self, value, evidence, stepId):
             if value < 0:
                 value = 0
-            self._sendMetricMessage(ACTIONS_PER_SECOND_VERB, value, evidence, stepId, false)
+            self._sendMetricMessage(ACTIONS_PER_SECOND_VERB, value, evidence, stepId, False)
 
     '''
     Send the semantic match for content submitted. Can be either for a single step (if stepId given)
@@ -333,25 +333,25 @@ class SuperGLULearnLogger(BaseLearnLogger):
         @type stepId: string
     '''
     def sendAnswerSemanticMatch(self, value, evidence, stepId):
-        self._sendMetricMessage(ANSWER_SEMANTIC_MATCH_VERB, value, evidence, stepId, true)
+        self._sendMetricMessage(ANSWER_SEMANTIC_MATCH_VERB, value, evidence, stepId, True)
 
     def sendPersistence(self, value, evidence, stepId):
-        self._sendMetricMessage(PERSISTENCE_VERB, value, evidence, stepId, true)
+        self._sendMetricMessage(PERSISTENCE_VERB, value, evidence, stepId, True)
 
     def sendImpetuousness(self, value, evidence, stepId):
-        self._sendMetricMessage(IMPETUOUSNESS_VERB, value, evidence, stepId, true)
+        self._sendMetricMessage(IMPETUOUSNESS_VERB, value, evidence, stepId, True)
 
     def sendGamingTheSystem(self, value, evidence, stepId):
-        self._sendMetricMessage(GAMING_SYSTEM_VERB, value, evidence, stepId, true)
+        self._sendMetricMessage(GAMING_SYSTEM_VERB, value, evidence, stepId, True)
 
     def sendConfusion(self, value, evidence, stepId):
-        self._sendMetricMessage(CONFUSION_VERB, value, evidence, stepId, true)
+        self._sendMetricMessage(CONFUSION_VERB, value, evidence, stepId, True)
 
     def sendDisengagement(self, value, evidence, stepId):
-        self._sendMetricMessage(DISENGAGEMENT_VERB, value, evidence, stepId, true)
+        self._sendMetricMessage(DISENGAGEMENT_VERB, value, evidence, stepId, True)
 
     def sendWheelspinning(self, value, evidence, stepId):
-        self._sendMetricMessage(WHEELSPINNING_VERB, value, evidence, stepId, true)
+        self._sendMetricMessage(WHEELSPINNING_VERB, value, evidence, stepId, True)
 
     def sendRequestRecommendedTasks(self, userName, numberOfRecommendations):
         msg = Message(userName, RECOMMENDED_TASKS_VERB, numberOfRecommendations, "", "Request")
@@ -465,5 +465,5 @@ class SuperGLULearnLogger(BaseLearnLogger):
     # values to fit within a [0,1] range
     def clampToUnitValue(self, val):
         if val != None:
-            return Math.min(Math.max(val, 0.0), 1.0)
+            return min(max(val, 0.0), 1.0)
         return val

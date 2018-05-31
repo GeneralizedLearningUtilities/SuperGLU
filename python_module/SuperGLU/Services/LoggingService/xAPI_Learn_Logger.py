@@ -22,8 +22,8 @@ class xAPILearnLogger(BaseLearnLogger):
 
     URIBase = "https://github.com/GeneralizedLearningUtilities/SuperGLU"
 
-    def __init__(self, gateway=None, userId=None, name=None, classroomId=None, taskId=None, url=None, activityType='', context={}, id=None):
-        super(xAPILearnLogger, self).__init__(gateway, userId, name, classroomId, taskId, url, activityType, context, id)
+    def __init__(self, gateway=None, userId=None, name=None, classroomId=None, taskId=None, url=None, activityType='', context={}, anId=None):
+        super(xAPILearnLogger, self).__init__(gateway, userId, name, classroomId, taskId, url, activityType, context, anId)
 
 
     '''Send the loade message, for when the task is ready to start.
@@ -35,7 +35,7 @@ class xAPILearnLogger(BaseLearnLogger):
     def sendLoadedTask(self, frameName, sysComp = '', description='', timestamp=None):
 
         actor = Agent( object_type = 'Agent', name = frameName, openid = self._userId, mbox='mailto:SMART-E@ict.usc.ed')
-        object = Activity( id = self._url,
+        anObject = Activity( id = self._url,
             object_type = 'Activity',
             definition = ActivityDefinition(name=LanguageMap({'en-US': sysComp}),
             description=LanguageMap({'en-US':description})
@@ -46,7 +46,7 @@ class xAPILearnLogger(BaseLearnLogger):
         context = self.addContext()
         if timestamp is None:
             timestamp = self.getTimestamp()
-        statement = Statement(actor=actor, verb=verb, object=object, result=result, context=context, timestamp=timestamp)
+        statement = Statement(actor=actor, verb=verb, object=anObject, result=result, context=context, timestamp=timestamp)
         self.sendLoggingMessage(statement)
 
     '''
@@ -58,7 +58,7 @@ class xAPILearnLogger(BaseLearnLogger):
     def sendCompletedTask(self, score, sysComp = '', description='', timestamp=None):
 
         actor = Agent( object_type = 'Agent', openid = self._userId, name = self._name, mbox='mailto:SMART-E@ict.usc.edu')
-        object = Activity( id = self._taskId,
+        anObject = Activity( id = self._taskId,
             object_type = 'Activity',
             definition = ActivityDefinition(name=LanguageMap({'en-US': sysComp}),
             description=LanguageMap({'en-US':description})))
@@ -67,7 +67,7 @@ class xAPILearnLogger(BaseLearnLogger):
         context = self.addContext()
         if timestamp is None:
             timestamp = self.getTimestamp()
-        statement = Statement(actor=actor, verb=verb, object=object, result=result, context=context, timestamp=timeStamp)
+        statement = Statement(actor=actor, verb=verb, object=anObject, result=result, context=context, timestamp=timestamp)
         self.sendLoggingMessage(statement)
 
     '''
@@ -79,7 +79,7 @@ class xAPILearnLogger(BaseLearnLogger):
     def sendCompletedAllSteps(self, percentComplete, sysComp = '', description='', timestamp=None):
 
         actor = Agent( object_type = 'Agent', openid = self._userId, name = self._name, mbox='mailto:SMART-E@ict.usc.edu')
-        object = Activity( id = self._taskId, object_type = 'Activity', definition = ActivityDefinition(name=LanguageMap({'en-US': sysComp}), description=LanguageMap({'en-US':description})))
+        anObject = Activity( id = self._taskId, object_type = 'Activity', definition = ActivityDefinition(name=LanguageMap({'en-US': sysComp}), description=LanguageMap({'en-US':description})))
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + COMPLETED_ALL_STEPS_VERB , display=LanguageMap({'en-US': COMPLETED_ALL_STEPS_VERB}))
 
         if percentComplete == None:
@@ -90,7 +90,7 @@ class xAPILearnLogger(BaseLearnLogger):
         context = self.addContext()
         if timestamp is None:
             timestamp = self.getTimestamp()
-        statement = Statement(actor=actor, verb=verb, object=object, result=result, context=context, timestamp=timeStamp)
+        statement = Statement(actor=actor, verb=verb, object=anObject, result=result, context=context, timestamp=timestamp)
         self.sendLoggingMessage(statement)
 
     '''
@@ -104,7 +104,7 @@ class xAPILearnLogger(BaseLearnLogger):
     def sendCompletedStep(self, stepId, isComplete, sysComp = '', description='', timestamp=None):
 
         actor = Agent( object_type = 'Agent', openid = self._userId, name = self._name, mbox='mailto:SMART-E@ict.usc.edu')
-        object = Activity( id = stepId, object_type = 'Activity', definition = ActivityDefinition(name=LanguageMap({'en-US': sysComp}), description=LanguageMap({'en-US':description})))
+        anObject = Activity( id = stepId, object_type = 'Activity', definition = ActivityDefinition(name=LanguageMap({'en-US': sysComp}), description=LanguageMap({'en-US':description})))
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + COMPLETED_STEP_VERB, display=LanguageMap({'en-US': COMPLETED_STEP_VERB}))
 
         if isComplete == None:
@@ -115,67 +115,67 @@ class xAPILearnLogger(BaseLearnLogger):
         context = self.addContext()
         if timestamp is None:
             timestamp = self.getTimestamp()
-        statement = Statement(actor=actor, verb=verb, object=object, result=result, context=context, timestamp=timeStamp)
+        statement = Statement(actor=actor, verb=verb, object=anObject, result=result, context=context, timestamp=timestamp)
         self.sendLoggingMessage(statement)
 
-    def sendTerminatedMessage(self, id, response, sysComp = '', description='', timestamp=None):
+    def sendTerminatedMessage(self, anId, response, sysComp = '', description='', timestamp=None):
         actor = Agent( object_type = 'Agent', openid = self._userId, name = self._name, mbox='mailto:SMART-E@ict.usc.edu')
-        object = Activity( id = id, object_type = 'Activity', definition = ActivityDefinition(name=LanguageMap({'en-US': sysComp}), description=LanguageMap({'en-US':description})))
+        anObject = Activity( id = anId, object_type = 'Activity', definition = ActivityDefinition(name=LanguageMap({'en-US': sysComp}), description=LanguageMap({'en-US':description})))
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + Exiting, display=LanguageMap({'en-US': Exiting}))
         result = Result(response = response,)
 
         context = self.addContext()
         if timestamp is None:
             timestamp = self.getTimestamp()
-        statement = Statement(actor=actor, verb=verb, object=object, result=result, context=context, timestamp=timeStamp)
+        statement = Statement(actor=actor, verb=verb, object=anObject, result=result, context=context, timestamp=timestamp)
         self.sendLoggingMessage(statement)
 
-    def sendStartMessage(self, id, response, sysComp = '', description='', timestamp=None):
+    def sendStartMessage(self, anId, response, sysComp = '', description='', timestamp=None):
         actor = Agent( object_type = 'Agent', openid = self._userId, name = self._name, mbox='mailto:SMART-E@ict.usc.edu')
-        object = Activity( id = id, object_type = 'Activity', definition = ActivityDefinition(name=LanguageMap({'en-US': sysComp}), description=LanguageMap({'en-US':description})))
+        anObject = Activity( id = anId, object_type = 'Activity', definition = ActivityDefinition(name=LanguageMap({'en-US': sysComp}), description=LanguageMap({'en-US':description})))
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + AppStart, display=LanguageMap({'en-US': AppStart}))
         result = Result(response = response,)
 
         context = self.addContext()
         if timestamp is None:
             timestamp = self.getTimestamp()
-        statement = Statement(actor=actor, verb=verb, object=object, result=result, context=context, timestamp=timeStamp)
+        statement = Statement(actor=actor, verb=verb, object=anObject, result=result, context=context, timestamp=timestamp)
         self.sendLoggingMessage(statement)
 
-    def sendResponse(self, id, score, sysComp = '', description='', timestamp=None):
+    def sendResponse(self, anId, score, sysComp = '', description='', timestamp=None):
         actor = Agent( object_type = 'Agent', openid = self._userId, name = self._name, mbox='mailto:SMART-E@ict.usc.edu')
-        object = Activity( id = id, object_type = 'Activity', definition = ActivityDefinition(name=LanguageMap({'en-US': sysComp}), description=LanguageMap({'en-US':description})))
+        anObject = Activity( id = anId, object_type = 'Activity', definition = ActivityDefinition(name=LanguageMap({'en-US': sysComp}), description=LanguageMap({'en-US':description})))
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + SendResponse, display=LanguageMap({'en-US': SendResponse}))
         result = Result(score = score,)
 
         context = self.addContext()
         if timestamp is None:
             timestamp = self.getTimestamp()
-        statement = Statement(actor=actor, verb=verb, object=object, result=result, context=context, timestamp=timeStamp)
+        statement = Statement(actor=actor, verb=verb, object=anObject, result=result, context=context, timestamp=timestamp)
         self.sendLoggingMessage(statement)
 
-    def sendSelectedItem(self, id, score, sysComp = '', description='', timestamp=None):
+    def sendSelectedItem(self, anId, score, sysComp = '', description='', timestamp=None):
         actor = Agent( object_type = 'Agent', openid = self._userId, name = self._name, mbox='mailto:SMART-E@ict.usc.edu')
-        object = Activity( id = id, object_type = 'Activity', definition = ActivityDefinition(name=LanguageMap({'en-US': sysComp}), description=LanguageMap({'en-US':description})))
+        anObject = Activity( id = anId, object_type = 'Activity', definition = ActivityDefinition(name=LanguageMap({'en-US': sysComp}), description=LanguageMap({'en-US':description})))
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + ClickedItem, display=LanguageMap({'en-US': ClickedItem}))
         result = Result(score = score,)
 
         context = self.addContext()
         if timestamp is None:
             timestamp = self.getTimestamp()
-        statement = Statement(actor=actor, verb=verb, object=object, result=result, context=context, timestamp=timeStamp)
+        statement = Statement(actor=actor, verb=verb, object=anObject, result=result, context=context, timestamp=timestamp)
         self.sendLoggingMessage(statement)
 
-    def sendLog(self, id, verb, score, sysComp = '', description='', timestamp=None):
+    def sendLog(self, anId, verb, score, sysComp = '', description='', timestamp=None):
         actor = Agent( object_type = 'Agent', openid = self._userId, name = self._name, mbox='mailto:SMART-E@ict.usc.edu')
-        object = Activity( id = id, object_type = 'Activity', definition = ActivityDefinition(name=LanguageMap({'en-US': sysComp}), description=LanguageMap({'en-US':description})))
+        anObject = Activity( id = anId, object_type = 'Activity', definition = ActivityDefinition(name=LanguageMap({'en-US': sysComp}), description=LanguageMap({'en-US':description})))
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + verb, display=LanguageMap({'en-US': verb}))
         result = Result(score = score,)
 
         context = self.addContext()
         if timestamp is None:
             timestamp = self.getTimestamp()
-        statement = Statement(actor=actor, verb=verb, object=object, result=result, context=context, timestamp=timeStamp)
+        statement = Statement(actor=actor, verb=verb, object=anObject, result=result, context=context, timestamp=timestamp)
         self.sendLoggingMessage(statement)
 
     '''
@@ -197,7 +197,7 @@ class xAPILearnLogger(BaseLearnLogger):
     def sendKCScore(self, kcName, score, relevance, sysComp = '', description='', timestamp=None):
 
         actor = Agent( object_type = 'Agent', openid = self._userId, name = self._name, mbox='mailto:SMART-E@ict.usc.edu')
-        object = Activity( id = kcName, object_type = 'Activity', definition = ActivityDefinition(name=LanguageMap({'en-US': sysComp}), description=LanguageMap({'en-US':description})))
+        anObject = Activity( id = kcName, object_type = 'Activity', definition = ActivityDefinition(name=LanguageMap({'en-US': sysComp}), description=LanguageMap({'en-US':description})))
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + KC_SCORE_VERB, display=LanguageMap({'en-US': KC_SCORE_VERB}))
 
         if relevance == None:
@@ -213,7 +213,7 @@ class xAPILearnLogger(BaseLearnLogger):
         context = self.addContext(tempContext)
         if timestamp is None:
             timestamp = self.getTimestamp()
-        statement = Statement(actor=actor, verb=verb, object=object, result=result, context=context, timestamp=timeStamp)
+        statement = Statement(actor=actor, verb=verb, object=anObject, result=result, context=context, timestamp=timestamp)
 
         self.sendLoggingMessage(statement);
 
@@ -232,7 +232,7 @@ class xAPILearnLogger(BaseLearnLogger):
     def sendMastery(self, kcName, score, numObservations, sysComp = '', description='', timestamp=None):
 
         actor = Agent( object_type = 'Agent', openid = self._userId, name = self._name, mbox='mailto:SMART-E@ict.usc.edu')
-        object = Activity( id = kcName, object_type = 'Activity', definition = ActivityDefinition(name=LanguageMap({'en-US': sysComp}), description=LanguageMap({'en-US':description})))
+        anObject = Activity( id = kcName, object_type = 'Activity', definition = ActivityDefinition(name=LanguageMap({'en-US': sysComp}), description=LanguageMap({'en-US':description})))
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + MASTERED_VERB, display=LanguageMap({'en-US': MASTERED_VERB}))
 
         score = self.clampToUnitValue(score)
@@ -247,7 +247,7 @@ class xAPILearnLogger(BaseLearnLogger):
 
         if timestamp is None:
             timestamp = self.getTimestamp()
-        statement = Statement(actor=actor, verb=verb, object=object, result=result, context=context, timestamp=timeStamp)
+        statement = Statement(actor=actor, verb=verb, object=anObject, result=result, context=context, timestamp=timestamp)
 
         self.sendLoggingMessage(statement);
 
@@ -343,7 +343,7 @@ class xAPILearnLogger(BaseLearnLogger):
     def sendPresented(self, elementId, content, stepId, contentType, sysComp = '', description='', timestamp=None):
 
         actor = Agent( object_type = 'Agent', openid = self._userId, name = self._name, mbox='mailto:SMART-E@ict.usc.edu')
-        object = Activity( id = self._url+self._taskId, object_type = 'Activity', definition = ActivityDefinition(name=LanguageMap({'en-US': sysComp}), description=LanguageMap({'en-US':description})))
+        anObject = Activity( id = self._url+self._taskId, object_type = 'Activity', definition = ActivityDefinition(name=LanguageMap({'en-US': sysComp}), description=LanguageMap({'en-US':description})))
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + PRESENTED_VERB, display=LanguageMap({'en-US': PRESENTED_VERB}))
 
         if contentType == None and content != None:
@@ -360,7 +360,7 @@ class xAPILearnLogger(BaseLearnLogger):
 
         if timestamp is None:
             timestamp = self.getTimestamp()
-        statement = Statement(actor=actor, verb=verb, object=object, result=result, context=context, timestamp=timeStamp)
+        statement = Statement(actor=actor, verb=verb, object=anObject, result=result, context=context, timestamp=timestamp)
         self.sendLoggingMessage(statement)
 
     '''
@@ -421,7 +421,7 @@ class xAPILearnLogger(BaseLearnLogger):
     def sendTaskSupport(self, supportLevel, sysComp = '', description='', timestamp=None):
 
         actor = Agent( object_type = 'Agent', openid = self._userId, name = self._name, mbox='mailto:SMART-E@ict.usc.edu')
-        object = Activity( id = self._url+self._taskId, object_type = 'Activity', definition = ActivityDefinition(name=LanguageMap({'en-US': sysComp}), description=LanguageMap({'en-US':description})))
+        anObject = Activity( id = self._url+self._taskId, object_type = 'Activity', definition = ActivityDefinition(name=LanguageMap({'en-US': sysComp}), description=LanguageMap({'en-US':description})))
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + TASK_SUPPORT_VERB, display=LanguageMap({'en-US': TASK_SUPPORT_VERB}))
 
         supportLevel = self.clampToUnitValue(supportLevel)
@@ -430,7 +430,7 @@ class xAPILearnLogger(BaseLearnLogger):
         context = self.addContext()
         if timestamp is None:
             timestamp = self.getTimestamp()
-        statement = Statement(actor=actor, verb=verb, object=object, result=result, context=context, timestamp=timeStamp)
+        statement = Statement(actor=actor, verb=verb, object=anObject, result=result, context=context, timestamp=timestamp)
         self.sendLoggingMessage(statement)
 
     '''
@@ -443,7 +443,7 @@ class xAPILearnLogger(BaseLearnLogger):
     def sendTaskHelpCount(self, numHelpActs, sysComp = '', description='', timestamp=None):
 
         actor = Agent( object_type = 'Agent', openid = self._userId, name = self._name, mbox='mailto:SMART-E@ict.usc.edu')
-        object = Activity( id = self._url+self._taskId, object_type = 'Activity', definition = ActivityDefinition(name=LanguageMap({'en-US': sysComp}), description=LanguageMap({'en-US':description})))
+        anObject = Activity( id = self._url+self._taskId, object_type = 'Activity', definition = ActivityDefinition(name=LanguageMap({'en-US': sysComp}), description=LanguageMap({'en-US':description})))
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + TASK_HELP_COUNT_VERB, display=LanguageMap({'en-US': TASK_HELP_COUNT_VERB}))
 
         if numHelpActs < 0:
@@ -454,7 +454,7 @@ class xAPILearnLogger(BaseLearnLogger):
         context = self.addContext()
         if timestamp is None:
             timestamp = self.getTimestamp()
-        statement = Statement(actor=actor, verb=verb, object=object, result=result, context=context, timestamp=timeStamp)
+        statement = Statement(actor=actor, verb=verb, object=anObject, result=result, context=context, timestamp=timestamp)
         self.sendLoggingMessage(statement)
 
     '''
@@ -470,7 +470,7 @@ class xAPILearnLogger(BaseLearnLogger):
     def sendWordsPerSecond(self, value, evidence, stepId, sysComp = '', description='', timestamp=None):
             if value < 0:
                 value = 0
-            self._sendMetricMessage(WORDS_PER_SECOND_VERB, value, evidence, stepId, false, sysComp, description, timestamp)
+            self._sendMetricMessage(WORDS_PER_SECOND_VERB, value, evidence, stepId, False, sysComp, description, timestamp)
 
     '''
     Send the actions per second when user was expected to interact with the system
@@ -485,7 +485,7 @@ class xAPILearnLogger(BaseLearnLogger):
     def sendActionsPerSecond(self, value, evidence, stepId, sysComp = '', description='', timestamp=None):
             if value < 0:
                 value = 0
-            self._sendMetricMessage(ACTIONS_PER_SECOND_VERB, value, evidence, stepId, false, sysComp, description, timestamp)
+            self._sendMetricMessage(ACTIONS_PER_SECOND_VERB, value, evidence, stepId, False, sysComp, description, timestamp)
 
     '''
     Send the semantic match for content submitted. Can be either for a single step (if stepId given)
@@ -499,34 +499,34 @@ class xAPILearnLogger(BaseLearnLogger):
         @type stepId: string
     '''
     def sendAnswerSemanticMatch(self, value, evidence, stepId, sysComp = '', description='', timestamp=None):
-        self._sendMetricMessage(ANSWER_SEMANTIC_MATCH_VERB, value, evidence, stepId, true, sysComp, description, timestamp)
+        self._sendMetricMessage(ANSWER_SEMANTIC_MATCH_VERB, value, evidence, stepId, True, sysComp, description, timestamp)
 
     def sendPersistence(self, value, evidence, stepId, sysComp = '', description='', timestamp=None):
-        self._sendMetricMessage(PERSISTENCE_VERB, value, evidence, stepId, true, sysComp, description, timestamp)
+        self._sendMetricMessage(PERSISTENCE_VERB, value, evidence, stepId, True, sysComp, description, timestamp)
 
     def sendImpetuousness(self, value, evidence, stepId, sysComp = '', description='', timestamp=None):
-        self._sendMetricMessage(IMPETUOUSNESS_VERB, value, evidence, stepId, true, sysComp, description, timestamp)
+        self._sendMetricMessage(IMPETUOUSNESS_VERB, value, evidence, stepId, True, sysComp, description, timestamp)
 
     def sendGamingTheSystem(self, value, evidence, stepId, sysComp = '', description='', timestamp=None):
-        self._sendMetricMessage(GAMING_SYSTEM_VERB, value, evidence, stepId, true, sysComp, description, timestamp)
+        self._sendMetricMessage(GAMING_SYSTEM_VERB, value, evidence, stepId, True, sysComp, description, timestamp)
 
     def sendConfusion(self, value, evidence, stepId, sysComp = '', description='', timestamp=None):
-        self._sendMetricMessage(CONFUSION_VERB, value, evidence, stepId, true, sysComp, description, timestamp)
+        self._sendMetricMessage(CONFUSION_VERB, value, evidence, stepId, True, sysComp, description, timestamp)
 
     def sendDisengagement(self, value, evidence, stepId, sysComp = '', description='', timestamp=None):
-        self._sendMetricMessage(DISENGAGEMENT_VERB, value, evidence, stepId, true, sysComp, description, timestamp)
+        self._sendMetricMessage(DISENGAGEMENT_VERB, value, evidence, stepId, True, sysComp, description, timestamp)
 
     def sendWheelspinning(self, value, evidence, stepId, sysComp = '', description='', timestamp=None):
-        self._sendMetricMessage(WHEELSPINNING_VERB, value, evidence, stepId, true, sysComp, description, timestamp)
+        self._sendMetricMessage(WHEELSPINNING_VERB, value, evidence, stepId, True, sysComp, description, timestamp)
 
     #ToDo
     def sendRequestRecommendedTasks(self, userName, numberOfRecommendations, sysComp = '', description='', timestamp=None):
 
         actor = Agent( object_type = 'Agent', openid = self._userId, name = self._name, mbox='mailto:SMART-E@ict.usc.edu')
-        object = Activity( id = numberOfRecommendations, object_type = 'Activity', definition = ActivityDefinition(name=LanguageMap({'en-US': sysComp}), description=LanguageMap({'en-US':description})))
+        anObject = Activity( id = numberOfRecommendations, object_type = 'Activity', definition = ActivityDefinition(name=LanguageMap({'en-US': sysComp}), description=LanguageMap({'en-US':description})))
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + RECOMMENDED_TASKS_VERB, display=LanguageMap({'en-US': RECOMMENDED_TASKS_VERB}))
 
-        statement = Message(actor, verb, object, "", "Request")
+        statement = Message(actor, verb, anObject, "", "Request")
         self.sendLoggingMessage(statement)
 
 
@@ -546,7 +546,7 @@ class xAPILearnLogger(BaseLearnLogger):
     def _sendInputMessage(self, verb, elementId, content, stepId, contentType, sysComp, description, timestamp):
 
         actor = Agent( object_type = 'Agent', openid = self._userId, name = self._name, mbox='mailto:SMART-E@ict.usc.edu')
-        object = Activity( id = elementId, object_type = 'Activity', definition = ActivityDefinition(name=LanguageMap({'en-US': sysComp}), description=LanguageMap({'en-US':description})))
+        anObject = Activity( id = elementId, object_type = 'Activity', definition = ActivityDefinition(name=LanguageMap({'en-US': sysComp}), description=LanguageMap({'en-US':description})))
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + verb, display=LanguageMap({'en-US': verb}))
 
         if contentType == None and content != None:
@@ -562,7 +562,7 @@ class xAPILearnLogger(BaseLearnLogger):
         context = self.addContext(tempContext)
         if timestamp is None:
             timestamp = self.getTimestamp()
-        statement = Statement(actor=actor, verb=verb, object=object, result=result, context=context, timestamp=timeStamp)
+        statement = Statement(actor=actor, verb=verb, object=anObject, result=result, context=context, timestamp=timestamp)
         self.sendLoggingMessage(statement)
 
 
@@ -587,7 +587,7 @@ class xAPILearnLogger(BaseLearnLogger):
             helpType = NEUTRAL_HELP_TYPE
 
         actor = Agent( object_type = 'Agent', openid = self._userId, name = self._name, mbox='mailto:SMART-E@ict.usc.edu')
-        object = Activity( id = stepId, object_type = 'Activity', definition = ActivityDefinition(name=LanguageMap({'en-US': sysComp}), description=LanguageMap({'en-US':description})))
+        anObject = Activity( id = stepId, object_type = 'Activity', definition = ActivityDefinition(name=LanguageMap({'en-US': sysComp}), description=LanguageMap({'en-US':description})))
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + verb, display=LanguageMap({'en-US': verb}))
         result = Result(response=content,)
 
@@ -599,7 +599,7 @@ class xAPILearnLogger(BaseLearnLogger):
         context = self.addContext(tempContext)
         if timestamp is None:
             timestamp = self.getTimestamp()
-        statement = Statement(actor=actor, verb=verb, object=object, result=result, context=context, timestamp=timeStamp)
+        statement = Statement(actor=actor, verb=verb, object=anObject, result=result, context=context, timestamp=timestamp)
         self.sendLoggingMessage(statement)
 
     '''
@@ -620,7 +620,7 @@ class xAPILearnLogger(BaseLearnLogger):
             value = self.clampToUnitValue(value)
 
         actor = Agent( object_type = 'Agent', openid = self ._userId)
-        object = Activity( id = evidence, object_type = 'Activity', definition = ActivityDefinition(name=LanguageMap({'en-US': sysComp}), description=LanguageMap({'en-US':description})))
+        anObject = Activity( id = evidence, object_type = 'Activity', definition = ActivityDefinition(name=LanguageMap({'en-US': sysComp}), description=LanguageMap({'en-US':description})))
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + verb, display=LanguageMap({'en-US': verb}))
         result = Result(response=value,)
 
@@ -630,7 +630,7 @@ class xAPILearnLogger(BaseLearnLogger):
         context = self.addContext(tempContext)
         if timestamp is None:
             timestamp = self.getTimestamp()
-        statement = Statement(actor=actor, verb=verb, object=object, result=result, context=context, timestamp=timeStamp)
+        statement = Statement(actor=actor, verb=verb, object=anObject, result=result, context=context, timestamp=timestamp)
         self.sendLoggingMessage(statement)
 
     '''
@@ -673,11 +673,11 @@ class xAPILearnLogger(BaseLearnLogger):
     '''
     def sendLoggingMessage(self, statement):
         print("WILL SEND SOON")
-        pass
-        #self.sendMessage(statement)
+        messsage = Message(actor="logger", verb=XAPI_LOG_VERB, object=None, result=statement.to_json())
+        self.sendMessage(messsage)
 
     # values to fit within a [0,1] range
-    def clampToUnitValue(val):
+    def clampToUnitValue(self, val):
         if val != None:
-            return Math.min(Math.max(val, 0.0), 1.0)
+            return min(max(val, 0.0), 1.0)
         return val

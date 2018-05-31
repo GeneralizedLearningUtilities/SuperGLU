@@ -23,7 +23,7 @@ class BaseLearnLogger(BaseService):
         @type id: string
     '''
 
-    def __init__(self, gateway, userId, name, classroomId, taskId, url, activityType, context, id):
+    def __init__(self, gateway, userId, name, classroomId, taskId, url, activityType, context, anId):
         self._gateway = gateway
         self._userId = userId
         self._name = name
@@ -33,7 +33,7 @@ class BaseLearnLogger(BaseService):
         self._activityType = activityType
         self._context = context
         self._startTime = time.time()
-        self._id = id
+        self._id = anId
 
     '''
     Calculate the duration so far
@@ -52,7 +52,7 @@ class BaseLearnLogger(BaseService):
             endTime = time.time()
         duration = (endTime - startTime)/1000.0;
         if duration < 0:
-            console.log("Warning: Calculated duration was less than zero.")
+            print("Warning: Calculated duration was less than zero.")
         return duration;
 
     def getTimestamp(self):
@@ -84,6 +84,3 @@ class BaseLearnLogger(BaseService):
 
     def hasContextValue(self, key):
         return key in self._context
-
-    def hasContextValue(self, context, key):
-        return key in context
