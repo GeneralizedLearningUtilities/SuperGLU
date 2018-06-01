@@ -5,15 +5,14 @@ This service will forward logging messages to LearnLocker as well as log them to
 '''
 from SuperGLU.Core.MessagingGateway import BaseService
 from SuperGLU.Services.LoggingService.Constants import XAPI_LOG_VERB
-from tincan.statement import Statement
 import requests
 import uuid
 
 
 class LearnLockerConnection(BaseService):
     
-    def __init__(self, url, key):
-        super(LearnLockerConnection, self).__init__()
+    def __init__(self, gateway, url, key):
+        super(LearnLockerConnection, self).__init__(gateway=gateway)
         self._url = url
         self._key = key
         
