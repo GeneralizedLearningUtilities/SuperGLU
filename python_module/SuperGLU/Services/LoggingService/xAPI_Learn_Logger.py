@@ -265,7 +265,7 @@ class xAPILearnLogger(BaseLearnLogger):
         @type contentType: string
     '''
     def sendHint(self, content, stepId, helpType, contentType, sysComp = '', description='', timestamp=None):
-        self._sendHelpMessage(ProcessCoachHint, content, stepId, helpType, contentType)
+        self._sendHelpMessage(ProcessCoachHint, content, stepId, helpType, contentType, sysComp, description, timestamp)
 
     '''
     Notify that feedback was presented
@@ -656,10 +656,10 @@ class xAPILearnLogger(BaseLearnLogger):
         tempContext[DURATION_KEY] = self.calcDuration()
 
         for key in context:
-            if not self.hasContextValue(tempContext, key):
+            if not self.hasContextValue(key):
                 tempContext[key] = context[key]
         for key in self._context:
-            if not self.hasContextValue(tempContext, key):
+            if not self.hasContextValue(key):
                 tempContext[key] = context[key]
         context = Context( extensions = tempContext)
         return context
