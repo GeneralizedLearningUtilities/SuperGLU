@@ -671,10 +671,19 @@ class xAPILearnLogger(BaseLearnLogger):
         @param context: Dictionary of key-value items to add to the message context. Not used if keys already exist.
         @type context: object
     '''
+    # send message to json file (to-do: connecting to learn locker)
     def sendLoggingMessage(self, statement):
-        print("WILL SEND SOON")
-        messsage = Message(actor="logger", verb=XAPI_LOG_VERB, object=None, result=statement.to_json())
-        self.sendMessage(messsage)
+        message = Message(actor="logger", verb=XAPI_LOG_VERB, obj=None, result=statement.to_json())
+        # self.sendMessage(message)
+        self.writeStatemenet(statement.to_json())
+
+    # set output file name
+    def setOutputFile(self, outputFile):
+        self.outputFile = outputFile  # file IO object
+
+    # save json to a output file
+    def writeStatemenet(self, jsonStatement):
+        self.outputFile.write(jsonStatement)
 
     # values to fit within a [0,1] range
     def clampToUnitValue(self, val):
