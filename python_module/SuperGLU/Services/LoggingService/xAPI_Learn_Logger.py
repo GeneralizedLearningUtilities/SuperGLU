@@ -674,7 +674,7 @@ class xAPILearnLogger(BaseLearnLogger):
     # send message to json file (to-do: connecting to learn locker)
     def sendLoggingMessage(self, statement):
         message = Message(actor="logger", verb=XAPI_LOG_VERB, obj=None, result=statement.to_json())
-        # self.sendMessage(message)
+        self.sendMessage(message)
         self.writeStatemenet(statement.to_json())
 
     # set output file name
