@@ -63,7 +63,7 @@ class xAPILearnLogger(BaseLearnLogger):
             definition = ActivityDefinition(name=LanguageMap({'en-US': sysComp}),
             description=LanguageMap({'en-US':description})))
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + COMPLETED_VERB, display=LanguageMap({'en-US': COMPLETED_VERB}))
-        result = Result(score = self.clampToUnitV87alue(score),)
+        result = Result(score = self.clampToUnitValue(score),)
         context = self.addContext()
         if timestamp is None:
             timestamp = self.getTimestamp()
