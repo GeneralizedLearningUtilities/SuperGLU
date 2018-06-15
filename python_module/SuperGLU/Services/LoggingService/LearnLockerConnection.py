@@ -10,19 +10,19 @@ import uuid
 
 
 class LearnLockerConnection(BaseService):
-    
+
     def __init__(self, gateway, url, key):
         super(LearnLockerConnection, self).__init__(gateway=gateway)
         self._url = url
         self._key = key
-        
+
         self.logFile = open("log.txt", 'w')
-        
-        
-        
+
+
+
     def receiveMessage(self, msg):
         super(LearnLockerConnection, self).receiveMessage(msg)
-        
+
         if msg.getVerb() == XAPI_LOG_VERB:
             statementAsJson = msg.getResult()
             headerDict = {'Authorization' : self._key,\
@@ -31,5 +31,5 @@ class LearnLockerConnection(BaseService):
                       }
             response = requests.put(url=self._url + '/data/xAPI/statements?statementId=' + str(uuid.uuid4()), data=statementAsJson, headers=headerDict )
             print(str(response))
-            
+
             self.logFile.write(statementAsJson)

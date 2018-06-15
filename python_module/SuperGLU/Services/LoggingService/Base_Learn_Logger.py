@@ -24,6 +24,7 @@ class BaseLearnLogger(BaseService):
     '''
 
     def __init__(self, gateway, userId, name, classroomId, taskId, url, activityType, context, anId):
+        super(BaseLearnLogger, self).__init__()
         self._gateway = gateway
         self._userId = userId
         self._name = name
