@@ -19,7 +19,6 @@ class LearnLockerConnection(BaseService):
         self.logFile = open("log.txt", 'w')
 
 
-
     def receiveMessage(self, msg):
         super(LearnLockerConnection, self).receiveMessage(msg)
 
@@ -33,3 +32,4 @@ class LearnLockerConnection(BaseService):
             print(str(response))
 
             self.logFile.write(statementAsJson)
+            self.logFile.write("\n")

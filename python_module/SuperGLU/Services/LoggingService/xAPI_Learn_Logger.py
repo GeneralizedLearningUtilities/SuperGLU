@@ -675,15 +675,6 @@ class xAPILearnLogger(BaseLearnLogger):
     def sendLoggingMessage(self, statement):
         message = Message(actor="logger", verb=XAPI_LOG_VERB, obj=None, result=statement.to_json())
         self.sendMessage(message)
-        self.writeStatemenet(statement.to_json())
-
-    # set output file name
-    def setOutputFile(self, outputFile):
-        self.outputFile = outputFile  # file IO object
-
-    # save json to a output file
-    def writeStatemenet(self, jsonStatement):
-        self.outputFile.write(jsonStatement)
 
     # values to fit within a [0,1] range
     def clampToUnitValue(self, val):
