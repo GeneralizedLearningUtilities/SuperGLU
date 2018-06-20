@@ -1,7 +1,7 @@
 '''
 Created on May 31, 2018
 This service will forward logging messages to LearnLocker as well as log them to a file.
-@author: auerbach
+@author: auerbach, Alicia Tsai
 '''
 from SuperGLU.Core.MessagingGateway import BaseService
 from SuperGLU.Services.LoggingService.Constants import XAPI_LOG_VERB
@@ -37,7 +37,7 @@ class LearnLockerConnection(BaseService):
             # ------------------------------------------------------
             response = requests.put(url=self._url + '/data/xAPI/statements?statementId=' + str(uuid.uuid4()), data=json.dumps(statement), headers=headerDict)
 
-            # log bad request message
+            # log bad request message into errorLog file
             if str(response) == "<Response [400]>":
                 print('Warning: ', str(response), response.text)
                 self.errorLog.write(response.text)
