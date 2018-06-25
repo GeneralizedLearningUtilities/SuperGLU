@@ -44,8 +44,8 @@ class xAPILearnLogger(BaseLearnLogger):
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=verb, object=anObject, result=result, context=context, timestamp=timestamp)
-        #self.sendLoggingMessage(statement)
-        print (statement.to_json())
+        self.sendLoggingMessage(statement)
+        # print (statement.to_json())
 
     def sendStartTopic(self, timestamp = None):
         actor = Agent( object_type = 'Agent', openid = self._userId, name = self._name, mbox='mailto:SMART-E@ict.usc.edu')
