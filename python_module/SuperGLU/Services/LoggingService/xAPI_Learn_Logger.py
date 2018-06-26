@@ -45,7 +45,6 @@ class xAPILearnLogger(BaseLearnLogger):
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=verb, object=anObject, result=result, context=context, timestamp=timestamp)
         self.sendLoggingMessage(statement)
-        # print (statement.to_json())
 
     def sendStartTopic(self, timestamp = None):
         actor = Agent( object_type = 'Agent', openid = self._userId, name = self._name, mbox='mailto:SMART-E@ict.usc.edu')
@@ -453,7 +452,7 @@ class xAPILearnLogger(BaseLearnLogger):
 
     def sendCompletedTheTask(self, timestamp=None):
         actor = Agent( object_type = 'Agent', openid = self._userId, name = self._name, mbox='mailto:SMART-E@ict.usc.edu')
-        anObject = Activity( id = uuid.uuid4(), object_type = 'Activity', definition = ActivityDefinition(name=LanguageMap({'en-US': 'Task'}), description=LanguageMap({'en-US':'User Completed Task'})))
+        anObject = Activity( id = "http://example.com/activities/example_activity", object_type = 'Activity', definition = ActivityDefinition(name=LanguageMap({'en-US': 'Task'}), description=LanguageMap({'en-US':'User Completed Task'})))
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + COMPLETED_VERB, display=LanguageMap({'en-US': COMPLETED_VERB}))
         result = Result(response = '',)
 
@@ -466,7 +465,7 @@ class xAPILearnLogger(BaseLearnLogger):
     def sendCompletedTask(self, score, sysComp = '', description='', timestamp=None):
 
         actor = Agent( object_type = 'Agent', openid = self._userId, name = self._name, mbox='mailto:SMART-E@ict.usc.edu')
-        anObject = Activity( id = self._taskId,
+        anObject = Activity( id = "http://example.com/activities/example_activity",
             object_type = 'Activity',
             definition = ActivityDefinition(name=LanguageMap({'en-US': sysComp}),
             description=LanguageMap({'en-US':description})))
