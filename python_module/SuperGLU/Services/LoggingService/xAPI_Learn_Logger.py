@@ -1079,14 +1079,25 @@ class xAPILearnLogger(BaseLearnLogger):
         tempContext[CLASSROOM_ID_KEY] = self._classroomId
         tempContext[ACTIVITY_TYPE_KEY] = self._activityType
         tempContext[DURATION_KEY] = self.calcDuration()
+        
+        agentAccount = AgentAccount(name = "dummyName", home_page="http://dummyHomepage.com")
+        
+        context = Context(
+        registration=str(uuid.uuid4()),
+        instructor=Agent(
+            name=tempContext,
+            account=agentAccount
+            ),
+        # language='en-US',
+        )        
 
-        for key in context:
-            if not self.hasContextValue(key):
-                tempContext[key] = context[key]
-        for key in self._context:
-            if not self.hasContextValue(key):
-                tempContext[key] = context[key]
-        context = Context( extensions = tempContext)
+       # for key in context:
+       #     if not self.hasContextValue(key):
+       #         tempContext[key] = context[key]
+       # for key in self._context:
+       #     if not self.hasContextValue(key):
+       #         tempContext[key] = context[key]
+       # context = Context( extensions = tempContext)
         return context
 
     '''
