@@ -10,6 +10,7 @@ from tincan import (
     Verb,
     Result,
     Activity,
+    ActivityList,
     Context,
     LanguageMap,
     ActivityDefinition,
@@ -18,6 +19,10 @@ from tincan import (
     AgentAccount
 )
 import uuid
+from context_activities import ContextActivities
+import context_activities
+from tincan.typed_list import TypedList
+
 
 class xAPILearnLogger(BaseLearnLogger):
 
@@ -1079,14 +1084,30 @@ class xAPILearnLogger(BaseLearnLogger):
         tempContext[ACTIVITY_TYPE_KEY] = self._activityType
         tempContext[DURATION_KEY] = self.calcDuration()
         
+        dictContext = {}
+        
+        
+        #parent = ActivityList("ParentActivity1")
         agentAccount = AgentAccount(name = "dummyName", home_page="http://dummyHomepage.com")
         
         context = Context(
         registration=str(uuid.uuid4()),
         instructor=Agent(
-            name=tempContext,
             account=agentAccount
-            ),
+            ), 
+        #extensions = Extensions(tempContext),
+        context_activities = ContextActivities(parent = ActivityList([{
+                "id": "http://www.abcya.com/base_ten_bingo.htm",
+                "definition": {
+                    "name": {
+                        "en-US": "Base Ten Bingo"
+                    },
+                    "description": {
+                        "en-US": "Exercises in Base Ten"
+                    },
+                    "type": "../game"
+                }
+            }]))#, parent = parent)
         # language='en-US',
         )        
 
