@@ -22,16 +22,20 @@ import uuid
 from context_activities import ContextActivities
 import context_activities
 from tincan.typed_list import TypedList
+from representation.ActivityTree import ActivityTree
 
 
 class xAPILearnLogger(BaseLearnLogger):
 
+   
+
     URIBase = "https://github.com/GeneralizedLearningUtilities/SuperGLU"
 
     def __init__(self, gateway=None, userId=None, name=None, classroomId=None, taskId=None, url=None, activityType='', context={}, anId=None):
+        self.ActivityTree = ActivityTree()
         super(xAPILearnLogger, self).__init__(gateway, userId, name, classroomId, taskId, url, activityType, context, anId)
 
-
+       
     '''Send the loaded message, for when the task is ready to start.
         Message Data: <frameName> | Loaded | <url> | true
         @param frameName: The name for the current window
@@ -41,9 +45,11 @@ class xAPILearnLogger(BaseLearnLogger):
     def sendStartSession(self, timestamp = None):
 
         actor = Agent( object_type = 'Agent', openid = self._userId, name = self._name, mbox='mailto:SMART-E@ict.usc.edu')
-        anObject = Activity( id = "http://example.com/activities/example_activity", object_type = 'Activity', definition = ActivityDefinition(name=LanguageMap({'en-US': 'Session'}), description=LanguageMap({'en-US':'User Started a new Session'})))
+        anObject = Activity( id = self._url + str(uuid.uuid4()), object_type = 'Activity', definition = ActivityDefinition(name=LanguageMap({'en-US': 'Session'}), description=LanguageMap({'en-US':'User Started a new Session'})))
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + AppStart, display=LanguageMap({'en-US': 'started'}))
         result = Result(response = 'User started a new Session',)
+        
+        self.ActivityTree.EnterActivity(label = "Session", activity = "User started a new Session")
 
         context = self.addContext()
         if timestamp is None:
@@ -53,9 +59,11 @@ class xAPILearnLogger(BaseLearnLogger):
 
     def sendStartTopic(self, timestamp = None):
         actor = Agent( object_type = 'Agent', openid = self._userId, name = self._name, mbox='mailto:SMART-E@ict.usc.edu')
-        anObject = Activity( id = "http://example.com/activities/example_activity", object_type = 'Activity', definition = ActivityDefinition(name=LanguageMap({'en-US': 'Topic'}), description=LanguageMap({'en-US':'User Started a new Topic'})))
+        anObject = Activity( id = self._url + str(uuid.uuid4()), object_type = 'Activity', definition = ActivityDefinition(name=LanguageMap({'en-US': 'Topic'}), description=LanguageMap({'en-US':'User Started a new Topic'})))
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + AppStart, display=LanguageMap({'en-US': 'started'}))
         result = Result(response = 'User started a new Topic',)
+        
+        self.ActivityTree.EnterActivity(label = "Topic", activity = "User started a new Topic", parentLabel="Session")
 
         context = self.addContext()
         if timestamp is None:
@@ -66,7 +74,7 @@ class xAPILearnLogger(BaseLearnLogger):
     def sendStartLesson(self, timestamp=None):
 
         actor = Agent( object_type = 'Agent', name = self._name, openid = self._userId, mbox='mailto:SMART-E@ict.usc.edu')
-        anObject = Activity( id = "http://example.com/activities/example_activity",
+        anObject = Activity( id = self._url + str(uuid.uuid4()),
             object_type = 'Activity',
             definition = ActivityDefinition(name=LanguageMap({'en-US': 'Lesson'}),
             description=LanguageMap({'en-US':'User Started Lesson'})
@@ -74,6 +82,8 @@ class xAPILearnLogger(BaseLearnLogger):
             )
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + LOADED_VERB, display=LanguageMap({'en-US': LOADED_VERB}))
         result = Result(success = True,)
+        
+        self.ActivityTree.EnterActivity(label = "Lesson", activity = "User started a new Lesson", parentLabel= "Session")
         context = self.addContext()
         if timestamp is None:
             timestamp = self.getTimestamp()
@@ -83,7 +93,7 @@ class xAPILearnLogger(BaseLearnLogger):
     def sendStartSubLesson(self, timestamp=None):
 
         actor = Agent( object_type = 'Agent', name = self._name, openid = self._userId, mbox='mailto:SMART-E@ict.usc.edu')
-        anObject = Activity( id = "http://example.com/activities/example_activity",
+        anObject = Activity( id = self._url + str(uuid.uuid4()),
             object_type = 'Activity',
             definition = ActivityDefinition(name=LanguageMap({'en-US': 'SubLesson'}),
             description=LanguageMap({'en-US':'User Started SubLesson'})
@@ -91,6 +101,9 @@ class xAPILearnLogger(BaseLearnLogger):
             )
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + LOADED_VERB, display=LanguageMap({'en-US': LOADED_VERB}))
         result = Result(success = True,)
+        
+        self.ActivityTree.EnterActivity(label = "SubLesson", activity = "User started a new SubLesson", parentLabel= "Lesson")        
+        
         context = self.addContext()
         if timestamp is None:
             timestamp = self.getTimestamp()
@@ -100,7 +113,7 @@ class xAPILearnLogger(BaseLearnLogger):
     def sendNewTask(self, timestamp=None):
 
         actor = Agent( object_type = 'Agent', name = self._name, openid = self._userId, mbox='mailto:SMART-E@ict.usc.edu')
-        anObject = Activity( id = "http://example.com/activities/example_activity",
+        anObject = Activity( id = self._url + str(uuid.uuid4()),
             object_type = 'Activity',
             definition = ActivityDefinition(name=LanguageMap({'en-US': 'Task'}),
             description=LanguageMap({'en-US':'User Started new Task'})
@@ -108,6 +121,8 @@ class xAPILearnLogger(BaseLearnLogger):
             )
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + LOADED_VERB, display=LanguageMap({'en-US': LOADED_VERB}))
         result = Result(success = True,)
+       
+        
         context = self.addContext()
         if timestamp is None:
             timestamp = self.getTimestamp()
@@ -117,7 +132,7 @@ class xAPILearnLogger(BaseLearnLogger):
     def sendNewStep(self, timestamp=None):
 
         actor = Agent( object_type = 'Agent', name = self._name, openid = self._userId, mbox='mailto:SMART-E@ict.usc.edu')
-        anObject = Activity( id = "http://example.com/activities/example_activity",
+        anObject = Activity( id = self._url + str(uuid.uuid4()),
             object_type = 'Activity',
             definition = ActivityDefinition(name=LanguageMap({'en-US': 'Step'}),
             description=LanguageMap({'en-US':'User Started new Step'})
@@ -135,7 +150,7 @@ class xAPILearnLogger(BaseLearnLogger):
     def sendLoadedVideoLesson(self, timestamp=None):
 
         actor = Agent( object_type = 'Agent', name = self._name, openid = self._userId, mbox='mailto:SMART-E@ict.usc.edu')
-        anObject = Activity( id = "http://example.com/activities/example_activity",
+        anObject = Activity( id = self._url + str(uuid.uuid4()),
             object_type = 'Activity',
             definition = ActivityDefinition(name=LanguageMap({'en-US': 'Video Lesson'}),
             description=LanguageMap({'en-US':'User Launched Video Lesson'})
@@ -152,7 +167,7 @@ class xAPILearnLogger(BaseLearnLogger):
     def sendLoadedVideoSubLesson(self, timestamp=None):
 
         actor = Agent( object_type = 'Agent', name = self._name, openid = self._userId, mbox='mailto:SMART-E@ict.usc.edu')
-        anObject = Activity( id = "http://example.com/activities/example_activity",
+        anObject = Activity( id = self._url + str(uuid.uuid4()),
             object_type = 'Activity',
             definition = ActivityDefinition(name=LanguageMap({'en-US': 'Video SubLesson'}),
             description=LanguageMap({'en-US':'User Launched Video SubLesson'})
@@ -169,7 +184,7 @@ class xAPILearnLogger(BaseLearnLogger):
     def sendStartScenario(self, timestamp=None):
 
         actor = Agent( object_type = 'Agent', name = self._name, openid = self._userId, mbox='mailto:SMART-E@ict.usc.edu')
-        anObject = Activity( id = "http://example.com/activities/example_activity",
+        anObject = Activity( id = self._url + str(uuid.uuid4()),
             object_type = 'Activity',
             definition = ActivityDefinition(name=LanguageMap({'en-US': 'Scenario'}),
             description=LanguageMap({'en-US':'User Started a Scenario'})
@@ -177,6 +192,8 @@ class xAPILearnLogger(BaseLearnLogger):
             )
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + LOADED_VERB, display=LanguageMap({'en-US': LOADED_VERB}))
         result = Result(success = True,)
+        
+        self.ActivityTree.EnterActivity(label = "Scenario", activity = "User started a new Scenario", parentLabel= "Session")
         context = self.addContext()
         if timestamp is None:
             timestamp = self.getTimestamp()
@@ -186,7 +203,7 @@ class xAPILearnLogger(BaseLearnLogger):
     def sendStartDialogue(self, timestamp=None):
 
         actor = Agent( object_type = 'Agent', name = self._name, openid = self._userId, mbox='mailto:SMART-E@ict.usc.edu')
-        anObject = Activity( id = "http://example.com/activities/example_activity",
+        anObject = Activity( id = self._url + str(uuid.uuid4()),
             object_type = 'Activity',
             definition = ActivityDefinition(name=LanguageMap({'en-US': 'Dialogue'}),
             description=LanguageMap({'en-US':'User Started dialogue'})
@@ -203,7 +220,7 @@ class xAPILearnLogger(BaseLearnLogger):
     def sendStartDecision(self, timestamp=None):
 
         actor = Agent( object_type = 'Agent', name = self._name, openid = self._userId, mbox='mailto:SMART-E@ict.usc.edu')
-        anObject = Activity( id = "http://example.com/activities/example_activity",
+        anObject = Activity( id = self._url + str(uuid.uuid4()),
             object_type = 'Activity',
             definition = ActivityDefinition(name=LanguageMap({'en-US': 'Decision'}),
             description=LanguageMap({'en-US':'User Started decision'})
@@ -220,7 +237,7 @@ class xAPILearnLogger(BaseLearnLogger):
     def sendStartChoice(self, timestamp=None):
 
         actor = Agent( object_type = 'Agent', name = self._name, openid = self._userId, mbox='mailto:SMART-E@ict.usc.edu')
-        anObject = Activity( id = "http://example.com/activities/example_activity",
+        anObject = Activity( id = self._url + str(uuid.uuid4()),
             object_type = 'Activity',
             definition = ActivityDefinition(name=LanguageMap({'en-US': 'Choice'}),
             description=LanguageMap({'en-US':'User Started Choice'})
@@ -237,7 +254,7 @@ class xAPILearnLogger(BaseLearnLogger):
     def sendStartAAR(self, timestamp=None):
 
         actor = Agent( object_type = 'Agent', name = self._name, openid = self._userId, mbox='mailto:SMART-E@ict.usc.edu')
-        anObject = Activity( id = "http://example.com/activities/example_activity",
+        anObject = Activity( id = self._url + str(uuid.uuid4()),
             object_type = 'Activity',
             definition = ActivityDefinition(name=LanguageMap({'en-US': 'AAR'}),
             description=LanguageMap({'en-US':'User launched AAR'})
@@ -254,7 +271,7 @@ class xAPILearnLogger(BaseLearnLogger):
     def sendStartQuestion(self, timestamp=None):
 
         actor = Agent( object_type = 'Agent', name = self._name, openid = self._userId, mbox='mailto:SMART-E@ict.usc.edu')
-        anObject = Activity( id = "http://example.com/activities/example_activity",
+        anObject = Activity( id = self._url + str(uuid.uuid4()),
             object_type = 'Activity',
             definition = ActivityDefinition(name=LanguageMap({'en-US': 'Question'}),
             description=LanguageMap({'en-US':'User started Question'})
@@ -271,7 +288,7 @@ class xAPILearnLogger(BaseLearnLogger):
     def sendStartAnswer(self, timestamp=None):
 
         actor = Agent( object_type = 'Agent', name = self._name, openid = self._userId, mbox='mailto:SMART-E@ict.usc.edu')
-        anObject = Activity( id = "http://example.com/activities/example_activity",
+        anObject = Activity( id = self._url + str(uuid.uuid4()),
             object_type = 'Activity',
             definition = ActivityDefinition(name=LanguageMap({'en-US': 'Answer'}),
             description=LanguageMap({'en-US':'User started Answer'})
@@ -296,6 +313,7 @@ class xAPILearnLogger(BaseLearnLogger):
             )
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + LOADED_VERB, display=LanguageMap({'en-US': LOADED_VERB}))
         result = Result(success = True,)
+        self.ActivityTree.EnterActivity(label = "Video Lesson", activity = "User started Video", parentLabel="Session")
         context = self.addContext()
         if timestamp is None:
             timestamp = self.getTimestamp()
@@ -312,7 +330,7 @@ class xAPILearnLogger(BaseLearnLogger):
     '''
     def sendTerminatedSession(self, timestamp=None):
         actor = Agent( object_type = 'Agent', openid = self._userId, name = self._name, mbox='mailto:SMART-E@ict.usc.edu')
-        anObject = Activity( id = "http://example.com/activities/example_activity", object_type = 'Activity', definition = ActivityDefinition(name=LanguageMap({'en-US': 'Session'}), description=LanguageMap({'en-US':'User Stopped Session'})))
+        anObject = Activity( id = self._url + str(uuid.uuid4()), object_type = 'Activity', definition = ActivityDefinition(name=LanguageMap({'en-US': 'Session'}), description=LanguageMap({'en-US':'User Stopped Session'})))
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + Exiting, display=LanguageMap({'en-US': Exiting}))
         result = Result(response = '',)
 
@@ -324,7 +342,7 @@ class xAPILearnLogger(BaseLearnLogger):
 
     def sendCompletedLesson(self, timestamp=None):
         actor = Agent( object_type = 'Agent', openid = self._userId, name = self._name, mbox='mailto:SMART-E@ict.usc.edu')
-        anObject = Activity( id = "http://example.com/activities/example_activity", object_type = 'Activity', definition = ActivityDefinition(name=LanguageMap({'en-US': 'Lesson'}), description=LanguageMap({'en-US':'User Completed Lesson'})))
+        anObject = Activity( id = self._url + str(uuid.uuid4()), object_type = 'Activity', definition = ActivityDefinition(name=LanguageMap({'en-US': 'Lesson'}), description=LanguageMap({'en-US':'User Completed Lesson'})))
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + COMPLETED_VERB, display=LanguageMap({'en-US': COMPLETED_VERB}))
         result = Result(response = '',)
 
@@ -336,7 +354,7 @@ class xAPILearnLogger(BaseLearnLogger):
 
     def sendCompletedSubLesson(self, timestamp=None):
         actor = Agent( object_type = 'Agent', openid = self._userId, name = self._name, mbox='mailto:SMART-E@ict.usc.edu')
-        anObject = Activity( id = "http://example.com/activities/example_activity", object_type = 'Activity', definition = ActivityDefinition(name=LanguageMap({'en-US': 'SubLesson'}), description=LanguageMap({'en-US':'User Completed SubLesson'})))
+        anObject = Activity( id = self._url + str(uuid.uuid4()), object_type = 'Activity', definition = ActivityDefinition(name=LanguageMap({'en-US': 'SubLesson'}), description=LanguageMap({'en-US':'User Completed SubLesson'})))
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + COMPLETED_VERB, display=LanguageMap({'en-US': COMPLETED_VERB}))
         result = Result(response = '',)
 
@@ -348,7 +366,7 @@ class xAPILearnLogger(BaseLearnLogger):
 
     def sendCompletedVideoLesson(self, timestamp=None):
         actor = Agent( object_type = 'Agent', openid = self._userId, name = self._name, mbox='mailto:SMART-E@ict.usc.edu')
-        anObject = Activity( id = "http://example.com/activities/example_activity", object_type = 'Activity', definition = ActivityDefinition(name=LanguageMap({'en-US': 'Video Lesson'}), description=LanguageMap({'en-US':'User Completed Video Lesson'})))
+        anObject = Activity( id = self._url + str(uuid.uuid4()), object_type = 'Activity', definition = ActivityDefinition(name=LanguageMap({'en-US': 'Video Lesson'}), description=LanguageMap({'en-US':'User Completed Video Lesson'})))
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + COMPLETED_VERB, display=LanguageMap({'en-US': COMPLETED_VERB}))
         result = Result(response = '',)
 
@@ -360,7 +378,7 @@ class xAPILearnLogger(BaseLearnLogger):
 
     def sendCompletedVideoSubLesson(self, timestamp=None):
         actor = Agent( object_type = 'Agent', openid = self._userId, name = self._name, mbox='mailto:SMART-E@ict.usc.edu')
-        anObject = Activity( id = "http://example.com/activities/example_activity", object_type = 'Activity', definition = ActivityDefinition(name=LanguageMap({'en-US': 'Video SubLesson'}), description=LanguageMap({'en-US':'User Completed Video SubLesson'})))
+        anObject = Activity( id = self._url + str(uuid.uuid4()), object_type = 'Activity', definition = ActivityDefinition(name=LanguageMap({'en-US': 'Video SubLesson'}), description=LanguageMap({'en-US':'User Completed Video SubLesson'})))
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + COMPLETED_VERB, display=LanguageMap({'en-US': COMPLETED_VERB}))
         result = Result(response = '',)
 
@@ -372,7 +390,7 @@ class xAPILearnLogger(BaseLearnLogger):
 
     def sendCompletedScenario(self, timestamp=None):
         actor = Agent( object_type = 'Agent', openid = self._userId, name = self._name, mbox='mailto:SMART-E@ict.usc.edu')
-        anObject = Activity( id = "http://example.com/activities/example_activity", object_type = 'Activity', definition = ActivityDefinition(name=LanguageMap({'en-US': 'Scenario'}), description=LanguageMap({'en-US':'User Completed Scenario'})))
+        anObject = Activity( id = self._url + str(uuid.uuid4()), object_type = 'Activity', definition = ActivityDefinition(name=LanguageMap({'en-US': 'Scenario'}), description=LanguageMap({'en-US':'User Completed Scenario'})))
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + COMPLETED_VERB, display=LanguageMap({'en-US': COMPLETED_VERB}))
         result = Result(response = '',)
 
@@ -384,7 +402,7 @@ class xAPILearnLogger(BaseLearnLogger):
 
     def sendCompletedDialogue(self, timestamp=None):
         actor = Agent( object_type = 'Agent', openid = self._userId, name = self._name, mbox='mailto:SMART-E@ict.usc.edu')
-        anObject = Activity( id = "http://example.com/activities/example_activity", object_type = 'Activity', definition = ActivityDefinition(name=LanguageMap({'en-US': 'Dialogue'}), description=LanguageMap({'en-US':'User Completed Dialogue'})))
+        anObject = Activity( id = self._url + str(uuid.uuid4()), object_type = 'Activity', definition = ActivityDefinition(name=LanguageMap({'en-US': 'Dialogue'}), description=LanguageMap({'en-US':'User Completed Dialogue'})))
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + COMPLETED_VERB, display=LanguageMap({'en-US': COMPLETED_VERB}))
         result = Result(response = '',)
 
@@ -396,7 +414,7 @@ class xAPILearnLogger(BaseLearnLogger):
 
     def sendCompletedDecision(self, timestamp=None):
         actor = Agent( object_type = 'Agent', openid = self._userId, name = self._name, mbox='mailto:SMART-E@ict.usc.edu')
-        anObject = Activity( id = "http://example.com/activities/example_activity", object_type = 'Activity', definition = ActivityDefinition(name=LanguageMap({'en-US': 'Decision'}), description=LanguageMap({'en-US':'User Completed Decision'})))
+        anObject = Activity( id = self._url + str(uuid.uuid4()), object_type = 'Activity', definition = ActivityDefinition(name=LanguageMap({'en-US': 'Decision'}), description=LanguageMap({'en-US':'User Completed Decision'})))
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + COMPLETED_VERB, display=LanguageMap({'en-US': COMPLETED_VERB}))
         result = Result(response = '',)
 
@@ -408,7 +426,7 @@ class xAPILearnLogger(BaseLearnLogger):
 
     def sendCompletedChoice(self, timestamp=None):
         actor = Agent( object_type = 'Agent', openid = self._userId, name = self._name, mbox='mailto:SMART-E@ict.usc.edu')
-        anObject = Activity( id = "http://example.com/activities/example_activity", object_type = 'Activity', definition = ActivityDefinition(name=LanguageMap({'en-US': 'Choice'}), description=LanguageMap({'en-US':'User Completed Choice'})))
+        anObject = Activity( id = self._url + str(uuid.uuid4()), object_type = 'Activity', definition = ActivityDefinition(name=LanguageMap({'en-US': 'Choice'}), description=LanguageMap({'en-US':'User Completed Choice'})))
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + COMPLETED_VERB, display=LanguageMap({'en-US': COMPLETED_VERB}))
         result = Result(response = '',)
 
@@ -420,7 +438,7 @@ class xAPILearnLogger(BaseLearnLogger):
 
     def sendCompletedAAR(self, timestamp=None):
         actor = Agent( object_type = 'Agent', openid = self._userId, name = self._name, mbox='mailto:SMART-E@ict.usc.edu')
-        anObject = Activity( id = "http://example.com/activities/example_activity", object_type = 'Activity', definition = ActivityDefinition(name=LanguageMap({'en-US': 'AAR'}), description=LanguageMap({'en-US':'User Completed AAR'})))
+        anObject = Activity( id = self._url + str(uuid.uuid4()), object_type = 'Activity', definition = ActivityDefinition(name=LanguageMap({'en-US': 'AAR'}), description=LanguageMap({'en-US':'User Completed AAR'})))
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + COMPLETED_VERB, display=LanguageMap({'en-US': COMPLETED_VERB}))
         result = Result(response = '',)
 
@@ -432,7 +450,7 @@ class xAPILearnLogger(BaseLearnLogger):
 
     def sendCompletedQuestion(self, timestamp=None):
         actor = Agent( object_type = 'Agent', openid = self._userId, name = self._name, mbox='mailto:SMART-E@ict.usc.edu')
-        anObject = Activity( id = "http://example.com/activities/example_activity", object_type = 'Activity', definition = ActivityDefinition(name=LanguageMap({'en-US': 'Question'}), description=LanguageMap({'en-US':'User Completed Question'})))
+        anObject = Activity( id = self._url + str(uuid.uuid4()), object_type = 'Activity', definition = ActivityDefinition(name=LanguageMap({'en-US': 'Question'}), description=LanguageMap({'en-US':'User Completed Question'})))
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + COMPLETED_VERB, display=LanguageMap({'en-US': COMPLETED_VERB}))
         result = Result(response = '',)
 
@@ -445,7 +463,7 @@ class xAPILearnLogger(BaseLearnLogger):
 
     def sendCompletedAnswer(self, timestamp=None):
         actor = Agent( object_type = 'Agent', openid = self._userId, name = self._name, mbox='mailto:SMART-E@ict.usc.edu')
-        anObject = Activity( id = "http://example.com/activities/example_activity", object_type = 'Activity', definition = ActivityDefinition(name=LanguageMap({'en-US': 'Answer'}), description=LanguageMap({'en-US':'User Completed Answer'})))
+        anObject = Activity( id = self._url + str(uuid.uuid4()), object_type = 'Activity', definition = ActivityDefinition(name=LanguageMap({'en-US': 'Answer'}), description=LanguageMap({'en-US':'User Completed Answer'})))
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + COMPLETED_VERB, display=LanguageMap({'en-US': COMPLETED_VERB}))
         result = Result(response = '',)
 
@@ -457,7 +475,7 @@ class xAPILearnLogger(BaseLearnLogger):
 
     def sendCompletedTheTask(self, timestamp=None):
         actor = Agent( object_type = 'Agent', openid = self._userId, name = self._name, mbox='mailto:SMART-E@ict.usc.edu')
-        anObject = Activity( id = "http://example.com/activities/example_activity", object_type = 'Activity', definition = ActivityDefinition(name=LanguageMap({'en-US': 'Task'}), description=LanguageMap({'en-US':'User Completed Task'})))
+        anObject = Activity( id = self._url + str(uuid.uuid4()), object_type = 'Activity', definition = ActivityDefinition(name=LanguageMap({'en-US': 'Task'}), description=LanguageMap({'en-US':'User Completed Task'})))
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + COMPLETED_VERB, display=LanguageMap({'en-US': COMPLETED_VERB}))
         result = Result(response = '',)
 
@@ -470,7 +488,7 @@ class xAPILearnLogger(BaseLearnLogger):
     def sendCompletedTask(self, score, sysComp = '', description='', timestamp=None):
 
         actor = Agent( object_type = 'Agent', openid = self._userId, name = self._name, mbox='mailto:SMART-E@ict.usc.edu')
-        anObject = Activity( id = "http://example.com/activities/example_activity",
+        anObject = Activity( id = self._url + str(uuid.uuid4()),
             object_type = 'Activity',
             definition = ActivityDefinition(name=LanguageMap({'en-US': sysComp}),
             description=LanguageMap({'en-US':description})))
@@ -516,7 +534,7 @@ class xAPILearnLogger(BaseLearnLogger):
 
     def sendCompletedTheStep(self, timestamp=None):
         actor = Agent( object_type = 'Agent', openid = self._userId, name = self._name, mbox='mailto:SMART-E@ict.usc.edu')
-        anObject = Activity( id = "http://example.com/activities/example_activity", object_type = 'Activity', definition = ActivityDefinition(name=LanguageMap({'en-US': 'Step'}), description=LanguageMap({'en-US':'User Completed Step'})))
+        anObject = Activity( id = self._url + str(uuid.uuid4()), object_type = 'Activity', definition = ActivityDefinition(name=LanguageMap({'en-US': 'Step'}), description=LanguageMap({'en-US':'User Completed Step'})))
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + COMPLETED_VERB, display=LanguageMap({'en-US': COMPLETED_VERB}))
         result = Result(response = '',)
 
@@ -575,6 +593,8 @@ class xAPILearnLogger(BaseLearnLogger):
         anObject = Activity( id = anId, object_type = 'Activity', definition = ActivityDefinition(name=LanguageMap({'en-US': sysComp}), description=LanguageMap({'en-US':description})))
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + SendResponse, display=LanguageMap({'en-US': SendResponse}))
         result = Result(score = score,)
+        
+        self.ActivityTree.EnterActivity(label = "Decision", activity = "User started a new Decision", parentLabel="Session")
 
         context = self.addContext()
         if timestamp is None:
@@ -1075,7 +1095,7 @@ class xAPILearnLogger(BaseLearnLogger):
         @rtype: Messaging.Message
     '''
 
-    def addContext(self, context={}):
+    def addContext(self, activityTree={}):
 
         tempContext = {}
         tempContext[USER_ID_KEY] = self._userId
@@ -1084,7 +1104,17 @@ class xAPILearnLogger(BaseLearnLogger):
         tempContext[ACTIVITY_TYPE_KEY] = self._activityType
         tempContext[DURATION_KEY] = self.calcDuration()
         
-        dictContext = {}
+        activityTree = {
+                "id": "http://www.abcya.com/base_ten_bingo.htm",
+                "definition": {
+                    "name": {
+                        "en-US": "Base Ten Bingo"
+                    },
+                    "description": {
+                        "en-US": "Exercises in Base Ten"
+                    }
+                }
+            }
         
         
         #parent = ActivityList("ParentActivity1")
@@ -1096,18 +1126,7 @@ class xAPILearnLogger(BaseLearnLogger):
             account=agentAccount
             ), 
         #extensions = Extensions(tempContext),
-        context_activities = ContextActivities(parent = ActivityList([{
-                "id": "http://www.abcya.com/base_ten_bingo.htm",
-                "definition": {
-                    "name": {
-                        "en-US": "Base Ten Bingo"
-                    },
-                    "description": {
-                        "en-US": "Exercises in Base Ten"
-                    },
-                    "type": "../game"
-                }
-            }]))#, parent = parent)
+        context_activities = ContextActivities(parent = ActivityList([activityTree]))#, parent = parent)
         # language='en-US',
         )        
 
