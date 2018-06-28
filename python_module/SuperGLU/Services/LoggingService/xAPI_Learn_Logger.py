@@ -32,7 +32,7 @@ class xAPILearnLogger(BaseLearnLogger):
     URIBase = "https://github.com/GeneralizedLearningUtilities/SuperGLU"
 
     def __init__(self, gateway=None, userId=None, name=None, classroomId=None, taskId=None, url=None, activityType='', context={}, anId=None):
-        self.ActivityTree = ActivityTree()
+        #self.ActivityTree = ActivityTree()
         super(xAPILearnLogger, self).__init__(gateway, userId, name, classroomId, taskId, url, activityType, context, anId)
 
        
@@ -49,7 +49,7 @@ class xAPILearnLogger(BaseLearnLogger):
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + AppStart, display=LanguageMap({'en-US': 'started'}))
         result = Result(response = 'User started a new Session',)
         
-        self.ActivityTree.EnterActivity(label = "Session", activity = "User started a new Session")
+        #self.ActivityTree.EnterActivity(label = "Session", activity = "User started a new Session")
 
         context = self.addContext()
         if timestamp is None:
@@ -63,9 +63,9 @@ class xAPILearnLogger(BaseLearnLogger):
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + AppStart, display=LanguageMap({'en-US': 'started'}))
         result = Result(response = 'User started a new Topic',)
         
-        self.ActivityTree.EnterActivity(label = "Topic", activity = "User started a new Topic", parentLabel="Session")
-
-        context = self.addContext()
+        #self.ActivityTree.EnterActivity(label = "Topic", activity = "User started a new Topic", parentLabel="Session")
+        parentLabel = "Session"
+        context = self.addContext(parentLabel)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=verb, object=anObject, result=result, context=context, timestamp=timestamp)
@@ -83,8 +83,9 @@ class xAPILearnLogger(BaseLearnLogger):
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + LOADED_VERB, display=LanguageMap({'en-US': LOADED_VERB}))
         result = Result(success = True,)
         
-        self.ActivityTree.EnterActivity(label = "Lesson", activity = "User started a new Lesson", parentLabel= "Session")
-        context = self.addContext()
+        #self.ActivityTree.EnterActivity(label = "Lesson", activity = "User started a new Lesson", parentLabel= "Session")
+        parentLabel = "Session"
+        context = self.addContext(parentLabel)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=verb, object=anObject, result=result, context=context, timestamp=timestamp)
@@ -102,9 +103,9 @@ class xAPILearnLogger(BaseLearnLogger):
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + LOADED_VERB, display=LanguageMap({'en-US': LOADED_VERB}))
         result = Result(success = True,)
         
-        self.ActivityTree.EnterActivity(label = "SubLesson", activity = "User started a new SubLesson", parentLabel= "Lesson")        
-        
-        context = self.addContext()
+        #self.ActivityTree.EnterActivity(label = "SubLesson", activity = "User started a new SubLesson", parentLabel= "Lesson")        
+        parentLabel = "Lesson"
+        context = self.addContext(parentLabel)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=verb, object=anObject, result=result, context=context, timestamp=timestamp)
@@ -122,8 +123,8 @@ class xAPILearnLogger(BaseLearnLogger):
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + LOADED_VERB, display=LanguageMap({'en-US': LOADED_VERB}))
         result = Result(success = True,)
        
-        
-        context = self.addContext()
+        parentLabel = "Sublesson"
+        context = self.addContext(parentLabel)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=verb, object=anObject, result=result, context=context, timestamp=timestamp)
@@ -140,7 +141,8 @@ class xAPILearnLogger(BaseLearnLogger):
             )
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + LOADED_VERB, display=LanguageMap({'en-US': LOADED_VERB}))
         result = Result(success = True,)
-        context = self.addContext()
+        parentLabel = "Task"
+        context = self.addContext(parentLabel)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=verb, object=anObject, result=result, context=context, timestamp=timestamp)
@@ -158,7 +160,8 @@ class xAPILearnLogger(BaseLearnLogger):
             )
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + LOADED_VERB, display=LanguageMap({'en-US': LOADED_VERB}))
         result = Result(success = True,)
-        context = self.addContext()
+        parentLabel = "Session"
+        context = self.addContext(parentLabel)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=verb, object=anObject, result=result, context=context, timestamp=timestamp)
@@ -175,7 +178,8 @@ class xAPILearnLogger(BaseLearnLogger):
             )
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + LOADED_VERB, display=LanguageMap({'en-US': LOADED_VERB}))
         result = Result(success = True,)
-        context = self.addContext()
+        parentLabel = "Video Lesson"
+        context = self.addContext(parentLabel)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=verb, object=anObject, result=result, context=context, timestamp=timestamp)
@@ -193,8 +197,9 @@ class xAPILearnLogger(BaseLearnLogger):
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + LOADED_VERB, display=LanguageMap({'en-US': LOADED_VERB}))
         result = Result(success = True,)
         
-        self.ActivityTree.EnterActivity(label = "Scenario", activity = "User started a new Scenario", parentLabel= "Session")
-        context = self.addContext()
+        #self.ActivityTree.EnterActivity(label = "Scenario", activity = "User started a new Scenario", parentLabel= "Session")
+        parentLabel = "Session"
+        context = self.addContext(parentLabel)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=verb, object=anObject, result=result, context=context, timestamp=timestamp)
@@ -211,7 +216,8 @@ class xAPILearnLogger(BaseLearnLogger):
             )
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + LOADED_VERB, display=LanguageMap({'en-US': LOADED_VERB}))
         result = Result(success = True,)
-        context = self.addContext()
+        parentLabel = "Scenario"
+        context = self.addContext(parentLabel)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=verb, object=anObject, result=result, context=context, timestamp=timestamp)
@@ -228,7 +234,8 @@ class xAPILearnLogger(BaseLearnLogger):
             )
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + LOADED_VERB, display=LanguageMap({'en-US': LOADED_VERB}))
         result = Result(success = True,)
-        context = self.addContext()
+        parentLabel = "Dialogue"
+        context = self.addContext(parentLabel)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=verb, object=anObject, result=result, context=context, timestamp=timestamp)
@@ -245,7 +252,8 @@ class xAPILearnLogger(BaseLearnLogger):
             )
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + LOADED_VERB, display=LanguageMap({'en-US': LOADED_VERB}))
         result = Result(success = True,)
-        context = self.addContext()
+        parentLabel = "Decision"
+        context = self.addContext(parentLabel)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=verb, object=anObject, result=result, context=context, timestamp=timestamp)
@@ -262,7 +270,8 @@ class xAPILearnLogger(BaseLearnLogger):
             )
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + LOADED_VERB, display=LanguageMap({'en-US': LOADED_VERB}))
         result = Result(success = True,)
-        context = self.addContext()
+        parentLabel = "Scenario"
+        context = self.addContext(parentLabel)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=verb, object=anObject, result=result, context=context, timestamp=timestamp)
@@ -279,7 +288,8 @@ class xAPILearnLogger(BaseLearnLogger):
             )
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + LOADED_VERB, display=LanguageMap({'en-US': LOADED_VERB}))
         result = Result(success = True,)
-        context = self.addContext()
+        parentLabel = "AAR"
+        context = self.addContext(parentLabel)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=verb, object=anObject, result=result, context=context, timestamp=timestamp)
@@ -296,7 +306,8 @@ class xAPILearnLogger(BaseLearnLogger):
             )
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + LOADED_VERB, display=LanguageMap({'en-US': LOADED_VERB}))
         result = Result(success = True,)
-        context = self.addContext()
+        parentLabel = "Question"
+        context = self.addContext(parentLabel)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=verb, object=anObject, result=result, context=context, timestamp=timestamp)
@@ -313,8 +324,9 @@ class xAPILearnLogger(BaseLearnLogger):
             )
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + LOADED_VERB, display=LanguageMap({'en-US': LOADED_VERB}))
         result = Result(success = True,)
-        self.ActivityTree.EnterActivity(label = "Video Lesson", activity = "User started Video", parentLabel="Session")
-        context = self.addContext()
+        #self.ActivityTree.EnterActivity(label = "Video Lesson", activity = "User started Video", parentLabel="Session")
+        parentLabel = "Sublesson"
+        context = self.addContext(parentLabel)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=verb, object=anObject, result=result, context=context, timestamp=timestamp)
@@ -346,7 +358,8 @@ class xAPILearnLogger(BaseLearnLogger):
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + COMPLETED_VERB, display=LanguageMap({'en-US': COMPLETED_VERB}))
         result = Result(response = '',)
 
-        context = self.addContext()
+        parentLabel = "Session"
+        context = self.addContext(parentLabel)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=verb, object=anObject, result=result, context=context, timestamp=timestamp)
@@ -358,7 +371,8 @@ class xAPILearnLogger(BaseLearnLogger):
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + COMPLETED_VERB, display=LanguageMap({'en-US': COMPLETED_VERB}))
         result = Result(response = '',)
 
-        context = self.addContext()
+        parentLabel = "Lesson"
+        context = self.addContext(parentLabel)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=verb, object=anObject, result=result, context=context, timestamp=timestamp)
@@ -370,7 +384,8 @@ class xAPILearnLogger(BaseLearnLogger):
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + COMPLETED_VERB, display=LanguageMap({'en-US': COMPLETED_VERB}))
         result = Result(response = '',)
 
-        context = self.addContext()
+        parentLabel = "Session"
+        context = self.addContext(parentLabel)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=verb, object=anObject, result=result, context=context, timestamp=timestamp)
@@ -382,7 +397,8 @@ class xAPILearnLogger(BaseLearnLogger):
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + COMPLETED_VERB, display=LanguageMap({'en-US': COMPLETED_VERB}))
         result = Result(response = '',)
 
-        context = self.addContext()
+        parentLabel = "Video Lesson"
+        context = self.addContext(parentLabel)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=verb, object=anObject, result=result, context=context, timestamp=timestamp)
@@ -394,7 +410,8 @@ class xAPILearnLogger(BaseLearnLogger):
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + COMPLETED_VERB, display=LanguageMap({'en-US': COMPLETED_VERB}))
         result = Result(response = '',)
 
-        context = self.addContext()
+        parentLabel = "Session"
+        context = self.addContext(parentLabel)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=verb, object=anObject, result=result, context=context, timestamp=timestamp)
@@ -406,7 +423,8 @@ class xAPILearnLogger(BaseLearnLogger):
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + COMPLETED_VERB, display=LanguageMap({'en-US': COMPLETED_VERB}))
         result = Result(response = '',)
 
-        context = self.addContext()
+        parentLabel = "Scenario"
+        context = self.addContext(parentLabel)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=verb, object=anObject, result=result, context=context, timestamp=timestamp)
@@ -418,7 +436,8 @@ class xAPILearnLogger(BaseLearnLogger):
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + COMPLETED_VERB, display=LanguageMap({'en-US': COMPLETED_VERB}))
         result = Result(response = '',)
 
-        context = self.addContext()
+        parentLabel = "Dialogue"
+        context = self.addContext(parentLabel)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=verb, object=anObject, result=result, context=context, timestamp=timestamp)
@@ -430,7 +449,8 @@ class xAPILearnLogger(BaseLearnLogger):
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + COMPLETED_VERB, display=LanguageMap({'en-US': COMPLETED_VERB}))
         result = Result(response = '',)
 
-        context = self.addContext()
+        parentLabel = "Decision"
+        context = self.addContext(parentLabel)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=verb, object=anObject, result=result, context=context, timestamp=timestamp)
@@ -442,7 +462,8 @@ class xAPILearnLogger(BaseLearnLogger):
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + COMPLETED_VERB, display=LanguageMap({'en-US': COMPLETED_VERB}))
         result = Result(response = '',)
 
-        context = self.addContext()
+        parentLabel = "Scenario"
+        context = self.addContext(parentLabel)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=verb, object=anObject, result=result, context=context, timestamp=timestamp)
@@ -454,7 +475,8 @@ class xAPILearnLogger(BaseLearnLogger):
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + COMPLETED_VERB, display=LanguageMap({'en-US': COMPLETED_VERB}))
         result = Result(response = '',)
 
-        context = self.addContext()
+        parentLabel = "AAR"
+        context = self.addContext(parentLabel)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=verb, object=anObject, result=result, context=context, timestamp=timestamp)
@@ -467,7 +489,8 @@ class xAPILearnLogger(BaseLearnLogger):
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + COMPLETED_VERB, display=LanguageMap({'en-US': COMPLETED_VERB}))
         result = Result(response = '',)
 
-        context = self.addContext()
+        parentLabel = "Question"
+        context = self.addContext(parentLabel)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=verb, object=anObject, result=result, context=context, timestamp=timestamp)
@@ -479,7 +502,8 @@ class xAPILearnLogger(BaseLearnLogger):
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + COMPLETED_VERB, display=LanguageMap({'en-US': COMPLETED_VERB}))
         result = Result(response = '',)
 
-        context = self.addContext()
+        parentLabel = "Sublesson"
+        context = self.addContext(parentLabel)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=verb, object=anObject, result=result, context=context, timestamp=timestamp)
@@ -494,7 +518,8 @@ class xAPILearnLogger(BaseLearnLogger):
             description=LanguageMap({'en-US':description})))
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + COMPLETED_VERB, display=LanguageMap({'en-US': COMPLETED_VERB}))
         result = Result(score = self.clampToUnitValue(score),)
-        context = self.addContext()
+        parentLabel = "Sublesson"
+        context = self.addContext(parentLabel)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=verb, object=anObject, result=result, context=context, timestamp=timestamp)
@@ -594,7 +619,7 @@ class xAPILearnLogger(BaseLearnLogger):
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + SendResponse, display=LanguageMap({'en-US': SendResponse}))
         result = Result(score = score,)
         
-        self.ActivityTree.EnterActivity(label = "Decision", activity = "User started a new Decision", parentLabel="Session")
+        #self.ActivityTree.EnterActivity(label = "Decision", activity = "User started a new Decision", parentLabel="Session")
 
         context = self.addContext()
         if timestamp is None:
@@ -1095,7 +1120,7 @@ class xAPILearnLogger(BaseLearnLogger):
         @rtype: Messaging.Message
     '''
 
-    def addContext(self, activityTree={}):
+    def addContext(self, parentLabel  = "Session"):
 
         tempContext = {}
         tempContext[USER_ID_KEY] = self._userId
@@ -1104,20 +1129,18 @@ class xAPILearnLogger(BaseLearnLogger):
         tempContext[ACTIVITY_TYPE_KEY] = self._activityType
         tempContext[DURATION_KEY] = self.calcDuration()
         
-        activityTree = {
-                "id": "http://www.abcya.com/base_ten_bingo.htm",
+       #constructing a parent dicitonary to pass to Activity List class , so that it's converted to tincan.ActivityList and then passed to parent argument in the ContextActivities
+        parentDict = {
+                "id": "http://www.abcya.com/" + parentLabel,
                 "definition": {
                     "name": {
-                        "en-US": "Base Ten Bingo"
+                        "en-US": parentLabel
                     },
-                    "description": {
-                        "en-US": "Exercises in Base Ten"
-                    }
                 }
             }
         
         
-        #parent = ActivityList("ParentActivity1")
+        
         agentAccount = AgentAccount(name = "dummyName", home_page="http://dummyHomepage.com")
         
         context = Context(
@@ -1126,7 +1149,7 @@ class xAPILearnLogger(BaseLearnLogger):
             account=agentAccount
             ), 
         #extensions = Extensions(tempContext),
-        context_activities = ContextActivities(parent = ActivityList([activityTree]))#, parent = parent)
+        context_activities = ContextActivities(parent = ActivityList([parentDict]))#, parent = parent)
         # language='en-US',
         )        
 
