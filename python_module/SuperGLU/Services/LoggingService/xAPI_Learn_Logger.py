@@ -830,7 +830,8 @@ class xAPILearnLogger(BaseLearnLogger):
         tempContext[STEP_ID_KEY] = stepId
         tempContext[RESULT_CONTENT_TYPE_KEY] = contentType
 
-        context = self.addContext(tempContext)
+        parentLabel = "Decision"
+        context = self.addContext(parentLabel)
 
         if timestamp is None:
             timestamp = self.getTimestamp()
@@ -1033,7 +1034,8 @@ class xAPILearnLogger(BaseLearnLogger):
         tempContext[STEP_ID_KEY] = stepId
         tempContext[RESULT_CONTENT_TYPE_KEY] = contentType
 
-        context = self.addContext(tempContext)
+        parentLabel = "Decision"
+        context = self.addContext(parentLabel)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=verb, object=anObject, result=result, context=context, timestamp=timestamp)
@@ -1070,7 +1072,8 @@ class xAPILearnLogger(BaseLearnLogger):
         tempContext[HELP_TYPE_KEY] = helpType
         tempContext[RESULT_CONTENT_TYPE_KEY] = contentType
 
-        context = self.addContext(tempContext)
+        parentLabel = "Decision"
+        context = self.addContext(parentLabel)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=verb, object=anObject, result=result, context=context, timestamp=timestamp)
@@ -1101,7 +1104,8 @@ class xAPILearnLogger(BaseLearnLogger):
         tempContext = {}
         tempContext[STEP_ID_KEY] = stepId
 
-        context = self.addContext(tempContext)
+        parentLabel = "Decision"
+        context = self.addContext(parentLabel)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=verb, object=anObject, result=result, context=context, timestamp=timestamp)
@@ -1129,9 +1133,11 @@ class xAPILearnLogger(BaseLearnLogger):
         tempContext[ACTIVITY_TYPE_KEY] = self._activityType
         tempContext[DURATION_KEY] = self.calcDuration()
         
+        URLParentLabel = self._url + parentLabel
+        print (URLParentLabel)
        #constructing a parent dicitonary to pass to Activity List class , so that it's converted to tincan.ActivityList and then passed to parent argument in the ContextActivities
         parentDict = {
-                "id": "http://www.abcya.com/" + parentLabel,
+                "id": URLParentLabel,
                 "definition": {
                     "name": {
                         "en-US": parentLabel
