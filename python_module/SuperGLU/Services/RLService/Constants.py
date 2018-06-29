@@ -16,7 +16,8 @@ FEMALE = 'Female'
 MALE = 'Male'
 
 #get start timestamp for user response
-GAME_LOG = 'GameLog'                            #verb
+GAME_LOG = 'GameLog'
+GAME_LOG2 ='GameLog2'                            #verb
 PRACTICE_ENVIRONMENT = 'PracticeEnvironment'    #object
 RANDOMIZED_CHOICES = 'RandomizedChoices'        #result
 
