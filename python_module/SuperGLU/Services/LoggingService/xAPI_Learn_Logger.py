@@ -1334,33 +1334,50 @@ class xAPILearnLogger(BaseLearnLogger):
     '''
 
     def addContext(self, parentLabel  = "Session", ContextActivityTree = {}):
-
+        
+        #defining context dictionary
         tempContext = {}
+        tempContextNew = {}
         tempContext[USER_ID_KEY] = self._userId
         tempContext[TASK_ID_KEY] = self._taskId
         tempContext[CLASSROOM_ID_KEY] = self._classroomId
         tempContext[ACTIVITY_TYPE_KEY] = self._activityType
         tempContext[DURATION_KEY] = self.calcDuration()
         
+        #Define URL for parent Label
         URLParentLabel = self._url + parentLabel
+        
+        #Convert to JSON string 
+        ContextActivityTreestr = json.dumps(ContextActivityTree)
+        
+        #Define Extension Key URL for Context Activity
+        ContextActivityKeyUrl = self._url + "sessionid"
+
+        #Define Extension Key URL for extensions of Context
+        ContextExtensionKeyUrl = self._url +  "extensionkey"
+        
+        #Used the Context Extension Key URL for defining a key url value for extensions so that xAPI accepts the format
+        tempContextNew[ContextExtensionKeyUrl]  = tempContext
+        
        #constructing a parent dicitonary to pass to Activity List class , so that it's converted to tincan.ActivityList and then passed to parent argument in the ContextActivities
         parentDict = {
                 "id": URLParentLabel,
                 "definition": {
-                    'extensions': ContextActivityTree
+                    'extensions': {ContextActivityKeyUrl: ContextActivityTreestr}
                     }
             }
         
         
-        print (ContextActivityTree)
+        #Used as an instructor agent in context
         agentAccount = AgentAccount(name = "dummyName", home_page="http://dummyHomepage.com")
         
+        #Defining a TinCan Context object
         context = Context(
         registration=str(uuid.uuid4()),
         instructor=Agent(
             account=agentAccount
             ), 
-        #extensions = Extensions(tempContext),
+        extensions = Extensions(tempContextNew),
         context_activities = ContextActivities(parent = ActivityList([parentDict]))#, parent = parent)
         # language='en-US',
         )        
