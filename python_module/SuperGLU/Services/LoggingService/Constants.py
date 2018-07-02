@@ -1,4 +1,4 @@
-LOADED_VERB = "Loaded"
+LOADED_VERB = "Started"
 
 RECOMMENDED_TASKS_VERB = "RecommendedTasks"
 
