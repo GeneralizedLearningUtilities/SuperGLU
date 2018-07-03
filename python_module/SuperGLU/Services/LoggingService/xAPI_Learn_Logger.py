@@ -35,7 +35,9 @@ class xAPILearnLogger(BaseLearnLogger):
 
     def __init__(self, gateway=None, userId=None, name=None, classroomId=None, taskId=None, url=None, activityType='', context={}, anId=None):
         self._Activity_Tree = ActivityTree()
+        
         super(xAPILearnLogger, self).__init__(gateway, userId, name, classroomId, taskId, url, activityType, context, anId)
+        self._keyObjectExtensions = self.URIBase + "/object/extensions/"
 
        
     '''Send the loaded message, for when the task is ready to start.
@@ -190,9 +192,10 @@ class xAPILearnLogger(BaseLearnLogger):
 
         actor = Agent( object_type = 'Agent', name = self._name, openid = self._userId, mbox='mailto:SMART-E@ict.usc.edu')
         anObject = Activity( id = self._url + str(uuid.uuid4()),
-            object_type = 'Activity',
-            definition = ActivityDefinition(name=LanguageMap({'en-US': 'Video Leb sson'}),
-            description=LanguageMap({'en-US':'User Launched Video Lesson'})
+            object_type = 'Lesson',
+            definition = ActivityDefinition(name=LanguageMap({'en-US': 'Lesson'}),
+            description=LanguageMap({'en-US':'User Launched Video Lesson'}), 
+            extensions = Extensions({(self._keyObjectExtensions + 'VideoLesson'):"Subtype: Video Lesson, ActivityType: Lesson"})
                 ),
             )
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + LOADED_VERB, display=LanguageMap({'en-US': LOADED_VERB}))
@@ -200,7 +203,7 @@ class xAPILearnLogger(BaseLearnLogger):
         parentLabel = "Session"
         
         #Implementing Activity Tree into context
-        self._Activity_Tree.EnterActivity(label = "Lesson", activity = "Video Lesson")
+        self._Activity_Tree.EnterActivity(label = 'lesson', activity = 'Video Lesson')
         jsonActivityTree = self._Activity_Tree.saveToToken()
         ActivityTreeSerialized = makeSerialized(jsonActivityTree)
         jsonDictActivityTree = json.loads(ActivityTreeSerialized)  
@@ -215,9 +218,10 @@ class xAPILearnLogger(BaseLearnLogger):
 
         actor = Agent( object_type = 'Agent', name = self._name, openid = self._userId, mbox='mailto:SMART-E@ict.usc.edu')
         anObject = Activity( id = self._url + str(uuid.uuid4()),
-            object_type = 'Activity',
-            definition = ActivityDefinition(name=LanguageMap({'en-US': 'Video SubLesson'}),
-            description=LanguageMap({'en-US':'User Launched Video SubLesson'})
+            object_type = 'Sublesson',
+            definition = ActivityDefinition(name=LanguageMap({'en-US': 'SubLesson'}),
+            description=LanguageMap({'en-US':'User Launched Video Sublesson'}), 
+            extensions = Extensions({(self._keyObjectExtensions + 'VideoSublesson'):"Subtype: Video Sublesson, ActivityType: Sublesson"})
                 ),
             )
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + LOADED_VERB, display=LanguageMap({'en-US': LOADED_VERB}))
@@ -239,9 +243,10 @@ class xAPILearnLogger(BaseLearnLogger):
 
         actor = Agent( object_type = 'Agent', name = self._name, openid = self._userId, mbox='mailto:SMART-E@ict.usc.edu')
         anObject = Activity( id = self._url + str(uuid.uuid4()),
-            object_type = 'Activity',
-            definition = ActivityDefinition(name=LanguageMap({'en-US': 'Scenario'}),
-            description=LanguageMap({'en-US':'User Started a Scenario'})
+            object_type = 'Lesson',
+            definition = ActivityDefinition(name=LanguageMap({'en-US': 'Lesson'}),
+            description=LanguageMap({'en-US':'User Started Scenario'}), 
+            extensions = Extensions({(self._keyObjectExtensions + 'Scenario'):"Subtype: Scenario, ActivityType: Lesson"})
                 ),
             )
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + LOADED_VERB, display=LanguageMap({'en-US': LOADED_VERB}))
@@ -265,9 +270,10 @@ class xAPILearnLogger(BaseLearnLogger):
 
         actor = Agent( object_type = 'Agent', name = self._name, openid = self._userId, mbox='mailto:SMART-E@ict.usc.edu')
         anObject = Activity( id = self._url + str(uuid.uuid4()),
-            object_type = 'Activity',
-            definition = ActivityDefinition(name=LanguageMap({'en-US': 'Dialogue'}),
-            description=LanguageMap({'en-US':'User Started dialogue'})
+            object_type = 'Dialogue',
+            definition = ActivityDefinition(name=LanguageMap({'en-US': 'Sublesson'}),
+            description=LanguageMap({'en-US':'User Started Dialogue'}), 
+            extensions = Extensions({(self._keyObjectExtensions + 'Dialogue'):"Subtype: Dialogue, ActivityType: Sublesson"})
                 ),
             )
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + LOADED_VERB, display=LanguageMap({'en-US': LOADED_VERB}))
@@ -289,9 +295,10 @@ class xAPILearnLogger(BaseLearnLogger):
 
         actor = Agent( object_type = 'Agent', name = self._name, openid = self._userId, mbox='mailto:SMART-E@ict.usc.edu')
         anObject = Activity( id = self._url + str(uuid.uuid4()),
-            object_type = 'Activity',
-            definition = ActivityDefinition(name=LanguageMap({'en-US': 'Decision'}),
-            description=LanguageMap({'en-US':'User Started decision'})
+            object_type = 'Task',
+            definition = ActivityDefinition(name=LanguageMap({'en-US': 'Task'}),
+            description=LanguageMap({'en-US':'User Started decision'}), 
+            extensions = Extensions({(self._keyObjectExtensions + 'Decision'):"Subtype: Decision, ActivityType: Task"})
                 ),
             )
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + LOADED_VERB, display=LanguageMap({'en-US': LOADED_VERB}))
@@ -313,9 +320,10 @@ class xAPILearnLogger(BaseLearnLogger):
 
         actor = Agent( object_type = 'Agent', name = self._name, openid = self._userId, mbox='mailto:SMART-E@ict.usc.edu')
         anObject = Activity( id = self._url + str(uuid.uuid4()),
-            object_type = 'Activity',
-            definition = ActivityDefinition(name=LanguageMap({'en-US': 'Choice'}),
-            description=LanguageMap({'en-US':'User Started Choice'})
+            object_type = 'Step',
+            definition = ActivityDefinition(name=LanguageMap({'en-US': 'Step'}), 
+            description=LanguageMap({'en-US':'User Started Choice'}), 
+            extensions = Extensions({(self._keyObjectExtensions + 'Choice'):"Subtype: Choice, ActivityType: Step"})
                 ),
             )
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + LOADED_VERB, display=LanguageMap({'en-US': LOADED_VERB}))
@@ -337,9 +345,10 @@ class xAPILearnLogger(BaseLearnLogger):
 
         actor = Agent( object_type = 'Agent', name = self._name, openid = self._userId, mbox='mailto:SMART-E@ict.usc.edu')
         anObject = Activity( id = self._url + str(uuid.uuid4()),
-            object_type = 'Activity',
-            definition = ActivityDefinition(name=LanguageMap({'en-US': 'AAR'}),
-            description=LanguageMap({'en-US':'User launched AAR'})
+            object_type = 'Sublesson',
+            definition = ActivityDefinition(name=LanguageMap({'en-US': 'Sublesson'}), 
+            description=LanguageMap({'en-US':'User launched AAR'}), 
+            extensions = Extensions({(self._keyObjectExtensions + 'AAR'):"Subtype: AAR, ActivityType: Sublesson"})
                 ),
             )
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + LOADED_VERB, display=LanguageMap({'en-US': LOADED_VERB}))
@@ -361,9 +370,10 @@ class xAPILearnLogger(BaseLearnLogger):
 
         actor = Agent( object_type = 'Agent', name = self._name, openid = self._userId, mbox='mailto:SMART-E@ict.usc.edu')
         anObject = Activity( id = self._url + str(uuid.uuid4()),
-            object_type = 'Activity',
-            definition = ActivityDefinition(name=LanguageMap({'en-US': 'Question'}),
-            description=LanguageMap({'en-US':'User started Question'})
+            object_type = 'Task',
+            definition = ActivityDefinition(name=LanguageMap({'en-US': 'Task'}),
+            description=LanguageMap({'en-US':'User started Question'}),
+            extensions = Extensions({(self._keyObjectExtensions + 'Question'):"Subtype: Question, ActivityType: Task"})
                 ),
             )
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + LOADED_VERB, display=LanguageMap({'en-US': LOADED_VERB}))
@@ -385,9 +395,10 @@ class xAPILearnLogger(BaseLearnLogger):
 
         actor = Agent( object_type = 'Agent', name = self._name, openid = self._userId, mbox='mailto:SMART-E@ict.usc.edu')
         anObject = Activity( id = self._url + str(uuid.uuid4()),
-            object_type = 'Activity',
-            definition = ActivityDefinition(name=LanguageMap({'en-US': 'Answer'}),
-            description=LanguageMap({'en-US':'User started Answer'})
+            object_type = 'Step',
+            definition = ActivityDefinition(name=LanguageMap({'en-US': 'Step'}),
+            description=LanguageMap({'en-US':'User started Answer'}),
+            extensions = Extensions({(self._keyObjectExtensions + 'Answer'):"Subtype: Answer, ActivityType: Step"})
                 ),
             )
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + LOADED_VERB, display=LanguageMap({'en-US': LOADED_VERB}))
@@ -497,7 +508,7 @@ class xAPILearnLogger(BaseLearnLogger):
 
     def sendCompletedVideoLesson(self, timestamp=None):
         actor = Agent( object_type = 'Agent', openid = self._userId, name = self._name, mbox='mailto:SMART-E@ict.usc.edu')
-        anObject = Activity( id = self._url + str(uuid.uuid4()), object_type = 'Activity', definition = ActivityDefinition(name=LanguageMap({'en-US': 'Video Lesson'}), description=LanguageMap({'en-US':'User Completed Video Lesson'})))
+        anObject = Activity( id = self._url + str(uuid.uuid4()), object_type = 'Lesson', definition = ActivityDefinition(name=LanguageMap({'en-US': 'Lesson'}), description=LanguageMap({'en-US':'User Completed Video Lesson'}), extensions = Extensions({(self._keyObjectExtensions + 'VideoLesson'):"Subtype: Video Lesson, ActivityType: Lesson"})))
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + COMPLETED_VERB, display=LanguageMap({'en-US': COMPLETED_VERB}))
         result = Result(response = '',)
 
@@ -516,7 +527,7 @@ class xAPILearnLogger(BaseLearnLogger):
 
     def sendCompletedVideoSubLesson(self, timestamp=None):
         actor = Agent( object_type = 'Agent', openid = self._userId, name = self._name, mbox='mailto:SMART-E@ict.usc.edu')
-        anObject = Activity( id = self._url + str(uuid.uuid4()), object_type = 'Activity', definition = ActivityDefinition(name=LanguageMap({'en-US': 'Video SubLesson'}), description=LanguageMap({'en-US':'User Completed Video SubLesson'})))
+        anObject = Activity( id = self._url + str(uuid.uuid4()), object_type = 'Sublesson', definition = ActivityDefinition(name=LanguageMap({'en-US': 'SubLesson'}), description=LanguageMap({'en-US':'User Completed Video SubLesson'}), extensions = Extensions({(self._keyObjectExtensions + 'VideoSublesson'):"Subtype: Video Sublesson, ActivityType: Sublesson"})))
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + COMPLETED_VERB, display=LanguageMap({'en-US': COMPLETED_VERB}))
         result = Result(response = '',)
 
@@ -535,7 +546,7 @@ class xAPILearnLogger(BaseLearnLogger):
 
     def sendCompletedScenario(self, timestamp=None):
         actor = Agent( object_type = 'Agent', openid = self._userId, name = self._name, mbox='mailto:SMART-E@ict.usc.edu')
-        anObject = Activity( id = self._url + str(uuid.uuid4()), object_type = 'Activity', definition = ActivityDefinition(name=LanguageMap({'en-US': 'Scenario'}), description=LanguageMap({'en-US':'User Completed Scenario'})))
+        anObject = Activity( id = self._url + str(uuid.uuid4()), object_type = 'Lesson', definition = ActivityDefinition(name=LanguageMap({'en-US': 'Lesson'}), description=LanguageMap({'en-US':'User Completed Scenario'}), extensions = Extensions({(self._keyObjectExtensions + 'Scenario'):"Subtype: Scenario, ActivityType: Lesson"})))
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + COMPLETED_VERB, display=LanguageMap({'en-US': COMPLETED_VERB}))
         result = Result(response = '',)
 
@@ -554,7 +565,7 @@ class xAPILearnLogger(BaseLearnLogger):
 
     def sendCompletedDialogue(self, timestamp=None):
         actor = Agent( object_type = 'Agent', openid = self._userId, name = self._name, mbox='mailto:SMART-E@ict.usc.edu')
-        anObject = Activity( id = self._url + str(uuid.uuid4()), object_type = 'Activity', definition = ActivityDefinition(name=LanguageMap({'en-US': 'Dialogue'}), description=LanguageMap({'en-US':'User Completed Dialogue'})))
+        anObject = Activity( id = self._url + str(uuid.uuid4()), object_type = 'Sublesson', definition = ActivityDefinition(name=LanguageMap({'en-US': 'Sublesson'}), description=LanguageMap({'en-US':'User Completed Dialogue'}), extensions = Extensions({(self._keyObjectExtensions + 'Dialogue'):"Subtype: Dialogue, ActivityType: Sublesson"})))
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + COMPLETED_VERB, display=LanguageMap({'en-US': COMPLETED_VERB}))
         result = Result(response = '',)
 
@@ -573,7 +584,7 @@ class xAPILearnLogger(BaseLearnLogger):
 
     def sendCompletedDecision(self, timestamp=None):
         actor = Agent( object_type = 'Agent', openid = self._userId, name = self._name, mbox='mailto:SMART-E@ict.usc.edu')
-        anObject = Activity( id = self._url + str(uuid.uuid4()), object_type = 'Activity', definition = ActivityDefinition(name=LanguageMap({'en-US': 'Decision'}), description=LanguageMap({'en-US':'User Completed Decision'})))
+        anObject = Activity( id = self._url + str(uuid.uuid4()), object_type = 'Task', definition = ActivityDefinition(name=LanguageMap({'en-US': 'Task'}), description=LanguageMap({'en-US':'User Completed Decision'}), extensions = Extensions({(self._keyObjectExtensions + 'Decision'):"Subtype: Decision, ActivityType: Task"})))
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + COMPLETED_VERB, display=LanguageMap({'en-US': COMPLETED_VERB}))
         result = Result(response = '',)
 
@@ -592,7 +603,7 @@ class xAPILearnLogger(BaseLearnLogger):
 
     def sendCompletedChoice(self, timestamp=None):
         actor = Agent( object_type = 'Agent', openid = self._userId, name = self._name, mbox='mailto:SMART-E@ict.usc.edu')
-        anObject = Activity( id = self._url + str(uuid.uuid4()), object_type = 'Activity', definition = ActivityDefinition(name=LanguageMap({'en-US': 'Choice'}), description=LanguageMap({'en-US':'User Completed Choice'})))
+        anObject = Activity( id = self._url + str(uuid.uuid4()), object_type = 'Step', definition = ActivityDefinition(name=LanguageMap({'en-US': 'Step'}), description=LanguageMap({'en-US':'User Completed Choice'}), extensions = Extensions({(self._keyObjectExtensions + 'Choice'):"Subtype: Choice, ActivityType: Step"})))
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + COMPLETED_VERB, display=LanguageMap({'en-US': COMPLETED_VERB}))
         result = Result(response = '',)
 
@@ -611,7 +622,7 @@ class xAPILearnLogger(BaseLearnLogger):
 
     def sendCompletedAAR(self, timestamp=None):
         actor = Agent( object_type = 'Agent', openid = self._userId, name = self._name, mbox='mailto:SMART-E@ict.usc.edu')
-        anObject = Activity( id = self._url + str(uuid.uuid4()), object_type = 'Activity', definition = ActivityDefinition(name=LanguageMap({'en-US': 'AAR'}), description=LanguageMap({'en-US':'User Completed AAR'})))
+        anObject = Activity( id = self._url + str(uuid.uuid4()), object_type = 'Sublesson', definition = ActivityDefinition(name=LanguageMap({'en-US': 'Sublesson'}), description=LanguageMap({'en-US':'User Completed AAR'}), extensions = Extensions({(self._keyObjectExtensions + 'AAR'):"Subtype: AAR, ActivityType: Sublesson"})))
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + COMPLETED_VERB, display=LanguageMap({'en-US': COMPLETED_VERB}))
         result = Result(response = '',)
 
@@ -630,7 +641,7 @@ class xAPILearnLogger(BaseLearnLogger):
 
     def sendCompletedQuestion(self, timestamp=None):
         actor = Agent( object_type = 'Agent', openid = self._userId, name = self._name, mbox='mailto:SMART-E@ict.usc.edu')
-        anObject = Activity( id = self._url + str(uuid.uuid4()), object_type = 'Activity', definition = ActivityDefinition(name=LanguageMap({'en-US': 'Question'}), description=LanguageMap({'en-US':'User Completed Question'})))
+        anObject = Activity( id = self._url + str(uuid.uuid4()), object_type = 'Task', definition = ActivityDefinition(name=LanguageMap({'en-US': 'Task'}), description=LanguageMap({'en-US':'User Completed Question'}), extensions = Extensions({(self._keyObjectExtensions + 'Question'):"Subtype: Question, ActivityType: Task"})))
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + COMPLETED_VERB, display=LanguageMap({'en-US': COMPLETED_VERB}))
         result = Result(response = '',)
 
@@ -650,7 +661,7 @@ class xAPILearnLogger(BaseLearnLogger):
 
     def sendCompletedAnswer(self, timestamp=None):
         actor = Agent( object_type = 'Agent', openid = self._userId, name = self._name, mbox='mailto:SMART-E@ict.usc.edu')
-        anObject = Activity( id = self._url + str(uuid.uuid4()), object_type = 'Activity', definition = ActivityDefinition(name=LanguageMap({'en-US': 'Answer'}), description=LanguageMap({'en-US':'User Completed Answer'})))
+        anObject = Activity( id = self._url + str(uuid.uuid4()), object_type = 'Step', definition = ActivityDefinition(name=LanguageMap({'en-US': 'Step'}), description=LanguageMap({'en-US':'User Completed Answer'}), extensions = Extensions({(self._keyObjectExtensions + 'Answer'):"Subtype: Answer, ActivityType: Step"})))
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + COMPLETED_VERB, display=LanguageMap({'en-US': COMPLETED_VERB}))
         result = Result(response = '',)
 
