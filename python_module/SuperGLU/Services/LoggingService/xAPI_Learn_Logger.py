@@ -1356,6 +1356,7 @@ class xAPILearnLogger(BaseLearnLogger):
         tempContext[DURATION_KEY] = self.calcDuration()
         
         #Define URL for parent Label
+        URLActivityTreeLabel = self._url +"/ActivityTree/" + parentLabel
         URLParentLabel = self._url + parentLabel
         
         #Convert to JSON string 
@@ -1371,13 +1372,24 @@ class xAPILearnLogger(BaseLearnLogger):
         tempContextNew[ContextExtensionKeyUrl]  = tempContext
         
        #constructing a parent dicitonary to pass to Activity List class , so that it's converted to tincan.ActivityList and then passed to parent argument in the ContextActivities
-        parentDict = {
-                "id": URLParentLabel,
+        ActivityTreeDict = {
+                "id": URLActivityTreeLabel,
                 "definition": {
                     'extensions': {ContextActivityKeyUrl: ContextActivityTreestr}
                     }
             }
         
+        #Create a parent dictionary to store the parent node
+        ParentDict = {
+            "id": URLParentLabel,
+            "definition" : {
+                "name": {
+                    'en-US': parentLabel
+                    }
+                }
+            }
+        
+        #Create a dictionary to store subtype in category
         
         #Used as an instructor agent in context
         agentAccount = AgentAccount(name = "dummyName", home_page="http://dummyHomepage.com")
@@ -1389,7 +1401,9 @@ class xAPILearnLogger(BaseLearnLogger):
             account=agentAccount
             ), 
         extensions = Extensions(tempContextNew),
-        context_activities = ContextActivities(parent = ActivityList([parentDict]))#, parent = parent)
+        context_activities = ContextActivities(parent = ActivityList([ParentDict]), 
+                                               category = ActivityList([{"id": self._url + "/category/"}]),
+                                               other = ActivityList([ActivityTreeDict]))#, parent = parent)
         # language='en-US',
         )        
 
