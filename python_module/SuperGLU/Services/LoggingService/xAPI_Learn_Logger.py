@@ -47,9 +47,11 @@ class xAPILearnLogger(BaseLearnLogger):
     '''
 
     def sendStartSession(self, timestamp = None):
-
+        Objecttype = "Session"
+        Subtype = "Session"
+        
         actor = Agent( object_type = 'Agent', openid = self._userId, name = self._name, mbox='mailto:SMART-E@ict.usc.edu')
-        anObject = Activity( id = self._url + str(uuid.uuid4()), object_type = 'Activity', definition = ActivityDefinition(name=LanguageMap({'en-US': 'Session'}), description=LanguageMap({'en-US':'User Started a new Session'})))
+        anObject = Activity( id = self._url + str(uuid.uuid4()), object_type = Objecttype, definition = ActivityDefinition(name=LanguageMap({'en-US': 'Session'}), description=LanguageMap({'en-US':'User Started a new Session'})))
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + AppStart, display=LanguageMap({'en-US': 'started'}))
         result = Result(response = 'User started a new Session',)
         
@@ -59,13 +61,16 @@ class xAPILearnLogger(BaseLearnLogger):
         ActivityTreeSerialized = makeSerialized(jsonActivityTree)
         jsonDictActivityTree = json.loads(ActivityTreeSerialized)
     
-        context = self.addContext(ContextActivityTree = jsonDictActivityTree)
+        context = self.addContext(Subtype, ContextActivityTree = jsonDictActivityTree)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=verb, object=anObject, result=result, context=context, timestamp=timestamp)
         self.sendLoggingMessage(statement)
 
     def sendStartTopic(self, timestamp = None):
+        Objecttype = "Topic"
+        Subtype = "Topic"        
+        
         actor = Agent( object_type = 'Agent', openid = self._userId, name = self._name, mbox='mailto:SMART-E@ict.usc.edu')
         anObject = Activity( id = self._url + str(uuid.uuid4()), object_type = 'Activity', definition = ActivityDefinition(name=LanguageMap({'en-US': 'Topic'}), description=LanguageMap({'en-US':'User Started a new Topic'})))
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + AppStart, display=LanguageMap({'en-US': 'started'}))
@@ -80,7 +85,7 @@ class xAPILearnLogger(BaseLearnLogger):
         ActivityTreeSerialized = makeSerialized(jsonActivityTree)
         jsonDictActivityTree = json.loads(ActivityTreeSerialized)
                 
-        context = self.addContext(parentLabel, ContextActivityTree= jsonDictActivityTree)
+        context = self.addContext(parentLabel, Subtype, ContextActivityTree= jsonDictActivityTree)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=verb, object=anObject, result=result, context=context, timestamp=timestamp)
@@ -189,6 +194,8 @@ class xAPILearnLogger(BaseLearnLogger):
 
 
     def sendLoadedVideoLesson(self, timestamp=None):
+        Objecttype = "lesson"
+        Subtype = "Video Lesson"
 
         actor = Agent( object_type = 'Agent', name = self._name, openid = self._userId, mbox='mailto:SMART-E@ict.usc.edu')
         anObject = Activity( id = self._url + str(uuid.uuid4()),
@@ -202,19 +209,22 @@ class xAPILearnLogger(BaseLearnLogger):
         result = Result(success = True,)
         parentLabel = "Session"
         
-        #Implementing Activity Tree into context
-        self._Activity_Tree.EnterActivity(label = 'lesson', activity = 'Video Lesson')
+        #Implementing Activity Tree and Current Path into context
+        self._Activity_Tree.EnterActivity(label = Objecttype, activity = Subtype)
         jsonActivityTree = self._Activity_Tree.saveToToken()
         ActivityTreeSerialized = makeSerialized(jsonActivityTree)
         jsonDictActivityTree = json.loads(ActivityTreeSerialized)  
+        jsonDictCurrentPath = json.loads(ActivityTreeSerialized)['ActivityTree']['currentPath']    
               
-        context = self.addContext(parentLabel, ContextActivityTree= jsonDictActivityTree)
+        context = self.addContext(parentLabel, Subtype, ContextActivityTree= jsonDictActivityTree, ContextCurrentPath = jsonDictCurrentPath)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=verb, object=anObject, result=result, context=context, timestamp=timestamp)
         self.sendLoggingMessage(statement)
 
     def sendLoadedVideoSubLesson(self, timestamp=None):
+        Objecttype = "lesson"
+        Subtype = "Video Sublesson"        
 
         actor = Agent( object_type = 'Agent', name = self._name, openid = self._userId, mbox='mailto:SMART-E@ict.usc.edu')
         anObject = Activity( id = self._url + str(uuid.uuid4()),
@@ -232,15 +242,18 @@ class xAPILearnLogger(BaseLearnLogger):
         jsonActivityTree = self._Activity_Tree.saveToToken()
         ActivityTreeSerialized = makeSerialized(jsonActivityTree)
         jsonDictActivityTree = json.loads(ActivityTreeSerialized)
-                
-        context = self.addContext(parentLabel, ContextActivityTree= jsonDictActivityTree)
+        jsonDictCurrentPath = json.loads(ActivityTreeSerialized)['ActivityTree']['currentPath']    
+              
+        context = self.addContext(parentLabel, Subtype, ContextActivityTree= jsonDictActivityTree, ContextCurrentPath = jsonDictCurrentPath)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=verb, object=anObject, result=result, context=context, timestamp=timestamp)
         self.sendLoggingMessage(statement)
 
     def sendStartScenario(self, timestamp=None):
-
+        Objecttype = "Lesson"
+        Subtype = "Scenario"
+        
         actor = Agent( object_type = 'Agent', name = self._name, openid = self._userId, mbox='mailto:SMART-E@ict.usc.edu')
         anObject = Activity( id = self._url + str(uuid.uuid4()),
             object_type = 'Lesson',
@@ -259,15 +272,18 @@ class xAPILearnLogger(BaseLearnLogger):
         jsonActivityTree = self._Activity_Tree.saveToToken()
         ActivityTreeSerialized = makeSerialized(jsonActivityTree)
         jsonDictActivityTree = json.loads(ActivityTreeSerialized)
-                
-        context = self.addContext(parentLabel, ContextActivityTree= jsonDictActivityTree)
+        jsonDictCurrentPath = json.loads(ActivityTreeSerialized)['ActivityTree']['currentPath']    
+              
+        context = self.addContext(parentLabel, Subtype, ContextActivityTree= jsonDictActivityTree, ContextCurrentPath = jsonDictCurrentPath)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=verb, object=anObject, result=result, context=context, timestamp=timestamp)
         self.sendLoggingMessage(statement)
 
     def sendStartDialogue(self, timestamp=None):
-
+        Objecttype = "Sublesson"
+        Subtype = "Dialogue"
+        
         actor = Agent( object_type = 'Agent', name = self._name, openid = self._userId, mbox='mailto:SMART-E@ict.usc.edu')
         anObject = Activity( id = self._url + str(uuid.uuid4()),
             object_type = 'Dialogue',
@@ -284,15 +300,18 @@ class xAPILearnLogger(BaseLearnLogger):
         jsonActivityTree = self._Activity_Tree.saveToToken()
         ActivityTreeSerialized = makeSerialized(jsonActivityTree)
         jsonDictActivityTree = json.loads(ActivityTreeSerialized)        
-        
-        context = self.addContext(parentLabel, ContextActivityTree= jsonDictActivityTree)
+        jsonDictCurrentPath = json.loads(ActivityTreeSerialized)['ActivityTree']['currentPath']    
+              
+        context = self.addContext(parentLabel, Subtype, ContextActivityTree= jsonDictActivityTree, ContextCurrentPath = jsonDictCurrentPath)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=verb, object=anObject, result=result, context=context, timestamp=timestamp)
         self.sendLoggingMessage(statement)
 
     def sendStartDecision(self, timestamp=None):
-
+        Objecttype = "Task"
+        Subtype = "Decision"
+        
         actor = Agent( object_type = 'Agent', name = self._name, openid = self._userId, mbox='mailto:SMART-E@ict.usc.edu')
         anObject = Activity( id = self._url + str(uuid.uuid4()),
             object_type = 'Task',
@@ -309,15 +328,18 @@ class xAPILearnLogger(BaseLearnLogger):
         jsonActivityTree = self._Activity_Tree.saveToToken()
         ActivityTreeSerialized = makeSerialized(jsonActivityTree)
         jsonDictActivityTree = json.loads(ActivityTreeSerialized)         
-        
-        context = self.addContext(parentLabel, ContextActivityTree= jsonDictActivityTree)
+        jsonDictCurrentPath = json.loads(ActivityTreeSerialized)['ActivityTree']['currentPath']    
+              
+        context = self.addContext(parentLabel, Subtype, ContextActivityTree= jsonDictActivityTree, ContextCurrentPath = jsonDictCurrentPath)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=verb, object=anObject, result=result, context=context, timestamp=timestamp)
         self.sendLoggingMessage(statement)
 
     def sendStartChoice(self, timestamp=None):
-
+        Objecttype = "Step"
+        Subtype = "Choice"
+        
         actor = Agent( object_type = 'Agent', name = self._name, openid = self._userId, mbox='mailto:SMART-E@ict.usc.edu')
         anObject = Activity( id = self._url + str(uuid.uuid4()),
             object_type = 'Step',
@@ -334,15 +356,18 @@ class xAPILearnLogger(BaseLearnLogger):
         jsonActivityTree = self._Activity_Tree.saveToToken()
         ActivityTreeSerialized = makeSerialized(jsonActivityTree)
         jsonDictActivityTree = json.loads(ActivityTreeSerialized)         
-        
-        context = self.addContext(parentLabel, ContextActivityTree= jsonDictActivityTree)
+        jsonDictCurrentPath = json.loads(ActivityTreeSerialized)['ActivityTree']['currentPath']    
+              
+        context = self.addContext(parentLabel, Subtype, ContextActivityTree= jsonDictActivityTree, ContextCurrentPath = jsonDictCurrentPath)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=verb, object=anObject, result=result, context=context, timestamp=timestamp)
         self.sendLoggingMessage(statement)
 
     def sendStartAAR(self, timestamp=None):
-
+        Objecttype = "Sublesson"
+        Subtype = "AAR"
+        
         actor = Agent( object_type = 'Agent', name = self._name, openid = self._userId, mbox='mailto:SMART-E@ict.usc.edu')
         anObject = Activity( id = self._url + str(uuid.uuid4()),
             object_type = 'Sublesson',
@@ -359,15 +384,18 @@ class xAPILearnLogger(BaseLearnLogger):
         jsonActivityTree = self._Activity_Tree.saveToToken()
         ActivityTreeSerialized = makeSerialized(jsonActivityTree)
         jsonDictActivityTree = json.loads(ActivityTreeSerialized)         
-        
-        context = self.addContext(parentLabel, ContextActivityTree= jsonDictActivityTree)
+        jsonDictCurrentPath = json.loads(ActivityTreeSerialized)['ActivityTree']['currentPath']    
+              
+        context = self.addContext(parentLabel, Subtype, ContextActivityTree= jsonDictActivityTree, ContextCurrentPath = jsonDictCurrentPath)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=verb, object=anObject, result=result, context=context, timestamp=timestamp)
         self.sendLoggingMessage(statement)
 
     def sendStartQuestion(self, timestamp=None):
-
+        Objecttype = "Task"
+        Subtype = "Question"
+        
         actor = Agent( object_type = 'Agent', name = self._name, openid = self._userId, mbox='mailto:SMART-E@ict.usc.edu')
         anObject = Activity( id = self._url + str(uuid.uuid4()),
             object_type = 'Task',
@@ -384,15 +412,18 @@ class xAPILearnLogger(BaseLearnLogger):
         jsonActivityTree = self._Activity_Tree.saveToToken()
         ActivityTreeSerialized = makeSerialized(jsonActivityTree)
         jsonDictActivityTree = json.loads(ActivityTreeSerialized) 
-                
-        context = self.addContext(parentLabel, ContextActivityTree= jsonDictActivityTree)
+        jsonDictCurrentPath = json.loads(ActivityTreeSerialized)['ActivityTree']['currentPath']    
+              
+        context = self.addContext(parentLabel, Subtype, ContextActivityTree= jsonDictActivityTree, ContextCurrentPath = jsonDictCurrentPath)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=verb, object=anObject, result=result, context=context, timestamp=timestamp)
         self.sendLoggingMessage(statement)
 
     def sendStartAnswer(self, timestamp=None):
-
+        Objecttype = "Step"
+        Subtype = "Answer"
+        
         actor = Agent( object_type = 'Agent', name = self._name, openid = self._userId, mbox='mailto:SMART-E@ict.usc.edu')
         anObject = Activity( id = self._url + str(uuid.uuid4()),
             object_type = 'Step',
@@ -409,15 +440,19 @@ class xAPILearnLogger(BaseLearnLogger):
         jsonActivityTree = self._Activity_Tree.saveToToken()
         ActivityTreeSerialized = makeSerialized(jsonActivityTree)
         jsonDictActivityTree = json.loads(ActivityTreeSerialized) 
-                
-        context = self.addContext(parentLabel, ContextActivityTree= jsonDictActivityTree)
+        jsonDictCurrentPath = json.loads(ActivityTreeSerialized)['ActivityTree']['currentPath']    
+              
+        context = self.addContext(parentLabel, Subtype, ContextActivityTree= jsonDictActivityTree, ContextCurrentPath = jsonDictCurrentPath)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=verb, object=anObject, result=result, context=context, timestamp=timestamp)
         self.sendLoggingMessage(statement)
 
     def sendLoadedTask(self, frameName, sysComp = '', description='', timestamp=None):
-
+        Objecttype = "Lesson"
+        Subtype = "Video/AAR"
+        parentLabel = "Session"
+                
         actor = Agent( object_type = 'Agent', name = frameName, openid = self._userId, mbox='mailto:SMART-E@ict.usc.edu')
         anObject = Activity( id = self._url,
             object_type = 'Activity',
@@ -428,14 +463,15 @@ class xAPILearnLogger(BaseLearnLogger):
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + LOADED_VERB, display=LanguageMap({'en-US': LOADED_VERB}))
         result = Result(success = True,)
         #self._Activity_Tree.EnterActivity(label = "Video Lesson", activity = "User started Video", parentLabel="Session")
-        parentLabel = "Sublesson"
+
         #Implementing Activity Tree into context
-        self._Activity_Tree.EnterActivity(label = "Task", activity = "Task")
+        self._Activity_Tree.EnterActivity(label = "Lesson", activity = "Video/AAR")
         jsonActivityTree = self._Activity_Tree.saveToToken()
         ActivityTreeSerialized = makeSerialized(jsonActivityTree)
         jsonDictActivityTree = json.loads(ActivityTreeSerialized)         
-        
-        context = self.addContext(parentLabel, ContextActivityTree= jsonDictActivityTree)
+        jsonDictCurrentPath = json.loads(ActivityTreeSerialized)['ActivityTree']['currentPath']    
+              
+        context = self.addContext(parentLabel, Subtype, ContextActivityTree= jsonDictActivityTree, ContextCurrentPath = jsonDictCurrentPath)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=verb, object=anObject, result=result, context=context, timestamp=timestamp)
@@ -450,8 +486,11 @@ class xAPILearnLogger(BaseLearnLogger):
         @type score: float
     '''
     def sendTerminatedSession(self, timestamp=None):
+        Objecttype = "Session"
+        Subtype = "Session"
+        
         actor = Agent( object_type = 'Agent', openid = self._userId, name = self._name, mbox='mailto:SMART-E@ict.usc.edu')
-        anObject = Activity( id = self._url + str(uuid.uuid4()), object_type = 'Activity', definition = ActivityDefinition(name=LanguageMap({'en-US': 'Session'}), description=LanguageMap({'en-US':'User Stopped Session'})))
+        anObject = Activity( id = self._url + str(uuid.uuid4()), object_type = Objecttype, definition = ActivityDefinition(name=LanguageMap({'en-US': 'Session'}), description=LanguageMap({'en-US':'User Stopped Session'})))
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + Exiting, display=LanguageMap({'en-US': Exiting}))
         result = Result(response = '',)
         
@@ -460,16 +499,18 @@ class xAPILearnLogger(BaseLearnLogger):
         jsonActivityTree = self._Activity_Tree.saveToToken()
         ActivityTreeSerialized = makeSerialized(jsonActivityTree)
         jsonDictActivityTree = json.loads(ActivityTreeSerialized)         
-
-        context = self.addContext(ContextActivityTree = jsonDictActivityTree)
+        jsonDictCurrentPath = json.loads(ActivityTreeSerialized)['ActivityTree']['currentPath']    
+              
+        context = self.addContext(Subtype, ContextActivityTree= jsonDictActivityTree, ContextCurrentPath = jsonDictCurrentPath)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=verb, object=anObject, result=result, context=context, timestamp=timestamp)
         self.sendLoggingMessage(statement)
 
     def sendCompletedLesson(self, timestamp=None):
+        
         actor = Agent( object_type = 'Agent', openid = self._userId, name = self._name, mbox='mailto:SMART-E@ict.usc.edu')
-        anObject = Activity( id = self._url + str(uuid.uuid4()), object_type = 'Activity', definition = ActivityDefinition(name=LanguageMap({'en-US': 'Lesson'}), description=LanguageMap({'en-US':'User Completed Lesson'})))
+        anObject = Activity( id = self._url + str(uuid.uuid4()), object_type = Objecttype, definition = ActivityDefinition(name=LanguageMap({'en-US': 'Lesson'}), description=LanguageMap({'en-US':'User Completed Lesson'})))
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + COMPLETED_VERB, display=LanguageMap({'en-US': COMPLETED_VERB}))
         result = Result(response = '',)
 
@@ -479,8 +520,9 @@ class xAPILearnLogger(BaseLearnLogger):
         jsonActivityTree = self._Activity_Tree.saveToToken()
         ActivityTreeSerialized = makeSerialized(jsonActivityTree)
         jsonDictActivityTree = json.loads(ActivityTreeSerialized)          
-        
-        context = self.addContext(parentLabel, ContextActivityTree= jsonDictActivityTree)
+        jsonDictCurrentPath = json.loads(ActivityTreeSerialized)['ActivityTree']['currentPath']    
+              
+        context = self.addContext(parentLabel, Subtype, ContextActivityTree= jsonDictActivityTree, ContextCurrentPath = jsonDictCurrentPath)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=verb, object=anObject, result=result, context=context, timestamp=timestamp)
@@ -488,7 +530,7 @@ class xAPILearnLogger(BaseLearnLogger):
 
     def sendCompletedSubLesson(self, timestamp=None):
         actor = Agent( object_type = 'Agent', openid = self._userId, name = self._name, mbox='mailto:SMART-E@ict.usc.edu')
-        anObject = Activity( id = self._url + str(uuid.uuid4()), object_type = 'Activity', definition = ActivityDefinition(name=LanguageMap({'en-US': 'SubLesson'}), description=LanguageMap({'en-US':'User Completed SubLesson'})))
+        anObject = Activity( id = self._url + str(uuid.uuid4()), object_type = Objecttype, definition = ActivityDefinition(name=LanguageMap({'en-US': 'SubLesson'}), description=LanguageMap({'en-US':'User Completed SubLesson'})))
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + COMPLETED_VERB, display=LanguageMap({'en-US': COMPLETED_VERB}))
         result = Result(response = '',)
 
@@ -499,14 +541,18 @@ class xAPILearnLogger(BaseLearnLogger):
         jsonActivityTree = self._Activity_Tree.saveToToken()
         ActivityTreeSerialized = makeSerialized(jsonActivityTree)
         jsonDictActivityTree = json.loads(ActivityTreeSerialized)   
+        jsonDictCurrentPath = json.loads(ActivityTreeSerialized)['ActivityTree']['currentPath']    
               
-        context = self.addContext(parentLabel, ContextActivityTree= jsonDictActivityTree)
+        context = self.addContext(parentLabel, Subtype, ContextActivityTree= jsonDictActivityTree, ContextCurrentPath = jsonDictCurrentPath)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=verb, object=anObject, result=result, context=context, timestamp=timestamp)
         self.sendLoggingMessage(statement)
 
     def sendCompletedVideoLesson(self, timestamp=None):
+        Objecttype = "Lesson"
+        Subtype = "Video Lesson"
+                
         actor = Agent( object_type = 'Agent', openid = self._userId, name = self._name, mbox='mailto:SMART-E@ict.usc.edu')
         anObject = Activity( id = self._url + str(uuid.uuid4()), object_type = 'Lesson', definition = ActivityDefinition(name=LanguageMap({'en-US': 'Lesson'}), description=LanguageMap({'en-US':'User Completed Video Lesson'}), extensions = Extensions({(self._keyObjectExtensions + 'VideoLesson'):"Subtype: Video Lesson, ActivityType: Lesson"})))
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + COMPLETED_VERB, display=LanguageMap({'en-US': COMPLETED_VERB}))
@@ -518,14 +564,18 @@ class xAPILearnLogger(BaseLearnLogger):
         jsonActivityTree = self._Activity_Tree.saveToToken()
         ActivityTreeSerialized = makeSerialized(jsonActivityTree)
         jsonDictActivityTree = json.loads(ActivityTreeSerialized) 
-                
-        context = self.addContext(parentLabel, ContextActivityTree= jsonDictActivityTree)
+        jsonDictCurrentPath = json.loads(ActivityTreeSerialized)['ActivityTree']['currentPath']    
+              
+        context = self.addContext(parentLabel, Subtype, ContextActivityTree= jsonDictActivityTree, ContextCurrentPath = jsonDictCurrentPath)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=verb, object=anObject, result=result, context=context, timestamp=timestamp)
         self.sendLoggingMessage(statement)
 
     def sendCompletedVideoSubLesson(self, timestamp=None):
+        Objecttype = "Sublesson"
+        Subtype = "Video Sublesson"
+                
         actor = Agent( object_type = 'Agent', openid = self._userId, name = self._name, mbox='mailto:SMART-E@ict.usc.edu')
         anObject = Activity( id = self._url + str(uuid.uuid4()), object_type = 'Sublesson', definition = ActivityDefinition(name=LanguageMap({'en-US': 'SubLesson'}), description=LanguageMap({'en-US':'User Completed Video SubLesson'}), extensions = Extensions({(self._keyObjectExtensions + 'VideoSublesson'):"Subtype: Video Sublesson, ActivityType: Sublesson"})))
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + COMPLETED_VERB, display=LanguageMap({'en-US': COMPLETED_VERB}))
@@ -537,14 +587,18 @@ class xAPILearnLogger(BaseLearnLogger):
         jsonActivityTree = self._Activity_Tree.saveToToken()
         ActivityTreeSerialized = makeSerialized(jsonActivityTree)
         jsonDictActivityTree = json.loads(ActivityTreeSerialized)         
-        
-        context = self.addContext(parentLabel, ContextActivityTree= jsonDictActivityTree)
+        jsonDictCurrentPath = json.loads(ActivityTreeSerialized)['ActivityTree']['currentPath']    
+              
+        context = self.addContext(parentLabel, Subtype, ContextActivityTree= jsonDictActivityTree, ContextCurrentPath = jsonDictCurrentPath)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=verb, object=anObject, result=result, context=context, timestamp=timestamp)
         self.sendLoggingMessage(statement)
 
     def sendCompletedScenario(self, timestamp=None):
+        Objecttype = "lesson"
+        Subtype = "Scenario"
+                
         actor = Agent( object_type = 'Agent', openid = self._userId, name = self._name, mbox='mailto:SMART-E@ict.usc.edu')
         anObject = Activity( id = self._url + str(uuid.uuid4()), object_type = 'Lesson', definition = ActivityDefinition(name=LanguageMap({'en-US': 'Lesson'}), description=LanguageMap({'en-US':'User Completed Scenario'}), extensions = Extensions({(self._keyObjectExtensions + 'Scenario'):"Subtype: Scenario, ActivityType: Lesson"})))
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + COMPLETED_VERB, display=LanguageMap({'en-US': COMPLETED_VERB}))
@@ -556,14 +610,18 @@ class xAPILearnLogger(BaseLearnLogger):
         jsonActivityTree = self._Activity_Tree.saveToToken()
         ActivityTreeSerialized = makeSerialized(jsonActivityTree)
         jsonDictActivityTree = json.loads(ActivityTreeSerialized) 
-                
-        context = self.addContext(parentLabel, ContextActivityTree= jsonDictActivityTree)
+        jsonDictCurrentPath = json.loads(ActivityTreeSerialized)['ActivityTree']['currentPath']    
+              
+        context = self.addContext(parentLabel, Subtype, ContextActivityTree= jsonDictActivityTree, ContextCurrentPath = jsonDictCurrentPath)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=verb, object=anObject, result=result, context=context, timestamp=timestamp)
         self.sendLoggingMessage(statement)
 
     def sendCompletedDialogue(self, timestamp=None):
+        Objecttype = "Sublesson"
+        Subtype = "Dialogue"        
+        
         actor = Agent( object_type = 'Agent', openid = self._userId, name = self._name, mbox='mailto:SMART-E@ict.usc.edu')
         anObject = Activity( id = self._url + str(uuid.uuid4()), object_type = 'Sublesson', definition = ActivityDefinition(name=LanguageMap({'en-US': 'Sublesson'}), description=LanguageMap({'en-US':'User Completed Dialogue'}), extensions = Extensions({(self._keyObjectExtensions + 'Dialogue'):"Subtype: Dialogue, ActivityType: Sublesson"})))
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + COMPLETED_VERB, display=LanguageMap({'en-US': COMPLETED_VERB}))
@@ -575,14 +633,18 @@ class xAPILearnLogger(BaseLearnLogger):
         jsonActivityTree = self._Activity_Tree.saveToToken()
         ActivityTreeSerialized = makeSerialized(jsonActivityTree)
         jsonDictActivityTree = json.loads(ActivityTreeSerialized)         
-        
-        context = self.addContext(parentLabel, ContextActivityTree= jsonDictActivityTree)
+        jsonDictCurrentPath = json.loads(ActivityTreeSerialized)['ActivityTree']['currentPath']    
+              
+        context = self.addContext(parentLabel, Subtype, ContextActivityTree= jsonDictActivityTree, ContextCurrentPath = jsonDictCurrentPath)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=verb, object=anObject, result=result, context=context, timestamp=timestamp)
         self.sendLoggingMessage(statement)
 
     def sendCompletedDecision(self, timestamp=None):
+        Objecttype = "Task"
+        Subtype = "Decision"
+                
         actor = Agent( object_type = 'Agent', openid = self._userId, name = self._name, mbox='mailto:SMART-E@ict.usc.edu')
         anObject = Activity( id = self._url + str(uuid.uuid4()), object_type = 'Task', definition = ActivityDefinition(name=LanguageMap({'en-US': 'Task'}), description=LanguageMap({'en-US':'User Completed Decision'}), extensions = Extensions({(self._keyObjectExtensions + 'Decision'):"Subtype: Decision, ActivityType: Task"})))
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + COMPLETED_VERB, display=LanguageMap({'en-US': COMPLETED_VERB}))
@@ -594,14 +656,18 @@ class xAPILearnLogger(BaseLearnLogger):
         jsonActivityTree = self._Activity_Tree.saveToToken()
         ActivityTreeSerialized = makeSerialized(jsonActivityTree)
         jsonDictActivityTree = json.loads(ActivityTreeSerialized)         
-        
-        context = self.addContext(parentLabel, ContextActivityTree= jsonDictActivityTree)
+        jsonDictCurrentPath = json.loads(ActivityTreeSerialized)['ActivityTree']['currentPath']    
+              
+        context = self.addContext(parentLabel, Subtype, ContextActivityTree= jsonDictActivityTree, ContextCurrentPath = jsonDictCurrentPath)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=verb, object=anObject, result=result, context=context, timestamp=timestamp)
         self.sendLoggingMessage(statement)
 
     def sendCompletedChoice(self, timestamp=None):
+        Objecttype = "Step"
+        Subtype = "Choice"        
+        
         actor = Agent( object_type = 'Agent', openid = self._userId, name = self._name, mbox='mailto:SMART-E@ict.usc.edu')
         anObject = Activity( id = self._url + str(uuid.uuid4()), object_type = 'Step', definition = ActivityDefinition(name=LanguageMap({'en-US': 'Step'}), description=LanguageMap({'en-US':'User Completed Choice'}), extensions = Extensions({(self._keyObjectExtensions + 'Choice'):"Subtype: Choice, ActivityType: Step"})))
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + COMPLETED_VERB, display=LanguageMap({'en-US': COMPLETED_VERB}))
@@ -613,14 +679,18 @@ class xAPILearnLogger(BaseLearnLogger):
         jsonActivityTree = self._Activity_Tree.saveToToken()
         ActivityTreeSerialized = makeSerialized(jsonActivityTree)
         jsonDictActivityTree = json.loads(ActivityTreeSerialized)         
-        
-        context = self.addContext(parentLabel, ContextActivityTree= jsonDictActivityTree)
+        jsonDictCurrentPath = json.loads(ActivityTreeSerialized)['ActivityTree']['currentPath']    
+              
+        context = self.addContext(parentLabel, Subtype, ContextActivityTree= jsonDictActivityTree, ContextCurrentPath = jsonDictCurrentPath)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=verb, object=anObject, result=result, context=context, timestamp=timestamp)
         self.sendLoggingMessage(statement)
 
     def sendCompletedAAR(self, timestamp=None):
+        Objecttype = "Sublesson"
+        Subtype = "AAR"
+                
         actor = Agent( object_type = 'Agent', openid = self._userId, name = self._name, mbox='mailto:SMART-E@ict.usc.edu')
         anObject = Activity( id = self._url + str(uuid.uuid4()), object_type = 'Sublesson', definition = ActivityDefinition(name=LanguageMap({'en-US': 'Sublesson'}), description=LanguageMap({'en-US':'User Completed AAR'}), extensions = Extensions({(self._keyObjectExtensions + 'AAR'):"Subtype: AAR, ActivityType: Sublesson"})))
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + COMPLETED_VERB, display=LanguageMap({'en-US': COMPLETED_VERB}))
@@ -632,14 +702,18 @@ class xAPILearnLogger(BaseLearnLogger):
         jsonActivityTree = self._Activity_Tree.saveToToken()
         ActivityTreeSerialized = makeSerialized(jsonActivityTree)
         jsonDictActivityTree = json.loads(ActivityTreeSerialized)         
-        
-        context = self.addContext(parentLabel, ContextActivityTree= jsonDictActivityTree)
+        jsonDictCurrentPath = json.loads(ActivityTreeSerialized)['ActivityTree']['currentPath']    
+              
+        context = self.addContext(parentLabel, Subtype, ContextActivityTree= jsonDictActivityTree, ContextCurrentPath = jsonDictCurrentPath)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=verb, object=anObject, result=result, context=context, timestamp=timestamp)
         self.sendLoggingMessage(statement)
 
     def sendCompletedQuestion(self, timestamp=None):
+        Objecttype = "Task"
+        Subtype = "Question"        
+        
         actor = Agent( object_type = 'Agent', openid = self._userId, name = self._name, mbox='mailto:SMART-E@ict.usc.edu')
         anObject = Activity( id = self._url + str(uuid.uuid4()), object_type = 'Task', definition = ActivityDefinition(name=LanguageMap({'en-US': 'Task'}), description=LanguageMap({'en-US':'User Completed Question'}), extensions = Extensions({(self._keyObjectExtensions + 'Question'):"Subtype: Question, ActivityType: Task"})))
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + COMPLETED_VERB, display=LanguageMap({'en-US': COMPLETED_VERB}))
@@ -651,8 +725,9 @@ class xAPILearnLogger(BaseLearnLogger):
         jsonActivityTree = self._Activity_Tree.saveToToken()
         ActivityTreeSerialized = makeSerialized(jsonActivityTree)
         jsonDictActivityTree = json.loads(ActivityTreeSerialized)         
-        
-        context = self.addContext(parentLabel, ContextActivityTree= jsonDictActivityTree)
+        jsonDictCurrentPath = json.loads(ActivityTreeSerialized)['ActivityTree']['currentPath']    
+              
+        context = self.addContext(parentLabel, Subtype, ContextActivityTree= jsonDictActivityTree, ContextCurrentPath = jsonDictCurrentPath)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=verb, object=anObject, result=result, context=context, timestamp=timestamp)
@@ -660,6 +735,9 @@ class xAPILearnLogger(BaseLearnLogger):
 
 
     def sendCompletedAnswer(self, timestamp=None):
+        Objecttype = "Step"
+        Subtype = "Answer"        
+        
         actor = Agent( object_type = 'Agent', openid = self._userId, name = self._name, mbox='mailto:SMART-E@ict.usc.edu')
         anObject = Activity( id = self._url + str(uuid.uuid4()), object_type = 'Step', definition = ActivityDefinition(name=LanguageMap({'en-US': 'Step'}), description=LanguageMap({'en-US':'User Completed Answer'}), extensions = Extensions({(self._keyObjectExtensions + 'Answer'):"Subtype: Answer, ActivityType: Step"})))
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + COMPLETED_VERB, display=LanguageMap({'en-US': COMPLETED_VERB}))
@@ -671,8 +749,9 @@ class xAPILearnLogger(BaseLearnLogger):
         jsonActivityTree = self._Activity_Tree.saveToToken()
         ActivityTreeSerialized = makeSerialized(jsonActivityTree)
         jsonDictActivityTree = json.loads(ActivityTreeSerialized)         
-        
-        context = self.addContext(parentLabel, ContextActivityTree= jsonDictActivityTree)
+        jsonDictCurrentPath = json.loads(ActivityTreeSerialized)['ActivityTree']['currentPath']    
+              
+        context = self.addContext(parentLabel, Subtype, ContextActivityTree= jsonDictActivityTree, ContextCurrentPath = jsonDictCurrentPath)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=verb, object=anObject, result=result, context=context, timestamp=timestamp)
@@ -690,15 +769,19 @@ class xAPILearnLogger(BaseLearnLogger):
         jsonActivityTree = self._Activity_Tree.saveToToken()
         ActivityTreeSerialized = makeSerialized(jsonActivityTree)
         jsonDictActivityTree = json.loads(ActivityTreeSerialized)         
-        
-        context = self.addContext(parentLabel, ContextActivityTree= jsonDictActivityTree)
+        jsonDictCurrentPath = json.loads(ActivityTreeSerialized)['ActivityTree']['currentPath']    
+              
+        context = self.addContext(parentLabel, Subtype, ContextActivityTree= jsonDictActivityTree, ContextCurrentPath = jsonDictCurrentPath)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=verb, object=anObject, result=result, context=context, timestamp=timestamp)
         self.sendLoggingMessage(statement)
 
     def sendCompletedTask(self, score, sysComp = '', description='', timestamp=None):
-
+        Objecttype = "Lesson"
+        Subtype = "Video/AAR" 
+        parentLabel = "Session"       
+        
         actor = Agent( object_type = 'Agent', openid = self._userId, name = self._name, mbox='mailto:SMART-E@ict.usc.edu')
         anObject = Activity( id = self._url + str(uuid.uuid4()),
             object_type = 'Activity',
@@ -706,14 +789,15 @@ class xAPILearnLogger(BaseLearnLogger):
             description=LanguageMap({'en-US':description})))
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + COMPLETED_VERB, display=LanguageMap({'en-US': COMPLETED_VERB}))
         result = Result(score = self.clampToUnitValue(score),)
-        parentLabel = "Sublesson"
+
         #Implementing Activity Tree into context
         self._Activity_Tree.ExitActivity()
         jsonActivityTree = self._Activity_Tree.saveToToken()
         ActivityTreeSerialized = makeSerialized(jsonActivityTree)
         jsonDictActivityTree = json.loads(ActivityTreeSerialized)         
-        
-        context = self.addContext(parentLabel, ContextActivityTree= jsonDictActivityTree)
+        jsonDictCurrentPath = json.loads(ActivityTreeSerialized)['ActivityTree']['currentPath']    
+              
+        context = self.addContext(parentLabel, Subtype, ContextActivityTree= jsonDictActivityTree, ContextCurrentPath = jsonDictCurrentPath)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=verb, object=anObject, result=result, context=context, timestamp=timestamp)
@@ -1009,6 +1093,9 @@ class xAPILearnLogger(BaseLearnLogger):
         @type contentType: string
     '''
     def sendPresented(self, elementId, content, stepId, contentType, sysComp = '', description='', timestamp=None):
+        Objecttype = "Task"
+        Subtype = "Decision"
+        parentLabel = "Dialogue"
 
         actor = Agent( object_type = 'Agent', openid = self._userId, name = self._name, mbox='mailto:SMART-E@ict.usc.edu')
         anObject = Activity( id = self._url+self._taskId, object_type = 'Activity', definition = ActivityDefinition(name=LanguageMap({'en-US': sysComp}), description=LanguageMap({'en-US':description})))
@@ -1029,9 +1116,9 @@ class xAPILearnLogger(BaseLearnLogger):
         jsonActivityTree = self._Activity_Tree.saveToToken()
         ActivityTreeSerialized = makeSerialized(jsonActivityTree)
         jsonDictActivityTree = json.loads(ActivityTreeSerialized)        
-
-        parentLabel = "Dialogue"
-        context = self.addContext(parentLabel, ContextActivityTree= jsonDictActivityTree)
+        jsonDictCurrentPath = json.loads(ActivityTreeSerialized)['ActivityTree']['currentPath']    
+              
+        context = self.addContext(parentLabel, Subtype, ContextActivityTree= jsonDictActivityTree, ContextCurrentPath = jsonDictCurrentPath)
 
         if timestamp is None:
             timestamp = self.getTimestamp()
@@ -1219,7 +1306,9 @@ class xAPILearnLogger(BaseLearnLogger):
         @type contentType: string
     '''
     def _sendInputMessage(self, verb, elementId, content, stepId, contentType, sysComp, description, timestamp):
-
+        Objecttype = "Step"
+        Subtype = "Choice"
+        
         actor = Agent( object_type = 'Agent', openid = self._userId, name = self._name, mbox='mailto:SMART-E@ict.usc.edu')
         anObject = Activity( id = elementId, object_type = 'Activity', definition = ActivityDefinition(name=LanguageMap({'en-US': sysComp}), description=LanguageMap({'en-US':description})))
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + verb, display=LanguageMap({'en-US': verb}))
@@ -1241,8 +1330,9 @@ class xAPILearnLogger(BaseLearnLogger):
         jsonActivityTree = self._Activity_Tree.saveToToken()
         ActivityTreeSerialized = makeSerialized(jsonActivityTree)
         jsonDictActivityTree = json.loads(ActivityTreeSerialized)
-                
-        context = self.addContext(parentLabel, ContextActivityTree= jsonDictActivityTree)
+        jsonDictCurrentPath = json.loads(ActivityTreeSerialized)['ActivityTree']['currentPath']    
+              
+        context = self.addContext(parentLabel, Subtype, ContextActivityTree= jsonDictActivityTree, ContextCurrentPath = jsonDictCurrentPath)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=verb, object=anObject, result=result, context=context, timestamp=timestamp)
@@ -1263,6 +1353,9 @@ class xAPILearnLogger(BaseLearnLogger):
         @type contentType: string
     '''
     def _sendHelpMessage(self, verb, content, stepId, helpType, contentType, sysComp, description, timestamp):
+        Objecttype = "Task"
+        Subtype = "Hint"        
+        
         if (contentType == None) and content != None:
             contentType = 'text'
             content = str(content)
@@ -1286,7 +1379,7 @@ class xAPILearnLogger(BaseLearnLogger):
         ActivityTreeSerialized = makeSerialized(jsonActivityTree)
         jsonDictActivityTree = json.loads(ActivityTreeSerialized)        
         
-        context = self.addContext(parentLabel, ContextActivityTree= jsonDictActivityTree)
+        context = self.addContext(parentLabel, Subtype, ContextActivityTree= jsonDictActivityTree)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=verb, object=anObject, result=result, context=context, timestamp=timestamp)
@@ -1304,6 +1397,9 @@ class xAPILearnLogger(BaseLearnLogger):
         @type clampToUnit: bool
     '''
     def _sendMetricMessage(self, verb, value, evidence,  stepId, clampToUnit, sysComp, description, timestamp):
+        Objecttype = "Task"
+        Subtype = "Decision"
+        
         if evidence == None:
             evidence = []
         if clampToUnit:
@@ -1325,7 +1421,7 @@ class xAPILearnLogger(BaseLearnLogger):
         ActivityTreeSerialized = makeSerialized(jsonActivityTree)
         jsonDictActivityTree = json.loads(ActivityTreeSerialized)        
         
-        context = self.addContext(parentLabel, ContextActivityTree= jsonDictActivityTree)
+        context = self.addContext(parentLabel, Subtype, ContextActivityTree= jsonDictActivityTree)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=verb, object=anObject, result=result, context=context, timestamp=timestamp)
@@ -1344,7 +1440,7 @@ class xAPILearnLogger(BaseLearnLogger):
         @rtype: Messaging.Message
     '''
 
-    def addContext(self, parentLabel  = "Session", ContextActivityTree = {}):
+    def addContext(self, parentLabel  = "Session", Subtype = "Session", ContextActivityTree = {}, ContextCurrentPath = {}):
         
         #defining context dictionary
         tempContext = {}
@@ -1359,8 +1455,11 @@ class xAPILearnLogger(BaseLearnLogger):
         URLActivityTreeLabel = self._url +"/ActivityTree/" + parentLabel
         URLParentLabel = self._url + parentLabel
         
-        #Convert to JSON string 
+        #Convert Activity Tree to JSON string 
         ContextActivityTreestr = json.dumps(ContextActivityTree)
+        
+        #Convert Current Path to JSON sting
+        ContextCurrentPathstr = json.dumps(ContextCurrentPath)
         
         #Define Extension Key URL for Context Activity
         ContextActivityKeyUrl = self._url + "sessionid"
@@ -1371,7 +1470,7 @@ class xAPILearnLogger(BaseLearnLogger):
         #Used the Context Extension Key URL for defining a key url value for extensions so that xAPI accepts the format
         tempContextNew[ContextExtensionKeyUrl]  = tempContext
         
-       #constructing a parent dicitonary to pass to Activity List class , so that it's converted to tincan.ActivityList and then passed to parent argument in the ContextActivities
+       #constructing an Activity Tree dictionary to pass to Activity List class , so that it's converted to tincan.ActivityList and then passed to parent argument in the ContextActivities
         ActivityTreeDict = {
                 "id": URLActivityTreeLabel,
                 "definition": {
@@ -1379,6 +1478,16 @@ class xAPILearnLogger(BaseLearnLogger):
                     }
             }
         
+        #Creating a current Path dictionary to store into grouping object in contextActivities
+        CurrentPathDict = {
+            "id": self._url + "grouping/currentPath/",
+            "definition": {
+                "name": {
+                    'en-US': ContextCurrentPathstr
+                    }
+                }
+            }
+         
         #Create a parent dictionary to store the parent node
         ParentDict = {
             "id": URLParentLabel,
@@ -1390,6 +1499,14 @@ class xAPILearnLogger(BaseLearnLogger):
             }
         
         #Create a dictionary to store subtype in category
+        SubtypeDict = {
+           "id": self._url + "category/", 
+           "definition":{
+               "name": {
+                   "en-us": Subtype
+                   }
+               }
+           }
         
         #Used as an instructor agent in context
         agentAccount = AgentAccount(name = "dummyName", home_page="http://dummyHomepage.com")
@@ -1402,7 +1519,8 @@ class xAPILearnLogger(BaseLearnLogger):
             ), 
         extensions = Extensions(tempContextNew),
         context_activities = ContextActivities(parent = ActivityList([ParentDict]), 
-                                               category = ActivityList([{"id": self._url + "/category/"}]),
+                                               grouping = ActivityList([CurrentPathDict]),
+                                               category = ActivityList([SubtypeDict]),
                                                other = ActivityList([ActivityTreeDict]))#, parent = parent)
         # language='en-US',
         )        
