@@ -1462,7 +1462,7 @@ class xAPILearnLogger(BaseLearnLogger):
         ContextCurrentPathstr = json.dumps(ContextCurrentPath)
         
         #Define Extension Key URL for Context Activity
-        ContextActivityKeyUrl = self._url + "sessionid"
+        ContextActivityKeyUrl = self._url + "activitytree"
 
         #Define Extension Key URL for extensions of Context
         ContextExtensionKeyUrl = self._url +  "extensionkey"
