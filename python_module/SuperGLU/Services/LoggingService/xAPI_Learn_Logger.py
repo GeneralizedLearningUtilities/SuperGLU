@@ -35,6 +35,8 @@ class xAPILearnLogger(BaseLearnLogger):
 
     def __init__(self, gateway=None, userId=None, name=None, classroomId=None, taskId=None, url=None, activityType='', context={}, anId=None):
         self._Activity_Tree = ActivityTree()
+        
+        #Initializing count variables to count the decisions, choices, AARs etc..
         self._SessionCount = 0
         self._VideoLessonCount = 0
         self._VideoSublessonCount = 0
@@ -1549,8 +1551,7 @@ class xAPILearnLogger(BaseLearnLogger):
         context_activities = ContextActivities(parent = ActivityList([ParentDict]), 
                                                grouping = ActivityList([CurrentPathDict]),
                                                category = ActivityList([SubtypeDict]),
-                                               other = ActivityList([ActivityTreeDict]))#, parent = parent)
-        # language='en-US',
+                                               other = ActivityList([ActivityTreeDict]))
         )        
 
        # for key in context:
