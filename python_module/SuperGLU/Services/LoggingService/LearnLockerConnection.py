@@ -8,6 +8,7 @@ from SuperGLU.Services.LoggingService.Constants import XAPI_LOG_VERB
 import requests
 import uuid
 import json
+import statement
 
 
 class LearnLockerConnection(BaseService):
@@ -16,8 +17,8 @@ class LearnLockerConnection(BaseService):
         super(LearnLockerConnection, self).__init__(gateway=gateway)
         self._url = url
         self._key = key
-        self.logFile = open("log.txt", 'w')
-        self.errorLog = open("errorLog.txt", "w")
+        self.logFile = open(r"log.txt", 'w')
+        self.errorLog = open(r"errorLog.txt", "w")
 
     def receiveMessage(self, msg):
         super(LearnLockerConnection, self).receiveMessage(msg)
@@ -28,11 +29,12 @@ class LearnLockerConnection(BaseService):
                           'X-Experience-API-Version': '1.0.3',
                           'Content-Type' : 'application/json'
                           }
+            
             # --- quick fix for invalid xAPI statement to avoid bad request ----- #
             # these should be fixed in xAPI_Learn_Logger
             statement = json.loads(statementAsJson)
-            statement['context']['extensions'] = {}
-            statement['object']['id'] = "http://example.com/activities/solo-hang-gliding"
+            #statement['context']['extensions'] = {}
+            #statement['object']['id'] = "http://example.com/activities/solo-hang-gliding"
             statement['actor'].pop('openid', None)
             # ------------------------------------------------------
             response = requests.put(url=self._url + '/data/xAPI/statements?statementId=' + str(uuid.uuid4()), data=json.dumps(statement), headers=headerDict)
