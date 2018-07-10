@@ -272,21 +272,13 @@ class xAPILearnLogger(BaseLearnLogger):
         statement = Statement(actor=actor, verb=self.create_started_verb(), object=activity, result=result, context=context, timestamp=timestamp)
         self.sendLoggingMessage(statement)
 
-    def sendStartScenario(self, timestamp=None):
+    def sendStartScenario(self, activity, timestamp=None):
         self._ScenarioCount += 1
         Objecttype = "Lesson"
         Subtype = "Scenario" + str(self._ScenarioCount)
         parentLabel = "Session"        
         
         actor = Agent( object_type = 'Agent', name = self._name, openid = self._userId, mbox='mailto:SMART-E@ict.usc.edu')
-        anObject = Activity( id = self._url + str(uuid.uuid4()),
-            object_type = 'Lesson',
-            definition = ActivityDefinition(name=LanguageMap({'en-US': 'Lesson'}),
-            description=LanguageMap({'en-US': Subtype + 'Started'}), 
-            extensions = Extensions({(self._keyObjectExtensions + 'Scenario'):"Subtype: Scenario, ActivityType: Lesson"})
-                ),
-            )
-        verb = Verb(id =  self.URIBase + "xAPI/verb/" + LOADED_VERB, display=LanguageMap({'en-US': LOADED_VERB}))
         result = Result(success = True,)
         
         #self._Activity_Tree.EnterActivity(label = "Scenario", activity = "User started a new Scenario", parentLabel= "Session")
@@ -301,7 +293,7 @@ class xAPILearnLogger(BaseLearnLogger):
         context = self.addContext(parentLabel, Subtype, ContextActivityTree= jsonDictActivityTree, ContextCurrentPath = jsonDictCurrentPath)
         if timestamp is None:
             timestamp = self.getTimestamp()
-        statement = Statement(actor=actor, verb=verb, object=anObject, result=result, context=context, timestamp=timestamp)
+        statement = Statement(actor=actor, verb=self.create_started_verb(), object=activity, result=result, context=context, timestamp=timestamp)
         self.sendLoggingMessage(statement)
 
     def sendStartDialogue(self, timestamp=None):
@@ -620,14 +612,12 @@ class xAPILearnLogger(BaseLearnLogger):
         statement = Statement(actor=actor, verb=self.create_completed_verb(), object=activity, result=result, context=context, timestamp=timestamp)
         self.sendLoggingMessage(statement)
 
-    def sendCompletedScenario(self, timestamp=None):
+    def sendCompletedScenario(self, activity, timestamp=None):
         Objecttype = "lesson"
         Subtype = "Scenario" + str(self._ScenarioCount)
         parentLabel = "Video Lesson"
                         
         actor = Agent( object_type = 'Agent', openid = self._userId, name = self._name, mbox='mailto:SMART-E@ict.usc.edu')
-        anObject = Activity( id = self._url + str(uuid.uuid4()), object_type = 'Lesson', definition = ActivityDefinition(name=LanguageMap({'en-US': 'Lesson'}), description=LanguageMap({'en-US': Subtype + 'Completed'}), extensions = Extensions({(self._keyObjectExtensions + 'Scenario'):"Subtype: Scenario, ActivityType: Lesson"})))
-        verb = Verb(id =  self.URIBase + "xAPI/verb/" + COMPLETED_VERB, display=LanguageMap({'en-US': COMPLETED_VERB}))
         result = Result(response = '',)
 
         parentLabel = "Session"
@@ -641,7 +631,7 @@ class xAPILearnLogger(BaseLearnLogger):
         context = self.addContext(parentLabel, Subtype, ContextActivityTree= jsonDictActivityTree, ContextCurrentPath = jsonDictCurrentPath)
         if timestamp is None:
             timestamp = self.getTimestamp()
-        statement = Statement(actor=actor, verb=verb, object=anObject, result=result, context=context, timestamp=timestamp)
+        statement = Statement(actor=actor, verb=self.create_completed_verb(), object=activity, result=result, context=context, timestamp=timestamp)
         self.sendLoggingMessage(statement)
 
     def sendCompletedDialogue(self, timestamp=None):
