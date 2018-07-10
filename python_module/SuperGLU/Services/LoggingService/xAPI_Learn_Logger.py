@@ -59,7 +59,7 @@ class xAPILearnLogger(BaseLearnLogger):
         return Activity( id = activityID, object_type = 'Activity',\
                          definition = ActivityDefinition(name=LanguageMap({'en-US': name }),\
                                                          description=LanguageMap({'en-US': description}),\
-                                                         type= URIBase + "Lesson"))
+                                                         type= self.URIBase + "Lesson"))
        
     '''Send the loaded message, for when the task is ready to start.
         Message Data: <frameName> | Loaded | <url> | true
