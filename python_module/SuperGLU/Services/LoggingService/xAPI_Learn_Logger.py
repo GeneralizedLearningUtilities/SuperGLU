@@ -69,6 +69,13 @@ class xAPILearnLogger(BaseLearnLogger):
                          definition = ActivityDefinition(name=LanguageMap({'en-US': name }),\
                                                          description=LanguageMap({'en-US': description}),\
                                                          type= self.URIBase + "Lesson"))
+
+    def createSublesson(self, activityID, name, description):
+        return Activity( id = activityID, object_type = 'Activity',\
+                         definition = ActivityDefinition(name=LanguageMap({'en-US': name }),\
+                                                         description=LanguageMap({'en-US': description}),\
+                                                         type= self.URIBase + "Sublesson"))
+
        
     '''Send the loaded message, for when the task is ready to start.
         Message Data: <frameName> | Loaded | <url> | true
@@ -244,20 +251,12 @@ class xAPILearnLogger(BaseLearnLogger):
         statement = Statement(actor=actor, verb=self.create_started_verb(), object=activity, result=result, context=context, timestamp=timestamp)
         self.sendLoggingMessage(statement)
 
-    def sendLoadedVideoSublesson(self, timestamp=None):
+    def sendStartVideoSublesson(self, activity, timestamp=None):
         self._VideoSublessonCount += 1
         Objecttype = "lesson"
         Subtype = "VideoSublesson"+ str(self._VideoSublessonCount)     
 
         actor = Agent( object_type = 'Agent', name = self._name, openid = self._userId, mbox='mailto:SMART-E@ict.usc.edu')
-        anObject = Activity( id = self._url + str(uuid.uuid4()),
-            object_type = 'Sublesson',
-            definition = ActivityDefinition(name=LanguageMap({'en-US': 'Sublesson'}),
-            description=LanguageMap({'en-US': Subtype + 'Started'}), 
-            extensions = Extensions({(self._keyObjectExtensions + 'VideoSublesson'):"Subtype: Video Sublesson, ActivityType: Sublesson"})
-                ),
-            )
-        verb = Verb(id =  self.URIBase + "xAPI/verb/" + LOADED_VERB, display=LanguageMap({'en-US': LOADED_VERB}))
         result = Result(success = True,)
         parentLabel = "Video Lesson"
         #Implementing Activity Tree into context
@@ -270,7 +269,7 @@ class xAPILearnLogger(BaseLearnLogger):
         context = self.addContext(parentLabel, Subtype, ContextActivityTree= jsonDictActivityTree, ContextCurrentPath = jsonDictCurrentPath)
         if timestamp is None:
             timestamp = self.getTimestamp()
-        statement = Statement(actor=actor, verb=verb, object=anObject, result=result, context=context, timestamp=timestamp)
+        statement = Statement(actor=actor, verb=self.create_started_verb(), object=activity, result=result, context=context, timestamp=timestamp)
         self.sendLoggingMessage(statement)
 
     def sendStartScenario(self, timestamp=None):
@@ -600,16 +599,13 @@ class xAPILearnLogger(BaseLearnLogger):
         statement = Statement(actor=actor, verb=self.create_completed_verb(), object=activity, result=result, context=context, timestamp=timestamp)
         self.sendLoggingMessage(statement)
 
-    def sendCompletedVideoSublesson(self, timestamp=None):
+    def sendCompletedVideoSublesson(self, activity, timestamp=None):
         Objecttype = "Sublesson"
         Subtype = "VideoSublesson" + str(self._VideoSublessonCount)
         parentLabel = "Video Lesson"
                         
         actor = Agent( object_type = 'Agent', openid = self._userId, name = self._name, mbox='mailto:SMART-E@ict.usc.edu')
-        anObject = Activity( id = self._url + str(uuid.uuid4()), object_type = 'Sublesson', definition = ActivityDefinition(name=LanguageMap({'en-US': 'Sublesson'}), description=LanguageMap({'en-US': Subtype + 'Completed'}), extensions = Extensions({(self._keyObjectExtensions + 'VideoSublesson'):"Subtype: Video Sublesson, ActivityType: Sublesson"})))
-        verb = Verb(id =  self.URIBase + "xAPI/verb/" + COMPLETED_VERB, display=LanguageMap({'en-US': COMPLETED_VERB}))
         result = Result(response = '',)
-
 
         #Implementing Activity Tree into context
         self._Activity_Tree.ExitActivity()
@@ -621,7 +617,7 @@ class xAPILearnLogger(BaseLearnLogger):
         context = self.addContext(parentLabel, Subtype, ContextActivityTree= jsonDictActivityTree, ContextCurrentPath = jsonDictCurrentPath)
         if timestamp is None:
             timestamp = self.getTimestamp()
-        statement = Statement(actor=actor, verb=verb, object=anObject, result=result, context=context, timestamp=timestamp)
+        statement = Statement(actor=actor, verb=self.create_completed_verb(), object=activity, result=result, context=context, timestamp=timestamp)
         self.sendLoggingMessage(statement)
 
     def sendCompletedScenario(self, timestamp=None):
