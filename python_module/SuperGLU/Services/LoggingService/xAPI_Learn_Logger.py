@@ -22,14 +22,10 @@ import uuid
 from context_activities import ContextActivities
 import context_activities
 from tincan.typed_list import TypedList
-import unittest
 from representation.ActivityTree import ActivityTree
 from SuperGLU.Util.Serialization import makeSerialized
 
-
 class xAPILearnLogger(BaseLearnLogger):
-
-   
 
     URIBase = "https://github.com/GeneralizedLearningUtilities/SuperGLU"
 
@@ -53,6 +49,17 @@ class xAPILearnLogger(BaseLearnLogger):
         super(xAPILearnLogger, self).__init__(gateway, userId, name, classroomId, taskId, url, activityType, context, anId)
         self._keyObjectExtensions = self.URIBase + "/object/extensions/"
 
+    def createActivity(self, activityID, name, description, type):
+        return Activity( id = activityID, object_type = 'Activity',\
+                         definition = ActivityDefinition(name=LanguageMap({'en-US': name }),\
+                                                         description=LanguageMap({'en-US': description}),\
+                                                         type= type))
+
+    def createLesson(self, activityID, name, description):
+        return Activity( id = activityID, object_type = 'Activity',\
+                         definition = ActivityDefinition(name=LanguageMap({'en-US': name }),\
+                                                         description=LanguageMap({'en-US': description}),\
+                                                         type= URIBase + "Lesson"))
        
     '''Send the loaded message, for when the task is ready to start.
         Message Data: <frameName> | Loaded | <url> | true
@@ -60,7 +67,7 @@ class xAPILearnLogger(BaseLearnLogger):
         @type frameName: string
     '''
 
-    def sendStartSession(self, timestamp = None):
+    def sendStartSession(self, activity, timestamp = None):
         self._SessionCount += 1
         Objecttype = "Session" + str(self._SessionCount)
         Subtype = "Session" + str(self._SessionCount)
@@ -79,7 +86,7 @@ class xAPILearnLogger(BaseLearnLogger):
         context = self.addContext(Subtype, ContextActivityTree = jsonDictActivityTree)
         if timestamp is None:
             timestamp = self.getTimestamp()
-        statement = Statement(actor=actor, verb=verb, object=anObject, result=result, context=context, timestamp=timestamp)
+        statement = Statement(actor=actor, verb=verb, object=activity, result=result, context=context, timestamp=timestamp)
         self.sendLoggingMessage(statement)
 
     def sendStartTopic(self, timestamp = None):
@@ -208,7 +215,7 @@ class xAPILearnLogger(BaseLearnLogger):
         self.sendLoggingMessage(statement)
 
 
-    def sendLoadedVideoLesson(self, timestamp=None):
+    def sendStartVideoLesson(self, activity, timestamp=None):
         self._VideoLessonCount += 1
         Objecttype = "lesson" 
         Subtype = "VideoLesson" + str(self._VideoLessonCount)
@@ -221,7 +228,7 @@ class xAPILearnLogger(BaseLearnLogger):
             extensions = Extensions({(self._keyObjectExtensions + 'VideoLesson'):"Subtype: Video Lesson, ActivityType: Lesson"})
                 ),
             )
-        verb = Verb(id =  self.URIBase + "xAPI/verb/" + LOADED_VERB, display=LanguageMap({'en-US': LOADED_VERB}))
+        verb = Verb(id =  self.URIBase + "xAPI/verb/" + AppStart, display=LanguageMap({'en-US': 'started'}))
         result = Result(success = True,)
         parentLabel = "Session"
         
@@ -235,7 +242,7 @@ class xAPILearnLogger(BaseLearnLogger):
         context = self.addContext(parentLabel, Subtype, ContextActivityTree= jsonDictActivityTree, ContextCurrentPath = jsonDictCurrentPath)
         if timestamp is None:
             timestamp = self.getTimestamp()
-        statement = Statement(actor=actor, verb=verb, object=anObject, result=result, context=context, timestamp=timestamp)
+        statement = Statement(actor=actor, verb=verb, object=activity, result=result, context=context, timestamp=timestamp)
         self.sendLoggingMessage(statement)
 
     def sendLoadedVideoSublesson(self, timestamp=None):
