@@ -27,7 +27,7 @@ from SuperGLU.Util.Serialization import makeSerialized
 
 class xAPILearnLogger(BaseLearnLogger):
 
-    URIBase = "https://github.com/GeneralizedLearningUtilities/SuperGLU"
+    URIBase = "https://github.com/GeneralizedLearningUtilities/SuperGLU/"
 
     def __init__(self, gateway=None, userId=None, name=None, classroomId=None, taskId=None, url=None, activityType='', context={}, anId=None):
         self._Activity_Tree = ActivityTree()
@@ -47,7 +47,7 @@ class xAPILearnLogger(BaseLearnLogger):
         self._HintCount = 0
         
         super(xAPILearnLogger, self).__init__(gateway, userId, name, classroomId, taskId, url, activityType, context, anId)
-        self._keyObjectExtensions = self.URIBase + "/object/extensions/"
+        self._keyObjectExtensions = self.URIBase + "object/extensions/"
 
     def create_completed_verb(self):
         return Verb(id = "http://activitystrea.ms/schema/1.0/complete", display=LanguageMap({'en-US': 'completed'}))
@@ -68,26 +68,26 @@ class xAPILearnLogger(BaseLearnLogger):
         return Activity( id = activityID, object_type = 'Activity',\
                          definition = ActivityDefinition(name=LanguageMap({'en-US': name }),\
                                                          description=LanguageMap({'en-US': description}),\
-                                                         type= self.URIBase + "lesson"))
+                                                         type= "http://adlnet.gov/expapi/activities/lesson"))
 
     def createSublesson(self, activityID, name, description):
         return Activity( id = activityID, object_type = 'Activity',\
                          definition = ActivityDefinition(name=LanguageMap({'en-US': name }),\
                                                          description=LanguageMap({'en-US': description}),\
-                                                         type= self.URIBase + "sublesson"))
+                                                         type= self._url + "sublesson"))
 
     def createTask(self, activityID, name, description):
         return Activity( id = activityID, object_type = 'Activity',\
                          definition = ActivityDefinition(name=LanguageMap({'en-US': name }),\
                                                          description=LanguageMap({'en-US': description}),\
-                                                         type= self.URIBase + "task"))
+                                                         type= "http://activitystrea.ms/schema/1.0/task"))
 
     # there is http://id.tincanapi.com/activitytype/step but this is the general sense of the word
     def createStep(self, activityID, name, description):
         return Activity( id = activityID, object_type = 'Activity',\
                          definition = ActivityDefinition(name=LanguageMap({'en-US': name }),\
                                                          description=LanguageMap({'en-US': description}),\
-                                                         type= self.URIBase + "step"))
+                                                         type= "http://id.tincanapi.com/activitytype/step"))
 
 
        
@@ -98,20 +98,15 @@ class xAPILearnLogger(BaseLearnLogger):
     '''
 
     def sendStartSession(self, activity, timestamp = None):
-        self._SessionCount += 1
-        Objecttype = "Session" + str(self._SessionCount)
-        Subtype = "Session" + str(self._SessionCount)
+        Subtype = "Session"
         
         actor = Agent( object_type = 'Agent', openid = self._userId, name = self._name, mbox='mailto:SMART-E@ict.usc.edu')
         result = Result(response = 'User started a new Session',)
         
         #Implementing Activity Tree into context
-        self._Activity_Tree.EnterActivity(label = Objecttype, activity = Subtype)
-        jsonActivityTree = self._Activity_Tree.saveToToken()
-        ActivityTreeSerialized = makeSerialized(jsonActivityTree)
-        jsonDictActivityTree = json.loads(ActivityTreeSerialized)
-    
-        context = self.addContext(Subtype, ContextActivityTree = jsonDictActivityTree)
+        self._Activity_Tree.EnterActivity(activity = activity, label = None)
+
+        context = self.addContext(Subtype=Subtype)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=self.create_started_verb(), object=activity, result=result, context=context, timestamp=timestamp)
@@ -252,14 +247,9 @@ class xAPILearnLogger(BaseLearnLogger):
         result = Result(success = True,)
         parentLabel = "Session"
         
-        #Implementing Activity Tree and Current Path into context
-        self._Activity_Tree.EnterActivity(label = Objecttype, activity = Subtype)
-        jsonActivityTree = self._Activity_Tree.saveToToken()
-        ActivityTreeSerialized = makeSerialized(jsonActivityTree)
-        jsonDictActivityTree = json.loads(ActivityTreeSerialized)  
-        jsonDictCurrentPath = json.loads(ActivityTreeSerialized)['ActivityTree']['currentPath']    
+        self._Activity_Tree.EnterActivity(label = None, activity = activity)
               
-        context = self.addContext(parentLabel, Subtype, ContextActivityTree= jsonDictActivityTree, ContextCurrentPath = jsonDictCurrentPath)
+        context = self.addContext(parentLabel, Subtype)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=self.create_started_verb(), object=activity, result=result, context=context, timestamp=timestamp)
@@ -274,13 +264,9 @@ class xAPILearnLogger(BaseLearnLogger):
         result = Result(success = True,)
         parentLabel = "Video Lesson"
         #Implementing Activity Tree into context
-        self._Activity_Tree.EnterActivity(label = Objecttype, activity = Subtype)
-        jsonActivityTree = self._Activity_Tree.saveToToken()
-        ActivityTreeSerialized = makeSerialized(jsonActivityTree)
-        jsonDictActivityTree = json.loads(ActivityTreeSerialized)
-        jsonDictCurrentPath = json.loads(ActivityTreeSerialized)['ActivityTree']['currentPath']    
+        self._Activity_Tree.EnterActivity(label = None, activity = activity)
               
-        context = self.addContext(parentLabel, Subtype, ContextActivityTree= jsonDictActivityTree, ContextCurrentPath = jsonDictCurrentPath)
+        context = self.addContext(parentLabel, Subtype)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=self.create_started_verb(), object=activity, result=result, context=context, timestamp=timestamp)
@@ -298,13 +284,9 @@ class xAPILearnLogger(BaseLearnLogger):
         #self._Activity_Tree.EnterActivity(label = "Scenario", activity = "User started a new Scenario", parentLabel= "Session")
 
         #Implementing Activity Tree into context
-        self._Activity_Tree.EnterActivity(label = Objecttype, activity = Subtype)
-        jsonActivityTree = self._Activity_Tree.saveToToken()
-        ActivityTreeSerialized = makeSerialized(jsonActivityTree)
-        jsonDictActivityTree = json.loads(ActivityTreeSerialized)
-        jsonDictCurrentPath = json.loads(ActivityTreeSerialized)['ActivityTree']['currentPath']    
+        self._Activity_Tree.EnterActivity(label = None, activity = activity)
               
-        context = self.addContext(parentLabel, Subtype, ContextActivityTree= jsonDictActivityTree, ContextCurrentPath = jsonDictCurrentPath)
+        context = self.addContext(parentLabel, Subtype)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=self.create_started_verb(), object=activity, result=result, context=context, timestamp=timestamp)
@@ -319,13 +301,9 @@ class xAPILearnLogger(BaseLearnLogger):
         result = Result(success = True,)
         parentLabel = "Scenario"
         #Implementing Activity Tree into context
-        self._Activity_Tree.EnterActivity(label = Objecttype, activity = Subtype)
-        jsonActivityTree = self._Activity_Tree.saveToToken()
-        ActivityTreeSerialized = makeSerialized(jsonActivityTree)
-        jsonDictActivityTree = json.loads(ActivityTreeSerialized)        
-        jsonDictCurrentPath = json.loads(ActivityTreeSerialized)['ActivityTree']['currentPath']    
+        self._Activity_Tree.EnterActivity(label = None, activity = activity)
               
-        context = self.addContext(parentLabel, Subtype, ContextActivityTree= jsonDictActivityTree, ContextCurrentPath = jsonDictCurrentPath)
+        context = self.addContext(parentLabel, Subtype)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=self.create_started_verb(), object=activity, result=result, context=context, timestamp=timestamp)
@@ -340,13 +318,9 @@ class xAPILearnLogger(BaseLearnLogger):
         result = Result(success = True,)
         parentLabel = "Dialogue"
         #Implementing Activity Tree into context
-        self._Activity_Tree.EnterActivity(label = Objecttype, activity = Subtype)
-        jsonActivityTree = self._Activity_Tree.saveToToken()
-        ActivityTreeSerialized = makeSerialized(jsonActivityTree)
-        jsonDictActivityTree = json.loads(ActivityTreeSerialized)         
-        jsonDictCurrentPath = json.loads(ActivityTreeSerialized)['ActivityTree']['currentPath']    
+        self._Activity_Tree.EnterActivity(label = None, activity = activity)
               
-        context = self.addContext(parentLabel, Subtype, ContextActivityTree= jsonDictActivityTree, ContextCurrentPath = jsonDictCurrentPath)
+        context = self.addContext(parentLabel, Subtype)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=self.create_started_verb(), object=activity, result=result, context=context, timestamp=timestamp)
@@ -361,13 +335,9 @@ class xAPILearnLogger(BaseLearnLogger):
         result = Result(success = True,)
         parentLabel = "Decision"
         #Implementing Activity Tree into context
-        self._Activity_Tree.EnterActivity(label = Objecttype, activity = Subtype)
-        jsonActivityTree = self._Activity_Tree.saveToToken()
-        ActivityTreeSerialized = makeSerialized(jsonActivityTree)
-        jsonDictActivityTree = json.loads(ActivityTreeSerialized)         
-        jsonDictCurrentPath = json.loads(ActivityTreeSerialized)['ActivityTree']['currentPath']    
+        self._Activity_Tree.EnterActivity(label = None, activity = activity)
               
-        context = self.addContext(parentLabel, Subtype, ContextActivityTree= jsonDictActivityTree, ContextCurrentPath = jsonDictCurrentPath)
+        context = self.addContext(parentLabel, Subtype)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=self.create_started_verb(), object=activity, result=result, context=context, timestamp=timestamp)
@@ -382,13 +352,9 @@ class xAPILearnLogger(BaseLearnLogger):
         result = Result(success = True,)
         parentLabel = "Scenario"
         #Implementing Activity Tree into context
-        self._Activity_Tree.EnterActivity(label = Objecttype, activity = Subtype)
-        jsonActivityTree = self._Activity_Tree.saveToToken()
-        ActivityTreeSerialized = makeSerialized(jsonActivityTree)
-        jsonDictActivityTree = json.loads(ActivityTreeSerialized)         
-        jsonDictCurrentPath = json.loads(ActivityTreeSerialized)['ActivityTree']['currentPath']    
+        self._Activity_Tree.EnterActivity(label = None, activity = activity)
               
-        context = self.addContext(parentLabel, Subtype, ContextActivityTree= jsonDictActivityTree, ContextCurrentPath = jsonDictCurrentPath)
+        context = self.addContext(parentLabel, Subtype)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=self.create_started_verb(), object=activity, result=result, context=context, timestamp=timestamp)
@@ -403,13 +369,9 @@ class xAPILearnLogger(BaseLearnLogger):
         result = Result(success = True,)
         parentLabel = "AAR"
         #Implementing Activity Tree into context
-        self._Activity_Tree.EnterActivity(label = Objecttype, activity = Subtype)
-        jsonActivityTree = self._Activity_Tree.saveToToken()
-        ActivityTreeSerialized = makeSerialized(jsonActivityTree)
-        jsonDictActivityTree = json.loads(ActivityTreeSerialized) 
-        jsonDictCurrentPath = json.loads(ActivityTreeSerialized)['ActivityTree']['currentPath']    
+        self._Activity_Tree.EnterActivity(label = None, activity = activity)
               
-        context = self.addContext(parentLabel, Subtype, ContextActivityTree= jsonDictActivityTree, ContextCurrentPath = jsonDictCurrentPath)
+        context = self.addContext(parentLabel, Subtype)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=self.create_started_verb(), object=activity, result=result, context=context, timestamp=timestamp)
@@ -424,13 +386,9 @@ class xAPILearnLogger(BaseLearnLogger):
         result = Result(success = True,)
         parentLabel = "Question"
         #Implementing Activity Tree into context
-        self._Activity_Tree.EnterActivity(label = Objecttype, activity = Subtype)
-        jsonActivityTree = self._Activity_Tree.saveToToken()
-        ActivityTreeSerialized = makeSerialized(jsonActivityTree)
-        jsonDictActivityTree = json.loads(ActivityTreeSerialized) 
-        jsonDictCurrentPath = json.loads(ActivityTreeSerialized)['ActivityTree']['currentPath']    
+        self._Activity_Tree.EnterActivity(label = None, activity = activity)
               
-        context = self.addContext(parentLabel, Subtype, ContextActivityTree= jsonDictActivityTree, ContextCurrentPath = jsonDictCurrentPath)
+        context = self.addContext(parentLabel, Subtype)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=self.create_started_verb(), object=activity, result=result, context=context, timestamp=timestamp)
@@ -484,12 +442,8 @@ class xAPILearnLogger(BaseLearnLogger):
         
         #Implementing Activity Tree into context
         self._Activity_Tree.ExitActivity()
-        jsonActivityTree = self._Activity_Tree.saveToToken()
-        ActivityTreeSerialized = makeSerialized(jsonActivityTree)
-        jsonDictActivityTree = json.loads(ActivityTreeSerialized)         
-        jsonDictCurrentPath = json.loads(ActivityTreeSerialized)['ActivityTree']['currentPath']    
               
-        context = self.addContext(Subtype, ContextActivityTree= jsonDictActivityTree, ContextCurrentPath = jsonDictCurrentPath)
+        context = self.addContext(Subtype)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=verb, object=activity, result=result, context=context, timestamp=timestamp)
@@ -504,12 +458,8 @@ class xAPILearnLogger(BaseLearnLogger):
         parentLabel = "Session"
         #Implementing Activity Tree into context
         self._Activity_Tree.ExitActivity()
-        jsonActivityTree = self._Activity_Tree.saveToToken()
-        ActivityTreeSerialized = makeSerialized(jsonActivityTree)
-        jsonDictActivityTree = json.loads(ActivityTreeSerialized)          
-        jsonDictCurrentPath = json.loads(ActivityTreeSerialized)['ActivityTree']['currentPath']    
               
-        context = self.addContext(parentLabel, Subtype, ContextActivityTree= jsonDictActivityTree, ContextCurrentPath = jsonDictCurrentPath)
+        context = self.addContext(parentLabel, Subtype)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=self.create_terminated_verb(), object=anObject, result=result, context=context, timestamp=timestamp)
@@ -546,12 +496,8 @@ class xAPILearnLogger(BaseLearnLogger):
 
         #Implementing Activity Tree into context
         self._Activity_Tree.ExitActivity()
-        jsonActivityTree = self._Activity_Tree.saveToToken()
-        ActivityTreeSerialized = makeSerialized(jsonActivityTree)
-        jsonDictActivityTree = json.loads(ActivityTreeSerialized) 
-        jsonDictCurrentPath = json.loads(ActivityTreeSerialized)['ActivityTree']['currentPath']    
               
-        context = self.addContext(parentLabel, Subtype, ContextActivityTree= jsonDictActivityTree, ContextCurrentPath = jsonDictCurrentPath)
+        context = self.addContext(parentLabel, Subtype)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=self.create_completed_verb(), object=activity, result=result, context=context, timestamp=timestamp)
@@ -567,12 +513,8 @@ class xAPILearnLogger(BaseLearnLogger):
 
         #Implementing Activity Tree into context
         self._Activity_Tree.ExitActivity()
-        jsonActivityTree = self._Activity_Tree.saveToToken()
-        ActivityTreeSerialized = makeSerialized(jsonActivityTree)
-        jsonDictActivityTree = json.loads(ActivityTreeSerialized)         
-        jsonDictCurrentPath = json.loads(ActivityTreeSerialized)['ActivityTree']['currentPath']    
               
-        context = self.addContext(parentLabel, Subtype, ContextActivityTree= jsonDictActivityTree, ContextCurrentPath = jsonDictCurrentPath)
+        context = self.addContext(parentLabel, Subtype)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=self.create_completed_verb(), object=activity, result=result, context=context, timestamp=timestamp)
@@ -589,12 +531,8 @@ class xAPILearnLogger(BaseLearnLogger):
         parentLabel = "Session"
         #Implementing Activity Tree into context
         self._Activity_Tree.ExitActivity()
-        jsonActivityTree = self._Activity_Tree.saveToToken()
-        ActivityTreeSerialized = makeSerialized(jsonActivityTree)
-        jsonDictActivityTree = json.loads(ActivityTreeSerialized) 
-        jsonDictCurrentPath = json.loads(ActivityTreeSerialized)['ActivityTree']['currentPath']    
               
-        context = self.addContext(parentLabel, Subtype, ContextActivityTree= jsonDictActivityTree, ContextCurrentPath = jsonDictCurrentPath)
+        context = self.addContext(parentLabel, Subtype)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=self.create_completed_verb(), object=activity, result=result, context=context, timestamp=timestamp)
@@ -610,12 +548,8 @@ class xAPILearnLogger(BaseLearnLogger):
 
         #Implementing Activity Tree into context
         self._Activity_Tree.ExitActivity()
-        jsonActivityTree = self._Activity_Tree.saveToToken()
-        ActivityTreeSerialized = makeSerialized(jsonActivityTree)
-        jsonDictActivityTree = json.loads(ActivityTreeSerialized)         
-        jsonDictCurrentPath = json.loads(ActivityTreeSerialized)['ActivityTree']['currentPath']    
               
-        context = self.addContext(parentLabel, Subtype, ContextActivityTree= jsonDictActivityTree, ContextCurrentPath = jsonDictCurrentPath)
+        context = self.addContext(parentLabel, Subtype)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=self.create_completed_verb(), object=activity, result=result, context=context, timestamp=timestamp)
@@ -631,12 +565,8 @@ class xAPILearnLogger(BaseLearnLogger):
 
         #Implementing Activity Tree into context
         self._Activity_Tree.ExitActivity()
-        jsonActivityTree = self._Activity_Tree.saveToToken()
-        ActivityTreeSerialized = makeSerialized(jsonActivityTree)
-        jsonDictActivityTree = json.loads(ActivityTreeSerialized)         
-        jsonDictCurrentPath = json.loads(ActivityTreeSerialized)['ActivityTree']['currentPath']    
               
-        context = self.addContext(parentLabel, Subtype, ContextActivityTree= jsonDictActivityTree, ContextCurrentPath = jsonDictCurrentPath)
+        context = self.addContext(parentLabel, Subtype)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=self.create_completed_verb(), object=activity, result=result, context=context, timestamp=timestamp)
@@ -652,12 +582,8 @@ class xAPILearnLogger(BaseLearnLogger):
 
         #Implementing Activity Tree into context
         self._Activity_Tree.ExitActivity()
-        jsonActivityTree = self._Activity_Tree.saveToToken()
-        ActivityTreeSerialized = makeSerialized(jsonActivityTree)
-        jsonDictActivityTree = json.loads(ActivityTreeSerialized)         
-        jsonDictCurrentPath = json.loads(ActivityTreeSerialized)['ActivityTree']['currentPath']    
               
-        context = self.addContext(parentLabel, Subtype, ContextActivityTree= jsonDictActivityTree, ContextCurrentPath = jsonDictCurrentPath)
+        context = self.addContext(parentLabel, Subtype)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=self.create_completed_verb(), object=activity, result=result, context=context, timestamp=timestamp)
@@ -673,12 +599,8 @@ class xAPILearnLogger(BaseLearnLogger):
 
         #Implementing Activity Tree into context
         self._Activity_Tree.ExitActivity()
-        jsonActivityTree = self._Activity_Tree.saveToToken()
-        ActivityTreeSerialized = makeSerialized(jsonActivityTree)
-        jsonDictActivityTree = json.loads(ActivityTreeSerialized)         
-        jsonDictCurrentPath = json.loads(ActivityTreeSerialized)['ActivityTree']['currentPath']    
               
-        context = self.addContext(parentLabel, Subtype, ContextActivityTree= jsonDictActivityTree, ContextCurrentPath = jsonDictCurrentPath)
+        context = self.addContext(parentLabel, Subtype)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=self.create_completed_verb(), object=activity, result=result, context=context, timestamp=timestamp)
@@ -694,12 +616,8 @@ class xAPILearnLogger(BaseLearnLogger):
 
         #Implementing Activity Tree into context
         self._Activity_Tree.ExitActivity()
-        jsonActivityTree = self._Activity_Tree.saveToToken()
-        ActivityTreeSerialized = makeSerialized(jsonActivityTree)
-        jsonDictActivityTree = json.loads(ActivityTreeSerialized)         
-        jsonDictCurrentPath = json.loads(ActivityTreeSerialized)['ActivityTree']['currentPath']    
               
-        context = self.addContext(parentLabel, Subtype, ContextActivityTree= jsonDictActivityTree, ContextCurrentPath = jsonDictCurrentPath)
+        context = self.addContext(parentLabel, Subtype)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=self.create_completed_verb(), object=activity, result=result, context=context, timestamp=timestamp)
@@ -716,12 +634,8 @@ class xAPILearnLogger(BaseLearnLogger):
 
         #Implementing Activity Tree into context
         self._Activity_Tree.ExitActivity()
-        jsonActivityTree = self._Activity_Tree.saveToToken()
-        ActivityTreeSerialized = makeSerialized(jsonActivityTree)
-        jsonDictActivityTree = json.loads(ActivityTreeSerialized)         
-        jsonDictCurrentPath = json.loads(ActivityTreeSerialized)['ActivityTree']['currentPath']    
               
-        context = self.addContext(parentLabel, Subtype, ContextActivityTree= jsonDictActivityTree, ContextCurrentPath = jsonDictCurrentPath)
+        context = self.addContext(parentLabel, Subtype)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=self.create_completed_verb(), object=activity, result=result, context=context, timestamp=timestamp)
@@ -1353,97 +1267,46 @@ class xAPILearnLogger(BaseLearnLogger):
         @rtype: Messaging.Message
     '''
 
-    def addContext(self, parentLabel  = "Session", Subtype = "Session", ContextActivityTree = {}, ContextCurrentPath = {}):
+    def addContext(self, parentLabel  = "Session", Subtype = "Session"):
         
         #defining context dictionary
-        tempContext = {}
-        tempContextNew = {}
-        tempContext[USER_ID_KEY] = self._userId
-        tempContext[TASK_ID_KEY] = self._taskId
-        tempContext[CLASSROOM_ID_KEY] = self._classroomId
-        tempContext[ACTIVITY_TYPE_KEY] = self._activityType
-        tempContext[DURATION_KEY] = self.calcDuration()
-        
-        #Define URL for parent Label
-        URLActivityTreeLabel = self._url +"/ActivityTree/" + parentLabel
-        URLParentLabel = self._url + parentLabel
-        
-        #Convert Activity Tree to JSON string 
-        ContextActivityTreestr = json.dumps(ContextActivityTree)
-        
-        #Convert Current Path to JSON sting
-        ContextCurrentPathstr = json.dumps(ContextCurrentPath)
-        
-        #Define Extension Key URL for Context Activity
-        ContextActivityKeyUrl = self._url + "activitytree"
-
-        #Define Extension Key URL for extensions of Context
-        ContextExtensionKeyUrl = self._url +  "extensionkey"
-        
-        #Used the Context Extension Key URL for defining a key url value for extensions so that xAPI accepts the format
-        tempContextNew[ContextExtensionKeyUrl]  = tempContext
-        
-       #constructing an Activity Tree dictionary to pass to Activity List class , so that it's converted to tincan.ActivityList and then passed to parent argument in the ContextActivities
-        ActivityTreeDict = {
-                "id": URLActivityTreeLabel,
-                "definition": {
-                    'extensions': {ContextActivityKeyUrl: ContextActivityTreestr}
-                    }
-            }
-        
-        #Creating a current Path dictionary to store into grouping object in contextActivities
-        CurrentPathDict = {
-            "id": self._url + "grouping/currentPath/",
-            "definition": {
-                "name": {
-                    'en-US': ContextCurrentPathstr
-                    }
-                }
-            }
-         
-        #Create a parent dictionary to store the parent node
-        ParentDict = {
-            "id": URLParentLabel,
-            "definition" : {
-                "name": {
-                    'en-US': parentLabel
-                    }
-                }
-            }
-        
-        #Create a dictionary to store subtype in category
-        SubtypeDict = {
-           "id": self._url + "category/", 
-           "definition":{
-               "name": {
-                   "en-us": Subtype
-                   }
-               }
-           }
-        
+        tempExtensions = {}
+        #tempExtensions[USER_ID_KEY] = self._userId
+        #tempExtensions[TASK_ID_KEY] = self._taskId
+        #tempExtensions[CLASSROOM_ID_KEY] = self._classroomId
+        tempExtensions[self._url + ACTIVITY_TYPE_KEY] = Subtype
+        #        tempExtensions[DURATION_KEY] = self.calcDuration()
+        tempExtensions[self._url + ACTIVITY_TREE_KEY] = self._Activity_Tree.saveXAPItoJSON()
+                                        
         #Used as an instructor agent in context
         agentAccount = AgentAccount(name = "dummyName", home_page="http://dummyHomepage.com")
-        
-        #Defining a TinCan Context object
-        context = Context(
-        registration=str(uuid.uuid4()),
-        instructor=Agent(
-            account=agentAccount
-            ), 
-        extensions = Extensions(tempContextNew),
-        context_activities = ContextActivities(parent = ActivityList([ParentDict]), 
-                                               grouping = ActivityList([CurrentPathDict]),
-                                               category = ActivityList([SubtypeDict]),
-                                               other = ActivityList([ActivityTreeDict]))
-        )        
 
-       # for key in context:
-       #     if not self.hasContextValue(key):
-       #         tempContext[key] = context[key]
-       # for key in self._context:
-       #     if not self.hasContextValue(key):
-       #         tempContext[key] = context[key]
-       # context = Context( extensions = tempContext)
+        mygrouping = self._Activity_Tree.convertPathToGrouping()
+        myparent = self._Activity_Tree.findParentActivity()
+
+        #Defining a TinCan Context object
+        if len(mygrouping)==0 and myparent == None:
+            context = Context(
+                registration=str(uuid.uuid4()),
+                instructor=Agent(
+                    account=agentAccount
+                ), 
+                extensions = Extensions(tempExtensions))
+        else:
+            if len(mygrouping)==0:
+                mycontextActivities = ContextActivities(parent = myparent)
+            else:
+                mycontextActivities = ContextActivities(parent = myparent, 
+                                                        grouping = ActivityList(mygrouping))
+            context = Context(
+                registration=str(uuid.uuid4()),
+                instructor=Agent(
+                    account=agentAccount
+                ), 
+                extensions = Extensions(tempExtensions),
+                context_activities = mycontextActivities
+            )        
+
         return context
 
     '''
