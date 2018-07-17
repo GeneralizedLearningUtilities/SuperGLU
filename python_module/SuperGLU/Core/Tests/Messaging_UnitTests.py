@@ -98,7 +98,7 @@ class MessageTest(unittest.TestCase):
         self.message.updateTimestamp()
         #Now a str in isoformat format
         self.assertIsInstance(self.message.getTimestamp(), str)
-        self.assertTrue(self.message.getTimestamp() > self.timestamp)
+        self.assertTrue(self.message.getTimestamp() > str(self.timestamp))
 
     def testHasContextValue(self):
         self.assertFalse(self.blankMessage.hasContextValue(self.contextKey))
