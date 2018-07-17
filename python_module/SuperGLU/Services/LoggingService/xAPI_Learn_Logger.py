@@ -98,7 +98,8 @@ class xAPILearnLogger(BaseLearnLogger):
     '''
 
     def sendStartSession(self, activity, timestamp = None):
-        Subtype = "Session"
+        self._SessionCount += 1
+        summary = "Session" + str(self._SessionCount) + SUMMARY_STARTED
         
         actor = Agent( object_type = 'Agent', openid = self._userId, name = self._name, mbox='mailto:SMART-E@ict.usc.edu')
         result = Result(response = 'User started a new Session',)
@@ -106,34 +107,10 @@ class xAPILearnLogger(BaseLearnLogger):
         #Implementing Activity Tree into context
         self._Activity_Tree.EnterActivity(activity = activity, label = None)
 
-        context = self.addContext(Subtype=Subtype)
+        context = self.addContext(summary)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=self.create_started_verb(), object=activity, result=result, context=context, timestamp=timestamp)
-        self.sendLoggingMessage(statement)
-
-    def sendStartTopic(self, timestamp = None):
-        Objecttype = "Topic"
-        Subtype = "Topic"        
-        
-        actor = Agent( object_type = 'Agent', openid = self._userId, name = self._name, mbox='mailto:SMART-E@ict.usc.edu')
-        anObject = Activity( id = self._url + str(uuid.uuid4()), object_type = 'Activity', definition = ActivityDefinition(name=LanguageMap({'en-US': 'Topic'}), description=LanguageMap({'en-US':'User Started a new Topic'})))
-        verb = Verb(id =  self.URIBase + "xAPI/verb/" + AppStart, display=LanguageMap({'en-US': 'started'}))
-        result = Result(response = 'User started a new Topic',)
-        
-        #self._Activity_Tree.EnterActivity(label = "Topic", activity = "User started a new Topic", parentLabel="Session")
-        parentLabel = "Session"
-        
-        #Implementing Activity Tree into context
-        self._Activity_Tree.EnterActivity(label = "Topic", activity = "Topic")
-        jsonActivityTree = self._Activity_Tree.saveToToken()
-        ActivityTreeSerialized = makeSerialized(jsonActivityTree)
-        jsonDictActivityTree = json.loads(ActivityTreeSerialized)
-                
-        context = self.addContext(parentLabel, Subtype, ContextActivityTree= jsonDictActivityTree)
-        if timestamp is None:
-            timestamp = self.getTimestamp()
-        statement = Statement(actor=actor, verb=verb, object=anObject, result=result, context=context, timestamp=timestamp)
         self.sendLoggingMessage(statement)
 
     def sendStartLesson(self, timestamp=None):
@@ -240,8 +217,7 @@ class xAPILearnLogger(BaseLearnLogger):
 
     def sendStartVideoLesson(self, activity, timestamp=None):
         self._VideoLessonCount += 1
-        Objecttype = "lesson" 
-        Subtype = "VideoLesson" + str(self._VideoLessonCount)
+        summary = "VideoLesson" + str(self._VideoLessonCount) + SUMMARY_STARTED
 
         actor = Agent( object_type = 'Agent', name = self._name, openid = self._userId, mbox='mailto:SMART-E@ict.usc.edu')
         result = Result(success = True,)
@@ -249,7 +225,7 @@ class xAPILearnLogger(BaseLearnLogger):
         
         self._Activity_Tree.EnterActivity(label = None, activity = activity)
               
-        context = self.addContext(parentLabel, Subtype)
+        context = self.addContext(summary)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=self.create_started_verb(), object=activity, result=result, context=context, timestamp=timestamp)
@@ -257,8 +233,7 @@ class xAPILearnLogger(BaseLearnLogger):
 
     def sendStartVideoSublesson(self, activity, timestamp=None):
         self._VideoSublessonCount += 1
-        Objecttype = "lesson"
-        Subtype = "VideoSublesson"+ str(self._VideoSublessonCount)     
+        summary = "VideoSublesson"+ str(self._VideoSublessonCount) + SUMMARY_STARTED     
 
         actor = Agent( object_type = 'Agent', name = self._name, openid = self._userId, mbox='mailto:SMART-E@ict.usc.edu')
         result = Result(success = True,)
@@ -266,7 +241,7 @@ class xAPILearnLogger(BaseLearnLogger):
         #Implementing Activity Tree into context
         self._Activity_Tree.EnterActivity(label = None, activity = activity)
               
-        context = self.addContext(parentLabel, Subtype)
+        context = self.addContext(summary)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=self.create_started_verb(), object=activity, result=result, context=context, timestamp=timestamp)
@@ -274,19 +249,14 @@ class xAPILearnLogger(BaseLearnLogger):
 
     def sendStartScenario(self, activity, timestamp=None):
         self._ScenarioCount += 1
-        Objecttype = "Lesson"
-        Subtype = "Scenario" + str(self._ScenarioCount)
-        parentLabel = "Session"        
+        summary = "Scenario" + str(self._ScenarioCount) + SUMMARY_STARTED
         
         actor = Agent( object_type = 'Agent', name = self._name, openid = self._userId, mbox='mailto:SMART-E@ict.usc.edu')
         result = Result(success = True,)
         
-        #self._Activity_Tree.EnterActivity(label = "Scenario", activity = "User started a new Scenario", parentLabel= "Session")
-
-        #Implementing Activity Tree into context
         self._Activity_Tree.EnterActivity(label = None, activity = activity)
               
-        context = self.addContext(parentLabel, Subtype)
+        context = self.addContext(summary)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=self.create_started_verb(), object=activity, result=result, context=context, timestamp=timestamp)
@@ -294,16 +264,14 @@ class xAPILearnLogger(BaseLearnLogger):
 
     def sendStartDialogue(self, activity, timestamp=None):
         self._DialogueCount += 1
-        Objecttype = "Sublesson"
-        Subtype = "Dialogue" + str(self._DialogueCount)
+        summary = "Dialogue" + str(self._DialogueCount) + SUMMARY_STARTED
         
         actor = Agent( object_type = 'Agent', name = self._name, openid = self._userId, mbox='mailto:SMART-E@ict.usc.edu')
         result = Result(success = True,)
-        parentLabel = "Scenario"
-        #Implementing Activity Tree into context
+
         self._Activity_Tree.EnterActivity(label = None, activity = activity)
               
-        context = self.addContext(parentLabel, Subtype)
+        context = self.addContext(summary)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=self.create_started_verb(), object=activity, result=result, context=context, timestamp=timestamp)
@@ -311,16 +279,14 @@ class xAPILearnLogger(BaseLearnLogger):
 
     def sendStartDecision(self, activity, timestamp=None):
         self._DecisionCount += 1
-        Objecttype = "Task"
-        Subtype = "Decision" + str(self._DecisionCount)
+        summary = "Decision" + str(self._DecisionCount) + SUMMARY_STARTED
         
         actor = Agent( object_type = 'Agent', name = self._name, openid = self._userId, mbox='mailto:SMART-E@ict.usc.edu')
         result = Result(success = True,)
-        parentLabel = "Dialogue"
-        #Implementing Activity Tree into context
+
         self._Activity_Tree.EnterActivity(label = None, activity = activity)
               
-        context = self.addContext(parentLabel, Subtype)
+        context = self.addContext(summary)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=self.create_started_verb(), object=activity, result=result, context=context, timestamp=timestamp)
@@ -328,16 +294,14 @@ class xAPILearnLogger(BaseLearnLogger):
 
     def sendStartChoice(self, activity, timestamp=None):
         self._ChoiceCount += 1
-        Objecttype = "Step"
-        Subtype = "Choice" + str(self._ChoiceCount)
+        summary = "Choice" + str(self._ChoiceCount) + SUMMARY_STARTED
         
         actor = Agent( object_type = 'Agent', name = self._name, openid = self._userId, mbox='mailto:SMART-E@ict.usc.edu')
         result = Result(success = True,)
-        parentLabel = "Decision"
-        #Implementing Activity Tree into context
+
         self._Activity_Tree.EnterActivity(label = None, activity = activity)
               
-        context = self.addContext(parentLabel, Subtype)
+        context = self.addContext(summary)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=self.create_started_verb(), object=activity, result=result, context=context, timestamp=timestamp)
@@ -345,16 +309,14 @@ class xAPILearnLogger(BaseLearnLogger):
 
     def sendStartAAR(self, activity, timestamp=None):
         self._AARCount += 1
-        Objecttype = "Sublesson"
-        Subtype = "AAR" + str(self._AARCount)
+        summary = "AAR" + str(self._AARCount) + SUMMARY_STARTED
         
         actor = Agent( object_type = 'Agent', name = self._name, openid = self._userId, mbox='mailto:SMART-E@ict.usc.edu')
         result = Result(success = True,)
-        parentLabel = "Scenario"
-        #Implementing Activity Tree into context
+
         self._Activity_Tree.EnterActivity(label = None, activity = activity)
               
-        context = self.addContext(parentLabel, Subtype)
+        context = self.addContext(summary)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=self.create_started_verb(), object=activity, result=result, context=context, timestamp=timestamp)
@@ -362,16 +324,14 @@ class xAPILearnLogger(BaseLearnLogger):
 
     def sendStartQuestion(self, activity, timestamp=None):
         self._QuestionCount += 1
-        Objecttype = "Task"
-        Subtype = "Question" + str(self._QuestionCount)
+        summary = "Question" + str(self._QuestionCount) + SUMMARY_STARTED
         
         actor = Agent( object_type = 'Agent', name = self._name, openid = self._userId, mbox='mailto:SMART-E@ict.usc.edu')
         result = Result(success = True,)
-        parentLabel = "AAR"
-        #Implementing Activity Tree into context
+
         self._Activity_Tree.EnterActivity(label = None, activity = activity)
               
-        context = self.addContext(parentLabel, Subtype)
+        context = self.addContext(summary)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=self.create_started_verb(), object=activity, result=result, context=context, timestamp=timestamp)
@@ -379,16 +339,14 @@ class xAPILearnLogger(BaseLearnLogger):
 
     def sendStartAnswer(self, activity, timestamp=None):
         self._AnswerCount += 1
-        Objecttype = "Step"
-        Subtype = "Answer" + str(self._AnswerCount)
+        summary = "Answer" + str(self._AnswerCount) + SUMMARY_STARTED
         
         actor = Agent( object_type = 'Agent', name = self._name, openid = self._userId, mbox='mailto:SMART-E@ict.usc.edu')
         result = Result(success = True,)
-        parentLabel = "Question"
-        #Implementing Activity Tree into context
+
         self._Activity_Tree.EnterActivity(label = None, activity = activity)
               
-        context = self.addContext(parentLabel, Subtype)
+        context = self.addContext(summary)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=self.create_started_verb(), object=activity, result=result, context=context, timestamp=timestamp)
@@ -433,8 +391,7 @@ class xAPILearnLogger(BaseLearnLogger):
         @type score: float
     '''
     def sendTerminatedSession(self, activity, timestamp=None):
-        Objecttype = "Session"
-        Subtype = "Session" + str(self._SessionCount)
+        summary = "Session" + str(self._SessionCount) + SUMMARY_TERMINATED
         
         actor = Agent( object_type = 'Agent', openid = self._userId, name = self._name, mbox='mailto:SMART-E@ict.usc.edu')
         verb = Verb(id =  self.URIBase + "xAPI/verb/" + Exiting, display=LanguageMap({'en-US': Exiting}))
@@ -443,7 +400,7 @@ class xAPILearnLogger(BaseLearnLogger):
         #Implementing Activity Tree into context
         self._Activity_Tree.ExitActivity()
               
-        context = self.addContext(Subtype)
+        context = self.addContext(summary)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=verb, object=activity, result=result, context=context, timestamp=timestamp)
@@ -487,9 +444,7 @@ class xAPILearnLogger(BaseLearnLogger):
         self.sendLoggingMessage(statement)
 
     def sendCompletedVideoLesson(self, activity, timestamp=None):
-        Objecttype = "Lesson"
-        Subtype = "VideoLesson" + str(self._VideoLessonCount)
-        parentLabel = "Session"        
+        summary = "VideoLesson" + str(self._VideoLessonCount) + SUMMARY_COMPLETED
                 
         actor = Agent( object_type = 'Agent', openid = self._userId, name = self._name, mbox='mailto:SMART-E@ict.usc.edu')
         result = Result(response = '',)
@@ -497,33 +452,28 @@ class xAPILearnLogger(BaseLearnLogger):
         #Implementing Activity Tree into context
         self._Activity_Tree.ExitActivity()
               
-        context = self.addContext(parentLabel, Subtype)
+        context = self.addContext(summary)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=self.create_completed_verb(), object=activity, result=result, context=context, timestamp=timestamp)
         self.sendLoggingMessage(statement)
 
     def sendCompletedVideoSublesson(self, activity, timestamp=None):
-        Objecttype = "Sublesson"
-        Subtype = "VideoSublesson" + str(self._VideoSublessonCount)
-        parentLabel = "Video Lesson"
+        summary = "VideoSublesson" + str(self._VideoSublessonCount) + SUMMARY_COMPLETED
                         
         actor = Agent( object_type = 'Agent', openid = self._userId, name = self._name, mbox='mailto:SMART-E@ict.usc.edu')
         result = Result(response = '',)
 
-        #Implementing Activity Tree into context
         self._Activity_Tree.ExitActivity()
               
-        context = self.addContext(parentLabel, Subtype)
+        context = self.addContext(summary)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=self.create_completed_verb(), object=activity, result=result, context=context, timestamp=timestamp)
         self.sendLoggingMessage(statement)
 
     def sendCompletedScenario(self, activity, timestamp=None):
-        Objecttype = "lesson"
-        Subtype = "Scenario" + str(self._ScenarioCount)
-        parentLabel = "Video Lesson"
+        summary = "Scenario" + str(self._ScenarioCount) + SUMMARY_COMPLETED
                         
         actor = Agent( object_type = 'Agent', openid = self._userId, name = self._name, mbox='mailto:SMART-E@ict.usc.edu')
         result = Result(response = '',)
@@ -532,15 +482,14 @@ class xAPILearnLogger(BaseLearnLogger):
         #Implementing Activity Tree into context
         self._Activity_Tree.ExitActivity()
               
-        context = self.addContext(parentLabel, Subtype)
+        context = self.addContext(summary)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=self.create_completed_verb(), object=activity, result=result, context=context, timestamp=timestamp)
         self.sendLoggingMessage(statement)
 
     def sendCompletedDialogue(self, activity, timestamp=None):
-        Objecttype = "Sublesson"
-        Subtype = "Dialogue" + str(self._DialogueCount)      
+        summary = "Dialogue" + str(self._DialogueCount) + SUMMARY_COMPLETED     
         parentLabel = "Scenario"
                 
         actor = Agent( object_type = 'Agent', openid = self._userId, name = self._name, mbox='mailto:SMART-E@ict.usc.edu')
@@ -549,16 +498,14 @@ class xAPILearnLogger(BaseLearnLogger):
         #Implementing Activity Tree into context
         self._Activity_Tree.ExitActivity()
               
-        context = self.addContext(parentLabel, Subtype)
+        context = self.addContext(summary)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=self.create_completed_verb(), object=activity, result=result, context=context, timestamp=timestamp)
         self.sendLoggingMessage(statement)
 
     def sendCompletedDecision(self, activity, timestamp=None):
-        Objecttype = "Task"
-        Subtype = "Decision" + str(self._DecisionCount)
-        parentLabel = "Dialogue"
+        summary = "Decision" + str(self._DecisionCount) + SUMMARY_COMPLETED
                         
         actor = Agent( object_type = 'Agent', openid = self._userId, name = self._name, mbox='mailto:SMART-E@ict.usc.edu')
         result = Result(response = '',)
@@ -566,16 +513,14 @@ class xAPILearnLogger(BaseLearnLogger):
         #Implementing Activity Tree into context
         self._Activity_Tree.ExitActivity()
               
-        context = self.addContext(parentLabel, Subtype)
+        context = self.addContext(summary)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=self.create_completed_verb(), object=activity, result=result, context=context, timestamp=timestamp)
         self.sendLoggingMessage(statement)
 
     def sendCompletedChoice(self, activity, timestamp=None):
-        Objecttype = "Step"
-        Subtype = "Choice" + str(self._ChoiceCount)
-        parentLabel = "Decision"
+        summary = "Choice" + str(self._ChoiceCount) + SUMMARY_COMPLETED
                 
         actor = Agent( object_type = 'Agent', openid = self._userId, name = self._name, mbox='mailto:SMART-E@ict.usc.edu')
         result = Result(response = '',)
@@ -583,16 +528,14 @@ class xAPILearnLogger(BaseLearnLogger):
         #Implementing Activity Tree into context
         self._Activity_Tree.ExitActivity()
               
-        context = self.addContext(parentLabel, Subtype)
+        context = self.addContext(summary)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=self.create_completed_verb(), object=activity, result=result, context=context, timestamp=timestamp)
         self.sendLoggingMessage(statement)
 
     def sendCompletedAAR(self, activity, timestamp=None):
-        Objecttype = "Sublesson"
-        Subtype = "AAR" + str(self._AARCount)
-        parentLabel = "Scenario"
+        summary = "AAR" + str(self._AARCount) + SUMMARY_COMPLETED
                         
         actor = Agent( object_type = 'Agent', openid = self._userId, name = self._name, mbox='mailto:SMART-E@ict.usc.edu')
         result = Result(response = '',)
@@ -600,16 +543,14 @@ class xAPILearnLogger(BaseLearnLogger):
         #Implementing Activity Tree into context
         self._Activity_Tree.ExitActivity()
               
-        context = self.addContext(parentLabel, Subtype)
+        context = self.addContext(summary)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=self.create_completed_verb(), object=activity, result=result, context=context, timestamp=timestamp)
         self.sendLoggingMessage(statement)
 
     def sendCompletedQuestion(self, activity, timestamp=None):
-        Objecttype = "Task"
-        Subtype = "Question" + str(self._QuestionCount)       
-        parentLabel = "AAR"
+        summary = "Question" + str(self._QuestionCount) + SUMMARY_COMPLETED        
                 
         actor = Agent( object_type = 'Agent', openid = self._userId, name = self._name, mbox='mailto:SMART-E@ict.usc.edu')
         result = Result(response = '',)
@@ -617,7 +558,7 @@ class xAPILearnLogger(BaseLearnLogger):
         #Implementing Activity Tree into context
         self._Activity_Tree.ExitActivity()
               
-        context = self.addContext(parentLabel, Subtype)
+        context = self.addContext(summary)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=self.create_completed_verb(), object=activity, result=result, context=context, timestamp=timestamp)
@@ -625,17 +566,14 @@ class xAPILearnLogger(BaseLearnLogger):
 
 
     def sendCompletedAnswer(self, activity, timestamp=None):
-        Objecttype = "Step"
-        Subtype = "Answer" + str(self._AnswerCount)     
-        parentLabel = "Question"
+        summary = "Answer" + str(self._AnswerCount) + SUMMARY_COMPLETED     
                 
         actor = Agent( object_type = 'Agent', openid = self._userId, name = self._name, mbox='mailto:SMART-E@ict.usc.edu')
         result = Result(response = '',)
 
-        #Implementing Activity Tree into context
         self._Activity_Tree.ExitActivity()
               
-        context = self.addContext(parentLabel, Subtype)
+        context = self.addContext(summary)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=self.create_completed_verb(), object=activity, result=result, context=context, timestamp=timestamp)
@@ -1267,14 +1205,14 @@ class xAPILearnLogger(BaseLearnLogger):
         @rtype: Messaging.Message
     '''
 
-    def addContext(self, parentLabel  = "Session", Subtype = "Session"):
+    def addContext(self, summary = ""):
         
         #defining context dictionary
         tempExtensions = {}
         #tempExtensions[USER_ID_KEY] = self._userId
         #tempExtensions[TASK_ID_KEY] = self._taskId
         #tempExtensions[CLASSROOM_ID_KEY] = self._classroomId
-        tempExtensions[self._url + ACTIVITY_TYPE_KEY] = Subtype
+        tempExtensions[self._url + ACTIVITY_SUMMARY_KEY] = summary
         #        tempExtensions[DURATION_KEY] = self.calcDuration()
         tempExtensions[self._url + ACTIVITY_TREE_KEY] = self._Activity_Tree.saveXAPItoJSON()
                                         
