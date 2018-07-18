@@ -390,7 +390,7 @@ class xAPILearnLogger(BaseLearnLogger):
         @param score: A score between 0 and 1. Scores outside this range will be clipped to fit. If score None, task presumed incomplete/invalid.
         @type score: float
     '''
-    def sendTerminatedSession(self, activity, timestamp=None):
+    def sendTerminatedSession(self, timestamp=None):
         summary = "Session" + str(self._SessionCount) + SUMMARY_TERMINATED
         
         actor = Agent( object_type = 'Agent', openid = self._userId, name = self._name, mbox='mailto:SMART-E@ict.usc.edu')
@@ -398,6 +398,7 @@ class xAPILearnLogger(BaseLearnLogger):
         result = Result(response = '',)
         
         #Implementing Activity Tree into context
+        activity = self._Activity_Tree.findCurrentActivity()
         self._Activity_Tree.ExitActivity()
               
         context = self.addContext(summary)
@@ -443,13 +444,14 @@ class xAPILearnLogger(BaseLearnLogger):
         statement = Statement(actor=actor, verb=verb, object=anObject, result=result, context=context, timestamp=timestamp)
         self.sendLoggingMessage(statement)
 
-    def sendCompletedVideoLesson(self, activity, timestamp=None):
+    def sendCompletedVideoLesson(self, timestamp=None):
         summary = "VideoLesson" + str(self._VideoLessonCount) + SUMMARY_COMPLETED
                 
         actor = Agent( object_type = 'Agent', openid = self._userId, name = self._name, mbox='mailto:SMART-E@ict.usc.edu')
         result = Result(response = '',)
 
         #Implementing Activity Tree into context
+        activity = self._Activity_Tree.findCurrentActivity()
         self._Activity_Tree.ExitActivity()
               
         context = self.addContext(summary)
@@ -458,12 +460,13 @@ class xAPILearnLogger(BaseLearnLogger):
         statement = Statement(actor=actor, verb=self.create_completed_verb(), object=activity, result=result, context=context, timestamp=timestamp)
         self.sendLoggingMessage(statement)
 
-    def sendCompletedVideoSublesson(self, activity, timestamp=None):
+    def sendCompletedVideoSublesson(self, timestamp=None):
         summary = "VideoSublesson" + str(self._VideoSublessonCount) + SUMMARY_COMPLETED
                         
         actor = Agent( object_type = 'Agent', openid = self._userId, name = self._name, mbox='mailto:SMART-E@ict.usc.edu')
         result = Result(response = '',)
 
+        activity = self._Activity_Tree.findCurrentActivity()
         self._Activity_Tree.ExitActivity()
               
         context = self.addContext(summary)
@@ -472,7 +475,7 @@ class xAPILearnLogger(BaseLearnLogger):
         statement = Statement(actor=actor, verb=self.create_completed_verb(), object=activity, result=result, context=context, timestamp=timestamp)
         self.sendLoggingMessage(statement)
 
-    def sendCompletedScenario(self, activity, timestamp=None):
+    def sendCompletedScenario(self, timestamp=None):
         summary = "Scenario" + str(self._ScenarioCount) + SUMMARY_COMPLETED
                         
         actor = Agent( object_type = 'Agent', openid = self._userId, name = self._name, mbox='mailto:SMART-E@ict.usc.edu')
@@ -480,6 +483,7 @@ class xAPILearnLogger(BaseLearnLogger):
 
         parentLabel = "Session"
         #Implementing Activity Tree into context
+        activity = self._Activity_Tree.findCurrentActivity()
         self._Activity_Tree.ExitActivity()
               
         context = self.addContext(summary)
@@ -488,7 +492,7 @@ class xAPILearnLogger(BaseLearnLogger):
         statement = Statement(actor=actor, verb=self.create_completed_verb(), object=activity, result=result, context=context, timestamp=timestamp)
         self.sendLoggingMessage(statement)
 
-    def sendCompletedDialogue(self, activity, timestamp=None):
+    def sendCompletedDialogue(self, timestamp=None):
         summary = "Dialogue" + str(self._DialogueCount) + SUMMARY_COMPLETED     
         parentLabel = "Scenario"
                 
@@ -496,6 +500,7 @@ class xAPILearnLogger(BaseLearnLogger):
         result = Result(response = '',)
 
         #Implementing Activity Tree into context
+        activity = self._Activity_Tree.findCurrentActivity()
         self._Activity_Tree.ExitActivity()
               
         context = self.addContext(summary)
@@ -504,13 +509,14 @@ class xAPILearnLogger(BaseLearnLogger):
         statement = Statement(actor=actor, verb=self.create_completed_verb(), object=activity, result=result, context=context, timestamp=timestamp)
         self.sendLoggingMessage(statement)
 
-    def sendCompletedDecision(self, activity, timestamp=None):
+    def sendCompletedDecision(self, timestamp=None):
         summary = "Decision" + str(self._DecisionCount) + SUMMARY_COMPLETED
                         
         actor = Agent( object_type = 'Agent', openid = self._userId, name = self._name, mbox='mailto:SMART-E@ict.usc.edu')
         result = Result(response = '',)
 
         #Implementing Activity Tree into context
+        activity = self._Activity_Tree.findCurrentActivity()
         self._Activity_Tree.ExitActivity()
               
         context = self.addContext(summary)
@@ -519,13 +525,14 @@ class xAPILearnLogger(BaseLearnLogger):
         statement = Statement(actor=actor, verb=self.create_completed_verb(), object=activity, result=result, context=context, timestamp=timestamp)
         self.sendLoggingMessage(statement)
 
-    def sendCompletedChoice(self, activity, timestamp=None):
+    def sendCompletedChoice(self, timestamp=None):
         summary = "Choice" + str(self._ChoiceCount) + SUMMARY_COMPLETED
                 
         actor = Agent( object_type = 'Agent', openid = self._userId, name = self._name, mbox='mailto:SMART-E@ict.usc.edu')
         result = Result(response = '',)
 
         #Implementing Activity Tree into context
+        activity = self._Activity_Tree.findCurrentActivity()
         self._Activity_Tree.ExitActivity()
               
         context = self.addContext(summary)
@@ -534,13 +541,14 @@ class xAPILearnLogger(BaseLearnLogger):
         statement = Statement(actor=actor, verb=self.create_completed_verb(), object=activity, result=result, context=context, timestamp=timestamp)
         self.sendLoggingMessage(statement)
 
-    def sendCompletedAAR(self, activity, timestamp=None):
+    def sendCompletedAAR(self, timestamp=None):
         summary = "AAR" + str(self._AARCount) + SUMMARY_COMPLETED
                         
         actor = Agent( object_type = 'Agent', openid = self._userId, name = self._name, mbox='mailto:SMART-E@ict.usc.edu')
         result = Result(response = '',)
 
         #Implementing Activity Tree into context
+        activity = self._Activity_Tree.findCurrentActivity()
         self._Activity_Tree.ExitActivity()
               
         context = self.addContext(summary)
@@ -549,13 +557,14 @@ class xAPILearnLogger(BaseLearnLogger):
         statement = Statement(actor=actor, verb=self.create_completed_verb(), object=activity, result=result, context=context, timestamp=timestamp)
         self.sendLoggingMessage(statement)
 
-    def sendCompletedQuestion(self, activity, timestamp=None):
+    def sendCompletedQuestion(self, timestamp=None):
         summary = "Question" + str(self._QuestionCount) + SUMMARY_COMPLETED        
                 
         actor = Agent( object_type = 'Agent', openid = self._userId, name = self._name, mbox='mailto:SMART-E@ict.usc.edu')
         result = Result(response = '',)
 
         #Implementing Activity Tree into context
+        activity = self._Activity_Tree.findCurrentActivity()
         self._Activity_Tree.ExitActivity()
               
         context = self.addContext(summary)
@@ -565,12 +574,13 @@ class xAPILearnLogger(BaseLearnLogger):
         self.sendLoggingMessage(statement)
 
 
-    def sendCompletedAnswer(self, activity, timestamp=None):
+    def sendCompletedAnswer(self, timestamp=None):
         summary = "Answer" + str(self._AnswerCount) + SUMMARY_COMPLETED     
                 
         actor = Agent( object_type = 'Agent', openid = self._userId, name = self._name, mbox='mailto:SMART-E@ict.usc.edu')
         result = Result(response = '',)
 
+        activity = self._Activity_Tree.findCurrentActivity()
         self._Activity_Tree.ExitActivity()
               
         context = self.addContext(summary)
