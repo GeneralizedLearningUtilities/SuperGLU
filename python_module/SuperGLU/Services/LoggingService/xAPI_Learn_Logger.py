@@ -16,7 +16,8 @@ from tincan import (
     ActivityDefinition,
     StateDocument,
     Extensions,
-    AgentAccount
+    AgentAccount,
+    Score
 )
 import uuid
 from context_activities import ContextActivities
@@ -113,30 +114,19 @@ class xAPILearnLogger(BaseLearnLogger):
         statement = Statement(actor=actor, verb=self.create_started_verb(), object=activity, result=result, context=context, timestamp=timestamp)
         self.sendLoggingMessage(statement)
 
-    def sendStartLesson(self, timestamp=None):
+    def sendStartLesson(self, activity, timestamp=None):
 
         actor = Agent( object_type = 'Agent', name = self._name, openid = self._userId, mbox='mailto:SMART-E@ict.usc.edu')
-        anObject = Activity( id = self._url + str(uuid.uuid4()),
-            object_type = 'Activity',
-            definition = ActivityDefinition(name=LanguageMap({'en-US': 'Lesson'}),
-            description=LanguageMap({'en-US':'User Started Lesson'})
-                ),
-            )
-        verb = Verb(id =  self.URIBase + "xAPI/verb/" + LOADED_VERB, display=LanguageMap({'en-US': LOADED_VERB}))
         result = Result(success = True,)
         
-        parentLabel = "Session"        
-        #Implementing Activity Tree into context
-        self._Activity_Tree.EnterActivity(label = "Lesson", activity = "Lesson")
-        jsonActivityTree = self._Activity_Tree.saveToToken()
-        ActivityTreeSerialized = makeSerialized(jsonActivityTree)
-        jsonDictActivityTree = json.loads(ActivityTreeSerialized)
-                
-        context = self.addContext(parentLabel, ContextActivityTree= jsonDictActivityTree)
+        self._Activity_Tree.EnterActivity(label = None, activity = activity)
+              
+        context = self.addContext()
         if timestamp is None:
             timestamp = self.getTimestamp()
-        statement = Statement(actor=actor, verb=verb, object=anObject, result=result, context=context, timestamp=timestamp)
+        statement = Statement(actor=actor, verb=self.create_started_verb(), object=activity, result=result, context=context, timestamp=timestamp)
         self.sendLoggingMessage(statement)
+
 
     def sendStartSublesson(self, timestamp=None):
 
@@ -525,11 +515,13 @@ class xAPILearnLogger(BaseLearnLogger):
         statement = Statement(actor=actor, verb=self.create_completed_verb(), object=activity, result=result, context=context, timestamp=timestamp)
         self.sendLoggingMessage(statement)
 
-    def sendCompletedChoice(self, timestamp=None):
+    def sendCompletedChoice(self, choice, raw_score, max_score, custom_score_URI, custom_score, timestamp=None):
         summary = "Choice" + str(self._ChoiceCount) + SUMMARY_COMPLETED
                 
         actor = Agent( object_type = 'Agent', openid = self._userId, name = self._name, mbox='mailto:SMART-E@ict.usc.edu')
-        result = Result(response = '',)
+        result = Result(response=choice,
+                        score = Score(raw=raw_score, max=max_score),
+                        extensions = Extensions({ custom_score_URI : custom_score}) )
 
         #Implementing Activity Tree into context
         activity = self._Activity_Tree.findCurrentActivity()
