@@ -17,12 +17,13 @@ from tincan import (
     StateDocument,
     Extensions,
     AgentAccount,
-    Score
+    Score,
+    TypedList,
+    ContextActivities
 )
 import uuid
-from context_activities import ContextActivities
-import context_activities
-from tincan.typed_list import TypedList
+#import context_activities
+#from tincan.typed_list import TypedList
 from representation.ActivityTree import ActivityTree
 from SuperGLU.Util.Serialization import makeSerialized
 
