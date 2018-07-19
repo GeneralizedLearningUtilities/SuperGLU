@@ -22,8 +22,6 @@ from tincan import (
     ContextActivities
 )
 import uuid
-#import context_activities
-#from tincan.typed_list import TypedList
 from representation.ActivityTree import ActivityTree
 from SuperGLU.Util.Serialization import makeSerialized
 
