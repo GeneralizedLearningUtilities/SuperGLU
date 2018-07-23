@@ -1,9 +1,5 @@
 LOADED_VERB = "Started"
 
-SUMMARY_STARTED = "started"
-SUMMARY_COMPLETED = "completed"
-SUMMARY_TERMINATED = "terminated"
-
 RECOMMENDED_TASKS_VERB = "RecommendedTasks"
 
 XAPI_LOG_VERB = "XAPILogStatement"
@@ -53,7 +49,6 @@ NUM_OBSERVATIONS_KEY = 'numberOfObservations'      # Number of observations for 
 HELP_TYPE_KEY = 'helpType'                         # Type of the help provided (e.g., Positive, Negative, neutral)
 RESULT_CONTENT_TYPE_KEY = 'resultContentType'      # Type for the content of the help or other media (e.g., 'text', 'html', 'jpg')
 ACTIVITY_TREE_KEY = 'serialized_activitytree'
-ACTIVITY_SUMMARY_KEY = 'activity_summary'          # name of activity, sequence number, started/completed/terminated
 
 # Other Constants
 UNKNOWN_PREFIX = 'Unknown'
