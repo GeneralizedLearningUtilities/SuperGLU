@@ -204,11 +204,18 @@ class xAPILearnLogger(BaseLearnLogger):
         statement = Statement(actor=actor, verb=self.create_completed_verb(), object=activity, result=result, context=context, timestamp=timestamp)
         self.sendLoggingMessage(statement)
 
-    def sendCompletedStep(self, choice, raw_score, max_score, custom_score_URI, custom_score, contextDict, min_score=0, timestamp=None):
+    # work in progress. currently requires custom_score_URI and custom_score but not all applications will have this.
+    # If a raw_score is provided then a max_score must be provided too
+    def sendCompletedStep(self, choice, custom_score_URI, custom_score, contextDict, raw_score=-1, max_score=-1, min_score=0, timestamp=None):
         actor = Agent( object_type = 'Agent', openid = self._userId, name = self._name, mbox='mailto:SMART-E@ict.usc.edu')
-        result = Result(response=choice,
-                        score = Score(raw=raw_score, min=min_score, max=max_score),
-                        extensions = Extensions({ custom_score_URI : custom_score}) )
+
+        if (raw_score != -1):
+            result = Result(response=choice,
+                            score = Score(raw=raw_score, min=min_score, max=max_score),
+                            extensions = Extensions({ custom_score_URI : custom_score}) )
+        else:
+            result = Result(response=choice,
+                            extensions = Extensions({ custom_score_URI : custom_score}) )
 
         #Implementing Activity Tree into context
         activity = self._Activity_Tree.findCurrentActivity()
@@ -220,19 +227,6 @@ class xAPILearnLogger(BaseLearnLogger):
         statement = Statement(actor=actor, verb=self.create_completed_verb(), object=activity, result=result, context=context, timestamp=timestamp)
         self.sendLoggingMessage(statement)      
 
-    # TO DO: merge into sendCompletedStep
-    def sendCompletedAnswer(self, contextDict, timestamp=None):
-        actor = Agent( object_type = 'Agent', openid = self._userId, name = self._name, mbox='mailto:SMART-E@ict.usc.edu')
-        result = Result(response = '',)
-
-        activity = self._Activity_Tree.findCurrentActivity()
-        self._Activity_Tree.ExitActivity()
-              
-        context = self.addContext(contextDict)
-        if timestamp is None:
-            timestamp = self.getTimestamp()
-        statement = Statement(actor=actor, verb=self.create_completed_verb(), object=activity, result=result, context=context, timestamp=timestamp)
-        self.sendLoggingMessage(statement)
 
     # ***********************************************************************************
 
