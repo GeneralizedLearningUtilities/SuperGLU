@@ -47,6 +47,9 @@ class xAPILearnLogger(BaseLearnLogger):
     def create_terminated_verb(self):
         return Verb(id = "http://activitystrea.ms/schema/1.0/terminate", display=LanguageMap({'en-US': 'terminated'}))
 
+    def create_presented_verb(self):
+        return Verb(id = "http://activitystrea.ms/schema/1.0/present", display=LanguageMap({'en-US': 'presented'}))
+
     # ************** ACTIVITIES *************************************
     def createSession(self, activityID, name, description):
         return Activity( id = activityID, object_type = 'Activity',\
@@ -77,6 +80,11 @@ class xAPILearnLogger(BaseLearnLogger):
                          definition = ActivityDefinition(name=LanguageMap({'en-US': name }),\
                                                          description=LanguageMap({'en-US': description}),\
                                                          type= "http://id.tincanapi.com/activitytype/step"))
+
+    def createVideo(self):
+        return Activity( id = "http://activitystrea.ms/schema/1.0/video", object_type = 'Activity',\
+                         definition = ActivityDefinition(name=LanguageMap({'en-US': "video"}),\
+                                                         description=LanguageMap({'en-US': "Video content of any kind"})))
 
     # ************** STARTING AND STOPPING *********************************
 
@@ -227,8 +235,59 @@ class xAPILearnLogger(BaseLearnLogger):
         statement = Statement(actor=actor, verb=self.create_completed_verb(), object=activity, result=result, context=context, timestamp=timestamp)
         self.sendLoggingMessage(statement)      
 
-
     # ***********************************************************************************
+
+    def sendPresentedVideo(self, contextDict, timestamp=None):
+        actor = Agent( object_type = 'Agent', openid = self._userId, name = self._name, mbox='mailto:SMART-E@ict.usc.edu')
+
+        activity = self.createVideo()
+        result = Result(response = '',)
+
+        # This is an atomic action: no start and end points. Just a start point.
+        # Of course in reality, the video will have a length. We just don't have that information.
+
+        context = self.addContext(contextDict)
+        if timestamp is None:
+            timestamp = self.getTimestamp()
+        statement = Statement(actor=actor, verb=self.create_presented_verb(), object=activity, result=result, context=context, timestamp=timestamp)
+        self.sendLoggingMessage(statement)      
+
+
+    '''
+    Notify that new content presented (e.g., moving to a new panel, etc.).
+        Message Data: <taskId> | Presented | <elementId> | <content>
+        @param elementId: The HTML element where the content was displayed (if relevant)
+        @type elementId: string
+        @param content: The content of the help given, such as text, raw HTML, a URL, an image link, or other data.
+        @type: string
+        @param stepId: An id that represents the task situation (e.g., decision point) where the learner received the help.
+        @type stepId: string
+        @param contentType: The type of content that was presented (e.g., text, image, video, HTML).
+        @type contentType: string
+    '''
+    def sendPresented(self, elementId, content, stepId, contentType, sysComp = '', description='', timestamp=None):
+
+        actor = Agent( object_type = 'Agent', openid = self._userId, name = self._name, mbox='mailto:SMART-E@ict.usc.edu')
+        anObject = Activity( id = self._url+self._taskId, object_type = 'Activity', definition = ActivityDefinition(name=LanguageMap({'en-US': sysComp}), description=LanguageMap({'en-US':description})))
+        verb = Verb(id =  self.URIBase + "xAPI/verb/" + PRESENTED_VERB, display=LanguageMap({'en-US': PRESENTED_VERB}))
+
+        if contentType == None and content != None:
+            contentType = 'text'
+            content = str(content)
+
+        result = Result(response=content,)
+
+        tempContext = {}
+        tempContext[STEP_ID_KEY] = stepId
+        tempContext[RESULT_CONTENT_TYPE_KEY] = contentType
+        
+        context = self.addContext()
+
+        if timestamp is None:
+            timestamp = self.getTimestamp()
+        statement = Statement(actor=actor, verb=verb, object=anObject, result=result, context=context, timestamp=timestamp)
+        self.sendLoggingMessage(statement)
+
 
 
     def sendTerminatedMessage(self, anId, response, sysComp = '', description='', timestamp=None):
@@ -444,41 +503,6 @@ class xAPILearnLogger(BaseLearnLogger):
     def sendHelp(self, content, stepId, helpType, contentType, sysComp = '', description='', timestamp=None):
         self._sendHelpMessage(TASK_HELP_VERB, content, stepId, helpType, contentType, sysComp, description, timestamp)
 
-    '''
-    Notify that task presented some content. This can be at any time that
-        new content was presented (e.g., moving to a new panel, etc.).
-        Message Data: <taskId> | Presented | <elementId> | <content>
-        @param elementId: The HTML element where the content was displayed (if relevant)
-        @type elementId: string
-        @param content: The content of the help given, such as text, raw HTML, a URL, an image link, or other data.
-        @type: string
-        @param stepId: An id that represents the task situation (e.g., decision point) where the learner received the help.
-        @type stepId: string
-        @param contentType: The type of content that was presented (e.g., text, image, video, HTML).
-        @type contentType: string
-    '''
-    def sendPresented(self, elementId, content, stepId, contentType, sysComp = '', description='', timestamp=None):
-
-        actor = Agent( object_type = 'Agent', openid = self._userId, name = self._name, mbox='mailto:SMART-E@ict.usc.edu')
-        anObject = Activity( id = self._url+self._taskId, object_type = 'Activity', definition = ActivityDefinition(name=LanguageMap({'en-US': sysComp}), description=LanguageMap({'en-US':description})))
-        verb = Verb(id =  self.URIBase + "xAPI/verb/" + PRESENTED_VERB, display=LanguageMap({'en-US': PRESENTED_VERB}))
-
-        if contentType == None and content != None:
-            contentType = 'text'
-            content = str(content)
-
-        result = Result(response=content,)
-
-        tempContext = {}
-        tempContext[STEP_ID_KEY] = stepId
-        tempContext[RESULT_CONTENT_TYPE_KEY] = contentType
-        
-        context = self.addContext()
-
-        if timestamp is None:
-            timestamp = self.getTimestamp()
-        statement = Statement(actor=actor, verb=verb, object=anObject, result=result, context=context, timestamp=timestamp)
-        self.sendLoggingMessage(statement)
 
     '''
     Notify that user selected some element (e.g., in terms of HTML: making active)
