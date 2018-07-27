@@ -1,0 +1,21 @@
+Event	activity_id	activity_name	activity_description
+StartSession	phase2_or_4_session	Engage phase 2 or 4 experiment session	Experiment session of the Engage project after the addition of the tutor-led AAR
+TerminatedSession	phase2_or_4_session	Engage phase 2 or 4 experiment session	Experiment session of the Engage project after the addition of the tutor-led AAR
+StartVideoLesson	video_lesson	Enage video lesson	Watching all upfront instructional video clips during an experimental session of the Engage project
+CompletedVideoLesson	video_lesson	Enage video lesson	Watching all upfront instructional video clips during an experimental session of the Engage project
+StartVideoSublesson	video_sublesson	Engage video sublesson	Watching upfront instructional video clip during an experimental session of the Engage project
+CompletedVideoSublesson	video_sublesson	Engage video sublesson	Watching upfront instructional video clip during an experimental session of the Engage project
+StartScenario	phase2_or_4_scenario	Engage phase 2 or 4 scenario	ELITE scenario with Engage phase 2/4 specific AAR
+CompletedScenario	phase2_or_4_scenario	Engage phase 2 or 4 scenario	ELITE scenario with Engage phase 2/4 specific AAR
+StartDialogue	elite_lite_counseling_dialogue	ELITE Lite counseling dialogue	ELITE Lite counseling dialogue
+CompletedDialogue	elite_lite_counseling_dialogue	ELITE Lite counseling dialogue	ELITE Lite counseling dialogue
+StartDecision	elite_inots_decision	ELITE/INOTS decision	Multiple-choice decision of what to say next in ELITE/INOTS scenario
+CompletedDecision	elite_inots_decision	ELITE/INOTS decision	Multiple-choice decision of what to say next in ELITE/INOTS scenario
+StartChoice	elite_inots_choice	ELITE/INOTS choice	One learner choices one option during an ELITE/INOTS decision
+CompletedChoice	elite_inots_choice	ELITE/INOTS choice	One learner choices one option during an ELITE/INOTS decision
+StartAAR	phase2_or_4_AAR	Engage phase 2 or 4 AAR	Engage phase 2/4 tutor-led AAR
+CompletedAAR	phase2_or_4_AAR	Engage phase 2 or 4 AAR	Engage phase 2/4 tutor-led AAR
+StartQuestion	engage_AAR_question	Engage tutor-led AAR question	Engage tutor-led AAR question (diagnose or do-over)
+CompletedQuestion	engage_AAR_question	Engage tutor-led AAR question	Engage tutor-led AAR question (diagnose or do-over)
+StartAnswer	phase2_or_4_AAR_answer	Engage phase 2 or 4 AAR answer	Learner answer to AAR question (diagnose or do-over)
+CompletedAnswer	phase2_or_4_AAR_answer	Engage phase 2 or 4 AAR answer	Learner answer to AAR question (diagnose or do-over)
