@@ -370,7 +370,7 @@ namespace SuperGLU
             this.SendLoggingMessage(statement);
         }
 
-        // terminiate or compplete
+        // terminiate or complete
         public void SendTerminiatedSession(JObject contextJson, DateTime? timestamp = null)
         {
             Agent actor = CreateActor(this.userName, this.userId, this.mbox);
@@ -483,7 +483,10 @@ namespace SuperGLU
             this.SendLoggingMessage(statement);
         }
 
-        // TODO: work in progress
+        /* work in progress. currently requires custom_score_URI and custom_score but not all applications will have this.
+           If a raw_score is provided then a max_score must be provided too.
+           Might want to provide more detailed information relating to the knowledge components involved in the step.
+        */
         public void SendCompletedStep(string choice, string customScoreURI, double customScore, JObject contextJson, double rawScore = -1, double maxScore = -1, double minScore = 0, DateTime? timestamp = null)
         {
             Agent actor = CreateActor(this.userName, this.userId, this.mbox);
