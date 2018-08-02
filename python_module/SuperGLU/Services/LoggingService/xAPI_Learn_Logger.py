@@ -27,12 +27,14 @@ from SuperGLU.Util.Serialization import makeSerialized
 
 class xAPILearnLogger(BaseService):
 
-    # learner Agent
-    #  name = userName
-    #  account 
+    # if mbox_host != None
+    #  learner agent
+    #    mbox = userName@mbox_host
+    # elif homePage != None
+    #  learner agent account:
     #     name = userId. In the case of Engage it is a UUID.
     #     homePage is a URL associated with the account.
-    def __init__(self, gateway=None, userId=None, userName=None, homePage=None):
+    def __init__(self, gateway=None, userId=None, userName=None, homePage=None, mboxHost=None):
         self._Activity_Tree = ActivityTree()
         
         super(xAPILearnLogger, self).__init__()
@@ -41,6 +43,7 @@ class xAPILearnLogger(BaseService):
         self._userId = userId
         self._userName = userName
         self._home_page = homePage
+        self._mbox_host = mboxHost
         self._url = "https://github.com/GeneralizedLearningUtilities/SuperGLU/"
 
     def setUserId(self,userId):
@@ -103,8 +106,14 @@ class xAPILearnLogger(BaseService):
                                                          description=LanguageMap({'en-US': "Video content of any kind"})))
 
     def createAgent(self):
-        return Agent ( object_type = 'Agent', name = self._userName,\
-                       account = AgentAccount (name = self._userId, home_page = self._home_page))
+        if self._mbox_host != None:
+            return Agent ( object_type = 'Agent', name = self._userName,\
+                           mbox = "mailto:" + self._userName + "@" + self._mbox_host)
+        elif self._home_page != None:
+            return Agent ( object_type = 'Agent', name = self._userName,\
+                           account = AgentAccount (name = self._userId, home_page = self._home_page) )
+        else:
+            return Agent ( object_type = 'Agent', name = self._userName )
 
     # ************** STARTING AND STOPPING *********************************
 
