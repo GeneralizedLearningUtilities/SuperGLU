@@ -30,14 +30,8 @@ class LearnLockerConnection(BaseService):
                           'Content-Type' : 'application/json'
                           }
             
-            # --- quick fix for invalid xAPI statement to avoid bad request ----- #
-            # these should be fixed in xAPI_Learn_Logger
-            statement = json.loads(statementAsJson)
-            #statement['context']['extensions'] = {}
-            #statement['object']['id'] = "http://example.com/activities/solo-hang-gliding"
-            statement['actor'].pop('openid', None)
             # ------------------------------------------------------
-            response = requests.put(url=self._url + '/data/xAPI/statements?statementId=' + str(uuid.uuid4()), data=json.dumps(statement), headers=headerDict)
+            response = requests.put(url=self._url + '/data/xAPI/statements?statementId=' + str(uuid.uuid4()), data=statementAsJson, headers=headerDict)
 
             # log bad request message into errorLog file
             if str(response) == "<Response [400]>":

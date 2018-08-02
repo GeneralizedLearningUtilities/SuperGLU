@@ -27,7 +27,12 @@ from SuperGLU.Util.Serialization import makeSerialized
 
 class xAPILearnLogger(BaseService):
 
-    def __init__(self, gateway=None, userId=None, userName=None):
+    # learner Agent
+    #  name = userName
+    #  account 
+    #     name = userId. In the case of Engage it is a UUID.
+    #     homePage is a URL associated with the account.
+    def __init__(self, gateway=None, userId=None, userName=None, homePage=None):
         self._Activity_Tree = ActivityTree()
         
         super(xAPILearnLogger, self).__init__()
@@ -35,6 +40,7 @@ class xAPILearnLogger(BaseService):
         self._gateway = gateway
         self._userId = userId
         self._userName = userName
+        self._home_page = homePage
         self._url = "https://github.com/GeneralizedLearningUtilities/SuperGLU/"
 
     def setUserId(self,userId):
@@ -57,8 +63,8 @@ class xAPILearnLogger(BaseService):
     def create_terminated_verb(self):
         return Verb(id = "http://activitystrea.ms/schema/1.0/terminate", display=LanguageMap({'en-US': 'terminated'}))
 
-    def create_presented_verb(self):
-        return Verb(id = "http://activitystrea.ms/schema/1.0/present", display=LanguageMap({'en-US': 'presented'}))
+    def create_watched_verb(self):
+        return Verb(id = "http://activitystrea.ms/schema/1.0/watch", display=LanguageMap({'en-US': 'watched'}))
 
     # ************** ACTIVITIES *************************************
     def createSession(self, activityID, name, description):
@@ -96,11 +102,15 @@ class xAPILearnLogger(BaseService):
                          definition = ActivityDefinition(name=LanguageMap({'en-US': "video"}),\
                                                          description=LanguageMap({'en-US': "Video content of any kind"})))
 
+    def createAgent(self):
+        return Agent ( object_type = 'Agent', name = self._userName,\
+                       account = AgentAccount (name = self._userId, home_page = self._home_page))
+
     # ************** STARTING AND STOPPING *********************************
 
     def sendStartSession(self, activityID, name, description, contextDict, timestamp = None):
         activity = self.createSession(activityID,name,description)
-        actor = Agent( object_type = 'Agent', openid = self._userId, name = self._userName, mbox='mailto:SMART-E@ict.usc.edu')
+        actor = self.createAgent()
         result = Result(response = 'User started a new Session',)
         
         #Implementing Activity Tree into context
@@ -114,7 +124,7 @@ class xAPILearnLogger(BaseService):
 
     def sendStartLesson(self, activityID, name, description, contextDict, timestamp=None):
         activity = self.createLesson(activityID,name,description)
-        actor = Agent( object_type = 'Agent', name = self._userName, openid = self._userId, mbox='mailto:SMART-E@ict.usc.edu')
+        actor = self.createAgent()
         result = Result(success = True,)
         
         self._Activity_Tree.EnterActivity(label = None, activity = activity)
@@ -127,7 +137,7 @@ class xAPILearnLogger(BaseService):
 
     def sendStartSublesson(self, activityID, name, description, contextDict, timestamp=None):
         activity = self.createSublesson(activityID,name,description)
-        actor = Agent( object_type = 'Agent', name = self._userName, openid = self._userId, mbox='mailto:SMART-E@ict.usc.edu')
+        actor = self.createAgent()
         result = Result(success = True,)
 
         #Implementing Activity Tree into context
@@ -141,7 +151,7 @@ class xAPILearnLogger(BaseService):
 
     def sendStartTask(self, activityID, name, description, contextDict, timestamp=None):
         activity = self.createTask(activityID,name,description)
-        actor = Agent( object_type = 'Agent', name = self._userName, openid = self._userId, mbox='mailto:SMART-E@ict.usc.edu')
+        actor = self.createAgent()
         result = Result(success = True,)
 
         self._Activity_Tree.EnterActivity(label = None, activity = activity)
@@ -154,7 +164,7 @@ class xAPILearnLogger(BaseService):
 
     def sendStartStep(self, activityID, name, description, contextDict, timestamp=None):
         activity = self.createStep(activityID,name,description)
-        actor = Agent( object_type = 'Agent', name = self._userName, openid = self._userId, mbox='mailto:SMART-E@ict.usc.edu')
+        actor = self.createAgent()
         result = Result(success = True,)
 
         self._Activity_Tree.EnterActivity(label = None, activity = activity)
@@ -167,7 +177,7 @@ class xAPILearnLogger(BaseService):
 
 
     def sendTerminatedSession(self, contextDict, timestamp=None):
-        actor = Agent( object_type = 'Agent', openid = self._userId, name = self._userName, mbox='mailto:SMART-E@ict.usc.edu')
+        actor = self.createAgent()
         result = Result(response = '',)
         
         #Implementing Activity Tree into context
@@ -181,7 +191,7 @@ class xAPILearnLogger(BaseService):
         self.sendLoggingMessage(statement)
 
     def sendCompletedLesson(self, contextDict, timestamp=None):
-        actor = Agent( object_type = 'Agent', openid = self._userId, name = self._userName, mbox='mailto:SMART-E@ict.usc.edu')
+        actor = self.createAgent()
         result = Result(response = '',)
 
         #Implementing Activity Tree into context
@@ -195,7 +205,7 @@ class xAPILearnLogger(BaseService):
         self.sendLoggingMessage(statement)
 
     def sendCompletedSublesson(self, contextDict, timestamp=None):
-        actor = Agent( object_type = 'Agent', openid = self._userId, name = self._userName, mbox='mailto:SMART-E@ict.usc.edu')
+        actor = self.createAgent()
         result = Result(response = '',)
 
         activity = self._Activity_Tree.findCurrentActivity()
@@ -208,7 +218,7 @@ class xAPILearnLogger(BaseService):
         self.sendLoggingMessage(statement)
 
     def sendCompletedTask(self, contextDict, timestamp=None):
-        actor = Agent( object_type = 'Agent', openid = self._userId, name = self._userName, mbox='mailto:SMART-E@ict.usc.edu')
+        actor = self.createAgent()
         result = Result(response = '',)
 
         #Implementing Activity Tree into context
@@ -225,7 +235,7 @@ class xAPILearnLogger(BaseService):
     # If a raw_score is provided then a max_score must be provided too.
     # Might want to provide more detailed information relating to the knowledge components involved in the step.
     def sendCompletedStep(self, choice, custom_score_URI, custom_score, contextDict, raw_score=-1, max_score=-1, min_score=0, timestamp=None):
-        actor = Agent( object_type = 'Agent', openid = self._userId, name = self._userName, mbox='mailto:SMART-E@ict.usc.edu')
+        actor = self.createAgent()
 
         if (raw_score != -1):
             result = Result(response=choice,
@@ -247,8 +257,8 @@ class xAPILearnLogger(BaseService):
 
     # ***********************************************************************************
 
-    def sendPresentedVideo(self, contextDict, timestamp=None):
-        actor = Agent( object_type = 'Agent', openid = self._userId, name = self._userName, mbox='mailto:SMART-E@ict.usc.edu')
+    def sendWatchedVideo(self, contextDict, timestamp=None):
+        actor = self.createAgent()
 
         activity = self.createVideo()
         result = Result(response = '',)
@@ -259,7 +269,7 @@ class xAPILearnLogger(BaseService):
         context = self.addContext(contextDict)
         if timestamp is None:
             timestamp = self.getTimestamp()
-        statement = Statement(actor=actor, verb=self.create_presented_verb(), object=activity, result=result, context=context, timestamp=timestamp)
+        statement = Statement(actor=actor, verb=self.create_watched_verb(), object=activity, result=result, context=context, timestamp=timestamp)
         self.sendLoggingMessage(statement)      
 
     '''
@@ -277,9 +287,6 @@ class xAPILearnLogger(BaseService):
         
         tempExtensions[self._url + ACTIVITY_TREE_KEY] = self._Activity_Tree.saveXAPItoJSON()
                                         
-        #Used as an instructor agent in context
-        agentAccount = AgentAccount(name = "dummyName", home_page="http://dummyHomepage.com")
-
         mygrouping = self._Activity_Tree.convertPathToGrouping()
         myparent = self._Activity_Tree.findParentActivity()
 
@@ -287,9 +294,6 @@ class xAPILearnLogger(BaseService):
         if len(mygrouping)==0 and myparent == None:
             context = Context(
                 registration=str(uuid.uuid4()),
-                instructor=Agent(
-                    account=agentAccount
-                ), 
                 extensions = Extensions(tempExtensions))
         else:
             if len(mygrouping)==0:
@@ -299,9 +303,6 @@ class xAPILearnLogger(BaseService):
                                                         grouping = ActivityList(mygrouping))
             context = Context(
                 registration=str(uuid.uuid4()),
-                instructor=Agent(
-                    account=agentAccount
-                ), 
                 extensions = Extensions(tempExtensions),
                 context_activities = mycontextActivities
             )        
