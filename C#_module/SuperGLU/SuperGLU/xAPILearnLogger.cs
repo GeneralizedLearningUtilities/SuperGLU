@@ -559,7 +559,6 @@ namespace SuperGLU
 
         private void SendLoggingMessage(Statement statement)
         {
-            Console.WriteLine("{0}", statement.ToJSON());
             string path = Directory.GetCurrentDirectory();
             // write to log file
             using (System.IO.StreamWriter logFile =
@@ -579,72 +578,78 @@ namespace SuperGLU
 
             return lines;
         }
-         
+
         public void ProcessBatchData(string[] batchData, xAPILearnLogger logger)
         {
+            bool firstLine = true;
+
             foreach (string line in batchData)
             {
-                // split with tab delimiter
-                string sep = "\t";
-                string[] splitLine = line.Split(sep.ToCharArray());
-                // store data in a dictionary
-                Dictionary<string, string> data = new Dictionary<string, string>();
-                data["event"] = splitLine[0];
-                data["activityId"] = splitLine[1];
-                data["activityName"] = splitLine[2];
-                data["activityDescription"] = splitLine[3];
+                if (firstLine) { firstLine = false; }
+                else
+                {
+                    // split with tab delimiter
+                    string sep = "\t";
+                    string[] splitLine = line.Split(sep.ToCharArray());
+                    // store data in a dictionary
+                    Dictionary<string, string> data = new Dictionary<string, string>();
+                    data["event"] = splitLine[0];
+                    data["activityId"] = splitLine[1];
+                    data["activityName"] = splitLine[2];
+                    data["activityDescription"] = splitLine[3];
 
-                ConvertToxAPI(data, logger);
+                    ConvertToxAPI(data, logger);
+                }
             }
-       }
+        }
 
 
         public void ConvertToxAPI(Dictionary<string, string> data, xAPILearnLogger logger)
-        {   
-            Console.WriteLine(data["event"]);
+        {
             if (data["event"] == "StartSession")
             {
                 logger.SendStartSession(data["activityId"], data["activityName"], data["activityDescription"], new JObject { });
             }
-            else if (data["event"] == "StartVideoLesson")
+            else if ((data["event"] == "StartVideoLesson") || (data["event"] == "StartScenario"))
             {
                 logger.SendStartLesson(data["activityId"], data["activityName"], data["activityDescription"], new JObject { });
             }
-            else if (data["event"] == "StartVideoSublesson")
+            else if ((data["event"] == "StartVideoSublesson") || (data["event"] == "StartAAR") || (data["event"] == "StartDialogue"))
             {
                 logger.SendStartSublesson(data["activityId"], data["activityName"], data["activityDescription"], new JObject { });
             }
-            else if (data["event"] == "StartScenario")
-            {
-                logger.SendStartStep(data["activityId"], data["activityName"], data["activityDescription"], new JObject { });
-            }
-            else if (data["event"] == "StartDialogue")
-            {
-                logger.SendPresentedVideo(new JObject { });
-            }
-            else if (data["event"] == "StartDecision")
+            else if ((data["event"] == "StartDecision") || (data["event"] == "StartQuestion"))
             {
                 logger.SendStartTask(data["activityId"], data["activityName"], data["activityDescription"], new JObject { });
+            }
+            else if ((data["event"] == "StartChoice") || (data["event"] == "StartAnswer"))
+            {
+                logger.SendStartStep(data["activityId"], data["activityName"], data["activityDescription"], new JObject { });
             }
             else if (data["event"] == "TerminatedSession")
             {
                 logger.SendTerminiatedSession(new JObject { });
             }
-            else if (data["event"] == "CompletedVideoLesson")
+            else if ((data["event"] == "CompletedVideoLesson") || (data["event"] == "CompletedScenario"))
             {
                 logger.SendCompletedLesson(new JObject { });
             }
-            else if (data["event"] == "CompletedVideoSublesson")
+            else if ((data["event"] == "CompletedVideoSublesson") || (data["event"] == "CompletedAAR") || (data["event"] == "CompletedDialogue"))
             {
+                if (data["event"] == "CompletedDialogue")
+                {
+                    logger.SendPresentedVideo(new JObject { });
+                }
                 logger.SendCompletedSublesson(new JObject { });
             }
-            else if (data["event"] == "CompletedScenario")
-            {
-                logger.SendCompletedStep("test choices", "http://custom_score_URI", 1, new JObject { });
-            }
-            else if (data["event"] == "SendCompletedDecision")
+            else if ((data["event"] == "CompletedDecision") || (data["event"] == "CompletedQuestion"))
             {
                 logger.SendCompletedTask(new JObject { });
+            }
+
+            else if ((data["event"] == "CompletedChoice") || (data["event"] == "CompletedAnswer"))
+            {
+                logger.SendCompletedStep("test choices", "http://custom_score_URI", 1, new JObject { });
             }
             else
             {
@@ -662,7 +667,9 @@ namespace SuperGLU
             xAPILearnLogger logger = new xAPILearnLogger();
 
             loggerTester.ProcessBatchData(lines, logger);
+            Console.WriteLine("Press Enter to continue.");
             Console.ReadLine();
+            Console.WriteLine("Exiting.");
             
         }
     }
