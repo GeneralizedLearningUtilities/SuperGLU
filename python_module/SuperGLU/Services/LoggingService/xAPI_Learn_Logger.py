@@ -74,36 +74,42 @@ class xAPILearnLogger(BaseService):
         return Activity( id = activityID, object_type = 'Activity',\
                          definition = ActivityDefinition(name=LanguageMap({'en-US': name }),\
                                                          description=LanguageMap({'en-US': description}),\
-                                                         type= "http://id.tincanapi.com/activitytype/tutor-session"))
+                                                         type= "http://id.tincanapi.com/activitytype/tutor-session",\
+                                                         extensions= { self._url + "activityid" : str(uuid.uuid4()) } ))
 
     def createLesson(self, activityID, name, description):
         return Activity( id = activityID, object_type = 'Activity',\
                          definition = ActivityDefinition(name=LanguageMap({'en-US': name }),\
                                                          description=LanguageMap({'en-US': description}),\
-                                                         type= "http://adlnet.gov/expapi/activities/lesson"))
+                                                         type= "http://adlnet.gov/expapi/activities/lesson",\
+                                                         extensions= { self._url + "activityid" : str(uuid.uuid4()) }))
 
     def createSublesson(self, activityID, name, description):
         return Activity( id = activityID, object_type = 'Activity',\
                          definition = ActivityDefinition(name=LanguageMap({'en-US': name }),\
                                                          description=LanguageMap({'en-US': description}),\
-                                                         type= self._url + "sublesson"))
+                                                         type= self._url + "sublesson",\
+                                                         extensions= { self._url + "activityid" : str(uuid.uuid4()) }))
 
     def createTask(self, activityID, name, description):
         return Activity( id = activityID, object_type = 'Activity',\
                          definition = ActivityDefinition(name=LanguageMap({'en-US': name }),\
                                                          description=LanguageMap({'en-US': description}),\
-                                                         type= "http://activitystrea.ms/schema/1.0/task"))
+                                                         type= "http://activitystrea.ms/schema/1.0/task",\
+                                                         extensions= { self._url + "activityid" : str(uuid.uuid4()) }))
 
     def createStep(self, activityID, name, description):
         return Activity( id = activityID, object_type = 'Activity',\
                          definition = ActivityDefinition(name=LanguageMap({'en-US': name }),\
                                                          description=LanguageMap({'en-US': description}),\
-                                                         type= "http://id.tincanapi.com/activitytype/step"))
+                                                         type= "http://id.tincanapi.com/activitytype/step",\
+                                                         extensions= { self._url + "activityid" : str(uuid.uuid4()) }))
 
     def createVideo(self):
         return Activity( id = "http://activitystrea.ms/schema/1.0/video", object_type = 'Activity',\
                          definition = ActivityDefinition(name=LanguageMap({'en-US': "video"}),\
-                                                         description=LanguageMap({'en-US': "Video content of any kind"})))
+                                                         description=LanguageMap({'en-US': "Video content of any kind"}),\
+                                                         extensions= { self._url + "activityid" : str(uuid.uuid4()) }))
 
     def createAgent(self):
         if self._mbox_host != None:
@@ -283,7 +289,6 @@ class xAPILearnLogger(BaseService):
 
     '''
     Add context to the message.  
-    Currently, registration attribute is a random UUID.
 
     In addition to context extensions in tempExtensions,
     add serialized activity tree.
@@ -302,7 +307,6 @@ class xAPILearnLogger(BaseService):
         #Defining a TinCan Context object
         if len(mygrouping)==0 and myparent == None:
             context = Context(
-                registration=str(uuid.uuid4()),
                 extensions = Extensions(tempExtensions))
         else:
             if len(mygrouping)==0:
@@ -311,7 +315,6 @@ class xAPILearnLogger(BaseService):
                 mycontextActivities = ContextActivities(parent = myparent, 
                                                         grouping = ActivityList(mygrouping))
             context = Context(
-                registration=str(uuid.uuid4()),
                 extensions = Extensions(tempExtensions),
                 context_activities = mycontextActivities
             )        
