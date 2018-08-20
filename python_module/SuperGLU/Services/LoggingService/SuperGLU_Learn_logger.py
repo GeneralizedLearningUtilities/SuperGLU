@@ -1,66 +1,10 @@
 import time
 from SuperGLU.Core.Messaging import Message
 from SuperGLU.Core.MessagingGateway import BaseService
+from SuperGLU.Services.LoggingService.Constants import *
+from SuperGLU.Services.LoggingService.Base_Learn_Logger import BaseLearnLogger
 
-LOADED_VERB = "Loaded";
-
-RECOMMENDED_TASKS_VERB = "RecommendedTasks";
-
-# Task Performance Verbs
-COMPLETED_VERB = 'Completed',                       # Finished task, return result (e.g., score)
-COMPLETED_ALL_STEPS_VERB = 'CompletedAllSteps',     # Completed all steps (true/false/% steps completed)
-COMPLETED_STEP_VERB = 'CompletedStep',              # Completed a given task step
-KC_SCORE_VERB = 'KnowledgeComponentScore';          # A score for a KC (e.g., performance on a given task)
-
-# Task Adaptive Support Verbs
-TASK_HELP_VERB = 'TaskHelp',                        # User received some other type of help on a task
-TASK_HINT_VERB = 'TaskHint',                        # User received a hint (e.g., next step) on a task
-TASK_FEEDBACK_VERB = 'TaskFeedback',                # User received reactive feedback (e.g., error correction, approval)
-TASK_DECOMPOSITION_VERB = 'TaskDecomposition';      # User received a decomposed task (i.e., broken into subtasks)
-
-# Task User Input Verbs
-PRESENTED_VERB = 'Presented',                       # User was presented with some element
-SELECTED_OPTION_VERB = 'SelectedOption',            # User selected some option or element
-SUBMITTED_ANSWER_VERB = 'SubmittedAnswer',          # An answer submitted by a user
-MISCONCEPTION_VERB = 'Misconception',               # User demonstrated a specific bug or misconception
-TASK_SUPPORT_VERB = 'TaskSupport',                  # Overall level of support given to the user during task
-TASK_HELP_COUNT_VERB = 'TaskHelpCount';             # Overall number of hints user received during the task.
-
-# Peripheral Metrics Verbs - Calculated by Task
-WORDS_PER_SECOND_VERB = 'WordsPerSecond',           # # Words per second, for text-input interactions (e.g., natural language ITS)
-ACTIONS_PER_SECOND_VERB = 'ActionsPerSecond',       # # Actions per second (e.g., selecting choices, attempting to answer)
-ANSWER_SEMANTIC_MATCH_VERB = 'AnswerSemanticMatch', # Match of an answer for the user to some ideal(s)
-PERSISTENCE_VERB = 'Persistence',                   # Metric for persistence (e.g., continuing despite failure)
-IMPETUOUSNESS_VERB = 'Impetuousness',               # Metric for impetuousness (e.g., answering overly quickly, carelessness)
-GAMING_SYSTEM_VERB = 'GamingTheSystem',             # Metric for gaming the system (e.g., hint abuse)
-WHEELSPINNING_VERB = 'WheelSpinning',               # Metric for wheel spinning (e.g., continued failure on similar skills w/o improvement)
-CONFUSION_VERB = 'Confusion',                       # Metric for confusion (e.g., moderate delays, poor answer cohesion, video metrics)
-DISENGAGEMENT_VERB = 'Disengagement',               # Metric for disengagement (e.g., long delays, inattentive gaze, leaning back in chair)
-MASTERY_VERB = 'Mastery';
-
-# Context Keys
-USER_ID_KEY = 'userId',                             # Unique identifier for the user
-DURATION_KEY = 'duration',                          # Duration spent on the task
-TASK_ID_KEY = 'taskId',                             # ID for the task being performed
-STEP_ID_KEY = 'stepId',                             # Unique ID for the current step or state.
-                                                    # Intended to help to compare different user or system behavior in a comparable task state.
-CLASSROOM_ID_KEY = 'classroomId',					# Unique ID for the classroom
-ACTIVITY_TYPE_KEY = 'activityType',                 # Type of activity being performed
-TOPIC_ID_KEY = 'topicId',                           # Topic ID for the current activity
-KC_RELEVANCE_KEY = 'KCRelevance',                   # Knowledge component relevance
-NUM_OBSERVATIONS_KEY = 'numberOfObservations',      # Number of observations for some behavior that is measured
-HELP_TYPE_KEY = 'helpType',                         # Type of the help provided (e.g., Positive, Negative, neutral)
-RESULT_CONTENT_TYPE_KEY = 'resultContentType';      # Type for the content of the help or other media (e.g., 'text', 'html', 'jpg')
-
-# Other Constants
-UNKNOWN_PREFIX = 'Unknown',
-POSITIVE_HELP_TYPE = 'Positive',
-NEUTRAL_HELP_TYPE = 'Neutral',
-NEGATIVE_HELP_TYPE = 'Negative';
-
-
-class SuperGLULearnLogger(BaseLearningLoggerService):
-
+class SuperGLULearnLogger(BaseLearnLogger):
 
     '''
     Initialize the standard ITS logger service
@@ -80,12 +24,8 @@ class SuperGLULearnLogger(BaseLearningLoggerService):
         @type id: string
     '''
 
-    def __init__(gateway, userId, classroomId, taskId, url, activityType, context, id):
-        super(SuperGLULearnLogger, self).__init__(userId, classroomId, taskId, url, activityType, context, id)
-
-    /********************************
-         **  LOG MESSAGE GENERATORS    **
-     ********************************/
+    def __init__(self, gateway=None, userId=None, classroomId=None, taskId=None, url=None, activityType=None, context=None, anId=None):
+        super(SuperGLULearnLogger, self).__init__(gateway, userId, classroomId, taskId, url, activityType, context, anId)
 
     '''Send the loaded message, for when the task is ready to start.
         Message Data: <frameName> | Loaded | <url> | true
@@ -93,9 +33,9 @@ class SuperGLULearnLogger(BaseLearningLoggerService):
         @type frameName: string
     '''
 
-    def sendLoadedTask(frameName):
-        msg = Message(frameName, LOADED_VERB, self._url, true);
-        self.sendLoggingMessage(msg);
+    def sendLoadedTask(self, frameName):
+        msg = Message(frameName, LOADED_VERB, self._url, True)
+        self.sendLoggingMessage(msg)
 
     '''
     Send the task completed message
@@ -103,10 +43,10 @@ class SuperGLULearnLogger(BaseLearningLoggerService):
         @param score: A score between 0 and 1. Scores outside this range will be clipped to fit. If score None, task presumed incomplete/invalid.
         @type score: float
     '''
-    def sendCompletedTask(score):
-        score = self.clampToUnitV87alue(score);
-        msg = Message(self._userId, COMPLETED_VERB, self._taskId, score);
-        self.sendLoggingMessage(msg);
+    def sendCompletedTask(self, score):
+        score = self.clampToUnitV87alue(score)
+        msg = Message(self._userId, COMPLETED_VERB, self._taskId, score)
+        self.sendLoggingMessage(msg)
 
     '''
     Send if all steps completed message (or % complete, if unfinished)
@@ -114,12 +54,12 @@ class SuperGLULearnLogger(BaseLearningLoggerService):
         @param percentComplete: The percentage of steps that were completed. In [0,1]. If None, assumed 100%.
         @param percentComplete: float
     '''
-    def sendCompletedAllSteps(percentComplete):
+    def sendCompletedAllSteps(self, percentComplete):
         if percentComplete == None:
             percentComplete = 1.0
-        percentComplete = self.clampToUnitValue(percentComplete);
-        msg = Message(self._userId, COMPLETED_ALL_STEPS_VERB, self._taskId, percentComplete*1.0);
-        self.sendLoggingMessage(msg);
+        percentComplete = self.clampToUnitValue(percentComplete)
+        msg = Message(self._userId, COMPLETED_ALL_STEPS_VERB, self._taskId, percentComplete*1.0)
+        self.sendLoggingMessage(msg)
 
     '''
     Send a message that a step was completed (or marked incomplete, alternatively).
@@ -129,12 +69,12 @@ class SuperGLULearnLogger(BaseLearningLoggerService):
         @param isComplete: The amount of the step that was completed, from 0 (nothing completed) to 1 (fully complete).
         @type isComplete: float
     '''
-    def sendCompletedStep(stepId, isComplete):
+    def sendCompletedStep(self, stepId, isComplete):
         if isComplete == None:
             isComplete = 1.0
-        isComplete = self.clampToUnitValue(isComplete);
-        msg = Message(self._userId, COMPLETED_STEP_VERB, stepId, 1.0*isComplete);
-        self.sendLoggingMessage(msg);
+        isComplete = self.clampToUnitValue(isComplete)
+        msg = Message(self._userId, COMPLETED_STEP_VERB, stepId, 1.0*isComplete)
+        self.sendLoggingMessage(msg)
 
     '''
     Send a KC Score about performance on a specific skill during the activity.
@@ -152,14 +92,14 @@ class SuperGLULearnLogger(BaseLearningLoggerService):
         @type relevance: float
     '''
 
-    def sendKCScore(kcName, score, relevance):
+    def sendKCScore(self, kcName, score, relevance):
         if relevance == None:
             relevance = 1.0
-        relevance = self.clampToUnitValue(relevance);
-        score = self.clampToUnitValue(score);
-        msg = Message(self._userId, KC_SCORE_VERB, kcName, score);
-        msg.setContextValue(KC_RELEVANCE_KEY, relevance);
-        self.sendLoggingMessage(msg);
+        relevance = self.clampToUnitValue(relevance)
+        score = self.clampToUnitValue(score)
+        msg = Message(self._userId, KC_SCORE_VERB, kcName, score)
+        msg.setContextValue(KC_RELEVANCE_KEY, relevance)
+        self.sendLoggingMessage(msg)
 
     '''
     Send a Mastery score, which is a claim by a system about a user's overall knowledge
@@ -173,13 +113,12 @@ class SuperGLULearnLogger(BaseLearningLoggerService):
         @param numObservations: A weighted sum for the number of observations that supports this estimate. Some observations might be worth less than one (e.g., because the context was only partly relevant), while other observations might be worth more than one (e.g., because they were received from systems which reported a large number of observations).
         @type numObservations: float
     '''
-    def sendMastery(kcName, score, numObservations):
-        score = self.clampToUnitValue(score);
-        msg = Message(self._userId, MASTERY_VERB, kcName, score);
+    def sendMastery(self, kcName, score, numObservations):
+        score = self.clampToUnitValue(score)
+        msg = Message(self._userId, MASTERY_VERB, kcName, score)
         if numObservations != None and numObservations > 0:
-            msg.setContextValue(NUM_OBSERVATIONS_KEY, numObservations);
-        }
-        self.sendLoggingMessage(msg);
+            msg.setContextValue(NUM_OBSERVATIONS_KEY, numObservations)
+        self.sendLoggingMessage(msg)
 
     '''
     Notify that a hint was presented
@@ -193,8 +132,8 @@ class SuperGLULearnLogger(BaseLearningLoggerService):
         @param contentType: The type of content that was presented (e.g., text, image, video, HTML).
         @type contentType: string
     '''
-    def sendHint(content, stepId, helpType, contentType):
-        self._sendHelpMessage(TASK_HINT_VERB, content, stepId, helpType, contentType);
+    def sendHint(self, content, stepId, helpType, contentType):
+        self._sendHelpMessage(TASK_HINT_VERB, content, stepId, helpType, contentType)
 
     '''
     Notify that feedback was presented
@@ -209,19 +148,19 @@ class SuperGLULearnLogger(BaseLearningLoggerService):
         @type contentType: string
     '''
 
-    def sendFeedback(content, stepId, helpType, contentType):
+    def sendFeedback(self, content, stepId, helpType, contentType):
         self._sendHelpMessage(TASK_FEEDBACK_VERB, content, stepId, helpType, contentType)
 
     #Notify that positive feedback was presented
-    def sendPositiveFeedback(content, stepId, contentType):
+    def sendPositiveFeedback(self, content, stepId, contentType):
         self.sendFeedback(content, stepId, POSITIVE_HELP_TYPE, contentType)
 
     #Notify that neutral feedback was presented
-    def sendNeutralFeedback(content, stepId, contentType):
+    def sendNeutralFeedback(self, content, stepId, contentType):
         self.sendFeedback(content, stepId, NEUTRAL_HELP_TYPE, contentType)
 
     #Notify that negative feedback was presented
-    def sendNegativeFeedback(content, stepId, contentType):
+    def sendNegativeFeedback(self, content, stepId, contentType):
         self.sendFeedback(content, stepId, NEGATIVE_HELP_TYPE, contentType)
 
     '''
@@ -237,7 +176,7 @@ class SuperGLULearnLogger(BaseLearningLoggerService):
         @type contentType: string
     '''
 
-    def sendTaskDecomposed(content, stepId, helpType, contentType):
+    def sendTaskDecomposed(self, content, stepId, helpType, contentType):
         self._sendHelpMessage(TASK_DECOMPOSITION_VERB, content, stepId, helpType, contentType)
 
     '''
@@ -253,7 +192,7 @@ class SuperGLULearnLogger(BaseLearningLoggerService):
         @param contentType: The type of content that was presented (e.g., text, image, video, HTML).
         @type contentType: string
     '''
-    def sendHelp(content, stepId, helpType, contentType):
+    def sendHelp(self, content, stepId, helpType, contentType):
         self._sendHelpMessage(TASK_HELP_VERB, content, stepId, helpType, contentType)
 
 
@@ -270,7 +209,7 @@ class SuperGLULearnLogger(BaseLearningLoggerService):
         @param contentType: The type of content that was presented (e.g., text, image, video, HTML).
         @type contentType: string
     '''
-    def sendPresented(elementId, content, stepId, contentType):
+    def sendPresented(self, elementId, content, stepId, contentType):
         if contentType == None and content != None:
             contentType = 'text'
             content = str(content)
@@ -294,7 +233,7 @@ class SuperGLULearnLogger(BaseLearningLoggerService):
         @param contentType: The type of content that was presented (e.g., text, image, video, HTML).
         @type contentType: string
     '''
-    def sendSelectedOption(elementId, content, stepId, contentType):
+    def sendSelectedOption(self, elementId, content, stepId, contentType):
         self._sendInputMessage(SELECTED_OPTION_VERB, elementId, content, stepId, contentType)
 
     '''
@@ -309,7 +248,7 @@ class SuperGLULearnLogger(BaseLearningLoggerService):
         @param contentType: The type of content that was presented (e.g., text, image, video, HTML).
         @type contentType: string
     '''
-    def sendSubmittedAnswer(elementId, content, stepId, contentType):
+    def sendSubmittedAnswer(self, elementId, content, stepId, contentType):
         self._sendInputMessage(SUBMITTED_ANSWER_VERB, elementId, content, stepId, contentType)
 
     '''
@@ -325,7 +264,7 @@ class SuperGLULearnLogger(BaseLearningLoggerService):
         @param contentType: The type of content that was presented (e.g., text, image, video, HTML).
         @type contentType: string
     '''
-    def sendMisconception(misconceptionId, content, stepId, contentType):
+    def sendMisconception(self, misconceptionId, content, stepId, contentType):
         self._sendInputMessage(MISCONCEPTION_VERB, misconceptionId, content, stepId, contentType)
 
     '''Send the overall level of system support given to the user for this task.
@@ -334,7 +273,7 @@ class SuperGLULearnLogger(BaseLearningLoggerService):
         @param supportLevel: Fraction of the total support given to the user during the task, in [0,1].
         @type supportLevel: float
     '''
-    def sendTaskSupport(supportLevel):
+    def sendTaskSupport(self, supportLevel):
         supportLevel = self.clampToUnitValue(supportLevel)
         msg = Message(self._userId, TASK_SUPPORT_VERB, self._taskId, supportLevel)
         self.sendLoggingMessage(msg)
@@ -346,7 +285,7 @@ class SuperGLULearnLogger(BaseLearningLoggerService):
         @param numHelpActs: The total number of help acts provided during the task.
         @type numHelpActs: int
     '''
-    def sendTaskHelpCount(numHelpActs):
+    def sendTaskHelpCount(self, numHelpActs):
         if numHelpActs < 0:
             numHelpActs = 0
         msg = Message(self._userId, TASK_HELP_COUNT_VERB, self._taskId, numHelpActs)
@@ -362,10 +301,10 @@ class SuperGLULearnLogger(BaseLearningLoggerService):
         @param stepId: An id that represents the task situation (e.g., decision point) where this evidence was collected. Optional.  If not given, this message should represent all the text input given to this task.
         @type stepId: string
     '''
-    def sendWordsPerSecond(value, evidence, stepId):
+    def sendWordsPerSecond(self, value, evidence, stepId):
             if value < 0:
                 value = 0
-            self._sendMetricMessage(WORDS_PER_SECOND_VERB, value, evidence, stepId, false)
+            self._sendMetricMessage(WORDS_PER_SECOND_VERB, value, evidence, stepId, False)
 
     '''
     Send the actions per second when user was expected to interact with the system
@@ -377,10 +316,10 @@ class SuperGLULearnLogger(BaseLearningLoggerService):
         @param stepId: An id that represents the task situation (e.g., decision point) where this evidence was collected. Optional.  If not given, this message should represent all the actions given to this task.
         @type stepId: string
     '''
-    def sendActionsPerSecond(value, evidence, stepId):
+    def sendActionsPerSecond(self, value, evidence, stepId):
             if value < 0:
                 value = 0
-            self._sendMetricMessage(ACTIONS_PER_SECOND_VERB, value, evidence, stepId, false)
+            self._sendMetricMessage(ACTIONS_PER_SECOND_VERB, value, evidence, stepId, False)
 
     '''
     Send the semantic match for content submitted. Can be either for a single step (if stepId given)
@@ -393,30 +332,30 @@ class SuperGLULearnLogger(BaseLearningLoggerService):
         @param stepId: An id that represents the task situation (e.g., decision point) where this evidence was collected. Optional.  If not given, this message should represent all the actions given to this task.
         @type stepId: string
     '''
-    def sendAnswerSemanticMatch(value, evidence, stepId):
-        self._sendMetricMessage(ANSWER_SEMANTIC_MATCH_VERB, value, evidence, stepId, true)
+    def sendAnswerSemanticMatch(self, value, evidence, stepId):
+        self._sendMetricMessage(ANSWER_SEMANTIC_MATCH_VERB, value, evidence, stepId, True)
 
-    def sendPersistence(value, evidence, stepId):
-        self._sendMetricMessage(PERSISTENCE_VERB, value, evidence, stepId, true);
+    def sendPersistence(self, value, evidence, stepId):
+        self._sendMetricMessage(PERSISTENCE_VERB, value, evidence, stepId, True)
 
-    def sendImpetuousness(value, evidence, stepId):
-        self._sendMetricMessage(IMPETUOUSNESS_VERB, value, evidence, stepId, true);
+    def sendImpetuousness(self, value, evidence, stepId):
+        self._sendMetricMessage(IMPETUOUSNESS_VERB, value, evidence, stepId, True)
 
-    def sendGamingTheSystem(value, evidence, stepId):
-        self._sendMetricMessage(GAMING_SYSTEM_VERB, value, evidence, stepId, true);
+    def sendGamingTheSystem(self, value, evidence, stepId):
+        self._sendMetricMessage(GAMING_SYSTEM_VERB, value, evidence, stepId, True)
 
-    def sendConfusion(value, evidence, stepId):
-        self._sendMetricMessage(CONFUSION_VERB, value, evidence, stepId, true);
+    def sendConfusion(self, value, evidence, stepId):
+        self._sendMetricMessage(CONFUSION_VERB, value, evidence, stepId, True)
 
-    def sendDisengagement(value, evidence, stepId):
-        self._sendMetricMessage(DISENGAGEMENT_VERB, value, evidence, stepId, true);
+    def sendDisengagement(self, value, evidence, stepId):
+        self._sendMetricMessage(DISENGAGEMENT_VERB, value, evidence, stepId, True)
 
-    def sendWheelspinning(value, evidence, stepId):
-        self._sendMetricMessage(WHEELSPINNING_VERB, value, evidence, stepId, true);
+    def sendWheelspinning(self, value, evidence, stepId):
+        self._sendMetricMessage(WHEELSPINNING_VERB, value, evidence, stepId, True)
 
-    def sendRequestRecommendedTasks(userName, numberOfRecommendations):
+    def sendRequestRecommendedTasks(self, userName, numberOfRecommendations):
         msg = Message(userName, RECOMMENDED_TASKS_VERB, numberOfRecommendations, "", "Request")
-        self.sendLoggingMessage(msg);
+        self.sendLoggingMessage(msg)
 
     '''
     Internal Function to notify server that some help message was presented
@@ -431,17 +370,17 @@ class SuperGLULearnLogger(BaseLearningLoggerService):
         @param contentType: The type of content that was presented (e.g., text, image, video, HTML). Defaults to text.
         @type contentType: string
     '''
-    def _sendHelpMessage(verb, content, stepId, helpType, contentType):
-        if ((contentType == None) && content != None){
-            contentType = 'text';
-            content = content.toString();
-        }
-        if (helpType == None){ helpType = NEUTRAL_HELP_TYPE;}
-        var msg = Message(self._taskId, verb, stepId, content);
-        msg.setContextValue(STEP_ID_KEY, stepId);
-        msg.setContextValue(HELP_TYPE_KEY, helpType);
-        msg.setContextValue(RESULT_CONTENT_TYPE_KEY, contentType);
-        self.sendLoggingMessage(msg);
+    def _sendHelpMessage(self, verb, content, stepId, helpType, contentType):
+        if (contentType == None) and content != None:
+            contentType = 'text'
+            content = str(content)
+        if helpType == None:
+            helpType = NEUTRAL_HELP_TYPE
+        msg = Message(self._taskId, verb, stepId, content)
+        msg.setContextValue(STEP_ID_KEY, stepId)
+        msg.setContextValue(HELP_TYPE_KEY, helpType)
+        msg.setContextValue(RESULT_CONTENT_TYPE_KEY, contentType)
+        self.sendLoggingMessage(msg)
 
     '''
     Internal function to notify server that user submitted input
@@ -456,9 +395,9 @@ class SuperGLULearnLogger(BaseLearningLoggerService):
         @param contentType: The type of content that was presented (e.g., text, image, video, HTML).
         @type contentType: string
     '''
-    def _sendInputMessage(verb, elementId, content, stepId, contentType):
+    def _sendInputMessage(self, verb, elementId, content, stepId, contentType):
         if ((contentType == None) and content != None):
-            contentType = 'text';
+            contentType = 'text'
             content = content.toString()
         msg = Message(self._userId, verb, elementId, content)
         msg.setContextValue(STEP_ID_KEY, stepId)
@@ -476,7 +415,7 @@ class SuperGLULearnLogger(BaseLearningLoggerService):
         @param clampToUnit: If true, adjust value to fit between 0 and 1. Null values are not changed.
         @type clampToUnit: bool
     '''
-    def _sendMetricMessage(verb, value, evidence,  stepId, clampToUnit):
+    def _sendMetricMessage(self, verb, value, evidence,  stepId, clampToUnit):
         if evidence == None:
             evidence = []
         if clampToUnit:
@@ -485,8 +424,46 @@ class SuperGLULearnLogger(BaseLearningLoggerService):
         msg.setContextValue(STEP_ID_KEY, stepId)
         self.sendLoggingMessage(msg)
 
+    '''
+    Add context to the message.  This adds the userId, taskId, classroomId,
+        activityType, and duration so far. It also adds any service context items,
+        followed by the parameter context. Context within the context parameter does
+        not override any existing message context.
+        @param msg: The original message to modify by adding context data.
+        @type msg: Messaging.Message
+        @param context: Dictionary of key-value items to add to the message context. Not used if keys already exist.
+        @type context: object
+        @return: Modified message in msg
+        @rtype: Messaging.Message
+    '''
+
+    def addContext(self, msg, context):
+        msg.setContextValue(USER_ID_KEY, self._userId)
+        msg.setContextValue(TASK_ID_KEY, self._taskId)
+        msg.setContextValue(CLASSROOM_ID_KEY, self._classroomId)
+        msg.setContextValue(ACTIVITY_TYPE_KEY, self._activityType)
+        msg.setContextValue(DURATION_KEY, self.calcDuration())
+        for key in self._context:
+            if not msg.hasContextValue(key):
+                msg.setContextValue(key, self._context[key])
+        for key in context:
+            if not msg.hasContextValue(key):
+                msg.setContextValue(key, context[key])
+        return msg
+
+    '''
+    Finalize any post-processing of the message and then send it
+        @param msg: Message to send
+        @type msg: Messaging.Message
+        @param context: Dictionary of key-value items to add to the message context. Not used if keys already exist.
+        @type context: object
+    '''
+    def sendLoggingMessage(self, msg, context=None):
+        msg = self.addContext(msg, context)
+        self.sendMessage(msg)
+
     # values to fit within a [0,1] range
-    def clampToUnitValue(val):
+    def clampToUnitValue(self, val):
         if val != None:
-            return Math.min(Math.max(val, 0.0), 1.0)
+            return min(max(val, 0.0), 1.0)
         return val

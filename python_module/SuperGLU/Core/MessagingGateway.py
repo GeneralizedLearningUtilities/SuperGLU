@@ -450,7 +450,9 @@ class HTTPMessagingGateway(MessagingGateway):
 
 
 class BaseService(BaseMessagingNode):
-    pass
+    
+    def __init__(self,  anId=None, gateway=None, authenticator=None, nodes=[], blackList=[], whiteList=[] ):
+        super(BaseService, self).__init__(anId, gateway, authenticator, nodes, blackList, whiteList)
 
 class TestService(BaseService):
 
