@@ -18,7 +18,16 @@ QUERY_IF_ACT = "Query If"
 ACCEPT_PROPOSAL_ACT = "Accept Proposal"
 CALL_FOR_PROPOSAL_ACT = "Call for Proposal"
 PROPOSE_ACT = "Propose"
+CONFIRM_PROPOSAL_ACT = "Confirm Proposal"
 REJECT_PROPOSAL_ACT = "Reject Proposal"
+RESEND_MSG_WITH_ATTEMPT_COUNTS = "Resend with Attempt Counts"
+QUIT_IN_X_TIME = "Quit in x Seconds"
+RESEND_MSG_WITH_DEPRIORITZATION = "Resend with Deprioritized Service"
+PROPOSED_MESSAGE = "Proposed Message"
+PROPOSED_MESSAGE_ACKNOWLEDGMENT = "Proposed Message Acknowledgement"
+CONFIRM_PROPOSAL_ACT = "Confirm Proposal"
+ALL_TIME_ACCEPT_PROPOSAL_ACK = "Accept at all times"
+X_TIME_ACCEPT_PROPOSAL_ACK = "Accept for time X"
 
 # Action Negotiation Status
 AGREE_ACT = "Agree"
@@ -35,4 +44,7 @@ SPEECH_ACT_SET = frozenset([ACCEPT_PROPOSAL_ACT, AGREE_ACT, CANCEL_ACT, CALL_FOR
                             CONFIRM_ACT, DISCONFIRM_ACT, FAILURE_ACT, INFORM_ACT, INFORM_IF_ACT,
                             INFORM_REF_ACT,  NOT_UNDERSTOOD_ACT, PROPAGATE_ACT, PROPOSE_ACT,
                             PROXY_ACT, QUERY_IF_ACT, QUERY_REF_ACT, REFUSE_ACT, REJECT_PROPOSAL_ACT,
+                            RESEND_MSG_WITH_ATTEMPT_COUNTS, QUIT_IN_X_TIME, RESEND_MSG_WITH_DEPRIORITZATION,
+                            PROPOSED_MESSAGE, PROPOSED_MESSAGE_ACKNOWLEDGMENT, CONFIRM_PROPOSAL_ACT,
+                            ALL_TIME_ACCEPT_PROPOSAL_ACK, X_TIME_ACCEPT_PROPOSAL_ACK,
                             REQUEST_ACT, REQUEST_WHEN_ACT, REQUEST_WHENEVER_ACT, SUBSCRIBE_ACT])

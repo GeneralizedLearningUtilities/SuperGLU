@@ -178,7 +178,7 @@ class Message(BaseMessage):
     CONTEXT_IN_REPLY_TO_KEY = "in-reply-to"
     CONTEXT_REPLY_WITH_KEY = "reply-with"
     CONTEXT_REPLY_BY_KEY = "reply-by"
-
+    PROPOSAL_KEY = "proposalId"
     # Content Description Keys
     CONTEXT_LANGUAGE_KEY = 'language'
     CONTEXT_ONTOLOGY_KEY = 'ontology'
