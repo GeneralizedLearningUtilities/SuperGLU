@@ -1,8 +1,6 @@
 package edu.usc.ict.superglu.core;
 
 import java.util.List;
-import java.util.Map;
-import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import edu.usc.ict.superglu.core.blackwhitelist.BlackWhiteListEntry;
@@ -28,12 +26,4 @@ public class BaseService extends BaseMessagingNode {
 	    super(anId, conditions, null, handlers,blackList, whiteList);
 	}
 
-	
-	@Override
-	public void makeProposal(Message msg, Consumer<Message> successCallback, Map<String, Object> retryParams,
-			String policyType) {
-		super.makeProposal(msg, successCallback, retryParams, policyType);
-	}
-
-	
 }

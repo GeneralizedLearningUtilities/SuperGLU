@@ -102,7 +102,7 @@ public class MessagingGateway extends BaseMessagingNode {
     public boolean receiveMessage(BaseMessage msg) {
         String senderID = (String) msg.getContextValue(ORIGINATING_SERVICE_ID_KEY);
         if (super.receiveMessage(msg) && senderID != null) {
-        	this.distributeMessage(msg, senderID);
+            this.distributeMessage(msg, senderID);
             return true;
         }
         return false;
