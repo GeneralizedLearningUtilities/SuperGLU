@@ -1,5 +1,6 @@
 package edu.usc.ict.superglu.core;
 
+import edu.usc.ict.superglu.ontology.mappings.MessageTemplate;
 import edu.usc.ict.superglu.util.SerializationConvenience;
 import edu.usc.ict.superglu.util.StorageToken;
 
@@ -27,6 +28,8 @@ public class Message extends BaseMessage {
     public static final String RESULT_KEY = "result";
     public static final String SPEECH_ACT_KEY = "speechAct";
     public static final String TIMESTAMP_KEY = "timestamp";
+    public static final String REQUEST_TEMPLATE = "requestTemplate";
+    public static final String RESPONSE_TEMPLATE = "responseTemplate";
 
 
     //Context keys
@@ -35,6 +38,8 @@ public class Message extends BaseMessage {
     public static final String CONTEXT_IN_REPLY_TO_KEY = "in-reply-to";
     public static final String CONTEXT_REPLY_WITH_KEY = "reply-with";
     public static final String CONTEXT_REPLY_BY_KEY = "reply-by";
+	public static final String PROPOSAL_KEY = "proposalId";
+	public static final String CONTEXT_IN_REPLY_TO_MESSAGE = "reply-to-msg-id";
 
 
     public static DateFormat timestampFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
@@ -68,6 +73,16 @@ public class Message extends BaseMessage {
      * The timestamp for when this message refers to, ISO 8601 formatted
      */
     private Date timestamp;
+    
+    /**
+     * The Request Template is the template that we will be sending to the services expecting Response Template.
+     */
+    private MessageTemplate requestTemplate;
+    
+    /**
+     * The Response Template is the template that we expect the services to provide us in response to Request Template.
+     */
+    private MessageTemplate responseTemplate;
 
 
     public Message(String actor, String verb, String obj, Object result, SpeechActEnum speechAct, Date timestamp, Map<String, Object> context, String id) {
@@ -84,6 +99,42 @@ public class Message extends BaseMessage {
             this.timestamp = timestamp;
     }
 
+    /**
+     * 
+     * Overriding Constructor to incorporate Request Template and Response Template.
+     * 
+     * @param actor
+     * @param verb
+     * @param obj
+     * @param result
+     * @param speechAct
+     * @param timestamp
+     * @param context
+     * @param id
+     * @param requestTemplate
+     * @param responseTemplate
+     */
+    public Message(String actor, String verb, String obj, Object result, SpeechActEnum speechAct, Date timestamp, Map<String, Object> context, String id, MessageTemplate requestTemplate, MessageTemplate responseTemplate) {
+        super(id, context);
+        this.actor = actor;
+        this.verb = verb;
+        this.obj = obj;
+        this.result = result;
+        this.speechAct = speechAct;
+        this.context = context;
+
+        if (timestamp == null)
+            this.timestamp = new Date();
+        else
+            this.timestamp = timestamp;
+        
+        if (requestTemplate != null)
+        	this.requestTemplate = requestTemplate;
+        
+        if (responseTemplate != null)
+        	this.responseTemplate = responseTemplate;
+        
+    }
 
     public Message() {
         super();
@@ -93,6 +144,8 @@ public class Message extends BaseMessage {
         this.result = null;
         this.speechAct = SpeechActEnum.INFORM_ACT;
         this.timestamp = new Date();
+        this.requestTemplate = null;
+        this.responseTemplate = null;
     }
 
 
@@ -160,9 +213,24 @@ public class Message extends BaseMessage {
     public void updateTimestamp() {
         this.timestamp = new Date();
     }
+    
+    public MessageTemplate getRequestTemplate() {
+		return requestTemplate;
+	}
 
+	public void setRequestTemplate(MessageTemplate requestTemplate) {
+		this.requestTemplate = requestTemplate;
+	}
 
-    //Comparators
+	public MessageTemplate getResponseTemplate() {
+		return responseTemplate;
+	}
+
+	public void setResponseTemplate(MessageTemplate responseTemplate) {
+		this.responseTemplate = responseTemplate;
+	}
+
+	//Comparators
     @Override
     public boolean equals(Object otherObject) {
         if (!super.equals(otherObject))
@@ -183,6 +251,10 @@ public class Message extends BaseMessage {
         if (!fieldIsEqual(this.speechAct, other.speechAct))
             return false;
         if (!fieldIsEqual(this.timestamp, other.timestamp))
+            return false;
+        if (!fieldIsEqual(this.requestTemplate, other.requestTemplate))
+            return false;
+        if (!fieldIsEqual(this.responseTemplate, other.responseTemplate))
             return false;
 
         return true;
@@ -209,6 +281,10 @@ public class Message extends BaseMessage {
         result = result * arbitraryPrimeNumber + this.speechAct.hashCode();
         if (this.timestamp != null)
             result = result * arbitraryPrimeNumber + this.timestamp.hashCode();
+        if (this.requestTemplate != null)
+            result = result * arbitraryPrimeNumber + this.requestTemplate.hashCode();
+        if (this.responseTemplate != null)
+            result = result * arbitraryPrimeNumber + this.responseTemplate.hashCode();
 
         return result;
     }
@@ -241,7 +317,7 @@ public class Message extends BaseMessage {
         this.speechAct = SpeechActEnum.getEnum((String) token.getItem(SPEECH_ACT_KEY, true, SpeechActEnum.INFORM_ACT));
         try {
             this.timestamp = timestampFormat.parse((String) token.getItem(TIMESTAMP_KEY, true, null));
-        } catch (ParseException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             System.err.println("failed to parse timestamp of message, using current time as timestamp");
             this.timestamp = new Date();
