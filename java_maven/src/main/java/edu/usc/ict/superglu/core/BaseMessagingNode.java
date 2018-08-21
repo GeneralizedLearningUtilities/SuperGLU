@@ -47,7 +47,7 @@ public class BaseMessagingNode {
 	
 	//Added Attributes for Proposal Pattern
 	protected Map<String, Proposal> proposals;
-	protected static final long SEND_MSG_SLEEP_TIME = 1000000;// Create Default and sender service can override this
+	protected static final long SEND_MSG_SLEEP_TIME = 10;// Create Default and sender service can override this
 	protected static final String PROPOSAL_ATTEMPT_COUNT = "noOfAttemptsForProposal";
 	protected static final String FAIL_SOFT_STRATEGY= "failSoftStrategyForProposedMsg";
 	protected static final String QUIT_IN_TIME= "quitInTime";
