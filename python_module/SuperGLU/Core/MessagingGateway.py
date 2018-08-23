@@ -20,8 +20,8 @@ from SuperGLU.Util.Serialization import (SuperGlu_Serializable, serializeObject,
                             nativizeObject)
 import stomp
 from pip._vendor.retrying import Attempt
-from numpy.compat.py3k import long 
-from multimethod import overload
+#from numpy.compat.py3k import long 
+#from multimethod import overload
 
 
 CATCH_BAD_MESSAGES = False
@@ -208,7 +208,7 @@ class BaseMessagingNode(SuperGlu_Serializable):
         print("%s sending %s"%(self.__class__.__name__, msg))
         if self._gateway is not None:
             print("Actually sent it.")
-            #self._gateway.dispatchMessage(msg, self.getId())
+            self._gateway.dispatchMessage(msg, self.getId())
         
            
         self.distributeMessage(msg, msg.getContextValue(ORIGINATING_SERVICE_ID_KEY))
