@@ -8,7 +8,7 @@ from SuperGLU.Services.LoggingService.Constants import XAPI_LOG_VERB
 import requests
 import uuid
 import json
-import statement
+#import statement
 
 
 class LearnLockerConnection(BaseService):
