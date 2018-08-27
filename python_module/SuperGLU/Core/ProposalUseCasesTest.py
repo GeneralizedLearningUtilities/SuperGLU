@@ -195,10 +195,9 @@ class Test(unittest.TestCase):
         
         configuration = ServiceConfiguration('mockConfiguration', None, {}, None, None, None)
         gateway = MessagingGateway.MessagingGateway('Messaging Gateway Node', nodes, None, None, None, configuration)
+        gateway.addNodes([hintPresenter, hintService1])
         hintPresenter._gateway = gateway
         hintService1._gateway = gateway
-        hintService1.addNodes([hintPresenter])
-        hintPresenter.addNodes([hintService1])
             
         msg = Message(actor='penguin', verb='eat', obj='fish', result='Result', speechAct=str(SpeechActs.PROPOSE_ACT), context={}, timestamp=None, anId='msg1')
         msg.setContextValue(MessagingGateway.ORIGINATING_SERVICE_ID_KEY, hintPresenter.getId())
