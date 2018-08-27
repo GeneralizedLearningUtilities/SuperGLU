@@ -20,8 +20,6 @@ from SuperGLU.Util.Serialization import (SuperGlu_Serializable, serializeObject,
                             nativizeObject)
 import stomp
 from pip._vendor.retrying import Attempt
-#from numpy.compat.py3k import long 
-#from multimethod import overload
 
 
 CATCH_BAD_MESSAGES = False
@@ -378,7 +376,7 @@ class BaseMessagingNode(SuperGlu_Serializable):
     
     # Fail Soft Strategy 2 - Send Proposed Message With Quit in X Time.
     def sendProposedMsgWithQuitXTime (self, proposal) :
-        duration = long(str(proposal.getRetryParams().get(QUIT_IN_TIME)))            
+        duration = str(proposal.getRetryParams().get(QUIT_IN_TIME))            
         for key, value in proposal.getProposedMessages() :
             if time.time() - value.getLastTimeSent() < duration :
                 value.setNumberOfRetries(value.getNumberOfRetries() + 1)
@@ -415,7 +413,7 @@ class BaseMessagingNode(SuperGlu_Serializable):
                 if failSoftStrategy == RESEND_MSG_WITH_ATTEMPT_COUNTS :
                     makePropsalPckt.getRetryParams()[PROPOSED_MSG_ATTEMPT_COUNT] = int(retryParams[PROPOSED_MSG_ATTEMPT_COUNT])
                 elif failSoftStrategy == QUIT_IN_X_TIME :
-                    makePropsalPckt.getRetryParams()[QUIT_IN_TIME]  = long(retryParams[QUIT_IN_TIME])
+                    makePropsalPckt.getRetryParams()[QUIT_IN_TIME]  = retryParams[QUIT_IN_TIME]
                 self.proposals[proposalId] = makePropsalPckt
                 
                 
