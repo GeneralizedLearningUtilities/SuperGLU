@@ -246,19 +246,24 @@ class xAPILearnLogger(BaseService):
         statement = Statement(actor=actor, verb=self.create_completed_verb(), object=activity, result=result, context=context, timestamp=timestamp)
         self.sendLoggingMessage(statement)
 
-    # work in progress. currently requires custom_score_URI and custom_score but not all applications will have this.
+    # work in progress.
     # If a raw_score is provided then a max_score must be provided too.
     # Might want to provide more detailed information relating to the knowledge components involved in the step.
-    def sendCompletedStep(self, choice, custom_score_URI, custom_score, contextDict, raw_score=-1, max_score=-1, min_score=0, timestamp=None):
+    def sendCompletedStep(self, choice, contextDict, resultExtDict=None, raw_score=-1, max_score=-1, min_score=0, timestamp=None):
         actor = self.createAgent()
+
+        if resultExtDict==None:
+            myExtensions = None
+        else:
+            myExtensions = Extensions(resultExtDict)
 
         if (raw_score != -1):
             result = Result(response=choice,
                             score = Score(raw=raw_score, min=min_score, max=max_score),
-                            extensions = Extensions({ custom_score_URI : custom_score}) )
+                            extensions =  myExtensions)
         else:
             result = Result(response=choice,
-                            extensions = Extensions({ custom_score_URI : custom_score}) )
+                            extensions = myExtensions)
 
         #Implementing Activity Tree into context
         activity = self._Activity_Tree.findCurrentActivity()
