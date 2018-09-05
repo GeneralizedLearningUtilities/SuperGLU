@@ -62,10 +62,9 @@ class HintPresenter(MessagingGateway.BaseMessagingNode):
                     print('Got Connection Established. Preparing Proposed Message.')
                     #Proposal Request has been successfully processed. Below code, sends the Proposed Message.
                     msg4 = Message('penguin', 'eats', 'fish', 'Proposed Message', SpeechActs.PROPOSED_MESSAGE, {}, None , 'msg3')
-                    
-                    if (msg4.getId() not in self.proposedMsgAudit) or (msg4.getId() in self.proposedMsgAudit and self.proposedMsgAudit[msg4.getId()] == False) :
+                    if (msg4.getId() not in self.proposedMsgAudit) or (msg4.getId() in self.proposedMsgAudit and (self.proposedMsgAudit[msg4.getId()][0] == False and (int(round(time.time() * 1000))- int(self.proposedMsgAudit[msg4.getId()][1])) < 3)) :
                         proposal = MessagingGateway.Proposals(self.proposals[proposalIdOfMessage])
-                        self.proposedMsgAudit[msg4.getId()]  = False
+                        self.proposedMsgAudit[msg4.getId()]  = [False, int(round(time.time() * 1000))]
                         msg4.setSpeechAct(SpeechActs.PROPOSED_MESSAGE)
                         msg4.setContextValue(MessagingGateway.ORIGINATING_SERVICE_ID_KEY, self.getId())
                         msg4.setContextValue(Message.CONTEXT_IN_REPLY_TO_KEY, self.acceptedProposalConversationId)
@@ -95,8 +94,8 @@ class HintPresenter(MessagingGateway.BaseMessagingNode):
                 if len(proposedMessages) > 0 :
                     self.proposals[msg.getContextValue(Message.PROPOSAL_KEY)].getProposedMessage().pop(msg.getContextValue('proposedMessageId')) 
                     self.proposals[msg.getContextValue(Message.PROPOSAL_KEY)].setProposalProcessed(True)
-                    print('Proposed Message Removed.' + str(len(self.proposals[msg.getContextValue(Message.PROPOSAL_KEY)].getProposedMessage())))
-                    self.proposedMsgAudit[str(msg.getContextValue("proposedMessageId"))] = True
+                    print('Proposed Message Removed.')
+                    self.proposedMsgAudit[str(msg.getContextValue("proposedMessageId"))][0] = True
                 
             
             print("============================================================================")
@@ -175,27 +174,105 @@ class HintService(MessagingGateway.BaseMessagingNode) :
                     
 
 
-class Test(unittest.TestCase): 
+class ProposalUseCasesTest(unittest.TestCase): 
     
-    def test__init__(self):
+    def ProposalUseCasesTest__init__(self):
         self.testMessages = []
         self.hintPresenter = None
         self.hintService1 = None
+        self.hintService2 = None
         self.gateway = None
         
-    def testName(self):
+        
+    '''    
+        Happy Path
+    '''
+    def testScenarioOne(self):
         nodes = []
-        hintService1 = HintService('HintService')
+        hintService1 = HintService('HintService1')
+        hintService2 =  HintService('HintService2')
         hintPresenter = HintPresenter('HintPresenter')
         nodes.append(hintService1)
         nodes.append(hintPresenter)
         hintService1.respondToProposal = True
         hintService1.respondToProposedMessage = True;
+        hintService2.respondToProposal = True
+        hintService2.respondToProposedMessage = True;
         
         
         configuration = ServiceConfiguration('mockConfiguration', None, {}, None, None, None)
         gateway = MessagingGateway.MessagingGateway('Messaging Gateway Node', nodes, None, None, None, configuration)
-        gateway.addNodes([hintPresenter, hintService1])
+        gateway.addNodes([hintPresenter, hintService1, hintService2])
+        hintPresenter._gateway = gateway
+        hintService1._gateway = gateway
+            
+        msg = Message(actor='penguin', verb='eat', obj='fish', result='Result', speechAct=str(SpeechActs.PROPOSE_ACT), context={}, timestamp=None, anId='msg1')
+        msg.setContextValue(MessagingGateway.ORIGINATING_SERVICE_ID_KEY, hintPresenter.getId())
+        msg.setContextValue(Message.CONTEXT_CONVERSATION_ID_KEY, "conversation_id_5")
+        retryParams = {}
+        retryParams["msgType"] = "PROPOSAL"
+        retryParams["noOfAttemptsForProposal"] = "3"
+        retryParams["noOfAttemptsForProposedMsg"] = "3"
+        retryParams["acceptFor"] = "4000"
+        retryParams["failSoftStrategyForProposedMsg"] = SpeechActs.RESEND_MSG_WITH_ATTEMPT_COUNTS
+        hintPresenter.makeProposal(msg=msg, retryParams=retryParams, policyType=SpeechActs.ALL_TIME_ACCEPT_PROPOSAL_ACK)
+        pass
+    
+    '''
+     * Proposal with Attempt Count
+     * @throws Exception
+    '''
+    def testScenarioTwo(self):
+        nodes = []
+        hintService1 = HintService('HintService1')
+        hintService2 =  HintService('HintService2')
+        hintPresenter = HintPresenter('HintPresenter')
+        nodes.append(hintService1)
+        nodes.append(hintPresenter)
+        hintService1.respondToProposal = False
+        hintService1.respondToProposedMessage = False;
+        hintService2.respondToProposal = False
+        hintService2.respondToProposedMessage = False;
+        
+        
+        configuration = ServiceConfiguration('mockConfiguration', None, {}, None, None, None)
+        gateway = MessagingGateway.MessagingGateway('Messaging Gateway Node', nodes, None, None, None, configuration)
+        gateway.addNodes([hintPresenter, hintService1, hintService2])
+        hintPresenter._gateway = gateway
+        hintService1._gateway = gateway
+            
+        msg = Message(actor='penguin', verb='eat', obj='fish', result='Result', speechAct=str(SpeechActs.PROPOSE_ACT), context={}, timestamp=None, anId='msg1')
+        msg.setContextValue(MessagingGateway.ORIGINATING_SERVICE_ID_KEY, hintPresenter.getId())
+        msg.setContextValue(Message.CONTEXT_CONVERSATION_ID_KEY, "conversation_id_5")
+        retryParams = {}
+        retryParams["msgType"] = "PROPOSAL"
+        retryParams["noOfAttemptsForProposal"] = "3"
+        retryParams["noOfAttemptsForProposedMsg"] = "3"
+        retryParams["acceptFor"] = "4000"
+        retryParams["failSoftStrategyForProposedMsg"] = SpeechActs.RESEND_MSG_WITH_ATTEMPT_COUNTS
+        hintPresenter.makeProposal(msg=msg, retryParams=retryParams, policyType=SpeechActs.ALL_TIME_ACCEPT_PROPOSAL_ACK)
+        pass
+    
+    '''
+        Proposal Accepted but Failed Proposed Message.
+        Fail Soft Strategy: Proposed Message with Attempt Count. 
+    '''
+    def testScenarioThree(self):
+        nodes = []
+        hintService1 = HintService('HintService1')
+        hintService2 =  HintService('HintService2')
+        hintPresenter = HintPresenter('HintPresenter')
+        nodes.append(hintService1)
+        nodes.append(hintPresenter)
+        hintService1.respondToProposal = True
+        hintService1.respondToProposedMessage = False;
+        hintService2.respondToProposal = True
+        hintService2.respondToProposedMessage = False;
+        
+        
+        configuration = ServiceConfiguration('mockConfiguration', None, {}, None, None, None)
+        gateway = MessagingGateway.MessagingGateway('Messaging Gateway Node', nodes, None, None, None, configuration)
+        gateway.addNodes([hintPresenter, hintService1, hintService2])
         hintPresenter._gateway = gateway
         hintService1._gateway = gateway
             
@@ -211,3 +288,40 @@ class Test(unittest.TestCase):
         hintPresenter.makeProposal(msg=msg, retryParams=retryParams, policyType=SpeechActs.ALL_TIME_ACCEPT_PROPOSAL_ACK)
         pass
 
+     
+    '''
+        Proposal Accepted but Failed Proposed Message.
+        Fail Soft Strategy: Quit In X Time. 
+    '''
+    def testScenarioFour(self):
+        nodes = []
+        hintService1 = HintService('HintService1')
+        hintService2 =  HintService('HintService2')
+        hintPresenter = HintPresenter('HintPresenter')
+        nodes.append(hintService1)
+        nodes.append(hintPresenter)
+        hintService1.respondToProposal = True
+        hintService1.respondToProposedMessage = False;
+        hintService2.respondToProposal = True
+        hintService2.respondToProposedMessage = False;
+        
+        
+        configuration = ServiceConfiguration('mockConfiguration', None, {}, None, None, None)
+        gateway = MessagingGateway.MessagingGateway('Messaging Gateway Node', nodes, None, None, None, configuration)
+        gateway.addNodes([hintPresenter, hintService1, hintService2])
+        hintPresenter._gateway = gateway
+        hintService1._gateway = gateway
+            
+        msg = Message(actor='penguin', verb='eat', obj='fish', result='Result', speechAct=str(SpeechActs.PROPOSE_ACT), context={}, timestamp=None, anId='msg1')
+        msg.setContextValue(MessagingGateway.ORIGINATING_SERVICE_ID_KEY, hintPresenter.getId())
+        msg.setContextValue(Message.CONTEXT_CONVERSATION_ID_KEY, "conversation_id_5")
+        retryParams = {}
+        retryParams["msgType"] = "PROPOSAL"
+        retryParams["noOfAttemptsForProposal"] = "3"
+        retryParams["noOfAttemptsForProposedMsg"] = "3"
+        retryParams["acceptFor"] = "4000"
+        retryParams["failSoftStrategyForProposedMsg"] = SpeechActs.RESEND_MSG_WITH_ATTEMPT_COUNTS
+        hintPresenter.makeProposal(msg=msg, retryParams=retryParams, policyType=SpeechActs.ALL_TIME_ACCEPT_PROPOSAL_ACK)
+        pass
+
+    
