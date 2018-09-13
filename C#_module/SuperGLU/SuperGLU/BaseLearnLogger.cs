@@ -7,7 +7,7 @@ using TinCan;
 
 namespace SuperGLU
 {
-    class BaseLearnLogger
+    public class BaseLearnLogger
     { 
         // construct properties
         protected string userId { get; set; }
