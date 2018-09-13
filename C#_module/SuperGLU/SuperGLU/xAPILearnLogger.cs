@@ -93,6 +93,18 @@ namespace SuperGLU
             return verb;
         }
 
+
+        private Verb CreateWatchedVerb()
+        {
+            Verb verb = new Verb();
+            verb.id = new Uri("http://activitystrea.ms/schema/1.0/watch");
+            verb.display = new LanguageMap();
+            verb.display.Add("en-US", "watched");
+
+            return verb;
+
+        }
+
         // create activity
         private Activity CreateSession(string activityId, string name, string description)
         {
@@ -529,10 +541,10 @@ namespace SuperGLU
         }
 
 
-        public void SendPresentedVideo(JObject contextJson, DateTime? timestamp = null)
+        public void SendWatchedVideo(JObject contextJson, DateTime? timestamp = null)
         {
             Agent actor = CreateActor(this.userName, this.userId, this.mbox);
-            Verb verb = CreatePresentedVerb();
+            Verb verb = CreateWatchedVerb();
             Activity activity = CreateVideo(); 
             Result result = CreateResult();
             Context context = CreateContext(contextJson);
