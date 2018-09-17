@@ -6,14 +6,15 @@ using System.Threading.Tasks;
 
 namespace SuperGLU
 {
-    class StorageToken
+    public class StorageToken
     {
         private static String ID_KEY = "id";
         private static String CLASS_ID_KEY = "classId";
 
         private static HashSet<String> reservedKeys = new HashSet<String>();
 
-        private Dictionary<String, Object> data;
+        private Dictionary<String, Object> data
+        { get; set; }
 
         static StorageToken()
         {
