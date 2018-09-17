@@ -74,7 +74,7 @@ class xAPILearnLoggerTester
         {
             if (data["event"] == "CompletedDialogue")
             {
-                logger.SendPresentedVideo(new JObject { });
+                logger.SendWatchedVideo(new JObject { });
             }
             logger.SendCompletedSublesson(new JObject { });
         }

@@ -50,6 +50,8 @@
   <ItemGroup>
     <Compile Include="BaseLearnLogger.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="StorageToken.cs" />
+    <Compile Include="TokenRWFormat.cs" />
     <Compile Include="xAPILearnLogger.cs" />
   </ItemGroup>
   <ItemGroup>
