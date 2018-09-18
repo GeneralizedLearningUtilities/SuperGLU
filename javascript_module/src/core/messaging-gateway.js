@@ -648,16 +648,13 @@ var BaseMessagingNode = Zet.declare({
         self.sendNewProposedMessage = function sendNewProposedMessage(msg, proposalId) {
             console.log('Starting to Send Proposed Message')
             self.sendMessage(msg)
-            
-            var retryProposedMessage = setTimeout(function(){
-            	if(msg.getId() in self.proposals[proposalId].getProposedMessages()) {
+            if(msg.getId() in self.proposals[proposalId].getProposedMessages()) {
                 	console.log("Seems Proposed Message Hasn't been Processed");
+                	self.proposals[proposalId].setAcknowledgementReceived(false);
                     self.retryProposal(proposalId)
                 } else {
                 	console.log("Proposed Message Sent Successfully")
                 }
-            }, 3000);
-            
         }
         
         // Fail Soft Strategy 1 - Send Proposed Message With Attempt Count.
@@ -681,7 +678,7 @@ var BaseMessagingNode = Zet.declare({
         // to sendProposedMessage(BaseMessage msg, String proposalId).
         self.sendProposedMessage = function sendProposedMessage(proposalId) {
              var proposal = self.proposals[proposalId]
-            if(proposal.getProposalProcessed() == false) {
+             if(proposal.getProposalProcessed() == false) {
                 var failSoftStrategy = proposal.getRetryParams()[FAIL_SOFT_STRATEGY] != null ? proposal.getRetryParams()[FAIL_SOFT_STRATEGY] : null
                 if(failSoftStrategy != null) {
                     if(failSoftStrategy == 'RESEND_MSG_WITH_ATTEMPT_COUNTS') {
@@ -706,7 +703,7 @@ var BaseMessagingNode = Zet.declare({
         
         //Fail Soft Strategy 2 - Send Proposed Message With Quit in X Time.
         self.sendProposedMsgWithQuitXTimedef = function sendProposedMsgWithQuitXTimedef(proposal) {
-            duration = proposal.getRetryParams().get['QUIT_IN_TIME']            
+            duration = proposal.getRetryParams().get(QUIT_IN_TIME)            
             for(const [key, value] in proposal.getProposedMessages()){
                 if(time.time() - value.getLastTimeSent() < duration ){
                     value.setNumberOfRetries(value.getNumberOfRetries() + 1)
