@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperGLU", "SuperGLU\SuperG
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XAPITest", "XAPITest\XAPITest.csproj", "{747E5D65-0B3F-422F-9867-44CCB8677B31}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperGLUTests", "SuperGLUTests\SuperGLUTests.csproj", "{F7B2F020-7F08-425A-8A5B-0115FCB6F669}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{747E5D65-0B3F-422F-9867-44CCB8677B31}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{747E5D65-0B3F-422F-9867-44CCB8677B31}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{747E5D65-0B3F-422F-9867-44CCB8677B31}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F7B2F020-7F08-425A-8A5B-0115FCB6F669}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F7B2F020-7F08-425A-8A5B-0115FCB6F669}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F7B2F020-7F08-425A-8A5B-0115FCB6F669}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F7B2F020-7F08-425A-8A5B-0115FCB6F669}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
