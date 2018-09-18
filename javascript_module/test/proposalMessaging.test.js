@@ -79,7 +79,7 @@ var HintPresenter = Zet.declare({
 		                	proposedMessage = new MESSAGING_GATEWAY.ProposedMessage(msg4.getId(), msg4, 0);
 		                	proposedMessage.setLastTimeSent(new Date().getTime());
 		                }else {
-		                	proposedMessage = proposal.getProposedMessages()[0];
+		                	proposedMessage = proposal.getProposedMessages()[msg4.getId()];
 		                }
 		                self.proposals[proposalIdOfMessage].getProposedMessages()[msg4.getId()] = proposedMessage;
 		                self.sendProposedMessage(proposalIdOfMessage);
@@ -187,9 +187,7 @@ var HintService = Zet.declare({
 	                    if(self.proposalsConfirmedToServ[hintPresenter] == undefined) {
 	                    	self.proposalsConfirmedToServ[hintPresenter] = new Set([proposalId]);
 	                    } else {
-	                    	self.proposalsAccepted = proposalsConfirmedToServ[hintPresenter];
-	                    	self.proposalsAccepted.push(proposalId);
-	                    	self.proposalsConfirmedToServ[hintPresenter] = self.proposalsAccepted;
+	                    	self.proposalsConfirmedToServ[hintPresenter].add(proposalId);
 	                    }
 	                } else {
 	                	console.log('This Confirmation Proposal Message is not for me.');
@@ -255,6 +253,7 @@ var HintService = Zet.declare({
         }
     }
 })
+
 
 test('Happy Path! Client Sends Proposal to Service 1 & 2 and Proposed Message to Service 1.', () => {
 	
@@ -330,13 +329,13 @@ test('Client Sends Proposal to Service 1 & 2. Both Services Reject. Client Tries
 test('Client Sends Proposal to Service 1 & 2. Services Accept, But create Issue during sending Proposed Messages. Client Tries 3 times sending Proposal and ProposedMessage.', () => {
 	
 	var hintService1 = new HintService();
-	var hintService2 = new HintService();
 	var hintPresenter = new HintPresenter();
+	var hintService2 = new HintService();
 	hintService1.respondToProposal = true;
 	hintService1.respondToProposedMessage = false;
+
 	hintService2.respondToProposal = true;
 	hintService2.respondToProposedMessage = false;
-	
 	
 	msg = MESSAGE('Penguin', 'eats', 'fish', 'Fish Eaten', 'PROPOSE', {}, null, 'message1')
 	
@@ -351,8 +350,8 @@ test('Client Sends Proposal to Service 1 & 2. Services Accept, But create Issue 
     
     var nodes = [];
 	nodes.push(hintService1);
+	nodes.push(hintService2);
     nodes.push(hintPresenter);
-    nodes.push(hintService2);
     var gateway = new MESSAGING_GATEWAY.MessagingGateway("GatewayNode", nodes, null);
     hintPresenter.addNodes(gateway);
     hintService1.addNodes(gateway);
