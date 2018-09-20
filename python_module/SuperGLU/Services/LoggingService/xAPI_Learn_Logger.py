@@ -126,7 +126,6 @@ class xAPILearnLogger(BaseService):
     def sendStartSession(self, activityID, name, description, contextDict, timestamp = None):
         activity = self.createSession(activityID,name,description)
         actor = self.createAgent()
-        result = Result(response = 'User started a new Session',)
         
         #Implementing Activity Tree into context
         self._Activity_Tree.EnterActivity(activity = activity, label = None)
@@ -134,26 +133,24 @@ class xAPILearnLogger(BaseService):
         context = self.addContext(contextDict)
         if timestamp is None:
             timestamp = self.getTimestamp()
-        statement = Statement(actor=actor, verb=self.create_started_verb(), object=activity, result=result, context=context, timestamp=timestamp)
+        statement = Statement(actor=actor, verb=self.create_started_verb(), object=activity, result=None, context=context, timestamp=timestamp)
         self.sendLoggingMessage(statement)
 
     def sendStartLesson(self, activityID, name, description, contextDict, timestamp=None):
         activity = self.createLesson(activityID,name,description)
         actor = self.createAgent()
-        result = Result(success = True,)
         
         self._Activity_Tree.EnterActivity(label = None, activity = activity)
               
         context = self.addContext(contextDict)
         if timestamp is None:
             timestamp = self.getTimestamp()
-        statement = Statement(actor=actor, verb=self.create_started_verb(), object=activity, result=result, context=context, timestamp=timestamp)
+        statement = Statement(actor=actor, verb=self.create_started_verb(), object=activity, result=None, context=context, timestamp=timestamp)
         self.sendLoggingMessage(statement)
 
     def sendStartSublesson(self, activityID, name, description, contextDict, timestamp=None):
         activity = self.createSublesson(activityID,name,description)
         actor = self.createAgent()
-        result = Result(success = True,)
 
         #Implementing Activity Tree into context
         self._Activity_Tree.EnterActivity(label = None, activity = activity)
@@ -161,89 +158,87 @@ class xAPILearnLogger(BaseService):
         context = self.addContext(contextDict)
         if timestamp is None:
             timestamp = self.getTimestamp()
-        statement = Statement(actor=actor, verb=self.create_started_verb(), object=activity, result=result, context=context, timestamp=timestamp)
+        statement = Statement(actor=actor, verb=self.create_started_verb(), object=activity, result=None, context=context, timestamp=timestamp)
         self.sendLoggingMessage(statement)
 
     def sendStartTask(self, activityID, name, description, contextDict, timestamp=None):
         activity = self.createTask(activityID,name,description)
         actor = self.createAgent()
-        result = Result(success = True,)
 
         self._Activity_Tree.EnterActivity(label = None, activity = activity)
               
         context = self.addContext(contextDict)
         if timestamp is None:
             timestamp = self.getTimestamp()
-        statement = Statement(actor=actor, verb=self.create_started_verb(), object=activity, result=result, context=context, timestamp=timestamp)
+        statement = Statement(actor=actor, verb=self.create_started_verb(), object=activity, result=None, context=context, timestamp=timestamp)
         self.sendLoggingMessage(statement)
 
     def sendStartStep(self, activityID, name, description, contextDict, timestamp=None):
         activity = self.createStep(activityID,name,description)
         actor = self.createAgent()
-        result = Result(success = True,)
 
         self._Activity_Tree.EnterActivity(label = None, activity = activity)
               
         context = self.addContext(contextDict)
         if timestamp is None:
             timestamp = self.getTimestamp()
-        statement = Statement(actor=actor, verb=self.create_started_verb(), object=activity, result=result, context=context, timestamp=timestamp)
+        statement = Statement(actor=actor, verb=self.create_started_verb(), object=activity, result=None, context=context, timestamp=timestamp)
         self.sendLoggingMessage(statement)
 
 
     def sendTerminatedSession(self, contextDict, timestamp=None):
         actor = self.createAgent()
-        result = Result(response = '',)
         
         #Implementing Activity Tree into context
         activity = self._Activity_Tree.findCurrentActivity()
-        self._Activity_Tree.ExitActivity()
-              
         context = self.addContext(contextDict)
+
+        self._Activity_Tree.ExitActivity()
+          
         if timestamp is None:
             timestamp = self.getTimestamp()
-        statement = Statement(actor=actor, verb=self.create_terminated_verb(), object=activity, result=result, context=context, timestamp=timestamp)
+        statement = Statement(actor=actor, verb=self.create_terminated_verb(), object=activity, result=None, context=context, timestamp=timestamp)
         self.sendLoggingMessage(statement)
 
     def sendCompletedLesson(self, contextDict, timestamp=None):
         actor = self.createAgent()
-        result = Result(response = '',)
 
         #Implementing Activity Tree into context
         activity = self._Activity_Tree.findCurrentActivity()
+        context = self.addContext(contextDict)
+
         self._Activity_Tree.ExitActivity()
               
-        context = self.addContext(contextDict)
         if timestamp is None:
             timestamp = self.getTimestamp()
-        statement = Statement(actor=actor, verb=self.create_completed_verb(), object=activity, result=result, context=context, timestamp=timestamp)
+        statement = Statement(actor=actor, verb=self.create_completed_verb(), object=activity, result=None, context=context, timestamp=timestamp)
         self.sendLoggingMessage(statement)
 
     def sendCompletedSublesson(self, contextDict, timestamp=None):
         actor = self.createAgent()
-        result = Result(response = '',)
 
         activity = self._Activity_Tree.findCurrentActivity()
-        self._Activity_Tree.ExitActivity()
-              
         context = self.addContext(contextDict)
+
+        self._Activity_Tree.ExitActivity()
+           
         if timestamp is None:
             timestamp = self.getTimestamp()
-        statement = Statement(actor=actor, verb=self.create_completed_verb(), object=activity, result=result, context=context, timestamp=timestamp)
+        statement = Statement(actor=actor, verb=self.create_completed_verb(), object=activity, result=None, context=context, timestamp=timestamp)
         self.sendLoggingMessage(statement)
 
     def sendCompletedTask(self, contextDict, timestamp=None):
         actor = self.createAgent()
-        result = Result(response = '',)
 
         #Implementing Activity Tree into context
         activity = self._Activity_Tree.findCurrentActivity()
+        context = self.addContext(contextDict)
+
         self._Activity_Tree.ExitActivity()
               
-        context = self.addContext(contextDict)
         if timestamp is None:
             timestamp = self.getTimestamp()
-        statement = Statement(actor=actor, verb=self.create_completed_verb(), object=activity, result=result, context=context, timestamp=timestamp)
+        statement = Statement(actor=actor, verb=self.create_completed_verb(), object=activity, result=None, context=context, timestamp=timestamp)
         self.sendLoggingMessage(statement)
 
     # work in progress.
@@ -267,9 +262,10 @@ class xAPILearnLogger(BaseService):
 
         #Implementing Activity Tree into context
         activity = self._Activity_Tree.findCurrentActivity()
+        context = self.addContext(contextDict)
+
         self._Activity_Tree.ExitActivity()
               
-        context = self.addContext(contextDict)
         if timestamp is None:
             timestamp = self.getTimestamp()
         statement = Statement(actor=actor, verb=self.create_completed_verb(), object=activity, result=result, context=context, timestamp=timestamp)
@@ -281,22 +277,27 @@ class xAPILearnLogger(BaseService):
         actor = self.createAgent()
 
         activity = self.createVideo()
-        result = Result(response = '',)
+
+        self._Activity_Tree.EnterActivity(label = None, activity=activity)
 
         # This is an atomic action: no start and end points. Just a start point.
         # Of course in reality, the video will have a length. We just don't have that information.
+        # So we enter the activity, calculate the context, and then exit.
 
         context = self.addContext(contextDict)
+
+        self._Activity_Tree.ExitActivity()
+
         if timestamp is None:
             timestamp = self.getTimestamp()
-        statement = Statement(actor=actor, verb=self.create_watched_verb(), object=activity, result=result, context=context, timestamp=timestamp)
+        statement = Statement(actor=actor, verb=self.create_watched_verb(), object=activity, result=None, context=context, timestamp=timestamp)
         self.sendLoggingMessage(statement)      
 
     '''
     Add context to the message.  
 
     In addition to context extensions in tempExtensions,
-    add serialized activity tree.
+    add serialized activity tree and potentially parent and grouping.
 
     @param tempExtensions: Dictionary of key-value items to add to the message context.
     @return: context object

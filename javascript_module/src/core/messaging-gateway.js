@@ -30,7 +30,6 @@
  - Serializable.js
  - Messaging.js
  **/
-
 const Zet = require('../util/zet'),
     Serialization = require('../util/serialization'),
     Messaging = require('./messaging'),
@@ -40,8 +39,308 @@ const Zet = require('../util/zet'),
 
 var namespace = {}
 var CATCH_BAD_MESSAGES = false,
-    SESSION_ID_KEY = 'sessionId'
+    SESSION_ID_KEY = 'sessionId',
+    SEND_MSG_SLEEP_TIME = 5000,
+    PROPOSAL_ATTEMPT_COUNT = 'noOfAttemptsForProposal',
+    FAIL_SOFT_STRATEGY= 'failSoftStrategyForProposedMsg',
+    QUIT_IN_TIME= 'quitInTime',
+	PROPOSED_MSG_ATTEMPT_COUNT = 'noOfAttemptsForProposedMsg'  	
+    	
+var Proposal = Zet.declare('Proposal', {
+	CLASS_ID: 'Proposal',
+    defineBody: function (self) {
+	    // Private Properties
+	    // Public Properties
+	    /**
+		* Create a Proposal
+		* @param proposedMessage: The Main Proposed Message.
+		* @param numberOfRetries: Number of Tries to be attempted to send the Proposed Message.
+		* @param lastTimeSent: Time in Milliseconds when the Proposed Message was Last Attempted to Send.
+		*/
+	    self.construct = function construct(id, proposal, proposalProcessed, acknowledgementReceived, 
+                retryParams, policyType, failSoftStrategyForProposedMsg,
+                proposedMessages, proposedTime) {
+	    	if (typeof id === "undefined") {
+	    		id = UUID.genV4().toString()
+	    	}
+	    	if (typeof proposal === "undefined") {
+	    		proposal = null
+	    	}
+	    	if (typeof proposalProcessed === "undefined") {
+	    		proposalProcessed = false
+	    	}
+	    	if (typeof acknowledgementReceived === "undefined") {
+	    		acknowledgementReceived = false
+	    	}
+	    	if (typeof retryParams === "undefined") {
+	    		retryParams = {}
+	    	}
+	    	if (typeof policyType === "undefined") {
+	    		policyType = ALL_TIME_ACCEPT_PROPOSAL_ACK
+	    	}
+	    	if (typeof failSoftStrategyForProposedMsg === "undefined") {
+	    		failSoftStrategyForProposedMsg = 'noOfAttempts'
+	    	}
+	    	if (typeof proposedMessages === "undefined") {
+	    		proposedMessages = {}
+	    	}
+	    	if (typeof proposedTime === "undefined") {
+	    		proposedTime = new Date().getTime();
+	    	}
+	    	
+	    	self._id = id
+	    	self._proposal = proposal
+	    	self._proposalProcessed = proposalProcessed
+	    	self._acknowledgementReceived = acknowledgementReceived
+	    	self._retryParams = retryParams
+	    	self._policyType = policyType
+	    	self._failSoftStrategyForProposedMsg = failSoftStrategyForProposedMsg
+	    	self._proposedMessages = proposedMessages
+	    	self._proposedTime = proposedTime
+	    }
+	    			
+		/** Get the Proposal ID * */
+	    self.getId = function getId() {
+    		return self._id
+    	}
+	    
+	    /** Set the Proposal ID * */
+	    self.getId = function getId() {
+    		return self._id
+    	}
+	    
+    	/** Set the Proposal Request  * */
+    	self.setProposal = function setProposal(proposal) {
+    		self._proposal = proposal
+    	}
 
+    	/** Get the Proposal Request  * */
+    	self.getProposal = function getProposal() {
+    		return self._proposal
+    	}
+    	
+    	/** Get the whether the Proposal is Processed or not * */
+    	self.getProposalProcessed = function getProposalProcessed() {
+    		return self._proposalProcessed
+    	}
+    	
+    	/** Set the whether the Proposal is Processed or not * */
+    	self.setProposalProcessed = function setProposalProcessed(proposalProcessed) {
+    		self._proposalProcessed = proposalProcessed
+    	}
+
+    	/** Get the Whether Acknowledgement for Proposal Request is received or not. * */
+    	self.getAcknowledgementReceived = function getAcknowledgementReceived() {
+    		return self._acknowledgementReceived
+    	}
+    	
+    	/** Set the Whether Acknowledgement for Proposal Request is received or not. * */
+    	self.setAcknowledgementReceived = function setAcknowledgementReceived(acknowledgementReceived) {
+    		self._acknowledgementReceived = acknowledgementReceived
+    	}
+    	
+    	/** Get the Retry Parameters for the Proposal  * */
+    	self.getRetryParams = function getRetryParams() {
+    		return self._retryParams
+    	}
+    	
+    	/** Set the Retry Parameters for the Proposal  * */
+    	self.setRetryParams  = function setRetryParams(retryParams) {
+    		self._retryParams = retryParams
+    	}
+
+    	/** Get the Policy Type for the Proposal Request  * */
+    	self.getPolicyType = function getPolicyType() {
+    		return self._policyType
+    	}
+    	
+    	/** Set the Policy Type for the Proposal Request  * */
+    	self.setPolicyType = function setPolicyType(policyType) {
+    		self._policyType = policyType
+    	}
+    	
+    	/** Get the FailSoftStrategyForProposedMsg for the Proposal Request * */
+    	self.getFailSoftStrategyForProposedMsg = function getFailSoftStrategyForProposedMsg() {
+    		return self._failSoftStrategyForProposedMsg
+    	}
+    	
+    	/** Set the FailSoftStrategyForProposedMsg for the Proposal Request * */
+    	self.setFailSoftStrategyForProposedMsg = function setFailSoftStrategyForProposedMsg(failSoftStrategyForProposedMsg) {
+    		self._failSoftStrategyForProposedMsg = failSoftStrategyForProposedMsg 
+    	}
+    	
+    	/** Get the Proposed Messages for the Proposal * */
+    	self.getProposedMessages = function getProposedMessages() {
+    		return self._proposedMessages
+    	}
+    	
+    	/** Set the Proposed Messages for the Proposal * */
+    	self.setProposedMessages = function setProposedMessages(proposedMessages) {
+    		self._proposedMessages = proposedMessages
+    	}
+    	
+    	/** Get the Proposed Time for the Last Proposal Request Message. * */
+    	self.getProposedTime = function getProposedTime() {
+    		return self._proposedTime
+    	}
+    	
+    	/** Set the Proposed Time for the Last Proposal Request Message. * */
+    	self.setProposedTime = function setProposedTime(proposedTime) {
+    		self._proposedTime = proposedTime
+    	}
+    	
+    	/** Save the Proposed Message to a storage token * */
+    	self.saveToToken = function saveToToken() {
+    		var key, token, newContext, hadKey
+    	    token = self.inherited(saveToToken)
+    	    if (self._id != null) {
+    	    	token.setitem(PROPOSAL_ID, tokenizeObject(self._id))
+    	    }
+    		if (self._proposal != null) {
+    			token.setitem(PROPOSAL, tokenizeObject(self._proposal))
+    		}
+    	    if (self._proposalProcessed != null) {
+    	    	token.setitem(PROPOSAL_PROCESSED, tokenizeObject(self._proposalProcessed))
+    	    }
+    	    if (self._acknowledgementReceived != null) {
+    	    	token.setitem(PROPOSAL_ACK, tokenizeObject(self._acknowledgementReceived))
+    	    }
+    		if (self._retryParams != null) {
+    			token.setitem(RETRY_PARAMS, tokenizeObject(self._retryParams))
+    		}
+    	    if (self._policyType != null) {
+    	    	token.setitem(POLICY_TYPE, tokenizeObject(self._policyType))
+    	    }
+    	    if (self._failSoftStrategyForProposedMsg != null) {
+    	    	token.setitem(FAIL_SOFT_STRATEGY, tokenizeObject(self._failSoftStrategyForProposedMsg))
+    	    }
+    		if (self._proposedMessages != null) {
+    			token.setitem(PROPOSED_MESSAGES, tokenizeObject(self._proposedMessages))
+    		}
+    	    if (self._proposedTime != null) {
+    	    	token.setitem(LAST_TIME_SENT, tokenizeObject(self._proposedTime))
+    	    }
+    	    return token
+    	}
+
+    	/**
+		 * Initialize the message from a storage token and some
+		 * additional context (e.g., local objects) *
+		 */
+    	self.initializeFromToken = function initializeFromToken(token, context) {
+    		self.inherited(initializeFromToken, [token, context])
+    		
+    		self._id = untokenizeObject(token.getitem(PROPOSAL_ID, true, null), context)
+	    	self._proposal = untokenizeObject(token.getitem(PROPOSAL, true, null), context)
+	    	self._proposalProcessed = untokenizeObject(token.getitem(PROPOSAL_PROCESSED, true, null), context)
+	    	self._acknowledgementReceived = untokenizeObject(token.getitem(PROPOSAL_ACK, true, null), context)
+	    	self._retryParams = untokenizeObject(token.getitem(RETRY_PARAMS, true, null), context)
+	    	self._policyType = untokenizeObject(token.getitem(POLICY_TYPE, true, null), context)
+	    	self._failSoftStrategyForProposedMsg = untokenizeObject(token.getitem(FAIL_SOFT_STRATEGY, true, null), context)
+	    	self._proposedMessages = untokenizeObject(token.getitem(PROPOSED_MESSAGES, true, null), context)
+	    	self._proposedTime = untokenizeObject(token.getitem(LAST_TIME_SENT, true, null), context)
+    	}
+    }
+})
+
+    	
+var ProposedMessage = Zet.declare({
+	CLASS_ID: 'ProposedMessage',
+	defineBody: function (self) {
+		// Private Properties
+		// Public Properties
+		/** Create a ProposedMessage
+	    	@param proposedMessage: The Main Proposed Message.
+	    	@param numberOfRetries: Number of Tries to be attempted to send the Proposed Message.
+	    	@param lastTimeSent: Time in Milliseconds when the Proposed Message was Last Attempted to Send.
+		**/
+		self.construct = function construct( msgId, proposedMessage, numberOfRetries, lastTimeSent) {
+			if (typeof msgId === "undefined") {
+    	    	msgId = UUID.genV4().toString()
+    	    }
+    	    if (typeof proposedMessage === "undefined") {
+    	    	proposedMessage = null
+    	    }
+    	    if (typeof numberOfRetries === "undefined") {
+    	    	numberOfRetries = 0
+    	    }
+    	    if (typeof lastTimeSent === "undefined") {
+    	    	lastTimeSent = new Date().getTime();
+    	    }
+    	    self._msgId = msgId
+    	    self._proposedMessage = proposedMessage
+    	    self._numberOfRetries = numberOfRetries
+    	    self._lastTimeSent = lastTimeSent
+		}
+		
+		/** Get the ProposedMessage ID **/
+    	self.getMsgId = function getMsgId() {
+    		return self._msgId
+    	}
+    	
+    	/** Set the ProposedMessage ID **/
+    	self.setMsgId = function setMsgId(msgId) {
+    		self._msgId = msgId
+    	}
+		
+		/** Get the ProposedMessage **/
+    	self.getProposedMessage = function getProposedMessage() {
+    		return self._proposedMessage
+    	}
+    	
+    	/** Set the ProposedMessage **/
+    	self.setProposedMessage = function setProposedMessage(proposedMessage) {
+    		self._proposedMessage = proposedMessage
+    	}
+
+    	/** Get the NumberOfRetries for the Proposed Message **/
+    	self.getNumberOfRetries = function getNumberOfRetries() {
+    		return self._numberOfRetries
+    	}
+    	
+    	/** Set the Last Time Sent  for the Proposed Message **/
+    	self.setLastTimeSent = function setLastTimeSent(lastTimeSent) {
+    		self._lastTimeSent = lastTimeSent
+    	}
+
+    	/** Get the NumberOfRetries for the Proposed Message **/
+    	self.getLastTimeSent = function getLastTimeSent() {
+    		return self._lastTimeSent
+    	}
+    	
+    	/** Set the NumberOfRetries for the Proposed Message **/
+    	self.setNumberOfRetries = function setNumberOfRetries(numberOfRetries) {
+    		self._numberOfRetries = numberOfRetries
+    	}
+
+    	/** Save the Proposed Message to a storage token **/
+    	self.saveToToken = function saveToToken() {
+    		var key, token, newContext, hadKey
+    	    token = self.inherited(saveToToken)
+    	    if (self._proposedMessage != null) {
+    	    	token.setitem(PROPOSED_MESSAGE, tokenizeObject(self._proposedMessage))
+    	    }
+    		if (self._numberOfRetries != null) {
+    			token.setitem(NUMBER_OF_RETRIES, tokenizeObject(self._numberOfRetries))
+    		}
+    	    if (self._lastTimeSent != null) {
+    	    	token.setitem(LAST_TIME_SENT, tokenizeObject(self._lastTimeSent))
+    	    }
+    	    return token
+    	}
+
+    	/** Initialize the message from a storage token and some additional context (e.g., local objects) **/
+    	self.initializeFromToken = function initializeFromToken(token, context) {
+    		self.inherited(initializeFromToken, [token, context])
+    		self._msgId= untokenizeObject(token.getitem(PROPOSED_MESSAGE_ID, true, null), context)
+    	    self._proposedMessage = untokenizeObject(token.getitem(PROPOSED_MESSAGE, true, null), context)
+    	    self._numberOfRetries = untokenizeObject(token.getitem(NUMBER_OF_RETRIES, true, null), context)
+    	    self._lastTimeSent = untokenizeObject(token.getitem(LAST_TIME_SENT, true, null), context)
+    	}
+    }
+})
+    	
+    	
 /** The base class for a messaging node (either a Gateway or a Service) **/
 var BaseMessagingNode = Zet.declare({
     CLASS_ID: 'BaseMessagingNode',
@@ -66,6 +365,9 @@ var BaseMessagingNode = Zet.declare({
             self._requests = {}
             self._uuid = UUID.genV4()
             self.addNodes(nodes)
+            self.proposals = {}
+            self.prioritizedAcceptedServiceIds = {}
+            self.demotedAcceptedServiceIds = []
         }
 
         /** Receive a message. When a message is received, two things should occur:
@@ -81,7 +383,7 @@ var BaseMessagingNode = Zet.declare({
 
         /** Send a message to connected nodes, which will dispatch it (if any gateways exist). **/
         self.sendMessage = function sendMessage(msg) {
-            //console.log(self._id + " sent MSG: "+ self.messageToString(msg));
+        	//console.log(self._id + " sent MSG: "+ self.messageToString(msg));
             self._distributeMessage(self._nodes, msg)
         }
 
@@ -279,10 +581,144 @@ var BaseMessagingNode = Zet.declare({
             }
             return msg
         }
+        
+        self.makeProposal = function makeProposal(msg, successCallback, retryParams, policyType) {
+    		var proposalId = null;
+    		console.log('Context Keys : ' + msg.getContextKeys())
+    		if(msg.getContextKeys()['PROPOSAL_KEY'] == undefined) {
+    			console.log('Setting ID for PROpOSAL KEY')
+    			proposalId = UUID.genV4().toString();
+    			msg.setContextValue('PROPOSAL_KEY', proposalId);
+    		}
+    		msg.setContextValue(Message.CONTEXT_CONVERSATION_ID_KEY, proposalId);
+    		var makePropsalPckt = new Proposal(proposalId, msg, false, successCallback, retryParams, policyType, new Date().getTime());
+    		
+    		makePropsalPckt.setPolicyType('ALL_TIME_ACCEPT_PROPOSAL_ACK');
+    		makePropsalPckt.setAcknowledgementReceived(false);
+    		//Checking if the retryParams are set. If set, then calls functions accordingly.
+    		if(retryParams != null) {
+    			if(retryParams[PROPOSAL_ATTEMPT_COUNT] != null	) {
+    				var proposalNoOfAttempts = retryParams[PROPOSAL_ATTEMPT_COUNT];
+    				if(retryParams[FAIL_SOFT_STRATEGY] != null) {
+    					var failSoftStrategy = retryParams[FAIL_SOFT_STRATEGY];
+    					makePropsalPckt.setFailSoftStrategyForProposedMsg(failSoftStrategy);
+    					if(failSoftStrategy == "RESEND_MSG_WITH_ATTEMPT_COUNTS") {
+    						makePropsalPckt.getRetryParams()[PROPOSED_MSG_ATTEMPT_COUNT] = retryParams[PROPOSED_MSG_ATTEMPT_COUNT];
+    					} else if(failSoftStrategy == "QUIT_IN_X_TIME") {
+    						makePropsalPckt.getRetryParams()[QUIT_IN_TIME] = retryParams[QUIT_IN_TIME];
+    					} 
+    				}
+    				self.proposals[proposalId] =  makePropsalPckt;
+    				self.sendProposal(msg, proposalNoOfAttempts);
+    			} else {
+    				self.proposals[proposalId] = makePropsalPckt;
+    				self.sendMessage(msg);
+    			}
+    		} else {
+    			self.proposals[proposalId] = makePropsalPckt;
+    			self.sendMessage(msg);
+    		}
+    	}
+        
+        self.sendProposal = function sendProposal(msg, noOfAttempts) {
+        	console.log('Sending Proposal');
+            var count = 1
+            var proposalId = msg.getContextValue('PROPOSAL_KEY', null)
+            var proposal = self.proposals[proposalId]
+            while(count <= noOfAttempts && proposal.getAcknowledgementReceived() == false) {
+           	 	count += 1
+            	self.sendMessage(msg);
+            	var sendingMessage = setTimeout(function(){
+                    self.sendProposal(msg, noOfAttempts-count)
+            	}, 3000);
+            	if (self.proposals[proposalId].getAcknowledgementReceived() == false) {
+                        console.log("Timeout. Trying Again")   
+                }
+            }
+            if(count > noOfAttempts && self.proposals[proposalId].getAcknowledgementReceived() == false) {
+            	console.log("No Respose Received.")
+            }
+        }
+        
+        self.retryProposal = function retryProposal(proposalId) {
+        	var proposal = self.proposals[proposalId];
+        	self.sendProposal(proposal.getProposal(), proposal.getRetryParams()['PROPOSAL_ATTEMPT_COUNT']);
+        }
+        
+        self.sendNewProposedMessage = function sendNewProposedMessage(msg, proposalId) {
+            console.log('Starting to Send Proposed Message')
+            self.sendMessage(msg)
+            if(msg.getId() in self.proposals[proposalId].getProposedMessages()) {
+                	console.log("Seems Proposed Message Hasn't been Processed");
+                	self.proposals[proposalId].setAcknowledgementReceived(false);
+                    self.retryProposal(proposalId)
+                } else {
+                	console.log("Proposed Message Sent Successfully")
+                }
+        }
+        
+        // Fail Soft Strategy 1 - Send Proposed Message With Attempt Count.
+        self.sendProposedMsgWithAttemptCnt = function sendProposedMsgWithAttemptCnt(proposal) {
+            console.log('Fail Soft Strategy : Sending With Attempt Count')
+            var attemptCount = proposal.getRetryParams()[PROPOSED_MSG_ATTEMPT_COUNT]
+            for (var key in proposal.getProposedMessages()) {
+            	if (proposal.getProposedMessages().hasOwnProperty(key)) {
+            		var proposedMessage = proposal.getProposedMessages()[key];
+            		if(proposedMessage.getNumberOfRetries() < attemptCount) {
+            			proposedMessage.setNumberOfRetries(proposedMessage.getNumberOfRetries() + 1)
+                        console.log("Send Proposed Message - Attempt " + proposedMessage.getNumberOfRetries())
+                        self.sendNewProposedMessage(proposedMessage.getProposedMessage(), proposal.getId())
+                    }
+            		
+            	}
+            }
+        }
+        
+        // Decides Proposed Message Strategy and delegates messages accordingly
+        // to sendProposedMessage(BaseMessage msg, String proposalId).
+        self.sendProposedMessage = function sendProposedMessage(proposalId) {
+             var proposal = self.proposals[proposalId]
+             if(proposal.getProposalProcessed() == false) {
+                var failSoftStrategy = proposal.getRetryParams()[FAIL_SOFT_STRATEGY] != null ? proposal.getRetryParams()[FAIL_SOFT_STRATEGY] : null
+                if(failSoftStrategy != null) {
+                    if(failSoftStrategy == 'RESEND_MSG_WITH_ATTEMPT_COUNTS') {
+                    	self.sendProposedMsgWithAttemptCnt(proposal)
+                    } else if(failSoftStrategy == 'QUIT_IN_X_TIME') {
+                        self.sendProposedMsgWithQuitXTime(proposal)
+                    } else if(failSoftStrategy == 'RESEND_MSG_WITH_DEPRIORITZATION') { 
+                        self.sendProposedMsgWithPrioritization(proposal)
+                    }
+                } else { 
+                    //No Strategy.
+                    for(const [key, value] in proposal.getProposedMessages()) {
+                        if(value.getNumberOfRetries() < 2) {
+                            value.setNumberOfRetries(value.getNumberOfRetries() + 1)
+                            console.log('Send Proposed Message - Attempt ' + value.getNumberOfRetries())
+                            self.sendNewProposedMessage(value.getProposedMessage(), proposalId);
+                        }
+                    }
+                }
+            }
+        }
+        
+        //Fail Soft Strategy 2 - Send Proposed Message With Quit in X Time.
+        self.sendProposedMsgWithQuitXTimedef = function sendProposedMsgWithQuitXTimedef(proposal) {
+            duration = proposal.getRetryParams().get(QUIT_IN_TIME)            
+            for(const [key, value] in proposal.getProposedMessages()){
+                if(time.time() - value.getLastTimeSent() < duration ){
+                    value.setNumberOfRetries(value.getNumberOfRetries() + 1)
+                    console.log('Send Proposed Message')
+                    self.sendProposedMessage(value.getMsg(), proposal.getId())
+                } else {
+                    console.log("Cannot Send Message. Attempt to Send Quit After " + str(duration) + " seconds.")
+                }
+            }
+        }
+        
+        
     }
 })
 
-/** A messaging gateway base class, for relaying messages **/
 var MessagingGateway = Zet.declare({
     CLASS_ID: 'MessagingGateway',
     // Base class for messaging gateways
@@ -831,5 +1267,7 @@ namespace.PostMessageGatewayStub = PostMessageGatewayStub
 namespace.PostMessageGateway = PostMessageGateway
 namespace.HTTPMessagingGateway = HTTPMessagingGateway
 namespace.TestService = TestService
+namespace.Proposal = Proposal
+namespace.ProposedMessage = ProposedMessage
 
 module.exports = namespace

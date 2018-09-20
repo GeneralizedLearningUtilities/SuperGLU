@@ -98,6 +98,21 @@ CONTEXT_ONTOLOGY_KEY = 'ontology';
 SUPERGLU_VERSION_KEY = 'SuperGLU-version';
 MESSAGE_VERSION_KEY = 'message-version';
 
+PROPOSED_MESSAGE = 'proposedMessage';
+PROPOSED_MESSAGES = 'proposedMessages'
+PROPOSED_MESSAGE_ID = 'proposedMessageId';
+PROPOSAL_ID = 'proposalId';
+PROPOSAL = 'proposal';
+PROPOSAL_PROCESSED = 'proposalProcessed';
+PROPOSAL_ACK = 'proposalAck';
+NUMBER_OF_RETRIES = 'noOfRetries';
+POLICY_TYPE = 'policyType';
+RETRY_PARAMS = 'retryParams';
+LAST_TIME_SENT = 'lastTimeSent';
+FAIL_SOFT_STRATEGY = 'failSoftStrategy';
+ALL_TIME_ACCEPT_PROPOSAL_ACK = 'Accept at all times';
+
+
 tokenizeObject = Serialization.tokenizeObject;
 untokenizeObject = Serialization.untokenizeObject;
 

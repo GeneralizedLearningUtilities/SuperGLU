@@ -14,6 +14,8 @@ const ACTOR_KEY = Messaging.ACTOR_KEY
     , SPEECH_ACT_KEY = Messaging.SPEECH_ACT_KEY
     , TIMESTAMP_KEY = Messaging.TIMESTAMP_KEY
     , CONTEXT_KEY = Messaging.CONTEXT_KEY
+    , PROPOSAL_KEY = Messaging.PROPOSAL_KEY
+    , CONTEXT_IN_REPLY_TO_KEY = Messaging.CONTEXT_IN_REPLY_TO_KEY
 
 module.exports = Zet.declare({
     superclass: Serializable,
