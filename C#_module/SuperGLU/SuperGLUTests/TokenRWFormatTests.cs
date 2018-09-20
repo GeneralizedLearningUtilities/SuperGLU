@@ -14,7 +14,22 @@ namespace SuperGLU.Tests
         [TestMethod()]
         public void SerializeTest()
         {
-            Assert.Fail();
+            Dictionary<String, Object> data = new Dictionary<string, object>();
+
+            StorageToken token = new StorageToken(data, "id", "classID");
+            List<String> stringlist = new List<string>();
+            stringlist.Add("test1");
+            stringlist.Add("test2");
+
+            token.setItem("stringList", stringlist);
+
+            Dictionary<String, String> stringMap = new Dictionary<string, string>();
+            stringMap.Add("penguin", "penguin");
+
+            token.setItem("stringMap", stringMap);
+
+            object result = JSONStandardRWFormat.serialize(token); 
+
         }
     }
 }

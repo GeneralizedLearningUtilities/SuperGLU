@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
 
 namespace SuperGLU
 {
@@ -40,7 +41,7 @@ namespace SuperGLU
 
         public static Object serialize(StorageToken data)
         {
-            throw new Exception("Method Not Implmented");
+            throw new Exception("Method not implmented");
         }
 
 
@@ -90,7 +91,10 @@ namespace SuperGLU
 
         public static String serialize(StorageToken data)
         {
-            return null;
+            Object processedObject = makeSerializable(data);
+            Dictionary <String, Object> processedObjectAsMap = (Dictionary<String, Object>) processedObject;
+            string result = JsonConvert.SerializeObject(processedObjectAsMap);
+            return result;
         }
 
 
@@ -101,13 +105,53 @@ namespace SuperGLU
 
             Type clazz = data.GetType();
 
+            if (clazz.IsGenericType)
+                clazz = clazz.GetGenericTypeDefinition();
+
             if (VALID_ATOMIC_VALUE_TYPES.Contains(clazz))
                 return data;
-            //if (VALID_SEQUENCE_TYPES.Contains(clazz)) 
+            if (VALID_SEQUENCE_TYPES.Contains(clazz))
+            {
+                IEnumerable dataEnumurator = (IEnumerable)data;
+                List<Object> sequenceData = new List<object>();
 
-            return null;
+                foreach (Object o in dataEnumurator)
+                {
+                    sequenceData.Add(makeSerializable(o));
+                }
+
+                return sequenceData;
+            }
+            if(VALID_MAPPING_TYPES.Contains(clazz))
+            {
+                dynamic dataAsMap = (dynamic)data;
+                Dictionary<Object, Object> processedMap = new Dictionary<object, object>();
+
+                foreach (var entry in dataAsMap)
+                {
+                    processedMap.Add(makeSerializable(entry.Key), makeSerializable(entry.Value));
+                }
+
+                processedMap.Add("isMap", true);
+
+                return processedMap;
+            }
+            if(clazz.Equals(typeof(StorageToken)))
+            {
+                Dictionary<String, Object> storageTokenChildren = new Dictionary<string, object>();
+                StorageToken dataAsStorageToken = (StorageToken)data;
+
+                foreach (String key in dataAsStorageToken.data.Keys)
+                {
+                    Object value = dataAsStorageToken.getItem(key);
+                    storageTokenChildren.Add(key, makeSerializable(value));
+                }
+
+                return storageTokenChildren;
+            }
+
+            throw new Exception("tried to serialize unserializable object of type : " + clazz.ToString());
         }
-
     }
 
 }
