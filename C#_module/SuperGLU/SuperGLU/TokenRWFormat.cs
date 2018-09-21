@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace SuperGLU
 {
@@ -74,6 +75,8 @@ namespace SuperGLU
             NAME_MAPPING.Add("int", typeof(int));
             NAME_MAPPING.Add("tuple", typeof(List<>));
             NAME_MAPPING.Add("long", typeof(long));
+            NAME_MAPPING.Add("list", typeof(List<>));
+            NAME_MAPPING.Add("map", typeof(Dictionary<,>));
 
             TYPE_MAPPING.Add(typeof(bool), "bool");
             TYPE_MAPPING.Add(typeof(String), "unicode");
@@ -86,7 +89,10 @@ namespace SuperGLU
 
         public static StorageToken parse(String input)
         {
-            return null;
+            object rawParseResults = JsonConvert.DeserializeObject(input);
+            StorageToken result = (StorageToken) makeNative(rawParseResults);
+            return result;
+
         }
 
         public static String serialize(StorageToken data)
@@ -151,6 +157,92 @@ namespace SuperGLU
             }
 
             throw new Exception("tried to serialize unserializable object of type : " + clazz.ToString());
+        }
+
+
+        private static Object makeNative(Object input)
+        {
+            if (isNullOrPrimitive(input))
+                return input;
+
+
+
+
+            if (input.GetType().Equals(typeof(JObject)))
+            {
+                JObject inputAsJSONObject = (JObject)input;
+
+                if (inputAsJSONObject.Count == 0)
+                    return new Dictionary<String, Object>();
+
+              
+
+
+                if (!inputAsJSONObject.ContainsKey("isMap"))
+                {//we are deserializing an object.
+
+                    String dataTypeName = inputAsJSONObject.GetValue("classId").Value<String>();
+
+                    Type dataType;
+
+                    if (dataTypeName != null && NAME_MAPPING.Keys.Contains(dataTypeName))
+                        dataType = NAME_MAPPING[dataTypeName];
+                    else
+                        dataType = typeof(StorageToken);
+
+                    Dictionary<String, Object> nativizedData = new Dictionary<string, object>();
+
+                    foreach (JToken child in inputAsJSONObject.Children())
+                    {
+                        JProperty childAsProperty = (JProperty)child;
+                        String key = childAsProperty.Name;
+                        Object value = childAsProperty.Value;
+
+                        nativizedData.Add(key, makeNative(value));
+
+                    }
+                    StorageToken result = new StorageToken(nativizedData, (string)nativizedData["id"], (string)nativizedData["classId"]);
+                    return result;
+                }
+                else
+                {
+                    Dictionary<String, Object> nativizedData = new Dictionary<string, object>();
+
+                    foreach (JToken child in inputAsJSONObject.Children())
+                    {
+                        JProperty childAsProperty = (JProperty)child;
+                        String key = childAsProperty.Name;
+                        Object value = childAsProperty.Value;
+
+                        if (key.Equals("isMap"))
+                            continue;
+
+                        nativizedData.Add(key, makeNative(value));
+
+                    }
+                    return nativizedData;
+                }
+
+            }
+            else if(input.GetType().Equals(typeof(JArray)))
+            {
+                JArray inputAsJArray = (JArray)input;
+                List<Object> nativizedList = new List<object>();
+                foreach (JToken child in  inputAsJArray)
+                {
+                    nativizedList.Add(makeNative(child));
+                }
+                return nativizedList;
+            }
+            else if(input.GetType().Equals(typeof(JValue)))
+            {
+                
+                JValue valueAsJValue = (JValue)input;
+                return valueAsJValue.Value;
+              
+            }
+
+            return null;
         }
     }
 
