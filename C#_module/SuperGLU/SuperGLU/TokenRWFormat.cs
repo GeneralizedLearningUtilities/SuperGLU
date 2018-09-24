@@ -246,4 +246,108 @@ namespace SuperGLU
         }
     }
 
+
+    public class JSONRWFormat : TokenRWFormat
+    {
+        private static Dictionary<String, Type> NAME_MAPPING = new Dictionary<string, Type>();
+
+        private static Dictionary<Type, String> TYPE_MAPPING = new Dictionary<Type, string>();
+
+        static JSONRWFormat()
+        {
+            NAME_MAPPING.Add("bool", typeof(bool);
+            NAME_MAPPING.Add("unicode", typeof(string));
+            NAME_MAPPING.Add("float", typeof(float));
+            NAME_MAPPING.Add("int", typeof(int));
+            NAME_MAPPING.Add("tuple", typeof(List<>));
+            NAME_MAPPING.Add("list", typeof(List<>));
+            NAME_MAPPING.Add("map", typeof(Dictionary<,>));
+            NAME_MAPPING.Add("long", typeof(long));
+
+            TYPE_MAPPING.Add(typeof(bool), "bool");
+            TYPE_MAPPING.Add(typeof(string), "unicode");
+            TYPE_MAPPING.Add(typeof(float), "float");
+            TYPE_MAPPING.Add(typeof(double), "float");
+            TYPE_MAPPING.Add(typeof(short), "int");
+            TYPE_MAPPING.Add(typeof(int), "int");
+            TYPE_MAPPING.Add(typeof(List<>), "list");
+            TYPE_MAPPING.Add(typeof(long), "long");
+            TYPE_MAPPING.Add(typeof(Dictionary<,>), "map");
+
+        }
+
+
+
+        public static StorageToken parse(String input)
+        {
+            object rawParseResults = JsonConvert.DeserializeObject(input);
+            StorageToken result = (StorageToken)makeNative(rawParseResults);
+            return result;
+
+        }
+
+        public static String serialize(StorageToken data)
+        {
+            Object processedObject = makeSerializable(data);
+            Dictionary<String, Object> processedObjectAsMap = (Dictionary<String, Object>)processedObject;
+            string result = JsonConvert.SerializeObject(processedObjectAsMap);
+            return result;
+        }
+
+
+        private static Object makeSerializable(Object data)
+        {
+            if (data == null)
+                return data;
+
+            Type clazz = data.GetType();
+
+            if (clazz.IsGenericType)
+                clazz = clazz.GetGenericTypeDefinition();
+
+            if (VALID_ATOMIC_VALUE_TYPES.Contains(clazz))
+                return data;
+
+            if (VALID_SEQUENCE_TYPES.Contains(clazz))
+            {
+                IEnumerable dataEnumurator = (IEnumerable)data;
+
+                Dictionary<String, List<Object>> sequenceDataDictionary = new Dictionary<string, List<object>>();
+                string typeName = TYPE_MAPPING[typeof(List<>)];
+                List<Object> sequenceData = new List<object>();
+
+                foreach (Object o in dataEnumurator)
+                {
+                    sequenceData.Add(makeSerializable(o));
+                }
+
+                sequenceDataDictionary.Add(typeName, sequenceData);
+                return sequenceDataDictionary;
+            }
+
+            if(VALID_MAPPING_TYPES.Contains(clazz))
+            {
+                dynamic dataAsMap = (dynamic)data;
+                Dictionary<Object, Object> processedMap = new Dictionary<object, object>();
+                Dictionary<String, Dictionary<Object, Object>> mapDataAsDictionary = new Dictionary<string, Dictionary<object, object>>();
+
+                foreach (var entry in dataAsMap)
+                {
+                    processedMap.Add(makeSerializable(entry.Key), makeSerializable(entry.Value));
+                }
+
+                mapDataAsDictionary.Add(TYPE_MAPPING[typeof(Dictionary<,>)], processedMap);
+                return mapDataAsDictionary;
+            }
+
+            return null;
+        }
+
+
+        private static Object makeNative(Object input)
+        {
+            return null;
+        }
+    }
+
 }
