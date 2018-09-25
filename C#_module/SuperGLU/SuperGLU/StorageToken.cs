@@ -13,7 +13,7 @@ namespace SuperGLU
 
         private static HashSet<String> reservedKeys = new HashSet<String>();
 
-        private Dictionary<String, Object> data
+        public Dictionary<String, Object> data
         { get; set; }
 
         static StorageToken()
@@ -34,6 +34,20 @@ namespace SuperGLU
             this.data = data;
             if (data == null)
                 data = new Dictionary<string, object>();
+
+            if (id != null)
+            {
+                this.setId(id);
+            }
+            else if (!this.data.Keys.Contains(ID_KEY))
+            {
+                this.data.Add(ID_KEY, System.Guid.NewGuid().ToString());
+            }
+
+            if (classId != null)
+            {
+                this.setClassId(classId);
+            }
 
 
         }
