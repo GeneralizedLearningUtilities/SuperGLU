@@ -24,8 +24,8 @@ var HintPresenter = Zet.declare({
             self.inherited(receiveMessage, [msg]);
             console.log("\n============================================================================");
             console.log("Message received by " + self.getId());
-            proposalIdOfMessage = msg.getContextValue('PROPOSAL_KEY');
-            if (msg.getSpeechAct() == "ACCEPT_PROPOSAL") {
+            proposalIdOfMessage = msg.getContextValue('proposalId');
+            if (msg.getSpeechAct() == "Accept Proposal") {
             	var proposal = self.proposals[proposalIdOfMessage];
             	if(proposal.getPolicyType() == 'ALL_TIME_ACCEPT_PROPOSAL_ACK' || proposal.getPolicyType() == 'X_Time') {
             		
@@ -35,7 +35,7 @@ var HintPresenter = Zet.declare({
                     msg3 = MESSAGE('Penguin', 'eats', 'fish', 'Fish Eaten', 'CONFIRM_PROPOSAL', {}, null, 'message2')
                     msg3.setContextValue('originatingServiceId', self.getId());
                     msg3.setContextValue('CONTEXT_IN_REPLY_TO_KEY', self.acceptedProposalConversationId);
-                    msg3.setContextValue('PROPOSAL_KEY', proposalIdOfMessage);
+                    msg3.setContextValue('proposalId', proposalIdOfMessage);
                     msg3.setContextValue('in-reply-to', "conversation_confirm_proposal_" + self.getId() + "_" + new Date().getTime());
                     self.proposals[proposalIdOfMessage].setAcknowledgementReceived(true);
                     //Sends Confirmation Message.
@@ -60,7 +60,7 @@ var HintPresenter = Zet.declare({
 	                	self.proposedMsgAudit[msg4.getContextValue('proposedMessageId')] = false;
 	                    msg4.setContextValue('originatingServiceId', self.getId());
 	                    msg4.setContextValue('CONTEXT_IN_REPLY_TO_KEY', acceptedProposalConversationId);
-	                    msg4.setContextValue('PROPOSAL_KEY', proposalIdOfMessage);
+	                    msg4.setContextValue('proposalId', proposalIdOfMessage);
 	                    if (proposal.getFailSoftStrategyForProposedMsg() == 'RESEND_MSG_WITH_DEPRIORITZATION') {
 	                    	if(!self.prioritizedAcceptedServiceIds.isEmpty()) {
 	                    		msg4.setContextValue("toBeServicedBy", self.prioritizedAcceptedServiceIds[0].getKey());
@@ -89,14 +89,14 @@ var HintPresenter = Zet.declare({
             	}
             } else if (msg.getSpeechAct() == "PROPOSED_MESSAGE_ACKNOWLEDGEMENT") {
             	//Proposed Message Acknowledgement.
-            	delete self.proposals[msg.getContextValue('PROPOSAL_KEY')].getProposedMessages()[msg.getContextValue("proposedMessageId")];
+            	delete self.proposals[msg.getContextValue('proposalId')].getProposedMessages()[msg.getContextValue("proposedMessageId")];
             	var count = 0;
-            	var remainingProposedMsgs = self.proposals[msg.getContextValue('PROPOSAL_KEY')].getProposedMessages()
+            	var remainingProposedMsgs = self.proposals[msg.getContextValue('proposalId')].getProposedMessages()
             	for (var i in remainingProposedMsgs) {
             		if (remainingProposedMsgs.hasOwnProperty(i)) count++;
             	}
             	if(count < 1) {
-            		self.proposals[msg.getContextValue('PROPOSAL_KEY')].setProposalProcessed(true);
+            		self.proposals[msg.getContextValue('proposalId')].setProposalProcessed(true);
             	}
             	console.log("Proposed Message Removed. Proposed Messages Left to Process : " + count);
             	self.proposedMsgAudit[msg.getContextValue("proposedMessageId")] = true;
@@ -171,10 +171,10 @@ var HintService = Zet.declare({
                 	var conversationId = msg.getContextValue('in-reply-to');
                 	self.replyingConversationId = "conversation_accept_proposal_" + self.getId() + "_" + new Date().getTime();
                 	self.proposalsAccepted[self.replyingConversationId] = msg;
-                    var msg2 = MESSAGE('Penguin', 'eats', 'fish', 'Fish Eaten', 'ACCEPT_PROPOSAL', {}, null, 'message1');
+                    var msg2 = MESSAGE('Penguin', 'eats', 'fish', 'Fish Eaten', 'Accept Proposal', {}, null, 'message1');
                     msg2.setContextValue('originatingServiceId', self.getId());
                     msg2.setContextValue('in-reply-to', self.replyingConversationId);
-                    msg2.setContextValue('PROPOSAL_KEY', msg.getContextValue('PROPOSAL_KEY'));
+                    msg2.setContextValue('proposalId', msg.getContextValue('proposalId'));
                     msg2.setContextValue('CONTEXT_IN_REPLY_TO_KEY', self.conversationId);
                     self.sendMessage(msg2);
                 } else if (msg.getSpeechAct() == "CONFIRM_PROPOSAL") {
@@ -183,7 +183,7 @@ var HintService = Zet.declare({
 	                	console.log('I have got a Confirmation Proposal Message.');
 	                	self.proposalsConfirmReceived.push(msg);
 	                    var hintPresenter = msg.getContextValue('originatingServiceId');
-	                    var proposalId = msg.getContextValue('PROPOSAL_KEY');
+	                    var proposalId = msg.getContextValue('proposalId');
 	                    if(self.proposalsConfirmedToServ[hintPresenter] == undefined) {
 	                    	self.proposalsConfirmedToServ[hintPresenter] = new Set([proposalId]);
 	                    } else {
@@ -193,7 +193,7 @@ var HintService = Zet.declare({
 	                	console.log('This Confirmation Proposal Message is not for me.');
 	                } 
                 } else if (msg.getSpeechAct() == "PROPOSED_MESSAGE" && msg.getContextValue("toBeServicedBy") == self.getId() && self.respondToProposedMessage) {
-                	var originalConversationId = msg.getContextValue('PROPOSAL_KEY');
+                	var originalConversationId = msg.getContextValue('proposalId');
                 	var hinterPresenterId = msg.getContextValue('originatingServiceId');
                 	var flag = self.maintainACountForResponse && (self.counterForResponse < 2) ? true : !self.maintainACountForResponse ? true : false;
                 	if(flag && self.proposalsConfirmedToServ[hinterPresenterId] != undefined &&  self.proposalsConfirmedToServ[hinterPresenterId].has(originalConversationId)) {
@@ -203,10 +203,10 @@ var HintService = Zet.declare({
                     	var proposalMessageRespose = self.proposedMsgRequests[0];
                 		if(proposalMessageRespose != null) {
                 			var msgAck = MESSAGE('Penguin', 'eats', 'fish', 'Fish Eaten', 'PROPOSED_MESSAGE_ACKNOWLEDGEMENT', {}, null, 'message1');
-        	            	msgAck.setContextValue('ORIGINATING_SERVICE_ID_KEY', self.getId());
-        	                msgAck.setContextValue('CONTEXT_CONVERSATION_ID_KEY', "conversation_accept_proposal_" + self.getId() + "_" + new Date().getTime());
+        	            	msgAck.setContextValue('originatingServiceId', self.getId());
+        	                msgAck.setContextValue('conversation-id', "conversation_accept_proposal_" + self.getId() + "_" + new Date().getTime());
         	                msgAck.setContextValue("proposedMessageId", proposalMessageRespose);
-        	                msgAck.setContextValue('PROPOSAL_KEY', self.auditOfProposedMsgReq[proposalMessageRespose]);
+        	                msgAck.setContextValue('proposalId', self.auditOfProposedMsgReq[proposalMessageRespose]);
         	                msgAck.setContextValue('CONTEXT_IN_REPLY_TO_MESSAGE', messageId);
         	                this.sendMessage(msgAck);
                     	}
@@ -254,7 +254,7 @@ var HintService = Zet.declare({
     }
 })
 
-
+/*
 test('Happy Path! Client Sends Proposal to Service 1 & 2 and Proposed Message to Service 1.', () => {
 	
 	var hintService1 = new HintService();
@@ -324,7 +324,7 @@ test('Client Sends Proposal to Service 1 & 2. Both Services Reject. Client Tries
     hintPresenter.makeProposal(msg, null, retryParams, "X_TIME_ACCEPT_PROPOSAL_ACK");
     console.log('\n\n\n\n\n\n')
 });
-
+*/
 
 test('Client Sends Proposal to Service 1 & 2. Services Accept, But create Issue during sending Proposed Messages. Client Tries 3 times sending Proposal and ProposedMessage.', () => {
 	
