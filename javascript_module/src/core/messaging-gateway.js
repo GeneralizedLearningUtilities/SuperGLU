@@ -630,7 +630,7 @@ var BaseMessagingNode = Zet.declare({
            	 	
            	 	async => {
            	 		self.sendProposal(msg, noOfAttempts-count);
-           	 		await(10000);
+           	 		//await(10000);
                 	if (self.proposals[proposalId].getAcknowledgementReceived() == false) {
                             console.log("Timeout. Trying Again")   
                     }
