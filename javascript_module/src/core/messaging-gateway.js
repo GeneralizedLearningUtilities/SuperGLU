@@ -36,7 +36,7 @@ const Zet = require('../util/zet'),
     version = require('../reference-data').version,
     UUID = require('../util/uuid'),
     Message = require('../core/message'),
-    async = require('asyncawait/async');
+    //async = require('asyncawait/async');
 var namespace = {}
 var CATCH_BAD_MESSAGES = false,
     SESSION_ID_KEY = 'sessionId',
@@ -630,11 +630,11 @@ var BaseMessagingNode = Zet.declare({
            	 	
            	 	async => {
            	 		self.sendProposal(msg, noOfAttempts-count);
-           	 		await(10000);
-                	if (self.proposals[proposalId].getAcknowledgementReceived() == false) {
-                            console.log("Timeout. Trying Again")   
-                    }
+           	 		//await(5000);
            	 	}
+            	if (self.proposals[proposalId].getAcknowledgementReceived() == false) {
+                        console.log("Timeout. Trying Again")   
+                }
             }
             if(count > noOfAttempts && self.proposals[proposalId].getAcknowledgementReceived() == false) {
             	console.log("No Respose Received.")
