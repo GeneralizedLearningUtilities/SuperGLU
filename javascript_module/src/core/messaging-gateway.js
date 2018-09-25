@@ -35,16 +35,15 @@ const Zet = require('../util/zet'),
     Messaging = require('./messaging'),
     version = require('../reference-data').version,
     UUID = require('../util/uuid'),
-    Message = require('../core/message')
-
+    Message = require('../core/message'),
+    async = require('asyncawait/async');
 var namespace = {}
 var CATCH_BAD_MESSAGES = false,
     SESSION_ID_KEY = 'sessionId',
     SEND_MSG_SLEEP_TIME = 5000,
     PROPOSAL_ATTEMPT_COUNT = 'noOfAttemptsForProposal',
     FAIL_SOFT_STRATEGY= 'failSoftStrategyForProposedMsg',
-    QUIT_IN_TIME= 'quitInTime',
-	PROPOSED_MSG_ATTEMPT_COUNT = 'noOfAttemptsForProposedMsg'  	
+    QUIT_IN_TIME= 'quitInTime'  	
     	
 var Proposal = Zet.declare('Proposal', {
 	CLASS_ID: 'Proposal',
@@ -585,27 +584,27 @@ var BaseMessagingNode = Zet.declare({
         self.makeProposal = function makeProposal(msg, successCallback, retryParams, policyType) {
     		var proposalId = null;
     		console.log('Context Keys : ' + msg.getContextKeys())
-    		if(msg.getContextKeys()['PROPOSAL_KEY'] == undefined) {
+    		if(msg.getContextKeys()['proposalId'] == undefined) {
     			console.log('Setting ID for PROpOSAL KEY')
     			proposalId = UUID.genV4().toString();
-    			msg.setContextValue('PROPOSAL_KEY', proposalId);
+    			msg.setContextValue('proposalId', proposalId);
     		}
-    		msg.setContextValue(Message.CONTEXT_CONVERSATION_ID_KEY, proposalId);
+    		msg.setContextValue('conversation-id', proposalId);
     		var makePropsalPckt = new Proposal(proposalId, msg, false, successCallback, retryParams, policyType, new Date().getTime());
-    		
-    		makePropsalPckt.setPolicyType('ALL_TIME_ACCEPT_PROPOSAL_ACK');
+    		makePropsalPckt.setRetryParams(retryParams);
+    		makePropsalPckt.setPolicyType('Accept at all times');
     		makePropsalPckt.setAcknowledgementReceived(false);
     		//Checking if the retryParams are set. If set, then calls functions accordingly.
     		if(retryParams != null) {
-    			if(retryParams[PROPOSAL_ATTEMPT_COUNT] != null	) {
-    				var proposalNoOfAttempts = retryParams[PROPOSAL_ATTEMPT_COUNT];
-    				if(retryParams[FAIL_SOFT_STRATEGY] != null) {
-    					var failSoftStrategy = retryParams[FAIL_SOFT_STRATEGY];
+    			if(retryParams['noOfAttemptsForProposal'] != null	) {
+    				var proposalNoOfAttempts = retryParams['noOfAttemptsForProposal'];
+    				if(retryParams['failSoftStrategyForProposedMsg'] != null) {
+    					var failSoftStrategy = retryParams['failSoftStrategyForProposedMsg'];
     					makePropsalPckt.setFailSoftStrategyForProposedMsg(failSoftStrategy);
     					if(failSoftStrategy == "RESEND_MSG_WITH_ATTEMPT_COUNTS") {
-    						makePropsalPckt.getRetryParams()[PROPOSED_MSG_ATTEMPT_COUNT] = retryParams[PROPOSED_MSG_ATTEMPT_COUNT];
+    						makePropsalPckt.getRetryParams()['noOfAttemptsForProposedMsg'] = retryParams['noOfAttemptsForProposedMsg'];
     					} else if(failSoftStrategy == "QUIT_IN_X_TIME") {
-    						makePropsalPckt.getRetryParams()[QUIT_IN_TIME] = retryParams[QUIT_IN_TIME];
+    						makePropsalPckt.getRetryParams()['quitInTime'] = retryParams['quitInTime'];
     					} 
     				}
     				self.proposals[proposalId] =  makePropsalPckt;
@@ -623,17 +622,19 @@ var BaseMessagingNode = Zet.declare({
         self.sendProposal = function sendProposal(msg, noOfAttempts) {
         	console.log('Sending Proposal');
             var count = 1
-            var proposalId = msg.getContextValue('PROPOSAL_KEY', null)
+            var proposalId = msg.getContextValue('proposalId', null)
             var proposal = self.proposals[proposalId]
             while(count <= noOfAttempts && proposal.getAcknowledgementReceived() == false) {
            	 	count += 1
             	self.sendMessage(msg);
-            	var sendingMessage = setTimeout(function(){
-                    self.sendProposal(msg, noOfAttempts-count)
-            	}, 3000);
-            	if (self.proposals[proposalId].getAcknowledgementReceived() == false) {
-                        console.log("Timeout. Trying Again")   
-                }
+           	 	
+           	 	async => {
+           	 		self.sendProposal(msg, noOfAttempts-count);
+           	 		await(10000);
+                	if (self.proposals[proposalId].getAcknowledgementReceived() == false) {
+                            console.log("Timeout. Trying Again")   
+                    }
+           	 	}
             }
             if(count > noOfAttempts && self.proposals[proposalId].getAcknowledgementReceived() == false) {
             	console.log("No Respose Received.")
@@ -660,17 +661,17 @@ var BaseMessagingNode = Zet.declare({
         // Fail Soft Strategy 1 - Send Proposed Message With Attempt Count.
         self.sendProposedMsgWithAttemptCnt = function sendProposedMsgWithAttemptCnt(proposal) {
             console.log('Fail Soft Strategy : Sending With Attempt Count')
-            var attemptCount = proposal.getRetryParams()[PROPOSED_MSG_ATTEMPT_COUNT]
+            var attemptCount = proposal.getRetryParams()['noOfAttemptsForProposedMsg']
             for (var key in proposal.getProposedMessages()) {
-            	if (proposal.getProposedMessages().hasOwnProperty(key)) {
+            	console.log( proposal.getProposedMessages())
             		var proposedMessage = proposal.getProposedMessages()[key];
+            		console.log('HOOOLA' + proposedMessage);
             		if(proposedMessage.getNumberOfRetries() < attemptCount) {
             			proposedMessage.setNumberOfRetries(proposedMessage.getNumberOfRetries() + 1)
                         console.log("Send Proposed Message - Attempt " + proposedMessage.getNumberOfRetries())
                         self.sendNewProposedMessage(proposedMessage.getProposedMessage(), proposal.getId())
                     }
             		
-            	}
             }
         }
         
@@ -678,8 +679,10 @@ var BaseMessagingNode = Zet.declare({
         // to sendProposedMessage(BaseMessage msg, String proposalId).
         self.sendProposedMessage = function sendProposedMessage(proposalId) {
              var proposal = self.proposals[proposalId]
-             if(proposal.getProposalProcessed() == false) {
-                var failSoftStrategy = proposal.getRetryParams()[FAIL_SOFT_STRATEGY] != null ? proposal.getRetryParams()[FAIL_SOFT_STRATEGY] : null
+             
+             if(!proposal.getProposalProcessed()) {
+                var failSoftStrategy = proposal.getRetryParams()['failSoftStrategyForProposedMsg'] != null ? proposal.getRetryParams()['failSoftStrategyForProposedMsg'] : null;
+                console.log('BOOOOOOLA ' + failSoftStrategy); 
                 if(failSoftStrategy != null) {
                     if(failSoftStrategy == 'RESEND_MSG_WITH_ATTEMPT_COUNTS') {
                     	self.sendProposedMsgWithAttemptCnt(proposal)
@@ -1192,11 +1195,11 @@ var BaseService = Zet.declare({
          Only one node (a gateway) should be connected to a service.
          **/
         self.addNodes = function addNodes(nodes) {
-            if (nodes.length + self.getNodes().length <= 1) {
+            //if (nodes.length + self.getNodes().length <= 1) {
                 self.inherited(addNodes, [nodes])
-            } else {
-                console.log("Error: Attempted to add more than one node to a service. Service must only take a single gateway node. Service was: " + self.getId())
-            }
+            //} else {
+            //    console.log("Error: Attempted to add more than one node to a service. Service must only take a single gateway node. Service was: " + self.getId())
+            //}
         }
 
         /** Bind nodes to this node.
