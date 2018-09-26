@@ -414,6 +414,9 @@ namespace SuperGLU
                     {
                         nativizedData.Add(entry.Key, makeNative(entry.Value));
                     }
+
+                    StorageToken result = new StorageToken(nativizedData, (string)nativizedData[StorageToken.ID_KEY], (string)nativizedData[StorageToken.CLASS_ID_KEY]);
+                    return result;
                 }
 
                 if(dataType.Equals(typeof(List<>)))
@@ -444,8 +447,9 @@ namespace SuperGLU
             }
 
 
-            return null;
-            
+            throw new Exception("Tried to de-serialize unserializable object of type:" + inputClass.FullName);
+
+
         }
     }
 
