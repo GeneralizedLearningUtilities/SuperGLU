@@ -82,6 +82,8 @@ namespace SuperGLU.Tests
         {
             Dictionary<String, Object> data = new Dictionary<string, object>();
 
+            StorageToken nestedToken = new StorageToken(new Dictionary<string, object>(), "nested", "nestedClass");
+
             StorageToken token = new StorageToken(data, "id", "classID");
             List<String> stringlist = new List<string>();
             stringlist.Add("test1");
@@ -93,6 +95,8 @@ namespace SuperGLU.Tests
             stringMap.Add("penguin", "penguin");
 
             token.setItem("stringMap", stringMap);
+
+            token.setItem("nestedToken", nestedToken);
 
             string result = JSONRWFormat.serialize(token);
             StorageToken copy = JSONRWFormat.parse(result);

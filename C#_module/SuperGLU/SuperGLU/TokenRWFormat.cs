@@ -11,12 +11,12 @@ namespace SuperGLU
 {
     public class TokenRWFormat
     {
-        protected static List<Type> VALID_KEY_TYPES = new List<Type>();
-        protected static List<Type> VALID_SEQUENCE_TYPES = new List<Type>();
-        protected static List<Type> VALID_ATOMIC_VALUE_TYPES = new List<Type>();
-        protected static List<Type> VALID_MAPPING_TYPES = new List<Type>();
+        public static List<Type> VALID_KEY_TYPES = new List<Type>();
+        public static List<Type> VALID_SEQUENCE_TYPES = new List<Type>();
+        public static List<Type> VALID_ATOMIC_VALUE_TYPES = new List<Type>();
+        public static List<Type> VALID_MAPPING_TYPES = new List<Type>();
 
-        protected static List<Type> VALID_VALUE_TYPES = new List<Type>();
+        public static List<Type> VALID_VALUE_TYPES = new List<Type>();
          
 
         static TokenRWFormat()

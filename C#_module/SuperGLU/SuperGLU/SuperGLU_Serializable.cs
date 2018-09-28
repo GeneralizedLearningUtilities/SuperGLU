@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,19 +15,7 @@ namespace SuperGLU
 
         static SuperGLU_Serializable()
         {
-            populateClassIds();
-        }
-
-        public static void populateClassIds()
-        {
-            foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
-            {
-                foreach (var type in asm.GetTypes())
-                {
-                    if (type.IsAssignableFrom( typeof(SuperGLU_Serializable)))
-                        CLASS_IDS.Add(type.FullName, type);
-                }
-            }
+            CLASS_IDS.Add(typeof(SuperGLU_Serializable).FullName, typeof(SuperGLU_Serializable));
         }
 
 
@@ -104,13 +93,13 @@ namespace SuperGLU
         }
 
 
-        public void initializeFromToken(StorageToken token)
+        public virtual void initializeFromToken(StorageToken token)
         {
             this.id = token.getId();
         }
 
 
-        public StorageToken saveToToken()
+        public virtual StorageToken saveToToken()
         {
             StorageToken token = new StorageToken(new Dictionary<string, object>(), this.id, this.getClassId());
             return token;
@@ -149,6 +138,112 @@ namespace SuperGLU
 
             //should never reach here
             return null;
+        }
+    }
+
+    public enum SerializationFormatEnum
+    {
+        JSON_FORMAT,
+        JSON_STANDARD_FORMAT
+    }
+
+
+    public class SerializationConvenience
+    {
+        public static String makeSerialized(StorageToken token, SerializationFormatEnum sFormat)
+        {
+            if (sFormat == SerializationFormatEnum.JSON_FORMAT)
+                return JSONRWFormat.serialize(token);
+
+            else if (sFormat == SerializationFormatEnum.JSON_STANDARD_FORMAT)
+                return JSONStandardRWFormat.serialize(token);
+
+            throw new Exception("invalid format exception:" + sFormat);
+        }
+
+
+        public static StorageToken makeNative(String input, SerializationFormatEnum sFormat)
+        {
+            if (sFormat == SerializationFormatEnum.JSON_FORMAT)
+                return JSONRWFormat.parse(input);
+
+            else if (sFormat == SerializationFormatEnum.JSON_STANDARD_FORMAT)
+                return JSONStandardRWFormat.parse(input);
+
+            throw new Exception("invalid format exception:" + sFormat);
+        }
+
+
+        public static Object tokenizeObject(Object obj)
+        {
+            if (obj == null)
+                return null;
+
+            else if (obj.GetType().IsAssignableFrom(typeof(SuperGLU_Serializable)))
+                return ((SuperGLU_Serializable)obj).saveToToken();
+
+            else if (obj.GetType().IsGenericType)
+            {
+                Type genericType = obj.GetType().GetGenericTypeDefinition();
+
+                if (TokenRWFormat.VALID_SEQUENCE_TYPES.Contains(genericType))
+                {
+                    List<Object> result = new List<object>();
+                    dynamic objAsDynamic = (dynamic)obj;
+
+                    foreach (Object child in objAsDynamic)
+                    {
+                        result.Add(tokenizeObject(child));
+                    }
+                    return result;
+
+                }
+                else if (TokenRWFormat.VALID_MAPPING_TYPES.Contains(genericType))
+                {
+                    Dictionary<Object, Object> result = new Dictionary<object, object>();
+
+                    dynamic objAsDynamic = (dynamic)obj;
+
+                    foreach (KeyValuePair<object, object> entry in objAsDynamic)
+                    {
+                        result.Add(tokenizeObject(entry.Key), tokenizeObject(entry.Value));
+                    }
+                    return result;
+                }
+                throw new Exception("unknown generic type for object : " + obj.ToString());
+            }
+            else
+                return obj;
+        }
+
+
+        public static Object untokenizeObject(Object obj)
+        {
+            if (obj == null)
+                return null;
+
+            if (obj.GetType().Equals(typeof(StorageToken)))
+                return SuperGLU_Serializable.createFromToken((StorageToken)obj);
+
+            else if (obj.GetType().IsGenericType)
+            {
+                if(TokenRWFormat.VALID_SEQUENCE_TYPES.Contains(obj.GetType().GetGenericTypeDefinition()))
+                {
+                    List<Object> result = new List<object>();
+
+                    IEnumerable dataEnumurator = (IEnumerable)obj;
+                    foreach (Object o in dataEnumurator)
+                    {
+                        result.Add(untokenizeObject(o));
+                    }
+
+                    return result;
+                }
+                else if (TokenRWFormat.VALID_MAPPING_TYPES.Contains(obj.GetType().GetGenericTypeDefinition()))
+                {
+                    return null;
+                }
+            }
         }
     }
 }

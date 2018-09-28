@@ -84,8 +84,6 @@ namespace SuperGLU
 
         public Object getItem(String key, bool hasDefault, Object defalt)
         {
-
-
             if (hasDefault)
                 if (this.data.ContainsKey(key))
                     return this.data[key];
