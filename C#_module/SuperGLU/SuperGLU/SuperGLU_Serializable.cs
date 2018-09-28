@@ -222,12 +222,12 @@ namespace SuperGLU
             if (obj == null)
                 return null;
 
-            if (obj.GetType().Equals(typeof(StorageToken)))
+            if (obj.GetType().IsAssignableFrom(typeof(StorageToken)))
                 return SuperGLU_Serializable.createFromToken((StorageToken)obj);
 
             else if (obj.GetType().IsGenericType)
             {
-                if(TokenRWFormat.VALID_SEQUENCE_TYPES.Contains(obj.GetType().GetGenericTypeDefinition()))
+                if (TokenRWFormat.VALID_SEQUENCE_TYPES.Contains(obj.GetType().GetGenericTypeDefinition()))
                 {
                     List<Object> result = new List<object>();
 
@@ -241,9 +241,23 @@ namespace SuperGLU
                 }
                 else if (TokenRWFormat.VALID_MAPPING_TYPES.Contains(obj.GetType().GetGenericTypeDefinition()))
                 {
-                    return null;
+                    Dictionary<Object, Object> result = new Dictionary<object, object>();
+
+                    dynamic objAsDynamic = (dynamic)obj;
+
+                    foreach (KeyValuePair<object, object> entry in objAsDynamic)
+                    {
+                        result.Add(untokenizeObject(entry.Key), untokenizeObject(entry.Value));
+                    }
+                    return result;
+                }
+                else
+                {
+                    throw new Exception("unknown generic type for object : " + obj.ToString());
                 }
             }
+            else
+                return obj;
         }
     }
 }
