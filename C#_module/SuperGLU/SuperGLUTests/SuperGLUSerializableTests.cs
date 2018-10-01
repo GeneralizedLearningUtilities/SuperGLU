@@ -105,17 +105,26 @@ namespace SuperGLU.Tests
         public List<String> baz
         { get; set; }
 
+        public Dictionary<string, string> dict
+        { get; set; }
+
+        public MockSerializable nestedSerializable
+        { get; set; }
+
+        private static String DICT_KEY = "dict";
         private static String FOO_KEY = "foo";
         private static String BAR_KEY = "bar";
         private static String BAZ_KEY = "baz";
-
+        private static String NESTED_KEY = "nested";
        
 
-        public MockSerializable2(int foo, String bar, List<String> baz) : base()
+        public MockSerializable2(int foo, String bar, List<String> baz, Dictionary<String, String> dict, MockSerializable nested) : base()
         {
             this.foo = foo;
             this.bar = bar;
             this.baz = baz;
+            this.dict = dict;
+            this.nestedSerializable = nested;
         }
 
 
@@ -124,6 +133,8 @@ namespace SuperGLU.Tests
             this.foo = -1;
             this.bar = null;
             this.baz = new List<string>();
+            this.dict = new Dictionary<string, string>();
+            this.nestedSerializable = null;
         }
 
         public override bool Equals(object otherObj)
@@ -145,6 +156,14 @@ namespace SuperGLU.Tests
             if (!this.baz.SequenceEqual<String>(other.baz))
                 return false;
 
+            bool dictionariesEqual = this.dict.Keys.Count == other.dict.Keys.Count && 
+                   this.dict.Keys.All(k => other.dict.ContainsKey(k) && object.Equals(this.dict[k], other.dict[k]));
+
+            if (!dictionariesEqual)
+                return false;
+
+            if (!nestedSerializable.Equals(other.nestedSerializable))
+                return false;
             return true;
 
         }
@@ -163,6 +182,12 @@ namespace SuperGLU.Tests
             if (baz != null)
                 result = result * arbitraryPrimeNumber + baz.GetHashCode();
 
+            if (dict != null)
+                result = result * arbitraryPrimeNumber + dict.GetHashCode();
+
+            if (nestedSerializable != null)
+                result = result * arbitraryPrimeNumber + nestedSerializable.GetHashCode();
+
             return result;
         }
 
@@ -174,6 +199,15 @@ namespace SuperGLU.Tests
             token.setItem(FOO_KEY, this.foo);
             token.setItem(BAR_KEY, this.bar);
             token.setItem(BAZ_KEY, SerializationConvenience.tokenizeObject(this.baz));
+
+            Dictionary<Object, Object> objectDict = new Dictionary<Object, Object>();
+            foreach(String key in dict.Keys)
+            {
+                objectDict.Add(key, dict[key]);
+            } 
+
+            token.setItem(DICT_KEY, SerializationConvenience.tokenizeObject(objectDict));
+            token.setItem(NESTED_KEY, SerializationConvenience.tokenizeObject(this.nestedSerializable));
 
             return token;
         }
@@ -187,6 +221,15 @@ namespace SuperGLU.Tests
             List<Object> bazAsObjectList = (List<Object>)SerializationConvenience.untokenizeObject(token.getItem(BAZ_KEY, true, new List<Object>()));
             this.baz = new List<string>();
             this.baz.AddRange(bazAsObjectList.Cast<String>());
+
+            Dictionary<Object, Object> nestedAsObjectDict = (Dictionary<Object, Object>)SerializationConvenience.untokenizeObject(token.getItem(DICT_KEY, true, new Dictionary<Object, Object>()));
+            this.dict = new Dictionary<string, string>();
+            foreach(Object key in nestedAsObjectDict.Keys)
+            {
+                this.dict.Add((String)key, (String)nestedAsObjectDict[key]);
+            }
+
+            this.nestedSerializable = (MockSerializable) SerializationConvenience.untokenizeObject(token.getItem(NESTED_KEY, true, null));
         }
 
 
@@ -224,11 +267,35 @@ namespace SuperGLU.Tests
             List<String> stringList = new List<string>();
             stringList.Add("Penguins");
             stringList.Add("birds");
-            MockSerializable2 obj = new MockSerializable2(5, "test", stringList);
+
+            Dictionary<String, String> dict = new Dictionary<string, string>();
+            dict.Add("test", "value");
+            MockSerializable nested = new MockSerializable(32, "testNested");
+
+            MockSerializable2 obj = new MockSerializable2(5, "test", stringList, dict, nested);
             StorageToken token = obj.saveToToken();
             MockSerializable2 copy = (MockSerializable2)SuperGLU_Serializable.createFromToken(token);
 
             Assert.AreEqual(obj, copy);
+        }
+
+
+        [TestMethod()]
+        public void testSerializeObject()
+        {
+            List<String> stringList = new List<string>();
+            stringList.Add("Penguins");
+            stringList.Add("birds");
+
+            Dictionary<String, String> dict = new Dictionary<string, string>();
+            dict.Add("test", "value");
+            MockSerializable nested = new MockSerializable(32, "testNested");
+
+            MockSerializable2 obj = new MockSerializable2(5, "test", stringList, dict, nested);
+
+            string json = SerializationConvenience.serializeObject(obj, SerializationFormatEnum.JSON_FORMAT);
+
+            Console.WriteLine(json);
         }
 
     }

@@ -42,6 +42,8 @@ namespace SuperGLU
         }
 
 
+
+
         public override bool Equals(object otherObj)
         {
             if (otherObj == null)
@@ -169,7 +171,7 @@ namespace SuperGLU
             if (obj == null)
                 return null;
 
-            else if (obj.GetType().IsAssignableFrom(typeof(SuperGLU_Serializable)))
+            else if (typeof(SuperGLU_Serializable).IsAssignableFrom(obj.GetType()))
                 return ((SuperGLU_Serializable)obj).saveToToken();
 
             else if (obj.GetType().IsGenericType)
@@ -248,6 +250,20 @@ namespace SuperGLU
             }
             else
                 return obj;
+        }
+
+
+        public static String serializeObject(SuperGLU_Serializable obj, SerializationFormatEnum sFormat)
+        {
+            StorageToken token = (StorageToken)tokenizeObject(obj);
+            return makeSerialized(token, sFormat);
+        }
+
+
+        public static SuperGLU_Serializable nativeizeObject(String input, SerializationFormatEnum sFormat)
+        {
+            StorageToken token = makeNative(input, sFormat);
+            return (SuperGLU_Serializable)untokenizeObject(token);
         }
     }
 }
