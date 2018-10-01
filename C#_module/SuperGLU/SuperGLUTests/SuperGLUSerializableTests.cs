@@ -20,10 +20,6 @@ namespace SuperGLU.Tests
         private static String BAR_KEY = "bar";
 
 
-        static MockSerializable()
-        {
-            CLASS_IDS.Add(typeof(MockSerializable).FullName, typeof(MockSerializable));
-        }
 
         public MockSerializable(int foo, String bar ):base()
         {
@@ -113,10 +109,7 @@ namespace SuperGLU.Tests
         private static String BAR_KEY = "bar";
         private static String BAZ_KEY = "baz";
 
-        static MockSerializable2()
-        {
-            CLASS_IDS.Add(typeof(MockSerializable2).FullName, typeof(MockSerializable2));
-        }
+       
 
         public MockSerializable2(int foo, String bar, List<String> baz) : base()
         {

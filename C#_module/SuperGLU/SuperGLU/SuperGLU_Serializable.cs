@@ -11,13 +11,6 @@ namespace SuperGLU
     {
         protected String id;
 
-        protected static Dictionary<String, Type> CLASS_IDS = new Dictionary<string, Type>();
-
-        static SuperGLU_Serializable()
-        {
-            CLASS_IDS.Add(typeof(SuperGLU_Serializable).FullName, typeof(SuperGLU_Serializable));
-        }
-
 
         public SuperGLU_Serializable(String id)
         {
@@ -89,7 +82,7 @@ namespace SuperGLU
 
         public String getClassId()
         {
-            return this.GetType().FullName;
+            return this.GetType().AssemblyQualifiedName;
         }
 
 
@@ -123,10 +116,7 @@ namespace SuperGLU
             String classId = token.getClassId();
 
             Type clazz;
-            if (CLASS_IDS.ContainsKey(classId))
-                clazz = CLASS_IDS[classId];
-            else
-                clazz = null;
+            clazz = Type.GetType(classId);
 
             if(clazz != null)
             { 
