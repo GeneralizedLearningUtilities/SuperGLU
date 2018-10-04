@@ -84,7 +84,7 @@ namespace SuperGLU.Tests
         public override void initializeFromToken(StorageToken token)
         {
             base.initializeFromToken(token);
-            this.foo = (int)SerializationConvenience.untokenizeObject(token.getItem(FOO_KEY, true, -1));
+            this.foo = int.Parse(SerializationConvenience.untokenizeObject(token.getItem(FOO_KEY, true, -1)).ToString());
             this.bar = (String)SerializationConvenience.untokenizeObject(token.getItem(BAR_KEY, true, null));
         }
 
@@ -216,7 +216,7 @@ namespace SuperGLU.Tests
         public override void initializeFromToken(StorageToken token)
         {
             base.initializeFromToken(token);
-            this.foo = (int)SerializationConvenience.untokenizeObject(token.getItem(FOO_KEY, true, -1));
+            this.foo = int.Parse(SerializationConvenience.untokenizeObject(token.getItem(FOO_KEY, true, -1)).ToString());
             this.bar = (String)SerializationConvenience.untokenizeObject(token.getItem(BAR_KEY, true, null));
             List<Object> bazAsObjectList = (List<Object>)SerializationConvenience.untokenizeObject(token.getItem(BAZ_KEY, true, new List<Object>()));
             this.baz = new List<string>();
@@ -296,6 +296,10 @@ namespace SuperGLU.Tests
             string json = SerializationConvenience.serializeObject(obj, SerializationFormatEnum.JSON_FORMAT);
 
             Console.WriteLine(json);
+
+            MockSerializable2 copy = (MockSerializable2) SerializationConvenience.nativeizeObject(json, SerializationFormatEnum.JSON_FORMAT);
+
+            Assert.AreEqual(obj, copy);
         }
 
     }

@@ -11,6 +11,27 @@ namespace SuperGLU
     {
         protected String id;
 
+        protected static Dictionary<String, Type> CLASS_IDS = new Dictionary<string, Type>();
+
+
+        static SuperGLU_Serializable()
+        {
+            populateClassIDS();
+        }
+
+
+        public static void populateClassIDS()
+        {
+            foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
+            {
+                foreach (var type in asm.GetTypes())
+                {
+                    if (typeof(SuperGLU_Serializable).IsAssignableFrom(type))
+                        CLASS_IDS.Add(type.Name, type);
+                }
+            }
+        }
+
 
         public SuperGLU_Serializable(String id)
         {
@@ -84,7 +105,7 @@ namespace SuperGLU
 
         public String getClassId()
         {
-            return this.GetType().AssemblyQualifiedName;
+            return this.GetType().Name;
         }
 
 
@@ -118,7 +139,11 @@ namespace SuperGLU
             String classId = token.getClassId();
 
             Type clazz;
-            clazz = Type.GetType(classId);
+
+            if (CLASS_IDS.ContainsKey(classId))
+                clazz = CLASS_IDS[classId];
+            else
+                clazz = null;
 
             if(clazz != null)
             { 
@@ -237,9 +262,20 @@ namespace SuperGLU
 
                     dynamic objAsDynamic = (dynamic)obj;
 
-                    foreach (KeyValuePair<object, object> entry in objAsDynamic)
+                    if (typeof(Dictionary<String, Object>).IsAssignableFrom(obj.GetType()))
                     {
-                        result.Add(untokenizeObject(entry.Key), untokenizeObject(entry.Value));
+
+                        foreach (KeyValuePair<string, object> entry in objAsDynamic)
+                        {
+                            result.Add(untokenizeObject(entry.Key), untokenizeObject(entry.Value));
+                        }
+                    }
+                    else if (typeof(Dictionary<object, object>).IsAssignableFrom(obj.GetType()))
+                    {
+                        foreach (KeyValuePair<object, object> entry in objAsDynamic)
+                        {
+                            result.Add(untokenizeObject(entry.Key), untokenizeObject(entry.Value));
+                        }
                     }
                     return result;
                 }
