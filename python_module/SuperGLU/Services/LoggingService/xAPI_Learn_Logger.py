@@ -203,10 +203,14 @@ class xAPILearnLogger(BaseService):
 
         missingData = False
 
+        if timestamp is None:
+            timestamp = self.getTimestamp()
+                
         while activity != None and activity.definition.type != self._sessionType:
             with open(self._errorLogName, 'a') as f:
                 missingData = True
                 f.write("Processing: terminate session but " + activity.definition.type + " is current activity\n")
+                f.write("\tuser name = " + self._userName + "\n")
 
                 if activity.definition.type == self._lessonType:
                     f.write("Sending terminate " + activity.definition.type + " statement\n")
@@ -227,6 +231,7 @@ class xAPILearnLogger(BaseService):
 
         if activity == None:
             f.write("Terminate session received but no current activity. Sending placeholder session data in terminate statement.\n")
+            f.write("\tuser name = " + self._userName + "\n")
             activity = Activity( id = self._sessionType, object_type = 'Activity',\
                          definition = ActivityDefinition(name=LanguageMap({'en-US': "tutor session" }),\
                                                          description=LanguageMap({'en-US': "This represents a tutoring session."}),\
@@ -240,9 +245,6 @@ class xAPILearnLogger(BaseService):
 
         self._Activity_Tree.ExitActivity()
           
-        if timestamp is None:
-            timestamp = self.getTimestamp()
-                
         statement = Statement(actor=actor, verb=self.create_terminated_verb(), object=activity, result=None, context=context, timestamp=timestamp)
         self.sendLoggingMessage(statement)
 
