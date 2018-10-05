@@ -45,6 +45,13 @@ class xAPILearnLogger(BaseService):
         self._home_page = homePage
         self._mbox_host = mboxHost
         self._url = "https://github.com/GeneralizedLearningUtilities/SuperGLU/"
+        self._errorLogName = "xapi_learn_logger_errorLog.txt"
+        self._sessionType = "http://id.tincanapi.com/activitytype/tutor-session"
+        self._lessonType = "http://adlnet.gov/expapi/activities/lesson"
+        self._sublessonType = self._url + "sublesson"
+        self._taskType = "http://activitystrea.ms/schema/1.0/task"
+        self._stepType = "http://id.tincanapi.com/activitytype/step"
+        self._recoveredKey = self._url + "recovered"
 
     def setUserId(self,userId):
         self._userId = userId
@@ -74,35 +81,35 @@ class xAPILearnLogger(BaseService):
         return Activity( id = activityID, object_type = 'Activity',\
                          definition = ActivityDefinition(name=LanguageMap({'en-US': name }),\
                                                          description=LanguageMap({'en-US': description}),\
-                                                         type= "http://id.tincanapi.com/activitytype/tutor-session",\
+                                                         type= self._sessionType,\
                                                          extensions= { self._url + "activityid" : str(uuid.uuid4()) } ))
 
     def createLesson(self, activityID, name, description):
         return Activity( id = activityID, object_type = 'Activity',\
                          definition = ActivityDefinition(name=LanguageMap({'en-US': name }),\
                                                          description=LanguageMap({'en-US': description}),\
-                                                         type= "http://adlnet.gov/expapi/activities/lesson",\
+                                                         type= self._lessonType,\
                                                          extensions= { self._url + "activityid" : str(uuid.uuid4()) }))
 
     def createSublesson(self, activityID, name, description):
         return Activity( id = activityID, object_type = 'Activity',\
                          definition = ActivityDefinition(name=LanguageMap({'en-US': name }),\
                                                          description=LanguageMap({'en-US': description}),\
-                                                         type= self._url + "sublesson",\
+                                                         type= self._sublessonType,\
                                                          extensions= { self._url + "activityid" : str(uuid.uuid4()) }))
 
     def createTask(self, activityID, name, description):
         return Activity( id = activityID, object_type = 'Activity',\
                          definition = ActivityDefinition(name=LanguageMap({'en-US': name }),\
                                                          description=LanguageMap({'en-US': description}),\
-                                                         type= "http://activitystrea.ms/schema/1.0/task",\
+                                                         type= self._taskType,\
                                                          extensions= { self._url + "activityid" : str(uuid.uuid4()) }))
 
     def createStep(self, activityID, name, description):
         return Activity( id = activityID, object_type = 'Activity',\
                          definition = ActivityDefinition(name=LanguageMap({'en-US': name }),\
                                                          description=LanguageMap({'en-US': description}),\
-                                                         type= "http://id.tincanapi.com/activitytype/step",\
+                                                         type= self._stepType,\
                                                          extensions= { self._url + "activityid" : str(uuid.uuid4()) }))
 
     def createVideo(self):
@@ -185,22 +192,61 @@ class xAPILearnLogger(BaseService):
         statement = Statement(actor=actor, verb=self.create_started_verb(), object=activity, result=None, context=context, timestamp=timestamp)
         self.sendLoggingMessage(statement)
 
+    def createFakeContextDict(self):
+        return { self._recoveredKey : "activity" }
 
     def sendTerminatedSession(self, contextDict, timestamp=None):
         actor = self.createAgent()
         
         #Implementing Activity Tree into context
         activity = self._Activity_Tree.findCurrentActivity()
+
+        missingData = False
+
+        while activity != None and activity.definition.type != self._sessionType:
+            with open(self._errorLogName, 'a') as f:
+                missingData = True
+                f.write("Processing: terminate session but " + activity.definition.type + " is current activity\n")
+
+                if activity.definition.type == self._lessonType:
+                    f.write("Sending terminate " + activity.definition.type + " statement\n")
+                    self.sendCompletedLesson(contextDict =  self.createFakeContextDict(), timestamp=timestamp,fake=True)
+                elif activity.definition.type == self._sublessonType:
+                    f.write("Sending terminate " + activity.definition.type + " statement\n")
+                    self.sendCompletedSublesson(contextDict = self.createFakeContextDict(), timestamp=timestamp,fake=True)
+                elif activity.definition.type == self._taskType:
+                    f.write("Sending terminate " + activity.definition.type + " statement\n")
+                    self.sendCompletedTask(contextDict = self.createFakeContextDict(), timestamp=timestamp,fake=True)
+                elif activity.definition.type == self._stepType:
+                    f.write("Sending terminate " + activity.definition.type + " statement\n")
+                    self.sendCompletedStep(choice="UNKNOWN",contextDict=self.createFakeContextDict(),timestamp=timestamp,fake=True)
+                else:
+                    f.write("No statement to complete/terminate this activity. Simply removing from activity tree\n")
+                    self._Activity_Tree.ExitActivity()
+                activity = self._Activity_Tree.findCurrentActivity()
+
+        if activity == None:
+            f.write("Terminate session received but no current activity. Sending placeholder session data in terminate statement.\n")
+            activity = Activity( id = self._sessionType, object_type = 'Activity',\
+                         definition = ActivityDefinition(name=LanguageMap({'en-US': "tutor session" }),\
+                                                         description=LanguageMap({'en-US': "This represents a tutoring session."}),\
+                                                         extensions= { self._url + "activityid" : str(uuid.uuid4()) } ))
+            contextDict[self._recoveredKey] = "activityPlusContext"
+
+        if missingData:
+            contextDict[self._url + "missingCompletions"] = "True"
+
         context = self.addContext(contextDict)
 
         self._Activity_Tree.ExitActivity()
           
         if timestamp is None:
             timestamp = self.getTimestamp()
+                
         statement = Statement(actor=actor, verb=self.create_terminated_verb(), object=activity, result=None, context=context, timestamp=timestamp)
         self.sendLoggingMessage(statement)
 
-    def sendCompletedLesson(self, contextDict, timestamp=None):
+    def sendCompletedLesson(self, contextDict, timestamp=None, fake=False):
         actor = self.createAgent()
 
         #Implementing Activity Tree into context
@@ -211,10 +257,14 @@ class xAPILearnLogger(BaseService):
               
         if timestamp is None:
             timestamp = self.getTimestamp()
-        statement = Statement(actor=actor, verb=self.create_completed_verb(), object=activity, result=None, context=context, timestamp=timestamp)
+        if fake:
+            verb = self.create_terminated_verb()
+        else:
+            verb = self.create_completed_verb()
+        statement = Statement(actor=actor, verb=verb, object=activity, result=None, context=context, timestamp=timestamp)
         self.sendLoggingMessage(statement)
 
-    def sendCompletedSublesson(self, contextDict, timestamp=None):
+    def sendCompletedSublesson(self, contextDict, timestamp=None, fake=False):
         actor = self.createAgent()
 
         activity = self._Activity_Tree.findCurrentActivity()
@@ -224,10 +274,14 @@ class xAPILearnLogger(BaseService):
            
         if timestamp is None:
             timestamp = self.getTimestamp()
-        statement = Statement(actor=actor, verb=self.create_completed_verb(), object=activity, result=None, context=context, timestamp=timestamp)
+        if fake:
+            verb = self.create_terminated_verb()
+        else:
+            verb = self.create_completed_verb()
+        statement = Statement(actor=actor, verb=verb, object=activity, result=None, context=context, timestamp=timestamp)
         self.sendLoggingMessage(statement)
 
-    def sendCompletedTask(self, contextDict, timestamp=None):
+    def sendCompletedTask(self, contextDict, timestamp=None, fake=False):
         actor = self.createAgent()
 
         #Implementing Activity Tree into context
@@ -238,13 +292,17 @@ class xAPILearnLogger(BaseService):
               
         if timestamp is None:
             timestamp = self.getTimestamp()
-        statement = Statement(actor=actor, verb=self.create_completed_verb(), object=activity, result=None, context=context, timestamp=timestamp)
+        if fake:
+            verb = self.create_terminated_verb()
+        else:
+            verb = self.create_completed_verb()
+        statement = Statement(actor=actor, verb=verb, object=activity, result=None, context=context, timestamp=timestamp)
         self.sendLoggingMessage(statement)
 
     # work in progress.
     # If a raw_score is provided then a max_score must be provided too.
     # Might want to provide more detailed information relating to the knowledge components involved in the step.
-    def sendCompletedStep(self, choice, contextDict, resultExtDict=None, raw_score=-1, max_score=-1, min_score=0, timestamp=None):
+    def sendCompletedStep(self, choice, contextDict, resultExtDict=None, raw_score=-1, max_score=-1, min_score=0, timestamp=None,fake=False):
         actor = self.createAgent()
 
         if resultExtDict==None:
@@ -268,7 +326,11 @@ class xAPILearnLogger(BaseService):
               
         if timestamp is None:
             timestamp = self.getTimestamp()
-        statement = Statement(actor=actor, verb=self.create_completed_verb(), object=activity, result=result, context=context, timestamp=timestamp)
+        if fake:
+            verb = self.create_terminated_verb()
+        else:
+            verb = self.create_completed_verb()
+        statement = Statement(actor=actor, verb=verb, object=activity, result=result, context=context, timestamp=timestamp)
         self.sendLoggingMessage(statement)      
 
     # ***********************************************************************************
