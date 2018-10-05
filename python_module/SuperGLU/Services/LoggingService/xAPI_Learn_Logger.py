@@ -60,7 +60,7 @@ class xAPILearnLogger(BaseService):
         self._userName = userName
 
     def getTimestamp(self):
-        timestamp = datetime.datetime.utcnow()
+        timestamp = datetime.datetime.now(datetime.timezone.utc)
         return timestamp
 
     # ***************** VERBS ***************************************
