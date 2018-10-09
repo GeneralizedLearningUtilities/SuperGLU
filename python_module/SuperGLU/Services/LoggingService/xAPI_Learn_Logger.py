@@ -25,6 +25,29 @@ import uuid
 from representation.ActivityTree import ActivityTree
 from SuperGLU.Util.Serialization import makeSerialized
 
+BASE_URI = "https://github.com/GeneralizedLearningUtilities/SuperGLU/"
+
+# ACTIVITY TYPES
+SESSION_TYPE = "http://id.tincanapi.com/activitytype/tutor-session"
+LESSON_TYPE = "http://adlnet.gov/expapi/activities/lesson"
+SUBLESSON_TYPE = BASE_URI + "sublesson"
+TASK_TYPE = "http://activitystrea.ms/schema/1.0/task"
+STEP_TYPE = "http://id.tincanapi.com/activitytype/step"
+
+# VERBS
+START_URI = "http://activitystrea.ms/schema/1.0/start"
+COMPLETED_URI = "http://activitystrea.ms/schema/1.0/complete"
+TERMINATED_URI = "http://activitystrea.ms/schema/1.0/terminate"
+WATCHED_URI = "http://activitystrea.ms/schema/1.0/watch"
+
+# ACTIVITY DEFINITION EXTENSION
+ACTIVITY_ID_URI = BASE_URI + "activityid"
+
+# CONTEXT EXTENSIONS
+RECOVERED_URI = BASE_URI + "recovered"
+MISSING_COMPS_URI = BASE_URI + "missingCompletions"
+ACTIVITY_TREE_URI = BASE_URI + 'serialized_activitytree'
+
 class xAPILearnLogger(BaseService):
 
     # if mbox_host != None
@@ -44,14 +67,7 @@ class xAPILearnLogger(BaseService):
         self._userName = userName
         self._home_page = homePage
         self._mbox_host = mboxHost
-        self._url = "https://github.com/GeneralizedLearningUtilities/SuperGLU/"
         self._errorLogName = "xapi_learn_logger_errorLog.txt"
-        self._sessionType = "http://id.tincanapi.com/activitytype/tutor-session"
-        self._lessonType = "http://adlnet.gov/expapi/activities/lesson"
-        self._sublessonType = self._url + "sublesson"
-        self._taskType = "http://activitystrea.ms/schema/1.0/task"
-        self._stepType = "http://id.tincanapi.com/activitytype/step"
-        self._recoveredKey = self._url + "recovered"
 
     def setUserId(self,userId):
         self._userId = userId
@@ -65,58 +81,58 @@ class xAPILearnLogger(BaseService):
 
     # ***************** VERBS ***************************************
     def create_completed_verb(self):
-        return Verb(id = "http://activitystrea.ms/schema/1.0/complete", display=LanguageMap({'en-US': 'completed'}))
+        return Verb(id = COMPLETED_URI, display=LanguageMap({'en-US': 'completed'}))
 
     def create_started_verb(self):
-        return Verb(id =  "http://activitystrea.ms/schema/1.0/start", display=LanguageMap({'en-US': 'started'}))
+        return Verb(id = START_URI , display=LanguageMap({'en-US': 'started'}))
 
     def create_terminated_verb(self):
-        return Verb(id = "http://activitystrea.ms/schema/1.0/terminate", display=LanguageMap({'en-US': 'terminated'}))
+        return Verb(id = TERMINATED_URI, display=LanguageMap({'en-US': 'terminated'}))
 
     def create_watched_verb(self):
-        return Verb(id = "http://activitystrea.ms/schema/1.0/watch", display=LanguageMap({'en-US': 'watched'}))
+        return Verb(id = WATCHED_URI, display=LanguageMap({'en-US': 'watched'}))
 
     # ************** ACTIVITIES *************************************
     def createSession(self, activityID, name, description):
         return Activity( id = activityID, object_type = 'Activity',\
                          definition = ActivityDefinition(name=LanguageMap({'en-US': name }),\
                                                          description=LanguageMap({'en-US': description}),\
-                                                         type= self._sessionType,\
-                                                         extensions= { self._url + "activityid" : str(uuid.uuid4()) } ))
+                                                         type= SESSION_TYPE,\
+                                                         extensions= { ACTIVITY_ID_URI  : str(uuid.uuid4()) } ))
 
     def createLesson(self, activityID, name, description):
         return Activity( id = activityID, object_type = 'Activity',\
                          definition = ActivityDefinition(name=LanguageMap({'en-US': name }),\
                                                          description=LanguageMap({'en-US': description}),\
-                                                         type= self._lessonType,\
-                                                         extensions= { self._url + "activityid" : str(uuid.uuid4()) }))
+                                                         type= LESSON_TYPE,\
+                                                         extensions= { ACTIVITY_ID_URI : str(uuid.uuid4()) }))
 
     def createSublesson(self, activityID, name, description):
         return Activity( id = activityID, object_type = 'Activity',\
                          definition = ActivityDefinition(name=LanguageMap({'en-US': name }),\
                                                          description=LanguageMap({'en-US': description}),\
-                                                         type= self._sublessonType,\
-                                                         extensions= { self._url + "activityid" : str(uuid.uuid4()) }))
+                                                         type= SUBLESSON_TYPE,\
+                                                         extensions= { ACTIVITY_ID_URI : str(uuid.uuid4()) }))
 
     def createTask(self, activityID, name, description):
         return Activity( id = activityID, object_type = 'Activity',\
                          definition = ActivityDefinition(name=LanguageMap({'en-US': name }),\
                                                          description=LanguageMap({'en-US': description}),\
-                                                         type= self._taskType,\
-                                                         extensions= { self._url + "activityid" : str(uuid.uuid4()) }))
+                                                         type= TASK_TYPE,\
+                                                         extensions= { ACTIVITY_ID_URI : str(uuid.uuid4()) }))
 
     def createStep(self, activityID, name, description):
         return Activity( id = activityID, object_type = 'Activity',\
                          definition = ActivityDefinition(name=LanguageMap({'en-US': name }),\
                                                          description=LanguageMap({'en-US': description}),\
-                                                         type= self._stepType,\
-                                                         extensions= { self._url + "activityid" : str(uuid.uuid4()) }))
+                                                         type= STEP_TYPE,\
+                                                         extensions= { ACTIVITY_ID_URI : str(uuid.uuid4()) }))
 
     def createVideo(self):
         return Activity( id = "http://activitystrea.ms/schema/1.0/video", object_type = 'Activity',\
                          definition = ActivityDefinition(name=LanguageMap({'en-US': "video"}),\
                                                          description=LanguageMap({'en-US': "Video content of any kind"}),\
-                                                         extensions= { self._url + "activityid" : str(uuid.uuid4()) }))
+                                                         extensions= { ACTIVITY_ID_URI : str(uuid.uuid4()) }))
 
     def createAgent(self):
         if self._mbox_host != None:
@@ -193,7 +209,7 @@ class xAPILearnLogger(BaseService):
         self.sendLoggingMessage(statement)
 
     def createFakeContextDict(self):
-        return { self._recoveredKey : "activity" }
+        return { RECOVERED_URI : "activity" }
 
     def sendTerminatedSession(self, contextDict, timestamp=None):
         actor = self.createAgent()
@@ -206,22 +222,22 @@ class xAPILearnLogger(BaseService):
         if timestamp is None:
             timestamp = self.getTimestamp()
                 
-        while activity != None and activity.definition.type != self._sessionType:
+        while activity != None and activity.definition.type != SESSION_TYPE:
             with open(self._errorLogName, 'a') as f:
                 missingData = True
                 f.write("Processing: terminate session but " + activity.definition.type + " is current activity\n")
                 f.write("\tuser name = " + self._userName + "\n")
 
-                if activity.definition.type == self._lessonType:
+                if activity.definition.type == LESSON_TYPE:
                     f.write("Sending terminate " + activity.definition.type + " statement\n")
                     self.sendCompletedLesson(contextDict =  self.createFakeContextDict(), timestamp=timestamp,fake=True)
-                elif activity.definition.type == self._sublessonType:
+                elif activity.definition.type == SUBLESSON_TYPE:
                     f.write("Sending terminate " + activity.definition.type + " statement\n")
                     self.sendCompletedSublesson(contextDict = self.createFakeContextDict(), timestamp=timestamp,fake=True)
-                elif activity.definition.type == self._taskType:
+                elif activity.definition.type == TASK_TYPE:
                     f.write("Sending terminate " + activity.definition.type + " statement\n")
                     self.sendCompletedTask(contextDict = self.createFakeContextDict(), timestamp=timestamp,fake=True)
-                elif activity.definition.type == self._stepType:
+                elif activity.definition.type == STEP_TYPE:
                     f.write("Sending terminate " + activity.definition.type + " statement\n")
                     self.sendCompletedStep(choice="UNKNOWN",contextDict=self.createFakeContextDict(),timestamp=timestamp,fake=True)
                 else:
@@ -232,14 +248,14 @@ class xAPILearnLogger(BaseService):
         if activity == None:
             f.write("Terminate session received but no current activity. Sending placeholder session data in terminate statement.\n")
             f.write("\tuser name = " + self._userName + "\n")
-            activity = Activity( id = self._sessionType, object_type = 'Activity',\
+            activity = Activity( id = SESSION_TYPE, object_type = 'Activity',\
                          definition = ActivityDefinition(name=LanguageMap({'en-US': "tutor session" }),\
                                                          description=LanguageMap({'en-US': "This represents a tutoring session."}),\
-                                                         extensions= { self._url + "activityid" : str(uuid.uuid4()) } ))
-            contextDict[self._recoveredKey] = "activityPlusContext"
+                                                         extensions= { ACTIVITY_ID_URI : str(uuid.uuid4()) } ))
+            contextDict[RECOVERED_URI] = "activityPlusContext"
 
         if missingData:
-            contextDict[self._url + "missingCompletions"] = "True"
+            contextDict[MISSING_COMPS_URI] = "True"
 
         context = self.addContext(contextDict)
 
@@ -369,7 +385,7 @@ class xAPILearnLogger(BaseService):
 
     def addContext(self, tempExtensions = {}):
         
-        tempExtensions[self._url + ACTIVITY_TREE_KEY] = self._Activity_Tree.saveXAPItoJSON()
+        tempExtensions[ACTIVITY_TREE_URI] = self._Activity_Tree.saveXAPItoJSON()
                                         
         mygrouping = self._Activity_Tree.convertPathToGrouping()
         myparent = self._Activity_Tree.findParentActivity()
