@@ -69,6 +69,10 @@ class xAPILearnLogger(BaseService):
         self._mbox_host = mboxHost
         self._errorLogName = "xapi_learn_logger_errorLog.txt"
 
+
+    def resetActivityTree(self,activityTreeStr):
+        self._Activity_Tree.initializeFromXAPI_JSON(activityTreeStr)
+
     def setUserId(self,userId):
         self._userId = userId
 
