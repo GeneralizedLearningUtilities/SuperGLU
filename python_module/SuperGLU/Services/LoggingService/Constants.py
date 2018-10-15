@@ -48,7 +48,6 @@ KC_RELEVANCE_KEY = 'KCRelevance'                   # Knowledge component relevan
 NUM_OBSERVATIONS_KEY = 'numberOfObservations'      # Number of observations for some behavior that is measured
 HELP_TYPE_KEY = 'helpType'                         # Type of the help provided (e.g., Positive, Negative, neutral)
 RESULT_CONTENT_TYPE_KEY = 'resultContentType'      # Type for the content of the help or other media (e.g., 'text', 'html', 'jpg')
-ACTIVITY_TREE_KEY = 'serialized_activitytree'
 
 # Other Constants
 UNKNOWN_PREFIX = 'Unknown'
