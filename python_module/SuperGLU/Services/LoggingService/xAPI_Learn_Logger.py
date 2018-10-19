@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime, timezone, timedelta
 from SuperGLU.Core.Messaging import Message
 from SuperGLU.Core.MessagingGateway import BaseService
 from SuperGLU.Services.LoggingService.Constants import *
@@ -68,8 +68,13 @@ class xAPILearnLogger(BaseService):
         self._home_page = homePage
         self._mbox_host = mboxHost
         self._errorLogName = "xapi_learn_logger_errorLog.txt"
+        # If log file ends suddenly, this is our guess of how many seconds passed since last message recorded
+        self._secondsAfterLastTimeStamp = 1
 
-
+    def generateFakeTimeStamp(lastTimeStampStr):
+        return (datetime.fromisoformat(lastTimeStampStr) +\
+                             timedelta(seconds=self._secondsAfterLastTimeStamp)).isoformat()
+    
     def resetActivityTree(self,activityTreeStr):
         self._Activity_Tree.initializeFromXAPI_JSON(activityTreeStr)
 
@@ -80,7 +85,7 @@ class xAPILearnLogger(BaseService):
         self._userName = userName
 
     def getTimestamp(self):
-        timestamp = datetime.datetime.now(datetime.timezone.utc)
+        timestamp = datetime.now(timezone.utc)
         return timestamp
 
     # ***************** VERBS ***************************************
@@ -214,6 +219,13 @@ class xAPILearnLogger(BaseService):
 
     def createFakeContextDict(self):
         return { RECOVERED_URI : "activity" }
+
+    def sendFakeTerminatedSession(self, contextDict, timestamp):
+        with open(self._errorLogName, 'a') as f:
+            fakeTimeStamp = generateFakeTimeStamp(timestamp)
+            f.write("Generating fake end of session statement. Last timestamp is " + timestamp + "\n")
+            f.write("Fake timestamp is " + fakeTimeStamp + "\n")
+            self.sendTerminatedSession(contextDict,fakeTimeStamp)
 
     def sendTerminatedSession(self, contextDict, timestamp=None):
         actor = self.createAgent()
