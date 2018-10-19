@@ -25,7 +25,9 @@ namespace SuperGLUTests
             tree.enterActivity(activity.id, activity, null);
 
             tree.enterActivity(activity.id, activity2, null);
-            tree.exitActivity(null);
+           // tree.exitActivity(null);
+
+            String result = tree.activityTreeToSimple();
         }
     }
 }

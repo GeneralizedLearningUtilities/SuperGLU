@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TinCan;
+using Newtonsoft.Json;
 
 namespace SuperGLU
 {
@@ -62,9 +63,17 @@ namespace SuperGLU
         }
 
 
-        public String activityTreeToActivityString(List<ActivityTreeEntry> subtree, String emptyString)
+        public String activityTreeToSimple()
         {
-            return null;
+
+            String activityTreeAsString = JsonConvert.SerializeObject(this.activityTree);
+            String currentPathAsString = JsonConvert.SerializeObject(this.currentPath);
+
+            Dictionary<String, String> result = new Dictionary<string, string>();
+            result.Add(ACTIVITY_TREE_KEY, activityTreeAsString);
+            result.Add(CURRENT_PATH_KEY, currentPathAsString);
+
+            return JsonConvert.SerializeObject(result);
         }
 
 
