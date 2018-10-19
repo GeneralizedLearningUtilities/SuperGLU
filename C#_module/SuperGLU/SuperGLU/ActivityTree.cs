@@ -7,7 +7,7 @@ using TinCan;
 
 namespace SuperGLU
 {
-    class ActivityTreeEntry
+    public class ActivityTreeEntry
     {
         public Activity  activity
         { get; set; }
@@ -25,17 +25,13 @@ namespace SuperGLU
             this.label = label;
             this.children = new List<ActivityTreeEntry>();
         }
-    }
+    } 
 
 
-    class ActivityTree : SuperGLU_Serializable
+    public class ActivityTree : SuperGLU_Serializable
     {
         private static String ACTIVITY_TREE_KEY = "activityTree";
         private static String CURRENT_PATH_KEY = "currentPath";
-
-        private static int ACTIVITY_INDEX = 0;
-        private static int LABEL_INDEX = 1;
-        private static int CHILDREN_INDEX = 2;
 
         private List<ActivityTreeEntry> activityTree;
         private List<Activity> currentPath;
@@ -83,10 +79,80 @@ namespace SuperGLU
             }
             else
             {
+                if(parentActivity == null)
+                {
+                    parentActivity = this.findCurrentActivity();
+                }
+                if (!findAndInsertNode(entry.activity, parentActivity, this.activityTree, new List<Activity>()))
+                {
+                    Console.Out.WriteLine("WARNING: activity not found:" + parentActivity.ToString());
+                    Console.Out.WriteLine("Inserting into activity tree at root");
+
+                    this.activityTree.Add(entry);
+                    this.currentPath = new List<Activity>();
+                    this.currentPath.Add(entry.activity);
+                }
 
             }
         }
 
+
+
+        public void exitActivity(Activity activity)
+        {
+            if(this.activityTree.Count == 0)
+            {
+                Console.Out.WriteLine("WARNING: trying to exit from empty activity tree");
+            }
+            else
+            {
+                if(activity == null)
+                {
+                    activity = this.findCurrentActivity();
+                }
+                if (!findAndDeleteNode(activity, null, this.activityTree, new List<Activity>()))
+                {
+                    Console.Out.WriteLine("WARNING: activity not found:" + activity.ToString());
+                }
+            }
+        }
+
+
+        public void createSibling(String label, Activity activity, List<ActivityTreeEntry> children, Activity parentActivity)
+        {
+            if (children == null)
+                children = new List<ActivityTreeEntry>();
+
+            ActivityTreeEntry entry = new ActivityTreeEntry(activity, label);
+            entry.children = children;
+
+            if (this.activityTree.Count == 0)
+            {
+                this.activityTree.Add(entry);
+                this.currentPath.Add(entry.activity);
+            }
+            else if (currentPath.Count == 1 && parentActivity == null)
+            {
+                this.activityTree.Add(entry);
+                this.currentPath.RemoveAt(this.currentPath.Count - 1);
+                this.currentPath.Add(entry.activity);
+            }
+            else
+            {
+                if (parentActivity == null)
+                {
+                    parentActivity = this.findParentActivity();
+                }
+                if (!this.findAndInsertNode(entry.activity, parentActivity, this.activityTree, new List<Activity>()))
+                {
+                    Console.Out.WriteLine("WARNING: activity not found:" + parentActivity.ToString());
+                    Console.Out.WriteLine("Inserting into activity tree at root");
+                    this.activityTree.Add(entry);
+                    this.currentPath = new List<Activity>();
+                    this.currentPath.Add(entry.activity);
+                }
+            }
+        }
 
         public bool findAndInsertNode(Activity newEntry, Activity activityTarget, List<ActivityTreeEntry> subTree, List<Activity> path)
         {

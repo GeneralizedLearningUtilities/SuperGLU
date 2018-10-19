@@ -45,8 +45,8 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
-    <Reference Include="TinCan, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\TinCan.1.1.0\lib\net45\TinCan.dll</HintPath>
+    <Reference Include="TinCan, Version=1.2.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\TinCan.1.2.0\lib\net45\TinCan.dll</HintPath>
       <Private>True</Private>
     </Reference>
   </ItemGroup>
