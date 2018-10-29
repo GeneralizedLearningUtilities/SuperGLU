@@ -71,7 +71,7 @@ class xAPILearnLogger(BaseService):
         # If log file ends suddenly, this is our guess of how many seconds passed since last message recorded
         self._secondsAfterLastTimeStamp = 1
 
-    def generateFakeTimeStamp(lastTimeStampStr):
+    def generateFakeTimeStamp(self,lastTimeStampStr):
         return (datetime.fromisoformat(lastTimeStampStr) +\
                              timedelta(seconds=self._secondsAfterLastTimeStamp)).isoformat()
     
@@ -222,7 +222,7 @@ class xAPILearnLogger(BaseService):
 
     def sendFakeTerminatedSession(self, contextDict, timestamp):
         with open(self._errorLogName, 'a') as f:
-            fakeTimeStamp = generateFakeTimeStamp(timestamp)
+            fakeTimeStamp = self.generateFakeTimeStamp(timestamp)
             f.write("Generating fake end of session statement. Last timestamp is " + timestamp + "\n")
             f.write("Fake timestamp is " + fakeTimeStamp + "\n")
             self.sendTerminatedSession(contextDict,fakeTimeStamp)
