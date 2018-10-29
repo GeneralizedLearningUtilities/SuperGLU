@@ -77,6 +77,19 @@ namespace SuperGLU
         }
 
 
+        public List<Activity> convertPathToGrouping()
+        {
+            List<Activity> result = new List<Activity>();
+            for(int ii = this.currentPath.Count - 3; ii >= 0; --ii)
+            {
+                result.Add(this.currentPath[ii]);
+            }
+
+            return result;
+
+        }
+
+
         public void enterActivity(String label, Activity activity, Activity parentActivity)
         {
             ActivityTreeEntry entry = new ActivityTreeEntry(activity, label);
