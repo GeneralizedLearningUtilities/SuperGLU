@@ -207,7 +207,7 @@ namespace SuperGLU
             activity.definition = new ActivityDefinition();
             activity.definition.name = new LanguageMap(new Dictionary<string, string>() { { "en-US", name } });
             activity.definition.description = new LanguageMap(new Dictionary<string, string>() { { "en-US", description } });
-            activity.definition.type = new Uri("http://id.tincanapi.com/activitytype/activityTree");
+            activity.definition.type = new Uri("http://id.tincanapi.com/activitytype/activityTree")
 
             return activity;
         }
@@ -552,7 +552,7 @@ namespace SuperGLU
         {
             Agent actor = CreateActor(this.userName, this.userId, this.mbox);
             Verb verb = CreateCompletedVerb();
-            Activity activity = CreateActivityTree();
+            Activity activity = this.activityTree.findCurrentActivity();
             Result result = new Result();
             Context context = CreateContext(contextJson);
             TinCan.Extensions extensions = new TinCan.Extensions(new JObject { {customScoreURI, customScore} });
