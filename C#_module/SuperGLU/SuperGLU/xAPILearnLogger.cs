@@ -4,7 +4,6 @@ using System.IO;
 using System.Collections.Generic;
 using TinCan;
 
-
 namespace SuperGLU
 {
     public class xAPILearnLogger: BaseLearnLogger
@@ -14,13 +13,19 @@ namespace SuperGLU
 
         ActivityTree activityTree;
 
+
+        RemoteLRS remoteLRS;
+
         /* ---------------- constructor, getter and setter --------------- */
         public xAPILearnLogger(string userId = "", string userName = ""): base()
         {
             this.activityTree = new ActivityTree();
             this.userId = userId;
             this.userName = userName;
+            this.mbox = "mailto:" + userId + "@ict.usc.edu";
             this.url = new Uri("https://github.com/GeneralizedLearningUtilities/SuperGLU/");
+
+            remoteLRS = new RemoteLRS("http://ictsmarte.org/data/xAPI", "e181f39b3cbb6b1f1c08a2c5fc59ccda617c2212", "3ba7fd269e3bc03234a3ce77861c76c7fa6b142e");
         }
 
         public void SetUserId(string userId)
@@ -207,7 +212,7 @@ namespace SuperGLU
             activity.definition = new ActivityDefinition();
             activity.definition.name = new LanguageMap(new Dictionary<string, string>() { { "en-US", name } });
             activity.definition.description = new LanguageMap(new Dictionary<string, string>() { { "en-US", description } });
-            activity.definition.type = new Uri("http://id.tincanapi.com/activitytype/activityTree")
+            activity.definition.type = new Uri("http://id.tincanapi.com/activitytype/activityTree");
 
             return activity;
         }
@@ -620,6 +625,9 @@ namespace SuperGLU
 
         private void SendLoggingMessage(Statement statement)
         {
+            //send to learnlocker
+            this.remoteLRS.SaveStatement(statement);
+            Console.Out.WriteLine("sent statement");
             string path = Directory.GetCurrentDirectory();
             // write to log file
             using (System.IO.StreamWriter logFile =
