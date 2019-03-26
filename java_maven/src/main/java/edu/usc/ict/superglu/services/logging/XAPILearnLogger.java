@@ -1,5 +1,6 @@
 package edu.usc.ict.superglu.services.logging;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.UUID;
@@ -8,9 +9,16 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 
 import edu.usc.ict.superglu.core.BaseService;
+import edu.usc.ict.superglu.core.Message;
 import edu.usc.ict.superglu.core.MessagingGateway;
+import edu.usc.ict.superglu.core.MessagingVerbConstants;
+import edu.usc.ict.superglu.core.SpeechActEnum;
+import gov.adlnet.xapi.model.Account;
 import gov.adlnet.xapi.model.Activity;
 import gov.adlnet.xapi.model.ActivityDefinition;
+import gov.adlnet.xapi.model.Agent;
+import gov.adlnet.xapi.model.Context;
+import gov.adlnet.xapi.model.Statement;
 import gov.adlnet.xapi.model.Verb;
 
 public class XAPILearnLogger extends BaseService {
@@ -43,6 +51,8 @@ public class XAPILearnLogger extends BaseService {
 	private String mboxHost;
 	private String errorLogName ="xap_learn_logger_errorLog.txt";
 	private float secondsAfterLastTimeStamp = 1;
+	
+	public static SimpleDateFormat timestampFormat = new SimpleDateFormat("yyyy-MM-ddTHH:mm:ss.SSSZ");
 	
 	
 	public XAPILearnLogger(MessagingGateway gateway, String userId, String userName, String homePage, String mboxHost)
@@ -121,13 +131,150 @@ public class XAPILearnLogger extends BaseService {
 		HashMap<String, String> descriptionMap = new HashMap<>();
 		descriptionMap.put("en-US", description);
 		ActivityDefinition definition = new ActivityDefinition(nameMap, descriptionMap);
-		definition.setType(SUBLESSON_TYPE);
+		definition.setType(SESSION_TYPE);
 		HashMap<String, JsonElement> extensions = new HashMap<>();
 		extensions.put(ACTIVITY_ID_URI, new JsonPrimitive(UUID.randomUUID().toString()));
 		definition.setExtensions(extensions);
 		Activity result = new Activity(activityId, definition);
 		return result;
 		
+	}
+	
+	
+	public Activity createLesson(String activityId, String name, String description)
+	{
+		HashMap<String, String> nameMap = new HashMap<>();
+		nameMap.put("en-US", name);
+		HashMap<String, String> descriptionMap = new HashMap<>();
+		descriptionMap.put("en-US", description);
+		ActivityDefinition definition = new ActivityDefinition(nameMap, descriptionMap);
+		definition.setType(LESSON_TYPE);
+		HashMap<String, JsonElement> extensions = new HashMap<>();
+		extensions.put(ACTIVITY_ID_URI, new JsonPrimitive(UUID.randomUUID().toString()));
+		definition.setExtensions(extensions);
+		Activity result = new Activity(activityId, definition);
+		return result;
+	}
+	
+	
+	public Activity createSubLesson(String activityId, String name, String description)
+	{
+		HashMap<String, String> nameMap = new HashMap<>();
+		nameMap.put("en-US", name);
+		HashMap<String, String> descriptionMap = new HashMap<>();
+		descriptionMap.put("en-US", description);
+		ActivityDefinition definition = new ActivityDefinition(nameMap, descriptionMap);
+		definition.setType(SUBLESSON_TYPE);
+		HashMap<String, JsonElement> extensions = new HashMap<>();
+		extensions.put(ACTIVITY_ID_URI, new JsonPrimitive(UUID.randomUUID().toString()));
+		definition.setExtensions(extensions);
+		Activity result = new Activity(activityId, definition);
+		return result;
+	}
+	
+	
+	public Activity createTask(String activityId, String name, String description)
+	{
+		HashMap<String, String> nameMap = new HashMap<>();
+		nameMap.put("en-US", name);
+		HashMap<String, String> descriptionMap = new HashMap<>();
+		descriptionMap.put("en-US", description);
+		ActivityDefinition definition = new ActivityDefinition(nameMap, descriptionMap);
+		definition.setType(TASK_TYPE);
+		HashMap<String, JsonElement> extensions = new HashMap<>();
+		extensions.put(ACTIVITY_ID_URI, new JsonPrimitive(UUID.randomUUID().toString()));
+		definition.setExtensions(extensions);
+		Activity result = new Activity(activityId, definition);
+		return result;
+	}
+	
+	
+	public Activity createStep(String activityId, String name, String description)
+	{
+		HashMap<String, String> nameMap = new HashMap<>();
+		nameMap.put("en-US", name);
+		HashMap<String, String> descriptionMap = new HashMap<>();
+		descriptionMap.put("en-US", description);
+		ActivityDefinition definition = new ActivityDefinition(nameMap, descriptionMap);
+		definition.setType(STEP_TYPE);
+		HashMap<String, JsonElement> extensions = new HashMap<>();
+		extensions.put(ACTIVITY_ID_URI, new JsonPrimitive(UUID.randomUUID().toString()));
+		definition.setExtensions(extensions);
+		Activity result = new Activity(activityId, definition);
+		return result;
+	}
+	
+	
+	public Activity createVideo()
+	{
+		HashMap<String, String> nameMap = new HashMap<>();
+		nameMap.put("en-US", "video");
+		HashMap<String, String> descriptionMap = new HashMap<>();
+		descriptionMap.put("en-US", "Video content of any kind");
+		ActivityDefinition definition = new ActivityDefinition(nameMap, descriptionMap);
+		HashMap<String, JsonElement> extensions = new HashMap<>();
+		extensions.put(ACTIVITY_ID_URI, new JsonPrimitive(UUID.randomUUID().toString()));
+		definition.setExtensions(extensions);
+		Activity result = new Activity("http://activitystrea.ms/schema/1.0/video", definition);
+		return result;
+	}
+	
+	
+	public Agent createAgent()
+	{
+		Agent result;
+		
+		if(this.mboxHost != null)
+		{
+			result = new Agent(this.userName, "mailto:" + this.userName + "@" + this.mboxHost);
+		}
+		else if(this.homePage != null)
+		{
+			Account account = new Account(this.userId, this.homePage);
+			result = new Agent(this.userName, account);
+		}
+		else
+		{
+			result = new Agent(this.userName, "");
+		}
+		
+		return result;
+	}
+	
+	
+	//Starting and Stopping
+	
+	public void sendStartSession(String activityID, String name, String description, HashMap<String, JsonElement> contextDict, Date timestamp)
+	{
+		Activity activity = this.createSession(activityID, name, description);
+		Agent actor = this.createAgent();
+		
+		
+		if(timestamp == null)
+			timestamp = this.getTimestamp();
+		
+		Statement statement = new Statement(actor, this.createStartedVerb(), activity);
+		statement.setResult(null);
+		String timestampAsString = timestampFormat.format(timestamp);
+		statement.setTimestamp(timestampAsString);
+
+		
+	}
+	
+	public void addContext(HashMap<String, JsonElement> contextDict)
+	{
+		
+	}
+	
+	public void sendLoggingMessage(Statement statement)
+	{
+		Message message = new Message();
+		message.setActor("logger");
+		message.setVerb(MessagingVerbConstants.XAPI_LOG_VERB);
+		message.setObj(null);
+		message.setResult(statement.serialize().toString());
+		message.setSpeechAct(SpeechActEnum.INFORM_ACT);
+		this.sendMessage(message);
 	}
 			
 }
