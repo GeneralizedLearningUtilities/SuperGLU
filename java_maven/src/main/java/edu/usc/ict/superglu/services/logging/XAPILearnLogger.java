@@ -1,11 +1,14 @@
 package edu.usc.ict.superglu.services.logging;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.UUID;
 
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
 import edu.usc.ict.superglu.core.BaseService;
@@ -18,6 +21,9 @@ import gov.adlnet.xapi.model.Activity;
 import gov.adlnet.xapi.model.ActivityDefinition;
 import gov.adlnet.xapi.model.Agent;
 import gov.adlnet.xapi.model.Context;
+import gov.adlnet.xapi.model.ContextActivities;
+import gov.adlnet.xapi.model.Result;
+import gov.adlnet.xapi.model.Score;
 import gov.adlnet.xapi.model.Statement;
 import gov.adlnet.xapi.model.Verb;
 
@@ -51,6 +57,7 @@ public class XAPILearnLogger extends BaseService {
 	private String mboxHost;
 	private String errorLogName ="xap_learn_logger_errorLog.txt";
 	private float secondsAfterLastTimeStamp = 1;
+	private ActivityTree activityTree;
 	
 	public static SimpleDateFormat timestampFormat = new SimpleDateFormat("yyyy-MM-ddTHH:mm:ss.SSSZ");
 	
@@ -63,6 +70,7 @@ public class XAPILearnLogger extends BaseService {
 		this.userName = userName;
 		this.homePage = homePage;
 		this.mboxHost = mboxHost;
+		this.activityTree = new ActivityTree();
 	}
 	
 	
@@ -249,6 +257,8 @@ public class XAPILearnLogger extends BaseService {
 		Activity activity = this.createSession(activityID, name, description);
 		Agent actor = this.createAgent();
 		
+		this.activityTree.enterActivity(null, activity);
+		Context context = this.addContext(contextDict);
 		
 		if(timestamp == null)
 			timestamp = this.getTimestamp();
@@ -257,13 +267,336 @@ public class XAPILearnLogger extends BaseService {
 		statement.setResult(null);
 		String timestampAsString = timestampFormat.format(timestamp);
 		statement.setTimestamp(timestampAsString);
-
+		statement.setContext(context);
+		
+		this.sendLoggingMessage(statement);
 		
 	}
 	
-	public void addContext(HashMap<String, JsonElement> contextDict)
+	
+	public void sendStartLesson(String activityID, String name, String description, HashMap<String, JsonElement> contextDict, Date timestamp)
 	{
+		Activity activity = this.createLesson(activityID, name, description);
+		Agent actor = this.createAgent();
 		
+		this.activityTree.enterActivity(null, activity);
+		Context context = this.addContext(contextDict);
+		
+		if(timestamp == null)
+			timestamp = this.getTimestamp();
+		
+		Statement statement = new Statement(actor, this.createStartedVerb(), activity);
+		statement.setResult(null);
+		String timestampAsString = timestampFormat.format(timestamp);
+		statement.setTimestamp(timestampAsString);
+		statement.setContext(context);
+		
+		this.sendLoggingMessage(statement);		
+	}
+	
+	
+	public void sendStartSubLesson(String activityID, String name, String description, HashMap<String, JsonElement> contextDict, Date timestamp)
+	{
+		Activity activity = this.createSubLesson(activityID, name, description);
+		Agent actor = this.createAgent();
+		
+		this.activityTree.enterActivity(null, activity);
+		Context context = this.addContext(contextDict);
+		
+		if(timestamp == null)
+			timestamp = this.getTimestamp();
+		
+		Statement statement = new Statement(actor, this.createStartedVerb(), activity);
+		statement.setResult(null);
+		String timestampAsString = timestampFormat.format(timestamp);
+		statement.setTimestamp(timestampAsString);
+		statement.setContext(context);
+		
+		this.sendLoggingMessage(statement);
+		
+	}
+	
+	
+	public void sendStartTask(String activityID, String name, String description, HashMap<String, JsonElement> contextDict, Date timestamp)
+	{
+		Activity activity = this.createTask(activityID, name, description);
+		Agent actor = this.createAgent();
+		
+		this.activityTree.enterActivity(null, activity);
+		Context context = this.addContext(contextDict);
+		
+		if(timestamp == null)
+			timestamp = this.getTimestamp();
+		
+		Statement statement = new Statement(actor, this.createStartedVerb(), activity);
+		statement.setResult(null);
+		String timestampAsString = timestampFormat.format(timestamp);
+		statement.setTimestamp(timestampAsString);
+		statement.setContext(context);
+		
+		this.sendLoggingMessage(statement);
+		
+	}
+	
+	
+	public void sendStartStep(String activityID, String name, String description, HashMap<String, JsonElement> contextDict, Date timestamp)
+	{
+		Activity activity = this.createStep(activityID, name, description);
+		Agent actor = this.createAgent();
+		
+		this.activityTree.enterActivity(null, activity);
+		Context context = this.addContext(contextDict);
+		
+		if(timestamp == null)
+			timestamp = this.getTimestamp();
+		
+		Statement statement = new Statement(actor, this.createStartedVerb(), activity);
+		statement.setResult(null);
+		String timestampAsString = timestampFormat.format(timestamp);
+		statement.setTimestamp(timestampAsString);
+		statement.setContext(context);
+		
+		this.sendLoggingMessage(statement);
+		
+	}
+	
+	
+	public HashMap<String, JsonElement> createFakeContextDict()
+	{
+		HashMap<String, JsonElement> result = new HashMap<>();
+		
+		result.put(RECOVERED_URI, new JsonPrimitive("activity"));
+		return result;
+	}
+	
+	
+	public void sendTerminatedSession(HashMap<String, JsonElement> contextDict, Date timestamp)
+	{
+		Agent actor = this.createAgent();
+		
+		Activity activity = this.activityTree.findCurrentActivity();
+		
+		boolean missingData = false;
+		
+		if(timestamp == null)
+		{
+			timestamp = this.getTimestamp();
+		}
+	}
+	
+	
+	public void sendCompletedLesson(HashMap<String, JsonElement> contextDict, Date timestamp, boolean fake)
+	{
+		Agent actor = this.createAgent();
+		Activity activity = this.activityTree.findCurrentActivity();
+		Context context = this.addContext(contextDict);
+		
+		this.activityTree.exitActivity();
+		
+		if(timestamp == null)
+		{
+			timestamp = this.getTimestamp();
+		}
+		Verb verb;
+		if(fake)
+		{
+			verb = this.createTerminatedVerb();
+		}
+		else
+		{
+			verb = this.createCompletedVerb();
+		}
+		
+		Statement statement = new Statement(actor, verb, activity);
+		statement.setResult(null);
+		statement.setContext(context);
+		statement.setTimestamp( timestampFormat.format(timestamp));
+		
+		this.sendLoggingMessage(statement);
+	}
+	
+	
+	public void sendCompletedSublesson(HashMap<String, JsonElement> contextDict, Date timestamp, boolean fake)
+	{
+		Agent actor = this.createAgent();
+		Activity activity = this.activityTree.findCurrentActivity();
+		Context context = this.addContext(contextDict);
+		
+		this.activityTree.exitActivity();
+		
+		if(timestamp == null)
+		{
+			timestamp = this.getTimestamp();
+		}
+		Verb verb;
+		if(fake)
+		{
+			verb = this.createTerminatedVerb();
+		}
+		else
+		{
+			verb = this.createCompletedVerb();
+		}
+		
+		Statement statement = new Statement(actor, verb, activity);
+		statement.setResult(null);
+		statement.setContext(context);
+		statement.setTimestamp( timestampFormat.format(timestamp));
+		
+		this.sendLoggingMessage(statement);
+	}
+	
+	
+	public void sendCompletedTask(HashMap<String, JsonElement> contextDict, Date timestamp, boolean fake)
+	{
+		Agent actor = this.createAgent();
+		Activity activity = this.activityTree.findCurrentActivity();
+		Context context = this.addContext(contextDict);
+		
+		this.activityTree.exitActivity();
+		
+		if(timestamp == null)
+		{
+			timestamp = this.getTimestamp();
+		}
+		Verb verb;
+		if(fake)
+		{
+			verb = this.createTerminatedVerb();
+		}
+		else
+		{
+			verb = this.createCompletedVerb();
+		}
+		
+		Statement statement = new Statement(actor, verb, activity);
+		statement.setResult(null);
+		statement.setContext(context);
+		statement.setTimestamp( timestampFormat.format(timestamp));
+		
+		this.sendLoggingMessage(statement);
+	}
+	
+	
+	public void sendCompletedStep(String choice, HashMap<String, JsonElement> contextDict, JsonObject resultExtDict, float rawScore, float maxScore, float minScore, Date timestamp, boolean fake)
+	{
+		Agent actor = this.createAgent();
+		
+		Score score;
+		if(rawScore != -1)
+		{		
+
+			score = new Score();
+			score.setRaw(rawScore);
+			score.setMin(minScore);
+			score.setMax(maxScore);
+		}
+		else
+		{
+			score = null;
+		}
+		
+		Result result = new Result();
+		result.setResponse(choice);
+		result.setScore(score);
+		result.setExtensions(resultExtDict);
+		
+		Activity activity = this.activityTree.findCurrentActivity();
+		Context context = this.addContext(contextDict);
+		
+		this.activityTree.exitActivity();
+		
+		if(timestamp == null)
+		{
+			timestamp = this.getTimestamp();
+		}
+		Verb verb;
+		if(fake)
+		{
+			verb = this.createTerminatedVerb();
+		}
+		else
+		{
+			verb = this.createCompletedVerb();
+		}
+		
+		Statement statement = new Statement(actor, verb, activity);
+		statement.setResult(result);
+		statement.setContext(context);
+		statement.setTimestamp( timestampFormat.format(timestamp));
+		
+		this.sendLoggingMessage(statement);		
+	}
+	
+	
+	public void sendWatchedVideo(HashMap<String, JsonElement> contextDict, Date timestamp)
+	{
+		Agent actor = createAgent();
+		
+		Activity activity = createVideo();
+		
+		this.activityTree.enterActivity(null, activity);
+		Context context = this.addContext(contextDict);
+		this.activityTree.exitActivity();
+		
+		if(timestamp == null)
+		{
+			timestamp = this.getTimestamp();
+		}
+		
+		Statement statement = new Statement(actor, this.createWatchedVerb(), activity);
+		statement.setResult(null);
+		statement.setContext(context);
+		statement.setTimestamp(timestampFormat.format(timestamp));
+		this.sendLoggingMessage(statement);
+	}
+	
+	
+	
+	
+	
+	//Utility functions
+	
+	public Context addContext(HashMap<String, JsonElement> contextDict)
+	{
+		contextDict.put(ACTIVITY_TREE_URI, new JsonPrimitive(this.activityTree.activityTreeToSimple()));
+		
+		List<Activity> myGrouping = this.activityTree.convertPathToGrouping();
+		Activity myParent = this.activityTree.findParentActivity();
+		
+		Context result;
+		
+		if(myGrouping.size() == 0 && myParent== null)
+		{
+			result = new Context();
+			result.setExtensions(contextDict);
+		}
+		else
+		{
+			ContextActivities myContextActivities = new ContextActivities();
+			
+			myContextActivities = new ContextActivities();
+			ArrayList<Activity> parentList = new ArrayList<>();
+			parentList.add(myParent);
+			myContextActivities.setParent(parentList);
+			if(myGrouping.size() > 0)
+			{
+				myContextActivities.setGrouping((ArrayList<Activity>) myGrouping);
+			}
+			
+			result = new Context();
+			result.setExtensions(contextDict);
+			result.setContextActivities(myContextActivities);
+		}
+		
+		return result;
+	}
+	
+	
+	public void addContext()
+	{
+		HashMap<String, JsonElement> contextDict = new HashMap<>();
+		this.addContext(contextDict);
 	}
 	
 	public void sendLoggingMessage(Statement statement)
