@@ -377,11 +377,20 @@ public class XAPILearnLogger extends BaseService {
 		Activity activity = this.activityTree.findCurrentActivity();
 		
 		boolean missingData = false;
+		Context context = addContext(contextDict);
 		
 		if(timestamp == null)
 		{
 			timestamp = this.getTimestamp();
 		}
+		
+		Statement statement = new Statement(actor, createTerminatedVerb(), activity);
+		statement.setResult(null);
+		statement.setContext(context);
+		statement.setTimestamp( timestampFormat.format(timestamp));
+		
+		this.sendLoggingMessage(statement);
+		
 	}
 	
 	
