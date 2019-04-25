@@ -234,10 +234,6 @@ def train(model, start):
     torch.save(model, "pretrained_model_" + str(iteration) + ".pth")
 
 
-def test(model):
-    print('TEST')
-
-
 def main(mode):
     cuda_is_available = torch.cuda.is_available()
     print('MODE', mode)
