@@ -238,6 +238,8 @@ def main(mode):
     cuda_is_available = torch.cuda.is_available()
     print('MODE', mode)
     if mode == 'test':
+        
+        #DUMMY - To Be Implemented
         model = torch.load(
             'pretrained_model/current_model_200.pth',
             map_location='cpu' if not cuda_is_available else None
