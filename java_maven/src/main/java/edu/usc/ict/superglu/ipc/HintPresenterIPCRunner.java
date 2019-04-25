@@ -41,6 +41,7 @@ public class HintPresenterIPCRunner {
 	final String ZERO_MQ_SENDER_JavaScript = "tcp://localhost:5555";
 	
 	
+	
 	protected Logger logger = LoggerFactory.getLogger(this.getClass().getSimpleName());
 
 	private List<BaseMessage> testMessages;

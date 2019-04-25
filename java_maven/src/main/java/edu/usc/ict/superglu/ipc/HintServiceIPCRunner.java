@@ -46,6 +46,7 @@ public class HintServiceIPCRunner {
 	final String ZERO_MQ_SENDER = "tcp://localhost:5558";
 	final String ZERO_MQ_SINK = "tcp://localhost:5557";
 	
+	
 	protected Logger logger = LoggerFactory.getLogger(this.getClass().getSimpleName());
 
 	private List<BaseMessage> testMessages;
