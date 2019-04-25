@@ -95,7 +95,7 @@ public class ProposalUseCasesTest {
         @Override
         public boolean receiveMessage(BaseMessage msg) {
             super.receiveMessage(msg);
-            logger.info("============================================================================");
+            logger.info("\n============================================================================");
             logger.info("Message received by " + this.getId() + " : " + this.getClass().getName());
             if (msg instanceof Message) {
             	logger.info("SpeechAct : " + ((Message) msg).getSpeechAct());
@@ -140,7 +140,6 @@ public class ProposalUseCasesTest {
                         msg4.setContextValue(CONTEXT_IN_REPLY_TO_KEY, acceptedProposalConversationId);
                         msg4.setContextValue(Message.PROPOSAL_KEY, proposalIdOfMessage);
                         
-                        
                         if (SpeechActEnum.getEnum(proposal.getFailSoftStrategyForProposedMsg()) == SpeechActEnum.RESEND_MSG_WITH_DEPRIORITZATION) {
                         	if(!this.prioritizedAcceptedServiceIds.isEmpty()) 
                         		msg4.setContextValue("toBeServicedBy", this.prioritizedAcceptedServiceIds.entrySet().iterator().next().getKey());
@@ -173,7 +172,7 @@ public class ProposalUseCasesTest {
                 	logger.info("Received The Following Payload From the Hint Service : " + msg.getContextValue(Message.RESULT_KEY));
                 }
             }
-            logger.info("============================================================================");
+            logger.info("\n============================================================================");
             return true;
         }
     
@@ -200,7 +199,7 @@ public class ProposalUseCasesTest {
 		@Override
 		public boolean receiveMessage(BaseMessage msg) {
 			super.receiveMessage(msg);
-			logger.info("============================================================================");
+			logger.info("\n============================================================================");
 			logger.info("Message received by " + this.getId() + " : " + this.getClass().getName());
             if (msg instanceof Message) {
             	logger.info("SpeechAct : " + ((Message) msg).getSpeechAct());
@@ -257,7 +256,7 @@ public class ProposalUseCasesTest {
 	                this.sendMessage(msgAck);
             	}
             }
-            logger.info("============================================================================");
+            logger.info("\n============================================================================");
             return true;
 		}
 	}
@@ -275,6 +274,9 @@ public class ProposalUseCasesTest {
 	 */
 	@Test
 	public void testProposalPattern_ScenarioOne() throws Exception {
+		logger.info("======================================================");
+		logger.info("Happy Path! Client Sends Proposal to Service 1 & 2 and Proposed Message to Service 1.");
+		logger.info("======================================================");
 		setupForScenarioOne();
         Message msg = (Message) this.testMessages.get(0).clone(false);
         msg.setContextValue(BaseMessagingNode.ORIGINATING_SERVICE_ID_KEY, hintPresenter.getId());
@@ -296,11 +298,14 @@ public class ProposalUseCasesTest {
 	}
 	
 	/**
-	 * Proposal with Attempt Count
+	 * Proposal with Attempt Count - Failure
 	 * @throws Exception
 	 */
 	@Test
 	public void testProposalPattern_ScenarioTwo() throws Exception {
+		logger.info("======================================================");
+		logger.info("Client Sends Proposal to Service 1 & 2. Both Services Reject. Client Tries 3 Times and Faces a Timeout.");
+		logger.info("======================================================");
 		setupForScenarioTwo();
         Message msg = (Message) this.testMessages.get(0).clone(false);
         msg.setContextValue(BaseMessagingNode.ORIGINATING_SERVICE_ID_KEY, hintPresenter.getId());
@@ -329,6 +334,9 @@ public class ProposalUseCasesTest {
 	 */
 	@Test
 	public void testProposalPattern_ScenarioThree() throws Exception {
+		logger.info("======================================================");
+		logger.info("Client Sends Proposal to Service 1 & 2. Services Accept, But create Issue during sending Proposed Messages. Client Tries 3 times sending Proposal and ProposedMessage");
+		logger.info("======================================================");
 		setupForScenarioThreeFour();
         Message msg = (Message) this.testMessages.get(0).clone(false);
         msg.setContextValue(BaseMessagingNode.ORIGINATING_SERVICE_ID_KEY, hintPresenter.getId());
@@ -351,6 +359,10 @@ public class ProposalUseCasesTest {
 	 */
 	@Test
 	public void testProposalPattern_ScenarioFour() throws Exception {
+
+		logger.info("======================================================");
+		logger.info("Client Sends Proposal to Service 1 & 2. Services Accept, But create Issue during sending Proposed Messages. Client Tries 3 seconds");
+		logger.info("======================================================");
 		setupForScenarioThreeFour();
         Message msg = (Message) this.testMessages.get(0).clone(false);
         msg.setContextValue(BaseMessagingNode.ORIGINATING_SERVICE_ID_KEY, hintPresenter.getId());
@@ -382,6 +394,9 @@ public class ProposalUseCasesTest {
 	 */
 	@Test
 	public void testProposalPattern_ScenarioFive() throws Exception {
+		logger.info("======================================================");
+		logger.info("Client Sends Proposal to Service 1 & 2. After Service 1 creates issue 3 times it deprioritizes 1 and proposes Service 2");
+		logger.info("======================================================");
 		setupForScenarioFive();
         Message msg = (Message) this.testMessages.get(0).clone(false);
         msg.setContextValue(BaseMessagingNode.ORIGINATING_SERVICE_ID_KEY, hintPresenter.getId());
