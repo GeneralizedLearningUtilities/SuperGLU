@@ -13,7 +13,6 @@ from SuperGLU.Util.Serialization import nativizeObject, serializeObject,\
 from SuperGLU.Util import ErrorHandling 
 
 class HintService(MessagingGateway.BaseMessagingNode) :
-    
         def __init__(self, msgId):
             super(HintService, self).__init__(msgId, None, None, None, None, None)
             self.proposalsAccepted = {}

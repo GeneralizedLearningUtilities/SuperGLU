@@ -13,7 +13,6 @@ from SuperGLU.Util import ErrorHandling
 
 
 class HintPresenter(BaseMessagingNode): 
-    
     def __init__(self, msgId):
         super(HintPresenter, self).__init__(msgId, None, None, None, None, None)
         self.acceptedProposalConversationId = ''
