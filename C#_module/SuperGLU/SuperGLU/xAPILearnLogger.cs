@@ -4,7 +4,6 @@ using System.IO;
 using System.Collections.Generic;
 using TinCan;
 
-
 namespace SuperGLU
 {
     public class xAPILearnLogger: BaseLearnLogger
@@ -12,12 +11,21 @@ namespace SuperGLU
         string mbox = "mailto:SMART-E@ict.usc.edu";
         string activityURI = "http://id.tincanapi.com/activity/";
 
+        ActivityTree activityTree;
+
+
+        RemoteLRS remoteLRS;
+
         /* ---------------- constructor, getter and setter --------------- */
         public xAPILearnLogger(string userId = "", string userName = ""): base()
         {
+            this.activityTree = new ActivityTree();
             this.userId = userId;
             this.userName = userName;
+            this.mbox = "mailto:" + userId + "@ict.usc.edu";
             this.url = new Uri("https://github.com/GeneralizedLearningUtilities/SuperGLU/");
+
+            remoteLRS = new RemoteLRS("http://ictsmarte.org/data/xAPI", "e181f39b3cbb6b1f1c08a2c5fc59ccda617c2212", "3ba7fd269e3bc03234a3ce77861c76c7fa6b142e");
         }
 
         public void SetUserId(string userId)
@@ -236,6 +244,11 @@ namespace SuperGLU
             context.instructor = new Agent(new JObject { { "account", agentAccount.ToJObject()} });
             context.extensions = new TinCan.Extensions(contextJson);    // 'Extensions' is ambiguous reference between 'Newtonsoft.Json' and 'TinCan'
             context.contextActivities = new ContextActivities();
+            context.contextActivities.grouping = this.activityTree.convertPathToGrouping();
+            List<Activity> parent = new List<Activity>();
+            if(this.activityTree.findParentActivity() != null)
+                parent.Add(this.activityTree.findParentActivity());
+            context.contextActivities.parent = parent;
 
             return context;
         }
@@ -247,8 +260,13 @@ namespace SuperGLU
             Agent actor = CreateActor(this.userName, this.userId, this.mbox);
             Verb verb = CreateStartedVerb();
             Activity activity = CreateSession(activityId, name, description);
+
+            activityTree.enterActivity(null, activity, null);
+
             Result result = CreateResult(response: "User started a new Session");
             Context context = CreateContext(contextJson);
+
+            
 
             if (timestamp == null)
             {
@@ -275,8 +293,14 @@ namespace SuperGLU
             Agent actor = CreateActor(this.userName, this.userId, this.mbox);
             Verb verb = CreateStartedVerb();
             Activity activity = CreateLesson(activityId, name, description);
+
+            activityTree.enterActivity(null, activity, null);
+
             Result result = CreateResult(success: true);
             Context context = CreateContext(contextJson);
+
+
+            
 
             if (timestamp == null)
             {
@@ -303,8 +327,13 @@ namespace SuperGLU
             Agent actor = CreateActor(this.userName, this.userId, this.mbox);
             Verb verb = CreateStartedVerb();
             Activity activity = CreateSublesson(activityId, name, description);
+
+            activityTree.enterActivity(null, activity, null);
+
             Result result = CreateResult(success: true);
             Context context = CreateContext(contextJson);
+
+            
 
             if (timestamp == null)
             {
@@ -331,8 +360,13 @@ namespace SuperGLU
             Agent actor = CreateActor(this.userName, this.userId, this.mbox);
             Verb verb = CreateStartedVerb();
             Activity activity = CreateTask(activityId, name, description);
+            activityTree.enterActivity(null, activity, null);
+
+
             Result result = CreateResult(success: true);
             Context context = CreateContext(contextJson);
+
+            
 
             if (timestamp == null)
             {
@@ -359,8 +393,13 @@ namespace SuperGLU
             Agent actor = CreateActor(this.userName, this.userId, this.mbox);
             Verb verb = CreateStartedVerb();
             Activity activity = CreateStep(activityId, name, description);
+
+            activityTree.enterActivity(null, activity, null);
+
             Result result = CreateResult(success: true);
             Context context = CreateContext(contextJson);
+
+           
 
             if (timestamp == null)
             {
@@ -387,9 +426,13 @@ namespace SuperGLU
         {
             Agent actor = CreateActor(this.userName, this.userId, this.mbox);
             Verb verb = CreateTerminiatedVerb();
-            Activity activity = CreateActivityTree();   // activity tree class need to be implemented, this is a dummy method
+            Activity activity = this.activityTree.findCurrentActivity();
             Result result = CreateResult();
+
+            this.activityTree.exitActivity(null);
+
             Context context = CreateContext(contextJson);
+
 
             if (timestamp == null)
             {
@@ -407,6 +450,7 @@ namespace SuperGLU
 
             };
 
+            
             Statement statement = new Statement(statementJson);
             this.SendLoggingMessage(statement);
         }
@@ -415,9 +459,15 @@ namespace SuperGLU
         {
             Agent actor = CreateActor(this.userName, this.userId, this.mbox);
             Verb verb = CreateCompletedVerb();
-            Activity activity = CreateActivityTree();   // activity tree class need to be implemented, this is a dummy method
+            Activity activity = this.activityTree.findCurrentActivity();
             Result result = CreateResult();
+
+            activityTree.exitActivity(activity);
+
             Context context = CreateContext(contextJson);
+
+
+            
 
             if (timestamp == null)
             {
@@ -443,9 +493,11 @@ namespace SuperGLU
         {
             Agent actor = CreateActor(this.userName, this.userId, this.mbox);
             Verb verb = CreateCompletedVerb();
-            Activity activity = CreateActivityTree();   // activity tree class need to be implemented, this is a dummy method
+            Activity activity = this.activityTree.findCurrentActivity();
             Result result = CreateResult();
             Context context = CreateContext(contextJson);
+
+            this.activityTree.exitActivity(activity);
 
             if (timestamp == null)
             {
@@ -471,9 +523,11 @@ namespace SuperGLU
         {
             Agent actor = CreateActor(this.userName, this.userId, this.mbox);
             Verb verb = CreateCompletedVerb();
-            Activity activity = CreateActivityTree();   // activity tree class need to be implemented, this is a dummy method
+            Activity activity = this.activityTree.findCurrentActivity();
             Result result = CreateResult();
             Context context = CreateContext(contextJson);
+
+            this.activityTree.exitActivity(activity);
 
             if (timestamp == null)
             {
@@ -503,7 +557,7 @@ namespace SuperGLU
         {
             Agent actor = CreateActor(this.userName, this.userId, this.mbox);
             Verb verb = CreateCompletedVerb();
-            Activity activity = CreateActivityTree();
+            Activity activity = this.activityTree.findCurrentActivity();
             Result result = new Result();
             Context context = CreateContext(contextJson);
             TinCan.Extensions extensions = new TinCan.Extensions(new JObject { {customScoreURI, customScore} });
@@ -571,6 +625,9 @@ namespace SuperGLU
 
         private void SendLoggingMessage(Statement statement)
         {
+            //send to learnlocker
+            this.remoteLRS.SaveStatement(statement);
+            Console.Out.WriteLine("sent statement");
             string path = Directory.GetCurrentDirectory();
             // write to log file
             using (System.IO.StreamWriter logFile =

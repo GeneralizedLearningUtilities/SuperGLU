@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,19 +13,21 @@ namespace SuperGLU
 
         protected static Dictionary<String, Type> CLASS_IDS = new Dictionary<string, Type>();
 
+
         static SuperGLU_Serializable()
         {
-            populateClassIds();
+            populateClassIDS();
         }
 
-        public static void populateClassIds()
+
+        public static void populateClassIDS()
         {
             foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
             {
                 foreach (var type in asm.GetTypes())
                 {
-                    if (type.IsAssignableFrom( typeof(SuperGLU_Serializable)))
-                        CLASS_IDS.Add(type.FullName, type);
+                    if (typeof(SuperGLU_Serializable).IsAssignableFrom(type))
+                        CLASS_IDS.Add(type.Name, type);
                 }
             }
         }
@@ -58,6 +61,8 @@ namespace SuperGLU
 
             return thisField.Equals(otherField);
         }
+
+
 
 
         public override bool Equals(object otherObj)
@@ -100,17 +105,17 @@ namespace SuperGLU
 
         public String getClassId()
         {
-            return this.GetType().FullName;
+            return this.GetType().Name;
         }
 
 
-        public void initializeFromToken(StorageToken token)
+        public virtual void initializeFromToken(StorageToken token)
         {
             this.id = token.getId();
         }
 
 
-        public StorageToken saveToToken()
+        public virtual StorageToken saveToToken()
         {
             StorageToken token = new StorageToken(new Dictionary<string, object>(), this.id, this.getClassId());
             return token;
@@ -134,6 +139,7 @@ namespace SuperGLU
             String classId = token.getClassId();
 
             Type clazz;
+
             if (CLASS_IDS.ContainsKey(classId))
                 clazz = CLASS_IDS[classId];
             else
@@ -149,6 +155,151 @@ namespace SuperGLU
 
             //should never reach here
             return null;
+        }
+    }
+
+    public enum SerializationFormatEnum
+    {
+        JSON_FORMAT,
+        JSON_STANDARD_FORMAT
+    }
+
+
+    public class SerializationConvenience
+    {
+        public static String makeSerialized(StorageToken token, SerializationFormatEnum sFormat)
+        {
+            if (sFormat == SerializationFormatEnum.JSON_FORMAT)
+                return JSONRWFormat.serialize(token);
+
+            else if (sFormat == SerializationFormatEnum.JSON_STANDARD_FORMAT)
+                return JSONStandardRWFormat.serialize(token);
+
+            throw new Exception("invalid format exception:" + sFormat);
+        }
+
+
+        public static StorageToken makeNative(String input, SerializationFormatEnum sFormat)
+        {
+            if (sFormat == SerializationFormatEnum.JSON_FORMAT)
+                return JSONRWFormat.parse(input);
+
+            else if (sFormat == SerializationFormatEnum.JSON_STANDARD_FORMAT)
+                return JSONStandardRWFormat.parse(input);
+
+            throw new Exception("invalid format exception:" + sFormat);
+        }
+
+
+        public static Object tokenizeObject(Object obj)
+        {
+            if (obj == null)
+                return null;
+
+            else if (typeof(SuperGLU_Serializable).IsAssignableFrom(obj.GetType()))
+                return ((SuperGLU_Serializable)obj).saveToToken();
+
+            else if (obj.GetType().IsGenericType)
+            {
+                Type genericType = obj.GetType().GetGenericTypeDefinition();
+
+                if (TokenRWFormat.VALID_SEQUENCE_TYPES.Contains(genericType))
+                {
+                    List<Object> result = new List<object>();
+                    dynamic objAsDynamic = (dynamic)obj;
+
+                    foreach (Object child in objAsDynamic)
+                    {
+                        result.Add(tokenizeObject(child));
+                    }
+                    return result;
+
+                }
+                else if (TokenRWFormat.VALID_MAPPING_TYPES.Contains(genericType))
+                {
+                    Dictionary<Object, Object> result = new Dictionary<object, object>();
+
+                    dynamic objAsDynamic = (dynamic)obj;
+
+                    foreach (KeyValuePair<object, object> entry in objAsDynamic)
+                    {
+                        result.Add(tokenizeObject(entry.Key), tokenizeObject(entry.Value));
+                    }
+                    return result;
+                }
+                throw new Exception("unknown generic type for object : " + obj.ToString());
+            }
+            else
+                return obj;
+        }
+
+
+        public static Object untokenizeObject(Object obj)
+        {
+            if (obj == null)
+                return null;
+
+            if (obj.GetType().IsAssignableFrom(typeof(StorageToken)))
+                return SuperGLU_Serializable.createFromToken((StorageToken)obj);
+
+            else if (obj.GetType().IsGenericType)
+            {
+                if (TokenRWFormat.VALID_SEQUENCE_TYPES.Contains(obj.GetType().GetGenericTypeDefinition()))
+                {
+                    List<Object> result = new List<object>();
+
+                    IEnumerable dataEnumurator = (IEnumerable)obj;
+                    foreach (Object o in dataEnumurator)
+                    {
+                        result.Add(untokenizeObject(o));
+                    }
+
+                    return result;
+                }
+                else if (TokenRWFormat.VALID_MAPPING_TYPES.Contains(obj.GetType().GetGenericTypeDefinition()))
+                {
+                    Dictionary<Object, Object> result = new Dictionary<object, object>();
+
+                    dynamic objAsDynamic = (dynamic)obj;
+
+                    if (typeof(Dictionary<String, Object>).IsAssignableFrom(obj.GetType()))
+                    {
+
+                        foreach (KeyValuePair<string, object> entry in objAsDynamic)
+                        {
+                            result.Add(untokenizeObject(entry.Key), untokenizeObject(entry.Value));
+                        }
+                    }
+                    else if (typeof(Dictionary<object, object>).IsAssignableFrom(obj.GetType()))
+                    {
+                        foreach (KeyValuePair<object, object> entry in objAsDynamic)
+                        {
+                            result.Add(untokenizeObject(entry.Key), untokenizeObject(entry.Value));
+                        }
+                    }
+                    return result;
+                }
+                else
+                {
+                    throw new Exception("unknown generic type for object : " + obj.ToString());
+                }
+            }
+            else
+                return obj;
+        }
+
+
+        public static String serializeObject(SuperGLU_Serializable obj, SerializationFormatEnum sFormat)
+        {
+            StorageToken token = (StorageToken)tokenizeObject(obj);
+            return makeSerialized(token, sFormat);
+        }
+
+
+        public static SuperGLU_Serializable nativeizeObject(String input, SerializationFormatEnum sFormat)
+        {
+            StorageToken token = makeNative(input, sFormat);
+            return (SuperGLU_Serializable)untokenizeObject(token);
         }
     }
 }

@@ -11,12 +11,12 @@ namespace SuperGLU
 {
     public class TokenRWFormat
     {
-        protected static List<Type> VALID_KEY_TYPES = new List<Type>();
-        protected static List<Type> VALID_SEQUENCE_TYPES = new List<Type>();
-        protected static List<Type> VALID_ATOMIC_VALUE_TYPES = new List<Type>();
-        protected static List<Type> VALID_MAPPING_TYPES = new List<Type>();
+        public static List<Type> VALID_KEY_TYPES = new List<Type>();
+        public static List<Type> VALID_SEQUENCE_TYPES = new List<Type>();
+        public static List<Type> VALID_ATOMIC_VALUE_TYPES = new List<Type>();
+        public static List<Type> VALID_MAPPING_TYPES = new List<Type>();
 
-        protected static List<Type> VALID_VALUE_TYPES = new List<Type>();
+        public static List<Type> VALID_VALUE_TYPES = new List<Type>();
          
 
         static TokenRWFormat()
@@ -255,7 +255,7 @@ namespace SuperGLU
 
         static JSONRWFormat()
         {
-            NAME_MAPPING.Add("bool", typeof(bool);
+            NAME_MAPPING.Add("bool", typeof(bool));
             NAME_MAPPING.Add("unicode", typeof(string));
             NAME_MAPPING.Add("float", typeof(float));
             NAME_MAPPING.Add("int", typeof(int));
@@ -289,7 +289,7 @@ namespace SuperGLU
         public static String serialize(StorageToken data)
         {
             Object processedObject = makeSerializable(data);
-            Dictionary<String, Object> processedObjectAsMap = (Dictionary<String, Object>)processedObject;
+            Dictionary<String, Dictionary<String, Object>> processedObjectAsMap = (Dictionary<String, Dictionary<String, Object>>)processedObject;
             string result = JsonConvert.SerializeObject(processedObjectAsMap);
             return result;
         }
@@ -339,14 +339,117 @@ namespace SuperGLU
                 mapDataAsDictionary.Add(TYPE_MAPPING[typeof(Dictionary<,>)], processedMap);
                 return mapDataAsDictionary;
             }
+            if(clazz.Equals(typeof(StorageToken)))
+            {
+                StorageToken dataAsStorageToken = (StorageToken)data;
 
-            return null;
+                Dictionary<String, Dictionary<String, Object>> processedStorageToken = new Dictionary<string, Dictionary<string, object>>();
+                Dictionary<String, Object> storageTokenChildren = new Dictionary<string, object>();
+
+                foreach(String key in dataAsStorageToken.data.Keys)
+                {
+                    Object value = dataAsStorageToken.getItem(key);
+                    storageTokenChildren.Add(key, makeSerializable(value));
+                }
+
+                if(dataAsStorageToken.getClassId() != null)
+                {
+                    processedStorageToken.Add(dataAsStorageToken.getClassId(), storageTokenChildren);
+                    return processedStorageToken;
+                }
+                else
+                {
+                    return storageTokenChildren;
+                }
+            }
+
+            throw new Exception("Tried to serialize unserializable object of type:" + clazz.FullName);
         }
 
 
         private static Object makeNative(Object input)
         {
-            return null;
+            if (isNullOrPrimitive(input))
+                return input;
+
+            Type inputClass = input.GetType();
+
+            if (inputClass.IsGenericType)
+                inputClass = inputClass.GetGenericTypeDefinition();
+
+            if (TokenRWFormat.VALID_ATOMIC_VALUE_TYPES.Contains(inputClass))
+                return input;
+
+            if(inputClass.Equals(typeof(JValue)))
+            {
+                JValue inputAsJValue = (JValue)input;
+                return inputAsJValue.Value;
+            }
+
+            if (inputClass.Equals(typeof(JObject)))
+            {
+                JObject inputAsJObject = (JObject)input;
+
+                if (inputAsJObject.Count == 0)
+                    return new Dictionary<String, Object>();
+
+                JProperty first = (JProperty)inputAsJObject.First;
+                String dataTypeName  = first.Name;
+
+                Type dataType;
+                if (NAME_MAPPING.ContainsKey(dataTypeName))
+                    dataType = NAME_MAPPING[dataTypeName];
+                else
+                    dataType = typeof(StorageToken);
+
+
+                if(dataType.Equals(typeof(StorageToken)))
+                {
+                    Dictionary<String, Object> nativizedData = new Dictionary<string, object>();
+
+                    JProperty child = (JProperty)inputAsJObject.First;
+                    JObject value =(JObject) inputAsJObject.GetValue(child.Name);
+
+                    foreach (KeyValuePair<String, JToken> entry in value)
+                    {
+                        nativizedData.Add(entry.Key, makeNative(entry.Value));
+                    }
+
+                    StorageToken result = new StorageToken(nativizedData, (string)nativizedData[StorageToken.ID_KEY], (string)nativizedData[StorageToken.CLASS_ID_KEY]);
+                    return result;
+                }
+
+                if(dataType.Equals(typeof(List<>)))
+                {
+                    List<Object> nativizedData = new List<object>();
+
+                    JArray array =(JArray) inputAsJObject.First.First;
+
+                    foreach (Object obj in array)
+                    {
+                        nativizedData.Add(makeNative(obj));
+                    }
+                    return nativizedData;
+                }
+                if(dataType.Equals(typeof(Dictionary<,>)))
+                {
+                    Dictionary<String, Object> nativizedData = new Dictionary<string, object>();
+
+                    JObject value = (JObject) inputAsJObject.First.First;
+                    foreach (KeyValuePair<String, JToken> entry in value)
+                    {
+                        nativizedData.Add(entry.Key, makeNative(entry.Value));
+                    }
+
+                    return nativizedData;
+                }
+
+            }
+
+
+            throw new Exception("Tried to de-serialize unserializable object of type:" + inputClass.FullName);
+
+
         }
     }
 

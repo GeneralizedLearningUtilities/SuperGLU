@@ -100,7 +100,7 @@ class xAPILearnLoggerTester
         string file = path + "\\activity_data(975).txt";
         xAPILearnLoggerTester loggerTester = new xAPILearnLoggerTester();
         string[] lines = loggerTester.ReadFile(file);
-        xAPILearnLogger logger = new xAPILearnLogger();
+        xAPILearnLogger logger = new xAPILearnLogger("testUserID", "testUserName");
 
         loggerTester.ProcessBatchData(lines, logger);
         Console.WriteLine("Press Enter to continue.");

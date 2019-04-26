@@ -8,8 +8,8 @@ namespace SuperGLU
 {
     public class StorageToken
     {
-        private static String ID_KEY = "id";
-        private static String CLASS_ID_KEY = "classId";
+        public static String ID_KEY = "id";
+        public static String CLASS_ID_KEY = "classId";
 
         private static HashSet<String> reservedKeys = new HashSet<String>();
 
@@ -84,8 +84,6 @@ namespace SuperGLU
 
         public Object getItem(String key, bool hasDefault, Object defalt)
         {
-
-
             if (hasDefault)
                 if (this.data.ContainsKey(key))
                     return this.data[key];

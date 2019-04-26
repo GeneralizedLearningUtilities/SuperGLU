@@ -50,6 +50,9 @@ public class MessagingVerbConstants
     public static final String TASK_SUPPORT_VERB = "TaskSupport";
     // Overall number of hints user received during the task.
     public static final String TASK_HELP_COUNT_VERB = "TaskHelpCount";
+    
+    
+    public static final String XAPI_LOG_VERB ="XAPILogStatement";
 
 }
     

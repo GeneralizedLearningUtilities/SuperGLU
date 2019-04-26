@@ -195,7 +195,11 @@
             <version>3.1.0</version>
             
         </dependency>
-		
+		<dependency>
+			<groupId>gov.adlnet</groupId>
+			<artifactId>jxapi</artifactId>
+			<version>2.0.1</version>
+		</dependency>
 
 	</dependencies>
 </project>
