@@ -18,7 +18,6 @@ var HintPresenter = Zet.declare({
     CLASS_ID: 'HintPresenter',
     defineBody: function (self) {
         // Public Properties
-    	
     	self.failStrategyToTest = null;
     	self.acceptedProposalConversationId = '';
     	self.acceptedProposalServiceId = '';

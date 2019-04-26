@@ -18,7 +18,6 @@ var HintService = Zet.declare({
         // Public Properties
          self.proposalsAccepted = {};     //replying conversation-id, propose msg
          self.proposalsConfirmReceived = [];     //replying conversation-id, propose msg
-         
          self.proposalsConfirmedToServ = {};
          self.proposedMsgRequests = [];
          self.auditOfProposedMsgReq = {};
