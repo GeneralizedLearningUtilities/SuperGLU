@@ -22,8 +22,9 @@ from tincan import (
     ContextActivities
 )
 import uuid
-from representation.ActivityTree import ActivityTree
+
 from SuperGLU.Util.Serialization import makeSerialized
+from SuperGLU.Services.LoggingService.ActivityTree import ActivityTree
 
 BASE_URI = "https://github.com/GeneralizedLearningUtilities/SuperGLU/"
 
