@@ -263,13 +263,14 @@ class xAPILearnLogger(BaseService):
                 activity = self._Activity_Tree.findCurrentActivity()
 
         if activity == None:
-            f.write("Terminate session received but no current activity. Sending placeholder session data in terminate statement.\n")
-            f.write("\tuser name = " + self._userName + "\n")
-            activity = Activity( id = SESSION_TYPE, object_type = 'Activity',\
-                         definition = ActivityDefinition(name=LanguageMap({'en-US': "tutor session" }),\
-                                                         description=LanguageMap({'en-US': "This represents a tutoring session."}),\
-                                                         extensions= { ACTIVITY_ID_URI : str(uuid.uuid4()) } ))
-            contextDict[RECOVERED_URI] = "activityPlusContext"
+            with open(self._errorLogName, 'a') as f:
+                f.write("Terminate session received but no current activity. Sending placeholder session data in terminate statement.\n")
+                f.write("\tuser name = " + self._userName + "\n")
+                activity = Activity( id = SESSION_TYPE, object_type = 'Activity',\
+                                     definition = ActivityDefinition(name=LanguageMap({'en-US': "tutor session" }),\
+                                                                     description=LanguageMap({'en-US': "This represents a tutoring session."}),\
+                                                                     extensions= { ACTIVITY_ID_URI : str(uuid.uuid4()) } ))
+                contextDict[RECOVERED_URI] = "activityPlusContext"
 
         if missingData:
             contextDict[MISSING_COMPS_URI] = "True"
