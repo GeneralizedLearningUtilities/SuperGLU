@@ -58,7 +58,7 @@ class xAPILearnLogger(BaseService):
     #  learner agent account:
     #     name = userId. In the case of Engage it is a UUID.
     #     homePage is a URL associated with the account.
-    def __init__(self, gateway=None, userId=None, userName=None, homePage=None, mboxHost=None):
+    def __init__(self, gateway=None, userId=None, userName=None, homePage=None, mboxHost=None, outputFileName=None):
         self._Activity_Tree = ActivityTree()
         
         super(xAPILearnLogger, self).__init__()
@@ -68,6 +68,7 @@ class xAPILearnLogger(BaseService):
         self._userName = userName
         self._home_page = homePage
         self._mbox_host = mboxHost
+        self.outputFileName = outputFileName
         self._errorLogName = "xapi_learn_logger_errorLog.txt"
         # If log file ends suddenly, this is our guess of how many seconds passed since last message recorded
         self._secondsAfterLastTimeStamp = 1
@@ -317,8 +318,23 @@ class xAPILearnLogger(BaseService):
         statement = Statement(actor=actor, verb=verb, object=activity, result=None, context=context, timestamp=timestamp)
         self.sendLoggingMessage(statement)
 
-    def sendCompletedTask(self, contextDict, timestamp=None, fake=False):
+    def sendCompletedTask(self,choice=None, contextDict={}, resultExtDict=None, raw_score=-1, min_score=0, max_score=-1, timestamp=None, fake=False):
         actor = self.createAgent()
+
+        if resultExtDict==None:
+            myExtensions = None
+        else:
+            myExtensions = Extensions(resultExtDict)
+
+        if (raw_score != -1):
+            result = Result(response=choice,
+                            score = Score(raw=raw_score, min=min_score, max=max_score),
+                            extensions =  myExtensions)
+        elif choice is not None:
+            result = Result(response=choice,
+                            extensions = myExtensions)
+        else:
+            result = None
 
         #Implementing Activity Tree into context
         activity = self._Activity_Tree.findCurrentActivity()
@@ -332,7 +348,7 @@ class xAPILearnLogger(BaseService):
             verb = self.create_terminated_verb()
         else:
             verb = self.create_completed_verb()
-        statement = Statement(actor=actor, verb=verb, object=activity, result=None, context=context, timestamp=timestamp)
+        statement = Statement(actor=actor, verb=verb, object=activity, result=result, context=context, timestamp=timestamp)
         self.sendLoggingMessage(statement)
 
     # work in progress.
@@ -434,5 +450,8 @@ class xAPILearnLogger(BaseService):
     '''
     # send message to json file (to-do: connecting to learn locker)
     def sendLoggingMessage(self, statement):
+        print(statement.to_json())
         message = Message(actor="logger", verb=XAPI_LOG_VERB, obj=None, result=statement.to_json())
+        with open(self.outputFileName, "a") as file:
+            file.write(statement.to_json() + "\n")
         self.sendMessage(message)
