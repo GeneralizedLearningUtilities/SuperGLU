@@ -95,6 +95,12 @@ public class BaseMessagingNode {
 		this.prioritizedAcceptedServiceIds = new LinkedHashMap<>();
 		this.demotedAcceptedServiceIds = new ArrayList<>();
 	}
+	
+	
+	public void serviceInitialized()
+	{
+		
+	}
 
 	protected boolean acceptIncomingMessge(BaseMessage msg) {
 		boolean result = true;

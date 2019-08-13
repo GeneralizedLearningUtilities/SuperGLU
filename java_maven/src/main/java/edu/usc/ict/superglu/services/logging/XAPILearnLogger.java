@@ -59,7 +59,7 @@ public class XAPILearnLogger extends BaseService {
 	private float secondsAfterLastTimeStamp = 1;
 	private ActivityTree activityTree;
 	
-	public static SimpleDateFormat timestampFormat = new SimpleDateFormat("yyyy-MM-ddTHH:mm:ss.SSSZ");
+	public static SimpleDateFormat timestampFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
 	
 	
 	public XAPILearnLogger(MessagingGateway gateway, String userId, String userName, String homePage, String mboxHost)

@@ -79,6 +79,8 @@ public class ServiceLauncher {
                     service.addNode(connection);
             }
         }
+        
+        service.serviceInitialized();
     }
 
     public ServiceConfigurationCollection readConfigurationFromFile(String fileName, String defaultFileName) {

@@ -32,7 +32,7 @@ import edu.usc.ict.superglu.core.RESTMessage;
 import edu.usc.ict.superglu.core.SpeechActEnum;
 import edu.usc.ict.superglu.core.config.ServiceConfiguration;
 import edu.usc.ict.superglu.services.RESTMessenger;
-
+/*
 public class ProposalUseCasesTest {
 	
 	protected Logger logger = LoggerFactory.getLogger(this.getClass().getSimpleName());
@@ -272,7 +272,7 @@ public class ProposalUseCasesTest {
 	 * Happy Path.
 	 * @throws Exception
 	 */
-	@Test
+/*	@Test
 	public void testProposalPattern_ScenarioOne() throws Exception {
 		logger.info("======================================================");
 		logger.info("Happy Path! Client Sends Proposal to Service 1 & 2 and Proposed Message to Service 1.");
@@ -301,7 +301,7 @@ public class ProposalUseCasesTest {
 	 * Proposal with Attempt Count - Failure
 	 * @throws Exception
 	 */
-	@Test
+/*	@Test
 	public void testProposalPattern_ScenarioTwo() throws Exception {
 		logger.info("======================================================");
 		logger.info("Client Sends Proposal to Service 1 & 2. Both Services Reject. Client Tries 3 Times and Faces a Timeout.");
@@ -332,7 +332,7 @@ public class ProposalUseCasesTest {
 	 * Fail Soft Strategy: Proposed Message with Attempt Count. 
 	 * @throws Exception
 	 */
-	@Test
+/*	@Test
 	public void testProposalPattern_ScenarioThree() throws Exception {
 		logger.info("======================================================");
 		logger.info("Client Sends Proposal to Service 1 & 2. Services Accept, But create Issue during sending Proposed Messages. Client Tries 3 times sending Proposal and ProposedMessage");
@@ -357,7 +357,7 @@ public class ProposalUseCasesTest {
 	 * Fail Soft Strategy: Quit In X Time. 
 	 * @throws Exception
 	 */
-	@Test
+/*	@Test
 	public void testProposalPattern_ScenarioFour() throws Exception {
 
 		logger.info("======================================================");
@@ -392,7 +392,7 @@ public class ProposalUseCasesTest {
 	 * Fail Soft Strategy: Proposed Message with Prioritization of Services. 
 	 * @throws Exception
 	 */
-	@Test
+/*	@Test
 	public void testProposalPattern_ScenarioFive() throws Exception {
 		logger.info("======================================================");
 		logger.info("Client Sends Proposal to Service 1 & 2. After Service 1 creates issue 3 times it deprioritizes 1 and proposes Service 2");
@@ -412,4 +412,4 @@ public class ProposalUseCasesTest {
         Assert.assertFalse(hintPresenter.getProposals().entrySet().stream().anyMatch(entry -> entry.getValue().getProposedMsgs().size() > 0));
 	}
 	
-}
+}*/
