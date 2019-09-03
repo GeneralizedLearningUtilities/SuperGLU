@@ -396,36 +396,10 @@ public class XAPILearnLogger extends BaseService {
 	
 	public void sendCompletedLesson(HashMap<String, JsonElement> contextDict, Date timestamp, boolean fake)
 	{
-		Agent actor = this.createAgent();
-		Activity activity = this.activityTree.findCurrentActivity();
-		Context context = this.addContext(contextDict);
-		
-		this.activityTree.exitActivity();
-		
-		if(timestamp == null)
-		{
-			timestamp = this.getTimestamp();
-		}
-		Verb verb;
-		if(fake)
-		{
-			verb = this.createTerminatedVerb();
-		}
-		else
-		{
-			verb = this.createCompletedVerb();
-		}
-		
-		Statement statement = new Statement(actor, verb, activity);
-		statement.setResult(null);
-		statement.setContext(context);
-		statement.setTimestamp( timestampFormat.format(timestamp));
-		
-		this.sendLoggingMessage(statement);
+		this.sendCompletedLesson(contextDict, timestamp, null, null, null, fake);
 	}
 	
-	
-	public void sendCompletedSublesson(HashMap<String, JsonElement> contextDict, Date timestamp, boolean fake)
+	public void sendCompletedLesson(HashMap<String, JsonElement> contextDict, Date timestamp, Float rawScore, Float minScore, Float maxScore, boolean fake)
 	{
 		Agent actor = this.createAgent();
 		Activity activity = this.activityTree.findCurrentActivity();
@@ -448,7 +422,63 @@ public class XAPILearnLogger extends BaseService {
 		}
 		
 		Statement statement = new Statement(actor, verb, activity);
-		statement.setResult(null);
+		if(rawScore != null)
+		{
+			Result result = new Result();
+			Score score = new Score();
+			score.setRaw(rawScore);
+			score.setMax(maxScore);
+			score.setMin(minScore);
+			statement.setResult(result);
+		}
+		else
+		{
+			statement.setResult(null);
+		}
+		statement.setContext(context);
+		statement.setTimestamp( timestampFormat.format(timestamp));
+		
+		this.sendLoggingMessage(statement);
+	}
+	
+	
+	public void sendCompletedSublesson(HashMap<String, JsonElement> contextDict, Date timestamp, boolean fake)
+	{
+		this.sendCompletedSublesson(contextDict, null, timestamp, fake);
+	}
+	
+	public void sendCompletedSublesson(HashMap<String, JsonElement> contextDict, String choice,  Date timestamp, boolean fake)
+	{
+		Agent actor = this.createAgent();
+		Activity activity = this.activityTree.findCurrentActivity();
+		Context context = this.addContext(contextDict);
+		
+		this.activityTree.exitActivity();
+		
+		if(timestamp == null)
+		{
+			timestamp = this.getTimestamp();
+		}
+		Verb verb;
+		if(fake)
+		{
+			verb = this.createTerminatedVerb();
+		}
+		else
+		{
+			verb = this.createCompletedVerb();
+		}
+		
+		Statement statement = new Statement(actor, verb, activity);
+		
+		if(choice == null)
+			statement.setResult(null);
+		else
+		{
+			Result result = new Result();
+			result.setResponse(choice);
+			statement.setResult(result);
+		}
 		statement.setContext(context);
 		statement.setTimestamp( timestampFormat.format(timestamp));
 		
