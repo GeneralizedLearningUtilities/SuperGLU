@@ -345,7 +345,8 @@ public class BaseMessagingNode {
 		for (BaseMessagingNode node : nodes.values()) {
 			if(!isMessageOnGatewayBlackList(node, msg) && isMessageOnGatewayWhiteList(node, msg))
 				if (node.id != senderId && (node.getMessageConditions() == null || node.getMessageConditions().test(msg)))
-					node.receiveMessage(msg);
+					if(node.receiveMessage(msg))
+						node.handleMessage(msg, senderId);
 		}
 	}
 

@@ -230,7 +230,7 @@ public class ProposalPatternTest {
      *
      * @throws Exception
      */
-    @Test
+   /* @Test
     public void testProposalPattern_ScenarioTwo() throws Exception {
         setupScenarioTwo();
 
@@ -265,7 +265,7 @@ public class ProposalPatternTest {
         Assert.assertEquals("conversation_confirm_proposal", confirmProposalConversationId);
         Assert.assertEquals("senderServiceTwo", confirmProposalServiceId);
 
-    }
+    }*/
     
     /**
      * Scenario - A service sends a proposal, receives Acceptance. Sends Message to Test Fail Soft Strategy 1.

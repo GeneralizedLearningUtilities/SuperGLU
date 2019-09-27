@@ -117,15 +117,7 @@ public abstract class SuperGlu_Serializable {
 
     public SuperGlu_Serializable clone(boolean newId) {
         StorageToken token = this.saveToToken();
-
-        System.out.println("Token saved : ");
-        System.out.println(token.toString());
         SuperGlu_Serializable copy = SuperGlu_Serializable.createFromToken(token);
-
-        System.out.println("Copy : ");
-        System.out.println(copy instanceof NestedAtomic);
-        System.out.println(copy instanceof StorageToken);
-
         if (newId){
             copy.updateId(null);
         }

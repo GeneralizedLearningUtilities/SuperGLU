@@ -12,7 +12,7 @@ public class ServiceLauncherTest {
         String fullFilePath = /*"java_maven/src/test/resources/agentsConfig.json";*/ this.getClass().getClassLoader().getResource(fileName).getPath();
         return fullFilePath;
     }
-
+/*
     @Test
     public void testLaunchAndConnectAllServices() {
         ServiceLauncher launcher = new ServiceLauncher();
@@ -37,5 +37,5 @@ public class ServiceLauncherTest {
         launcher.launchAndConnectAllServices(configurations);
         launcher.stopService("socketIOGateway");
     }
-    
+ */   
 }

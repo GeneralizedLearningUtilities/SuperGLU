@@ -11,6 +11,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
+import edu.usc.ict.superglu.core.BaseMessagingNode;
 import edu.usc.ict.superglu.core.BaseService;
 import edu.usc.ict.superglu.core.Message;
 import edu.usc.ict.superglu.core.MessagingGateway;
@@ -59,7 +60,7 @@ public class XAPILearnLogger extends BaseService {
 	private float secondsAfterLastTimeStamp = 1;
 	private ActivityTree activityTree;
 	
-	public static SimpleDateFormat timestampFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+	public static SimpleDateFormat timestampFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
 	
 	
 	public XAPILearnLogger(MessagingGateway gateway, String userId, String userName, String homePage, String mboxHost)
@@ -429,6 +430,7 @@ public class XAPILearnLogger extends BaseService {
 			score.setRaw(rawScore);
 			score.setMax(maxScore);
 			score.setMin(minScore);
+			result.setScore(score);
 			statement.setResult(result);
 		}
 		else
@@ -485,8 +487,13 @@ public class XAPILearnLogger extends BaseService {
 		this.sendLoggingMessage(statement);
 	}
 	
-	
 	public void sendCompletedTask(HashMap<String, JsonElement> contextDict, Date timestamp, boolean fake)
+	{
+		this.sendCompletedTask(contextDict, timestamp, -1.0f, -1.0f, -1.0f, false);
+	}
+	
+	
+	public void sendCompletedTask(HashMap<String, JsonElement> contextDict, Date timestamp, float rawScore, float minScore, float maxScore, boolean fake)
 	{
 		Agent actor = this.createAgent();
 		Activity activity = this.activityTree.findCurrentActivity();
@@ -509,7 +516,33 @@ public class XAPILearnLogger extends BaseService {
 		}
 		
 		Statement statement = new Statement(actor, verb, activity);
-		statement.setResult(null);
+		
+		Score score;
+		if(rawScore != -1)
+		{		
+
+			score = new Score();
+			score.setRaw(rawScore);
+			score.setMin(minScore);
+			score.setMax(maxScore);
+		}
+		else
+		{
+			score = null;
+		}
+		
+		if(score != null)
+		{
+			Result result = new Result();
+			result.setScore(score);
+			statement.setResult(result);
+		}
+		else
+		{
+			statement.setResult(null);
+		}
+		
+		
 		statement.setContext(context);
 		statement.setTimestamp( timestampFormat.format(timestamp));
 		
@@ -644,8 +677,9 @@ public class XAPILearnLogger extends BaseService {
 		message.setActor("logger");
 		message.setVerb(MessagingVerbConstants.XAPI_LOG_VERB);
 		message.setObj(null);
-		message.setResult(statement.serialize().toString());
+		message.setResult(statement);
 		message.setSpeechAct(SpeechActEnum.INFORM_ACT);
+		message.setContextValue(BaseMessagingNode.ORIGINATING_SERVICE_ID_KEY, this.id);
 		this.sendMessage(message);
 	}
 			
