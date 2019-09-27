@@ -11,6 +11,7 @@ import org.json.simple.JsonObject;
 import org.json.simple.Jsoner;
 
 import edu.usc.ict.superglu.core.BaseMessage;
+import edu.usc.ict.superglu.core.BaseMessagingNode;
 import edu.usc.ict.superglu.core.BaseService;
 import edu.usc.ict.superglu.core.Message;
 import edu.usc.ict.superglu.core.MessagingVerbConstants;
@@ -31,9 +32,9 @@ public class LearnLockerConnection extends BaseService implements Runnable{
 	private String userName;
 	private String password;
 	
-	private StatementClient client; 
-	
-	
+	private StatementClient client;
+
+
 	private List<Statement> statementQueue;
 	private boolean courseEnded = false;
 	private Thread httpConnectionThread;
@@ -97,6 +98,13 @@ public class LearnLockerConnection extends BaseService implements Runnable{
 				this.statementQueue.add((Statement) message.getResult());
 			}
 		}
+	}
+	
+	
+	@Override
+	public void onUnbindToNode(BaseMessagingNode node) {
+		super.onUnbindToNode(node);
+		this.courseEnded = true;
 	}
 
 
