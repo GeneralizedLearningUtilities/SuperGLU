@@ -418,7 +418,7 @@ class xAPILearnLogger(BaseService):
     '''
 
     def addContext(self, tempExtensions = {}):
-        
+
         tempExtensions[ACTIVITY_TREE_URI] = self._Activity_Tree.saveXAPItoJSON()
                                         
         mygrouping = self._Activity_Tree.convertPathToGrouping()
@@ -450,8 +450,8 @@ class xAPILearnLogger(BaseService):
     '''
     # send message to json file (to-do: connecting to learn locker)
     def sendLoggingMessage(self, statement):
-        print(statement.to_json())
         message = Message(actor="logger", verb=XAPI_LOG_VERB, obj=None, result=statement.to_json())
-        with open(self.outputFileName, "a") as file:
-            file.write(statement.to_json() + "\n")
+        if self.outputFileName:
+            with open(self.outputFileName, "a") as file:
+                file.write(statement.to_json() + "\n")
         self.sendMessage(message)
