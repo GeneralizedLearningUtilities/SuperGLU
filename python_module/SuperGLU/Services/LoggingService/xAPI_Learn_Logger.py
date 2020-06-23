@@ -195,11 +195,15 @@ class xAPILearnLogger(BaseService):
         statement = Statement(actor=actor, verb=self.create_started_verb(), object=activity, result=None, context=context, timestamp=timestamp)
         self.sendLoggingMessage(statement)
 
-    def sendStartTask(self, activityID, name, description, contextDict, timestamp=None):
+    def sendStartTask(self, activityID, name, description, contextDict, timestamp=None, parentActivityName=None):
         activity = self.createTask(activityID,name,description)
         actor = self.createAgent()
 
-        self._Activity_Tree.EnterActivity(label = None, activity = activity)
+        if parentActivityName == None:
+            self._Activity_Tree.EnterActivity(label = None, activity = activity)
+        else:
+            parentActivity = self._Activity_Tree.findActivityByName(parentActivityName)
+            self._Activity_Tree.EnterActivity(label= None, activity = None, children=None, parentLabel=None, parentActivity)
               
         context = self.addContext(contextDict)
         if timestamp is None:

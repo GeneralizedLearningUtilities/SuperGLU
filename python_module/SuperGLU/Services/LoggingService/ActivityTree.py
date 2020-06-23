@@ -62,6 +62,19 @@ class ActivityTree(SuperGlu_Serializable):
             return None
         else:
             return self._currentPath[-2]
+        
+    def findActivityByName(self, activityName, subtree=None):
+        if subtree == None:
+            return self.findActivityByName(activityName, self._activityTree)
+        else:
+            if subtree[self.ACTIVITY_INDEX].id == activityName:
+                return subtree[self.ACTIVITY_INDEX]
+            else:
+                for child in subtree[self.CHILDREN_INDEX]:
+                    result = self.findActivityByName(activityName, child)
+                    if result != None:
+                        return result
+                return None 
 
     def simpleActivityTree(self):
         return self.activityTreeToSimple(self._activityTree)
