@@ -203,7 +203,7 @@ class xAPILearnLogger(BaseService):
             self._Activity_Tree.EnterActivity(label = None, activity = activity)
         else:
             parentActivity = self._Activity_Tree.findActivityByName(parentActivityName)
-            self._Activity_Tree.EnterActivity(label= None, activity = None, children=None, parentLabel=None, parentActivity)
+            self._Activity_Tree.EnterActivity(label= None, activity = None, children=None, parentLabel=None, parentActivity=parentActivity)
               
         context = self.addContext(contextDict)
         if timestamp is None:
@@ -211,11 +211,15 @@ class xAPILearnLogger(BaseService):
         statement = Statement(actor=actor, verb=self.create_started_verb(), object=activity, result=None, context=context, timestamp=timestamp)
         self.sendLoggingMessage(statement)
 
-    def sendStartStep(self, activityID, name, description, contextDict, timestamp=None):
+    def sendStartStep(self, activityID, name, description, contextDict, timestamp=None, parentTaskName=None):
         activity = self.createStep(activityID,name,description)
         actor = self.createAgent()
 
-        self._Activity_Tree.EnterActivity(label = None, activity = activity)
+        if parentTaskName != None:
+            parentTask = self._Activity_Tree.findActivityByName(parentTaskName)
+            self._Activity_Tree.EnterActivity(label= None, activity = None, children=None, parentLabel=None, parentActivity=parentTask)
+        else:    
+            self._Activity_Tree.EnterActivity(label = None, activity = activity)
               
         context = self.addContext(contextDict)
         if timestamp is None:
@@ -322,7 +326,7 @@ class xAPILearnLogger(BaseService):
         statement = Statement(actor=actor, verb=verb, object=activity, result=None, context=context, timestamp=timestamp)
         self.sendLoggingMessage(statement)
 
-    def sendCompletedTask(self,choice=None, contextDict={}, resultExtDict=None, raw_score=-1, min_score=0, max_score=-1, timestamp=None, fake=False):
+    def sendCompletedTask(self,choice=None, contextDict={}, resultExtDict=None, raw_score=-1, min_score=0, max_score=-1, timestamp=None, fake=False, taskName=None):
         actor = self.createAgent()
 
         if resultExtDict==None:
@@ -341,7 +345,10 @@ class xAPILearnLogger(BaseService):
             result = None
 
         #Implementing Activity Tree into context
-        activity = self._Activity_Tree.findCurrentActivity()
+        if taskName is not None:
+            activity = self._Activity_Tree.findActivityByName(taskName)
+        else:
+            activity = self._Activity_Tree.findCurrentActivity()
         context = self.addContext(contextDict)
 
         self._Activity_Tree.ExitActivity()
@@ -358,7 +365,7 @@ class xAPILearnLogger(BaseService):
     # work in progress.
     # If a raw_score is provided then a max_score must be provided too.
     # Might want to provide more detailed information relating to the knowledge components involved in the step.
-    def sendCompletedStep(self, choice, contextDict, resultExtDict=None, raw_score=-1, max_score=-1, min_score=0, timestamp=None,fake=False):
+    def sendCompletedStep(self, choice, contextDict, resultExtDict=None, raw_score=-1, max_score=-1, min_score=0, timestamp=None,fake=False,stepName=None):
         actor = self.createAgent()
 
         if resultExtDict==None:
@@ -375,7 +382,10 @@ class xAPILearnLogger(BaseService):
                             extensions = myExtensions)
 
         #Implementing Activity Tree into context
-        activity = self._Activity_Tree.findCurrentActivity()
+        if stepName != None:
+            activity = self._Activity_Tree.findActivityByName(stepName)
+        else:   
+            activity = self._Activity_Tree.findCurrentActivity()
         context = self.addContext(contextDict)
 
         self._Activity_Tree.ExitActivity()

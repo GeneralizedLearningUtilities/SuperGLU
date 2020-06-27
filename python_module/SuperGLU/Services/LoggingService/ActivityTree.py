@@ -7,7 +7,7 @@ from the root node to the last node entered into or removed from the tree).
 '''
 from SuperGLU.Util.Serialization import SuperGlu_Serializable, tokenizeObject, untokenizeObject
 import json
-from tincan import Activity
+from tincan.activity import Activity
 
 class ActivityTree(SuperGlu_Serializable):
     '''This class represents the current state of the user's interaction
