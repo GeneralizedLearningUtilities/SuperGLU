@@ -65,7 +65,7 @@ class ActivityTree(SuperGlu_Serializable):
         
     def findActivityByName(self, activityName, subtree=None):
         if subtree == None:
-            return self.findActivityByName(activityName, self._activityTree)
+            return self.findActivityByName(activityName, self._activityTree[0])
         else:
             if subtree[self.ACTIVITY_INDEX].id == activityName:
                 return subtree[self.ACTIVITY_INDEX]

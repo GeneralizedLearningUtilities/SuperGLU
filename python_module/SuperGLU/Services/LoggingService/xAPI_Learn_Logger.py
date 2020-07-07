@@ -203,7 +203,7 @@ class xAPILearnLogger(BaseService):
             self._Activity_Tree.EnterActivity(label = None, activity = activity)
         else:
             parentActivity = self._Activity_Tree.findActivityByName(parentActivityName)
-            self._Activity_Tree.EnterActivity(label= None, activity = None, children=None, parentLabel=None, parentActivity=parentActivity)
+            self._Activity_Tree.EnterActivity(label= None, activity = activity, children=None, parentLabel=None, parentActivity=parentActivity)
               
         context = self.addContext(contextDict)
         if timestamp is None:
@@ -217,7 +217,7 @@ class xAPILearnLogger(BaseService):
 
         if parentTaskName != None:
             parentTask = self._Activity_Tree.findActivityByName(parentTaskName)
-            self._Activity_Tree.EnterActivity(label= None, activity = None, children=None, parentLabel=None, parentActivity=parentTask)
+            self._Activity_Tree.EnterActivity(label= None, activity = activity, children=None, parentLabel=None, parentActivity=parentTask)
         else:    
             self._Activity_Tree.EnterActivity(label = None, activity = activity)
               
@@ -351,7 +351,7 @@ class xAPILearnLogger(BaseService):
             activity = self._Activity_Tree.findCurrentActivity()
         context = self.addContext(contextDict)
 
-        self._Activity_Tree.ExitActivity()
+        self._Activity_Tree.ExitActivity(activity=activity)
               
         if timestamp is None:
             timestamp = self.getTimestamp()
@@ -388,7 +388,7 @@ class xAPILearnLogger(BaseService):
             activity = self._Activity_Tree.findCurrentActivity()
         context = self.addContext(contextDict)
 
-        self._Activity_Tree.ExitActivity()
+        self._Activity_Tree.ExitActivity(activity=activity)
               
         if timestamp is None:
             timestamp = self.getTimestamp()
