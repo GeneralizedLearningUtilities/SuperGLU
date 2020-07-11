@@ -64,8 +64,13 @@ class ActivityTree(SuperGlu_Serializable):
             return self._currentPath[-2]
         
     def findActivityByName(self, activityName, subtree=None):
+        if len(self._activityTree) == 0:
+            print("empty acctiviyt tree")
         if subtree == None:
-            return self.findActivityByName(activityName, self._activityTree[0])
+            if len(self._activityTree) != 0:
+                return self.findActivityByName(activityName, self._activityTree[0])
+            else:
+                return None
         else:
             if subtree[self.ACTIVITY_INDEX].id == activityName:
                 return subtree[self.ACTIVITY_INDEX]
