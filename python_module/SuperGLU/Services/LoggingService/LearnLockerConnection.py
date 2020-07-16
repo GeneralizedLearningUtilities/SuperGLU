@@ -76,7 +76,7 @@ class LearnLockerConnection(BaseService):
                         
                     self.statements = StatementList()
                     
-                    sleep(60)
+                    sleep(90)
 
                 # write xAPI statement to log file
             #self.logFile.write(statementAsJson)
