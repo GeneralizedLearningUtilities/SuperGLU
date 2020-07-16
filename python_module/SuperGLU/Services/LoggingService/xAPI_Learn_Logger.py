@@ -349,7 +349,7 @@ class xAPILearnLogger(BaseService):
             activity = self._Activity_Tree.findActivityByName(taskName)
         else:
             activity = self._Activity_Tree.findCurrentActivity()
-        context = self.addContext(contextDict)
+        context = self.addContext(contextDict, activity)
 
         self._Activity_Tree.ExitActivity(activity=activity)
               
@@ -431,12 +431,15 @@ class xAPILearnLogger(BaseService):
     @return: context object
     '''
 
-    def addContext(self, tempExtensions = {}):
+    def addContext(self, tempExtensions = {}, currentActivity=None):
 
         tempExtensions[ACTIVITY_TREE_URI] = self._Activity_Tree.saveXAPItoJSON()
                                         
         mygrouping = self._Activity_Tree.convertPathToGrouping()
-        myparent = self._Activity_Tree.findParentActivity()
+        if currentActivity == None:
+            myparent = self._Activity_Tree.findParentActivity()
+        else:
+            myparent = self._Activity_Tree.findParentActivityByChild(currentActivity) 
 
         #Defining a TinCan Context object
         if len(mygrouping)==0 and myparent == None:

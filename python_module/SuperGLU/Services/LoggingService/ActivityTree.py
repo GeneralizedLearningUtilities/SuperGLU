@@ -9,6 +9,7 @@ from SuperGLU.Util.Serialization import SuperGlu_Serializable, tokenizeObject, u
 import json
 from tincan.activity import Activity
 
+
 class ActivityTree(SuperGlu_Serializable):
     '''This class represents the current state of the user's interaction
     with the software.  Users enter into activities and nodes are
@@ -63,9 +64,29 @@ class ActivityTree(SuperGlu_Serializable):
         else:
             return self._currentPath[-2]
         
+    def findParentActivityByChild(self, childActivity, parentActivity=None, subtree=None):
+        if len(self._activityTree) == 0:
+            print("empty acctiviyt tree")
+            return None
+        if subtree == None:
+            if len(self._activityTree) != 0:
+                return self.findParentActivityByChild(childActivity, None, self._activityTree[0])
+            else:
+                return None
+        else:
+            if subtree[self.ACTIVITY_INDEX].id == childActivity.id:
+                return parentActivity
+            else:
+                for currentChild in subtree[self.CHILDREN_INDEX]:
+                    result = self.findParentActivityByChild(childActivity, subtree[self.ACTIVITY_INDEX], currentChild)
+                    if result != None:
+                        return result
+                return None
+        
     def findActivityByName(self, activityName, subtree=None):
         if len(self._activityTree) == 0:
             print("empty acctiviyt tree")
+            return None
         if subtree == None:
             if len(self._activityTree) != 0:
                 return self.findActivityByName(activityName, self._activityTree[0])
