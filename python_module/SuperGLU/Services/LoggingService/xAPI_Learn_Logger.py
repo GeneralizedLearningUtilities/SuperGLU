@@ -291,7 +291,7 @@ class xAPILearnLogger(BaseService):
         statement = Statement(actor=actor, verb=self.create_terminated_verb(), object=activity, result=None, context=context, timestamp=timestamp)
         self.sendLoggingMessage(statement)
 
-    def sendCompletedLesson(self, contextDict, timestamp=None, fake=False):
+    def sendCompletedLesson(self, contextDict, timestamp=None, fake=False, winner=None):
         actor = self.createAgent()
 
         #Implementing Activity Tree into context
@@ -299,6 +299,11 @@ class xAPILearnLogger(BaseService):
         context = self.addContext(contextDict)
 
         self._Activity_Tree.ExitActivity()
+        
+        if winner !=None:
+            result = Result(response=winner)
+        else:
+            result = None
               
         if timestamp is None:
             timestamp = self.getTimestamp()
@@ -306,7 +311,7 @@ class xAPILearnLogger(BaseService):
             verb = self.create_terminated_verb()
         else:
             verb = self.create_completed_verb()
-        statement = Statement(actor=actor, verb=verb, object=activity, result=None, context=context, timestamp=timestamp)
+        statement = Statement(actor=actor, verb=verb, object=activity, result=result, context=context, timestamp=timestamp)
         self.sendLoggingMessage(statement)
 
     def sendCompletedSublesson(self, contextDict, timestamp=None, fake=False):
