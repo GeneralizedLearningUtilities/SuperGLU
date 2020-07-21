@@ -69,7 +69,7 @@ class LearnLockerConnection(BaseService):
         
                     
                     print('Warning: ', str(response), response.text)
-                    self.errorLog.write(response.text)
+                    #self.errorLog.write(response.text)
                     self.errorLog.write(str(response))
                     self.errorLog.write("\n")
                     self.errorLog.flush()

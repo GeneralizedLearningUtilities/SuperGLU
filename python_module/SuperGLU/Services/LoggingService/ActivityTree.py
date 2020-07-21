@@ -8,6 +8,7 @@ from the root node to the last node entered into or removed from the tree).
 from SuperGLU.Util.Serialization import SuperGlu_Serializable, tokenizeObject, untokenizeObject
 import json
 from tincan.activity import Activity
+from lib2to3.fixes.fix_next import is_subtree
 
 
 class ActivityTree(SuperGlu_Serializable):
@@ -177,9 +178,34 @@ class ActivityTree(SuperGlu_Serializable):
     def getActivityTree(self):
         return self._activityTree
 
+    def findCurrentPathToActivity(self, workingPath, subtree, activity):
+        if len(self._activityTree) == 0:
+            print("empty acctiviyt tree")
+            return None
+        if subtree == None:
+            if len(self._activityTree) != 0:
+                workingPath.append(self._activityTree[0][self.ACTIVITY_INDEX])
+                return self.findCurrentPathToActivity(workingPath, self._activityTree[0], activity)
+            else:
+                return None
+        else:
+            if subtree[self.ACTIVITY_INDEX].id == activity.id:
+                return workingPath
+            else:
+                for child in subtree[self.CHILDREN_INDEX]:
+                    workingPath.append(child[self.ACTIVITY_INDEX])
+                    result = self.findCurrentPathToActivity(workingPath, child, activity)
+                    if result != None:
+                        return result
+                    else:
+                        workingPath.remove(child[self.ACTIVITY_INDEX])
+                return None 
+    
     # reverse the path (go from specific to general)
     # omit current activity and its parent
-    def convertPathToGrouping(self):
+    def convertPathToGrouping(self, currentActivity=None):
+        if currentActivity != None:
+            self._currentPath = self.findCurrentPathToActivity([], None, currentActivity)
         grouping = []
         if len(self._currentPath)>2:
             # length - 1 = current activity

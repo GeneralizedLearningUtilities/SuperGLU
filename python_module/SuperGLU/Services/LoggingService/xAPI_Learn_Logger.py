@@ -440,7 +440,7 @@ class xAPILearnLogger(BaseService):
 
         tempExtensions[ACTIVITY_TREE_URI] = self._Activity_Tree.saveXAPItoJSON()
                                         
-        mygrouping = self._Activity_Tree.convertPathToGrouping()
+        mygrouping = self._Activity_Tree.convertPathToGrouping(currentActivity)
         if currentActivity == None:
             myparent = self._Activity_Tree.findParentActivity()
         else:
