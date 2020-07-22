@@ -203,14 +203,14 @@ class BaseMessagingNode(SuperGlu_Serializable):
         return result
 
     def sendMessage(self, msg):
-        print("%s sending %s"%(self.__class__.__name__, msg))
+        #print("%s sending %s"%(self.__class__.__name__, msg))
         if self._gateway is not None:
-            print("Actually sent it.")
+            #print("Actually sent it.")
             self._gateway.dispatchMessage(msg, self.getId())
         
            
         self.distributeMessage(msg, msg.getContextValue(ORIGINATING_SERVICE_ID_KEY))
-        logWarning("Message DISTRIBUTED: %s"%(msg,))
+        #logWarning("Message DISTRIBUTED: %s"%(msg,))
 
     def receiveMessage(self, msg):
         if not self.acceptIncomingMessage(msg):
@@ -223,7 +223,7 @@ class BaseMessagingNode(SuperGlu_Serializable):
 
     def _distributeMessage(self, nodes, msg, senderId=None):
         """ Implement passing a message down all interested children (except sender) """
-        print('Currently I am ' + str(self.getId()) + '. And I have ' + str(len(nodes)) + ' in my channel')
+        #print('Currently I am ' + str(self.getId()) + '. And I have ' + str(len(nodes)) + ' in my channel')
         for nodeId in nodes:
             condition = nodes[nodeId][0]
             node = nodes[nodeId][1]
@@ -464,10 +464,10 @@ class MessagingGateway(BaseMessagingNode):
         """ Send a message from a child node to parent and sibling nodes """
         self.addContextDataToMsg(msg)
         msg.setContextValue(ORIGINATING_SERVICE_ID_KEY, senderId)
-        logWarning("Message DISPATCH")
-        logWarning(msg)
+        #logWarning("Message DISPATCH")
+        #logWarning(msg)
         self.sendMessage(msg)
-        logWarning("Message DISPATCH SENT: %s"%(msg,))
+        #logWarning("Message DISPATCH SENT: %s"%(msg,))
        
 
     def addContextDataToMsg(self, msg):
