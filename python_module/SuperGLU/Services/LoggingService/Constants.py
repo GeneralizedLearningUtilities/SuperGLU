@@ -4,6 +4,7 @@ RECOMMENDED_TASKS_VERB = "RecommendedTasks"
 
 XAPI_LOG_VERB = "XAPILogStatement"
 XAPI_FLUSH_LOGGER_VERB = "FlushLogger"
+XAPI_FILE_FINISHED_VERB = "FileFinished"
 
 # Task Performance Verbs
 COMPLETED_VERB = 'Completed'                       # Finished task, return result (e.g., score)
