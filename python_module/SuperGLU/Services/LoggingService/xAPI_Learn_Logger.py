@@ -25,6 +25,7 @@ import uuid
 
 from SuperGLU.Util.Serialization import makeSerialized
 from SuperGLU.Services.LoggingService.ActivityTree import ActivityTree
+from tincan.result import Result
 
 BASE_URI = "https://github.com/GeneralizedLearningUtilities/SuperGLU/"
 
@@ -157,17 +158,22 @@ class xAPILearnLogger(BaseService):
 
     # ************** STARTING AND STOPPING *********************************
 
-    def sendStartSession(self, activityID, name, description, contextDict, timestamp = None):
+    def sendStartSession(self, activityID, name, description, result, contextDict, timestamp = None):
         activity = self.createSession(activityID,name,description)
         actor = self.createAgent()
         
         #Implementing Activity Tree into context
         self._Activity_Tree.EnterActivity(activity = activity, label = None)
-
+        
+        if result != None:
+            resultObj = Result(response=result)
+        else:
+            resultObj = None
+            
         context = self.addContext(contextDict)
         if timestamp is None:
             timestamp = self.getTimestamp()
-        statement = Statement(actor=actor, verb=self.create_started_verb(), object=activity, result=None, context=context, timestamp=timestamp)
+        statement = Statement(actor=actor, verb=self.create_started_verb(), object=activity, result=resultObj, context=context, timestamp=timestamp)
         self.sendLoggingMessage(statement)
 
     def sendStartLesson(self, activityID, name, description, contextDict, timestamp=None):
@@ -370,7 +376,7 @@ class xAPILearnLogger(BaseService):
     # work in progress.
     # If a raw_score is provided then a max_score must be provided too.
     # Might want to provide more detailed information relating to the knowledge components involved in the step.
-    def sendCompletedStep(self, choice, contextDict, resultExtDict=None, raw_score=-1, max_score=-1, min_score=0, timestamp=None,fake=False,stepName=None):
+    def sendCompletedStep(self, choice, contextDict, resultExtDict=None, raw_score=-100, max_score=-1, min_score=0, timestamp=None,fake=False,stepName=None):
         actor = self.createAgent()
 
         if resultExtDict==None:
@@ -378,7 +384,7 @@ class xAPILearnLogger(BaseService):
         else:
             myExtensions = Extensions(resultExtDict)
 
-        if (raw_score != -1):
+        if (raw_score != -100):
             result = Result(response=choice,
                             score = Score(raw=raw_score, min=min_score, max=max_score),
                             extensions =  myExtensions)
@@ -448,8 +454,8 @@ class xAPILearnLogger(BaseService):
 
         #Defining a TinCan Context object
         if len(mygrouping)==0 and myparent == None:
-            context = Context(
-                extensions = Extensions(tempExtensions))
+            context = Context()
+            extensions = Extensions(tempExtensions)
         else:
             if len(mygrouping)==0:
                 mycontextActivities = ContextActivities(parent = myparent)

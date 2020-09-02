@@ -23,7 +23,7 @@ class XAPIFileWriter(BaseService):
 
         if msg.getVerb() == XAPI_FILE_FINISHED_VERB:
             fileName = msg.getObject()
-            f = open("./xapi_logs/" + fileName, "w")
+            f = open("D:/Data/TF2XAPILogs/" + fileName, "w")
             f.write(self.statements.to_json())
             f.close()                
             self.statements = StatementList()
